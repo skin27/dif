@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69f44961607cff0016000031",
+						"name": "queueAsynchronousInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ea24d1ee-5ec5-47bd-bf97-b1c31891a0b0",
+									"type": "source",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ff852b18-80e3-4c76-995f-9bff3f03e0f7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ff852b18-80e3-4c76-995f-9bff3f03e0f7",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message body:\n\nTest succeeded"
+									},
+									"links": {
+										"link": {
+											"id": "ff852b18-80e3-4c76-995f-9bff3f03e0f7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69f44961607cff0016000033",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

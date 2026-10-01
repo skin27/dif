@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1c1d3aaa512000700024a",
+						"name": "xmltojson",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "363e8c8d-dd19-43a2-b8a5-763c23814c0d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "b02d0ac1-0aa3-4bf0-b1ad-9a7e97cecd9d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b02d0ac1-0aa3-4bf0-b1ad-9a7e97cecd9d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<breakfast_menu>\n\t<food>\n\t\t<name>food1</name>\n\t\t<price>1</price>\n\t\t<description>desc1</description>\n\t</food>\n\t<food>\n\t\t<name>food2</name>\n\t\t<price>2</price>\n\t\t<description>desc2</description>\n\t</food>\n\t<food>\n\t\t<name>food3</name>\n\t\t<price>3</price>\n\t\t<description>desc3</description>\n\t</food>\n</breakfast_menu>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b02d0ac1-0aa3-4bf0-b1ad-9a7e97cecd9d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "094c88f4-b341-427e-9d33-7c6b11d3ef71",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "094c88f4-b341-427e-9d33-7c6b11d3ef71",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "094c88f4-b341-427e-9d33-7c6b11d3ef71",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6ed68821-5d20-4329-8563-e5e71277add9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6ed68821-5d20-4329-8563-e5e71277add9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6ed68821-5d20-4329-8563-e5e71277add9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1c1d3aaa512000700024c",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

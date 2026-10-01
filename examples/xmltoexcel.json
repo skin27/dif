@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1c0dcaaa5120007000201",
+						"name": "xmltoexcel",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d012556a-830b-4edb-8864-1a67f1f62b39",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "ecc4dc97-487d-4c37-a6a4-58fc46e23985",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ecc4dc97-487d-4c37-a6a4-58fc46e23985",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<breakfast_menu>\n    <foods>\n        <food>\n            <name>food1</name>\n            <price>1</price>\n            <description>desc1</description>\n        </food>\n        <food>\n            <name>food2</name>\n            <price>2</price>\n            <description>desc2</description>\n        </food>\n        <food>\n            <name>food3</name>\n            <price>3</price>\n            <description>desc3</description>\n        </food>\n    </foods>\n</breakfast_menu>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ecc4dc97-487d-4c37-a6a4-58fc46e23985",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0a756e0c-43e1-4439-9058-43498f2600ae",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0a756e0c-43e1-4439-9058-43498f2600ae",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"orderHeaders": "unordered",
+										"excelFormat": "xlsx",
+										"useCustomWorksheets": false,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJcIixcInhQYXRoRXhwcmVzc2lvblwiOlwiXCJ9Il0=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0a756e0c-43e1-4439-9058-43498f2600ae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5f2a835c-838d-4703-86d9-256a2dcf170b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5f2a835c-838d-4703-86d9-256a2dcf170b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "5f2a835c-838d-4703-86d9-256a2dcf170b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1c0dcaaa5120007000203",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

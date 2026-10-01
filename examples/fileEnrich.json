@@ -1,0 +1,111 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68be7ed31e33920007000031",
+						"name": "fileEnrich",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8117ce22-06b0-4c7d-bb3e-c5a4d45042e1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "3df4035d-1ecd-4c3e-835a-7be949299c53",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3df4035d-1ecd-4c3e-835a-7be949299c53",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3df4035d-1ecd-4c3e-835a-7be949299c53",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "888681d9-b33d-4d68-aa38-e10f3e9669bf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "888681d9-b33d-4d68-aa38-e10f3e9669bf",
+									"type": "action",
+									"uri": "fileenrich:/data/.assimbly/tenants/_new2/tmp/",
+									"options": {
+										"fileName": "test1234.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"recursive": false,
+										"delete": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "888681d9-b33d-4d68-aa38-e10f3e9669bf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b2a51a1b-b455-42aa-a078-f40b3431ad40",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b2a51a1b-b455-42aa-a078-f40b3431ad40",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b2a51a1b-b455-42aa-a078-f40b3431ad40",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68be7ed31e33920007000033",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

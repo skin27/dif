@@ -1,0 +1,134 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c7b45a1e33920007000138",
+						"name": "splitAndAggregate",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "bef3212c-7085-40ef-bfc9-f6a252b72e4a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "dfe1b5c2-6301-4fa9-bccc-a93aa4a6915a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dfe1b5c2-6301-4fa9-bccc-a93aa4a6915a",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t  <person>\n\t\t<name>Pedro Doe</name>\n\t  </person>\n\t  <person>\n\t\t<name>Jane Doe</name>\n\t  </person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dfe1b5c2-6301-4fa9-bccc-a93aa4a6915a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d656383e-236c-4b1b-81a0-cdf6cc5ed834",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d656383e-236c-4b1b-81a0-cdf6cc5ed834",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d656383e-236c-4b1b-81a0-cdf6cc5ed834",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "22d131bb-311b-4b38-9a6f-ca36d145de23",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "3352e611-5e3a-4b03-b00c-049a05bdde6e",
+												"bound": "out",
+												"expression": "/persons/person",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "22d131bb-311b-4b38-9a6f-ca36d145de23",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "22d131bb-311b-4b38-9a6f-ca36d145de23",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3352e611-5e3a-4b03-b00c-049a05bdde6e",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "3352e611-5e3a-4b03-b00c-049a05bdde6e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c7b45a1e3392000700013a",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

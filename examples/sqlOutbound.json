@@ -1,0 +1,127 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c147521e33920007000031",
+						"name": "sqlOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "adcaaaff-83df-4e4b-977d-bd50ea482efd",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "5953f5c7-ef0f-44d8-93c2-07126ecb071f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5953f5c7-ef0f-44d8-93c2-07126ecb071f",
+									"type": "action",
+									"uri": "setheaders:message:5953f5c7-ef0f-44d8-93c2-07126ecb071f",
+									"links": {
+										"link": [
+											{
+												"id": "5953f5c7-ef0f-44d8-93c2-07126ecb071f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "282e787b-79ad-414c-99b8-22fe6abc9c1e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "282e787b-79ad-414c-99b8-22fe6abc9c1e",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "INSERT into transactions (timestamp,breadcrumb_id,server,tenant,environment,flow_id,flow_name,name,value) VALUES ('${header.timestamp}','${header.breadcrumbId}','https://next.dovetail.world','_New2','test','68c147521e33920007000031','sqlOutbound','${header.name}','${header.value}')",
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "HD9z#cpt",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "282e787b-79ad-414c-99b8-22fe6abc9c1e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1bf3ec8b-023d-4143-8135-554aa2fb572d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1bf3ec8b-023d-4143-8135-554aa2fb572d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1bf3ec8b-023d-4143-8135-554aa2fb572d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c147521e33920007000033",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "5953f5c7-ef0f-44d8-93c2-07126ecb071f",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "timestamp",
+							"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd HH:mm:ss}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

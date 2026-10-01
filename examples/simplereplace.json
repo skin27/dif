@@ -1,0 +1,146 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b6a132aaa5120006000068",
+						"name": "simplereplace",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "daaafa3c-c92f-4b62-9489-079cb82bb565",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "4a563fa2-71ef-4380-94b4-62711fed93c5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4a563fa2-71ef-4380-94b4-62711fed93c5",
+									"type": "action",
+									"uri": "setheaders:message:4a563fa2-71ef-4380-94b4-62711fed93c5",
+									"links": {
+										"link": [
+											{
+												"id": "4a563fa2-71ef-4380-94b4-62711fed93c5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d0c38270-11f1-4eb5-9fb0-7beb72a406a0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d0c38270-11f1-4eb5-9fb0-7beb72a406a0",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Hello ${header.name}, welcome to ${header.company}."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d0c38270-11f1-4eb5-9fb0-7beb72a406a0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c69e257b-6cb9-4cea-b3a5-7f4c4bc5705f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c69e257b-6cb9-4cea-b3a5-7f4c4bc5705f",
+									"type": "action",
+									"uri": "simplereplace",
+									"links": {
+										"link": [
+											{
+												"id": "c69e257b-6cb9-4cea-b3a5-7f4c4bc5705f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8c534fe9-20ca-4bf2-8805-2f36d581ee90",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8c534fe9-20ca-4bf2-8805-2f36d581ee90",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8c534fe9-20ca-4bf2-8805-2f36d581ee90",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b6a132aaa512000600006a",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "4a563fa2-71ef-4380-94b4-62711fed93c5",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "name",
+								"value": "Pedro"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "company",
+								"value": "Fluxygen"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

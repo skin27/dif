@@ -1,0 +1,88 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69f44944607cff0016000001",
+						"name": "flowlinkAsynInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c0f23ae4-6935-4ed3-b17f-879b900d6ecb",
+									"type": "source",
+									"uri": "unknown",
+									"options": {
+										"transport": "async"
+									},
+									"links": {
+										"link": {
+											"id": "56e89e17-6fd3-4246-9572-7997a22eb86a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "56e89e17-6fd3-4246-9572-7997a22eb86a",
+									"type": "action",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "56e89e17-6fd3-4246-9572-7997a22eb86a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ece117dd-076f-471f-943b-2a6796e4d132",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ece117dd-076f-471f-943b-2a6796e4d132",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message body:\n\nTest succeeded"
+									},
+									"links": {
+										"link": {
+											"id": "ece117dd-076f-471f-943b-2a6796e4d132",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69f44944607cff0016000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

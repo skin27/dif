@@ -1,0 +1,85 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b70775aaa512000600033b",
+						"name": "scheduler",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8943a4b2-7556-4989-ae75-d6592d93ee36",
+									"type": "source",
+									"uri": "quartz:68b70775aaa512000600033b_timer",
+									"options": {
+										"timeZone": "Europe/Amsterdam",
+										"cron": "0 * * * * ?"
+									},
+									"links": {
+										"link": {
+											"id": "261f33ec-fe87-4142-bced-8f8771a981eb",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "261f33ec-fe87-4142-bced-8f8771a981eb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "261f33ec-fe87-4142-bced-8f8771a981eb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8987eee0-3b5d-43fc-b7c3-0c39b4ea836b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8987eee0-3b5d-43fc-b7c3-0c39b4ea836b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8987eee0-3b5d-43fc-b7c3-0c39b4ea836b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b70775aaa512000600033d",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

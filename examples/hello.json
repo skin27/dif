@@ -1,0 +1,82 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "hello",
+						"name": "hello",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "hello-source",
+									"type": "source",
+									"uri": "message:hello",
+									"links": {
+										"link": {
+											"id": "hello-action",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "hello-action",
+									"type": "action",
+									"uri": "passthrough",
+									"links": {
+										"link": [
+											{
+												"id": "hello-action",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "hello-sink",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "hello-sink",
+									"type": "sink",
+									"uri": "passthrough",
+									"links": {
+										"link": {
+											"id": "hello-sink",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "hello-error",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "hello",
+					"body": "HELLO WORLD",
+					"headers": {
+						"header": {
+							"type": "header",
+							"name": "greeting",
+							"value": "hello"
+						}
+					}
+				}
+			}
+		}
+	}
+}

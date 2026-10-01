@@ -1,0 +1,104 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b173acaaa5120007000017",
+						"name": "textToBase64",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "07ecb33e-9210-40b1-bf47-81cf022240c5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "8cce7aa7-b8ad-4e3a-9e84-45b0a77e2a05",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8cce7aa7-b8ad-4e3a-9e84-45b0a77e2a05",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "12345"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8cce7aa7-b8ad-4e3a-9e84-45b0a77e2a05",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "89932d2c-eada-46ba-a54f-a11dedf8b76f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "89932d2c-eada-46ba-a54f-a11dedf8b76f",
+									"type": "action",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "89932d2c-eada-46ba-a54f-a11dedf8b76f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "112dbbd9-1c23-4dc1-b6ec-3dd51a33f21e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "112dbbd9-1c23-4dc1-b6ec-3dd51a33f21e",
+									"type": "sink",
+									"uri": "texttobase64",
+									"links": {
+										"link": {
+											"id": "112dbbd9-1c23-4dc1-b6ec-3dd51a33f21e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b173acaaa5120007000019",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

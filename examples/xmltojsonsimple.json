@@ -1,0 +1,111 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1c2f2aaa5120007000299",
+						"name": "xmltojsonsimple",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a2bc629e-a3cd-4b0c-a0c4-f3c3215e7ffb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "e8882180-b38f-4b8b-ba4d-eb522f5a4d6f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e8882180-b38f-4b8b-ba4d-eb522f5a4d6f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<breakfast_menu>\n\t<food>\n\t\t<name>food1</name>\n\t\t<price>1</price>\n\t\t<description>desc1</description>\n\t</food>\n\t<food>\n\t\t<name>food2</name>\n\t\t<price>2</price>\n\t\t<description>desc2</description>\n\t</food>\n\t<food>\n\t\t<name>food3</name>\n\t\t<price>3</price>\n\t\t<description>desc3</description>\n\t</food>\n</breakfast_menu>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e8882180-b38f-4b8b-ba4d-eb522f5a4d6f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a667e2f-d60f-4a62-a650-413d8d219477",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a667e2f-d60f-4a62-a650-413d8d219477",
+									"type": "action",
+									"uri": "xmltojsonsimple",
+									"options": {
+										"keepStrings": true,
+										"removeNamespaces": true,
+										"removeRoot": true,
+										"hasTypes": true,
+										"typeValueMismatch": "NULL"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6a667e2f-d60f-4a62-a650-413d8d219477",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "73b08f5a-6ebc-43aa-9251-976cbaa2fb3c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "73b08f5a-6ebc-43aa-9251-976cbaa2fb3c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "73b08f5a-6ebc-43aa-9251-976cbaa2fb3c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1c2f2aaa512000700029b",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

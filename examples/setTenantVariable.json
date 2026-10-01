@@ -1,0 +1,115 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "692d9ff0a61899000c0000c2",
+						"name": "setTenantVariable",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9ac70b89-c08c-4acc-817a-836c05773f4d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "73105c15-932d-41a3-b8d7-9fb26a786c29",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "73105c15-932d-41a3-b8d7-9fb26a786c29",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SetTenantVariable"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "73105c15-932d-41a3-b8d7-9fb26a786c29",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bc1646aa-6084-415b-9d35-6da86263cc95",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bc1646aa-6084-415b-9d35-6da86263cc95",
+									"type": "action",
+									"uri": "settenantvariable:MyTenantVariable",
+									"options": {
+										"language": "simple",
+										"value": "TXlWYWx1ZQ==",
+										"encrypt": false,
+										"flowName": "setTenantVariable",
+										"tenantDbName": "_new2"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bc1646aa-6084-415b-9d35-6da86263cc95",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2db2827e-946e-47ff-a590-42d07fda1733",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2db2827e-946e-47ff-a590-42d07fda1733",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "2db2827e-946e-47ff-a590-42d07fda1733",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "692d9ff0a61899000c0000c4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

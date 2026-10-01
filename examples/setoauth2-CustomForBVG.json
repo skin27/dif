@@ -1,0 +1,65 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69317252bb703e001100008b",
+						"name": "setoauth2-CustomForBVG",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b9332ab2-3ccb-4ed9-8b41-848295f2ddca",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": "-1",
+										"period": "60000"
+									},
+									"links": {
+										"link": {
+											"id": "9ee0fae2-9139-4809-a257-1010d7e0daf3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9ee0fae2-9139-4809-a257-1010d7e0daf3",
+									"type": "sink",
+									"uri": "oauth2token:9ee0fae2-9139-4809-a257-1010d7e0daf3",
+									"options": {
+										"tokenName": "accessToken_StaticTenantVariable,GmailAccessToken",
+										"tenantDbName": "_new2"
+									},
+									"links": {
+										"link": {
+											"id": "9ee0fae2-9139-4809-a257-1010d7e0daf3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69317252bb703e001100008d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,84 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b8401faaa512000700006b",
+						"name": "removeCookie",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "aa0a86b2-bdaa-4b8d-9151-b84c91751f94",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "f4f72d2f-0367-447b-adb9-0b95b1b32c7a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f4f72d2f-0367-447b-adb9-0b95b1b32c7a",
+									"type": "action",
+									"uri": "removecookie",
+									"options": {
+										"name": "MyCookie",
+										"domain": "fluxygen.com"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f4f72d2f-0367-447b-adb9-0b95b1b32c7a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "72904067-86c2-4335-b01e-e898c5398073",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "72904067-86c2-4335-b01e-e898c5398073",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "finished"
+									},
+									"links": {
+										"link": {
+											"id": "72904067-86c2-4335-b01e-e898c5398073",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b8401faaa512000700006d",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

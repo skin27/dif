@@ -1,0 +1,136 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68ecfa0dd1bc310007000019",
+						"name": "headerstopdf",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9f918cd5-4c48-4d63-abeb-d9d533138d93",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "febbe690-ad75-4e83-b562-9671f1e8465f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "febbe690-ad75-4e83-b562-9671f1e8465f",
+									"type": "action",
+									"uri": "setheaders:message:febbe690-ad75-4e83-b562-9671f1e8465f",
+									"links": {
+										"link": [
+											{
+												"id": "febbe690-ad75-4e83-b562-9671f1e8465f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c0dc1244-924b-4dde-9ce1-18d4fd5d3206",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c0dc1244-924b-4dde-9ce1-18d4fd5d3206",
+									"type": "action",
+									"uri": "unknown",
+									"options": {
+										"uuid": "e222041a-994e-4ef7-8f63-690983037868"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c0dc1244-924b-4dde-9ce1-18d4fd5d3206",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "110423b6-60b5-4e30-acd5-1ca1222f782c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "110423b6-60b5-4e30-acd5-1ca1222f782c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "110423b6-60b5-4e30-acd5-1ca1222f782c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68ecfa0dd1bc31000700001b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "febbe690-ad75-4e83-b562-9671f1e8465f",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "name",
+								"value": "John Doe"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "address",
+								"value": "Main street 1"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "zip",
+								"value": "10000, Springfield"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

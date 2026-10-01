@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b84957aaa5120007000135",
+						"name": "multipart",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "23b1213f-1f04-4f38-8f42-bda73284eb21",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "4bff9b4a-7432-4bb1-931c-eb2ae4c6d043",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4bff9b4a-7432-4bb1-931c-eb2ae4c6d043",
+									"type": "action",
+									"uri": "setheaders:message:4bff9b4a-7432-4bb1-931c-eb2ae4c6d043",
+									"links": {
+										"link": [
+											{
+												"id": "4bff9b4a-7432-4bb1-931c-eb2ae4c6d043",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7d9a1273-4b97-4fd1-a6e3-99923f3e5387",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7d9a1273-4b97-4fd1-a6e3-99923f3e5387",
+									"type": "action",
+									"uri": "multipart",
+									"options": {
+										"fname": "SecondPart"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7d9a1273-4b97-4fd1-a6e3-99923f3e5387",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "72d411fb-6ebc-4579-944a-48eb35f18789",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "72d411fb-6ebc-4579-944a-48eb35f18789",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "72d411fb-6ebc-4579-944a-48eb35f18789",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b84957aaa5120007000137",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "4bff9b4a-7432-4bb1-931c-eb2ae4c6d043",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "Content-Type",
+							"value": "multipart/form-data"
+						}
+					}
+				}
+			}
+		}
+	}
+}

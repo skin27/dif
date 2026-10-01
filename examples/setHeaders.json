@@ -1,0 +1,132 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b6e1dbaaa512000600011d",
+						"name": "setHeaders",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "005ee147-a93a-40cd-8d18-09fb775d09d1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "465a8094-63b4-4b01-bb3e-ecc64c0515ad",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "465a8094-63b4-4b01-bb3e-ecc64c0515ad",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "465a8094-63b4-4b01-bb3e-ecc64c0515ad",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "09ac7845-3435-4cdd-8dfb-69cadb1a9601",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "09ac7845-3435-4cdd-8dfb-69cadb1a9601",
+									"type": "action",
+									"uri": "setheaders:message:09ac7845-3435-4cdd-8dfb-69cadb1a9601",
+									"links": {
+										"link": [
+											{
+												"id": "09ac7845-3435-4cdd-8dfb-69cadb1a9601",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "63ace1c5-f491-40ff-809f-dc4f915c5908",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "63ace1c5-f491-40ff-809f-dc4f915c5908",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Headers:\n\nLastname: ${headers.lastName}\nFirtname:  ${headers.firstName}\n\nMessage Body:\n\n${bodyAs(String)}\n\nRandom number:\n\n${headers.random}"
+									},
+									"links": {
+										"link": {
+											"id": "63ace1c5-f491-40ff-809f-dc4f915c5908",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b6e1dbaaa512000600011f",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "09ac7845-3435-4cdd-8dfb-69cadb1a9601",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "firstName",
+								"value": "John"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "lastName",
+								"value": "Doe"
+							},
+							{
+								"type": "header",
+								"language": "groovy",
+								"name": "random",
+								"value": "new Random().nextInt(10)"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

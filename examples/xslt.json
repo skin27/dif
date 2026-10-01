@@ -1,0 +1,106 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1c467aaa51200070002e8",
+						"name": "xslt",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5035bc06-e65d-49aa-bfdd-17d717de01e7",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "0cc83b56-fb68-40af-9a96-3efb02457287",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0cc83b56-fb68-40af-9a96-3efb02457287",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0cc83b56-fb68-40af-9a96-3efb02457287",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3c919422-ea9a-4bc8-8142-43b814d0a69e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3c919422-ea9a-4bc8-8142-43b814d0a69e",
+									"type": "action",
+									"uri": "unknown",
+									"options": {
+										"stylesheet": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n\t<xsl:output method=\"xml\" indent=\"yes\"/>\n\t<xsl:template match=\"/\">\n\t\t<root>\n\t\t\t<xsl:apply-templates select=\"persons\"/>\n\t\t</root>\n\t</xsl:template>\n\t<xsl:template match=\"persons/person/name\">\n\t\t<div style=\"color:green\">\n\t\t\t<xsl:value-of select=\".\"/>\n\t\t</div>\n\t</xsl:template>\n</xsl:stylesheet>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3c919422-ea9a-4bc8-8142-43b814d0a69e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e1bbc23f-fe8c-4abd-bfbc-46b28def1cd6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e1bbc23f-fe8c-4abd-bfbc-46b28def1cd6",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "e1bbc23f-fe8c-4abd-bfbc-46b28def1cd6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1c467aaa51200070002ea",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

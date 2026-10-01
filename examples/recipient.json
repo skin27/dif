@@ -1,0 +1,174 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b6c70aaaa51200060000ca",
+						"name": "recipient",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ffdd9edb-bdab-4491-b272-0643fb3b29ae",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "3fc1b8b0-a37f-4ca6-9896-7f63fb80ba9d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3fc1b8b0-a37f-4ca6-9896-7f63fb80ba9d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3fc1b8b0-a37f-4ca6-9896-7f63fb80ba9d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "854f9489-c761-4497-af78-9db67b993115",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "854f9489-c761-4497-af78-9db67b993115",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "854f9489-c761-4497-af78-9db67b993115",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3495d050-46c0-406e-b934-3ee5f90c4e25",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "4598dec5-7832-415b-a301-b46394dc5ba7",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3495d050-46c0-406e-b934-3ee5f90c4e25",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "upperbranch"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3495d050-46c0-406e-b934-3ee5f90c4e25",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3938140d-8310-4eb3-9b73-69331f93edcb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3938140d-8310-4eb3-9b73-69331f93edcb",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "3938140d-8310-4eb3-9b73-69331f93edcb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4598dec5-7832-415b-a301-b46394dc5ba7",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "lowerbranch"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4598dec5-7832-415b-a301-b46394dc5ba7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "64db11ff-ed00-42e2-987e-583de20b6434",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "64db11ff-ed00-42e2-987e-583de20b6434",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "64db11ff-ed00-42e2-987e-583de20b6434",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b6c70aaaa51200060000cc",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

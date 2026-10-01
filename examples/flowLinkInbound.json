@@ -1,0 +1,84 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c2dfb31e33920007000001",
+						"name": "flowLinkInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6e65d70b-d796-4fbb-8b3b-4d7166cba2aa",
+									"type": "source",
+									"uri": "unknown",
+									"options": {
+										"transport": "async"
+									},
+									"links": {
+										"link": {
+											"id": "380a6718-8aa3-4ef6-a33e-b9eda865b89b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "380a6718-8aa3-4ef6-a33e-b9eda865b89b",
+									"type": "action",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "380a6718-8aa3-4ef6-a33e-b9eda865b89b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a4585921-1a48-4212-9945-1bed378337fd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a4585921-1a48-4212-9945-1bed378337fd",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message body:\n\nTest succeeded"
+									},
+									"links": {
+										"link": {
+											"id": "a4585921-1a48-4212-9945-1bed378337fd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c2dfb31e33920007000003",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

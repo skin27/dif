@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c147601e3392000700004a",
+						"name": "rabbitmqInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "2c320430-4ba7-4a29-b95e-f82fa116b6d6",
+									"type": "source",
+									"uri": "rabbitmq:amq.direct",
+									"options": {
+										"exchangeType": "direct",
+										"routingKey": "dev.test.inbound.with.routingkey",
+										"queues": "dev.test.inbound",
+										"autoDelete": false,
+										"durable": false,
+										"useErrorRoute": true,
+										"exchangePattern": "InOut"
+									},
+									"blocks": {
+										"block": {
+											"id": "2c320430-4ba7-4a29-b95e-f82fa116b6d6_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "20c446c6-811c-4712-8c71-efd0a18d62dd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "20c446c6-811c-4712-8c71-efd0a18d62dd",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "20c446c6-811c-4712-8c71-efd0a18d62dd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c147601e3392000700004c",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"type": "rabbitmq",
+					"keys": {
+						"host": "api-testing.dovetail.world",
+						"vhost": "/",
+						"port": "5672",
+						"username": "dovetail",
+						"password": "RyfYr!f9tLQdj6"
+					},
+					"id": "2c320430-4ba7-4a29-b95e-f82fa116b6d6_connection",
+					"name": "rabbitmq"
+				}
+			}
+		}
+	}
+}

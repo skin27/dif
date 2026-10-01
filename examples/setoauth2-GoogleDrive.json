@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "691d9f38a5527e0014000001",
+						"name": "setoauth2-GoogleDrive",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5bea6276-330c-4f4c-b5b2-f96add0a92a8",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "a75f1bad-9da9-4d4a-90af-43b8bbd6ee3c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a75f1bad-9da9-4d4a-90af-43b8bbd6ee3c",
+									"type": "sink",
+									"uri": "oauth2token:a75f1bad-9da9-4d4a-90af-43b8bbd6ee3c",
+									"options": {
+										"expiryDelay": "60",
+										"tokenName": "GoogleDriveAccessToken",
+										"tenantDbName": "_new2"
+									},
+									"links": {
+										"link": {
+											"id": "a75f1bad-9da9-4d4a-90af-43b8bbd6ee3c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "691d9f38a5527e0014000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

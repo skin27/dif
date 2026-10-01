@@ -1,0 +1,87 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "692da1bda61899000c0000f4",
+						"name": "removeTenantVariable",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ea14e1ae-2ffd-42bd-913d-f330c621f467",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "47ac44a4-3fb7-484b-9016-1b815273bb6c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "47ac44a4-3fb7-484b-9016-1b815273bb6c",
+									"type": "action",
+									"uri": "removetenantvariable:MyTenantVariable",
+									"options": {
+										"tenantDbName": "_new2"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "47ac44a4-3fb7-484b-9016-1b815273bb6c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "57825d82-9bcf-4b8a-b3fe-a318d4086a44",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "57825d82-9bcf-4b8a-b3fe-a318d4086a44",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Removal finished"
+									},
+									"links": {
+										"link": {
+											"id": "57825d82-9bcf-4b8a-b3fe-a318d4086a44",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "692da1bda61899000c0000f6",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,108 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b959d7aaa5120007000157",
+						"name": "csvtoxml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8df6457b-e239-47ea-94e3-bcbb74ef585b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "3ec2a2a7-0185-47f0-95f1-ca8ee01a122e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3ec2a2a7-0185-47f0-95f1-ca8ee01a122e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "firstname|lastname|age\nJoe|Foo|21\nJohn|Doe|30\nBruno|Gonçalves|44"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3ec2a2a7-0185-47f0-95f1-ca8ee01a122e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5b0b1daf-d969-4a80-adeb-07e25bf044c6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5b0b1daf-d969-4a80-adeb-07e25bf044c6",
+									"type": "action",
+									"uri": "csvtoxml",
+									"options": {
+										"delimiter": "|",
+										"useHeader": true,
+										"encoding": "UTF-16"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5b0b1daf-d969-4a80-adeb-07e25bf044c6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d3e2d9bb-d3dc-42e0-98c6-9a22981d0909",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d3e2d9bb-d3dc-42e0-98c6-9a22981d0909",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "d3e2d9bb-d3dc-42e0-98c6-9a22981d0909",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b959d7aaa5120007000159",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

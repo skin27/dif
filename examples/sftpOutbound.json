@@ -1,0 +1,92 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68be98791e33920007000096",
+						"name": "sftpOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "04a9f08c-df38-4e11-80ce-a1d695eee367",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "2df7fe6f-25ea-4544-8f1a-671bc0016701",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2df7fe6f-25ea-4544-8f1a-671bc0016701",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2df7fe6f-25ea-4544-8f1a-671bc0016701",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4f57ff33-81f2-4782-9aa6-8bec9d6bdc1e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4f57ff33-81f2-4782-9aa6-8bec9d6bdc1e",
+									"type": "sink",
+									"uri": "ftp:api-testing.dovetail.world:2121/development/_New2/test/out/",
+									"options": {
+										"fileName": "ComponentTest.txt",
+										"binary": false,
+										"charset": "utf-8",
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"implicit": false,
+										"passiveMode": true,
+										"disconnect": true,
+										"autoCreate": true
+									},
+									"links": {
+										"link": {
+											"id": "4f57ff33-81f2-4782-9aa6-8bec9d6bdc1e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68be98791e33920007000098",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

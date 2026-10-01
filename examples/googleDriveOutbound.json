@@ -1,0 +1,147 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69319540bb703e0017000103",
+						"name": "googleDriveOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "292449b2-1c90-4c07-b17f-2815ac3bbd13",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "77a0f09c-f593-4a15-a64f-6d2b63b9e0d1",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "77a0f09c-f593-4a15-a64f-6d2b63b9e0d1",
+									"type": "action",
+									"uri": "setheaders:message:77a0f09c-f593-4a15-a64f-6d2b63b9e0d1",
+									"links": {
+										"link": [
+											{
+												"id": "77a0f09c-f593-4a15-a64f-6d2b63b9e0d1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2e9236ae-aec3-457e-9cc9-d1a525f4341c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2e9236ae-aec3-457e-9cc9-d1a525f4341c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2e9236ae-aec3-457e-9cc9-d1a525f4341c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b35944f1-47b3-4c66-a8bd-1757ee8b4d03",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b35944f1-47b3-4c66-a8bd-1757ee8b4d03",
+									"type": "action",
+									"uri": "googledrive:1HYnwLTICJPLGbPL4AUcUJC-cRuGeTrG3",
+									"options": {
+										"accessToken": "@{GoogleDriveAccessToken_Temp}",
+										"flowId": "69319540bb703e0017000103",
+										"tenant": "_new2"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b35944f1-47b3-4c66-a8bd-1757ee8b4d03",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bac255c0-22a7-4cc3-a9b8-42b55fa5f052",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bac255c0-22a7-4cc3-a9b8-42b55fa5f052",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "bac255c0-22a7-4cc3-a9b8-42b55fa5f052",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69319540bb703e0017000105",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "77a0f09c-f593-4a15-a64f-6d2b63b9e0d1",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "CamelFileName",
+							"value": "BrunoDIL.txt"
+						}
+					}
+				}
+			}
+		}
+	}
+}

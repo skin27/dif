@@ -1,0 +1,165 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c147691e33920007000063",
+						"name": "rabbitmqOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8327969f-356e-4aa6-a4a7-50794aedb6f0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "f64aa6ca-7e88-45c5-8efb-f5736c141aeb",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f64aa6ca-7e88-45c5-8efb-f5736c141aeb",
+									"type": "action",
+									"uri": "setheaders:message:f64aa6ca-7e88-45c5-8efb-f5736c141aeb",
+									"links": {
+										"link": [
+											{
+												"id": "f64aa6ca-7e88-45c5-8efb-f5736c141aeb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ee1ee83e-7871-444c-8275-dab6558bf309",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ee1ee83e-7871-444c-8275-dab6558bf309",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "a new message body "
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ee1ee83e-7871-444c-8275-dab6558bf309",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d93d9236-266e-4b12-a926-48889b776f90",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d93d9236-266e-4b12-a926-48889b776f90",
+									"type": "action",
+									"uri": "rabbitmq:amq.direct",
+									"options": {
+										"exchangeType": "direct",
+										"routingKey": "123",
+										"queues": "dev.test.outbound",
+										"autoDelete": true,
+										"durable": true
+									},
+									"blocks": {
+										"block": {
+											"id": "d93d9236-266e-4b12-a926-48889b776f90_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d93d9236-266e-4b12-a926-48889b776f90",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "880ac134-8ed4-4176-a330-72824008834a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "880ac134-8ed4-4176-a330-72824008834a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "880ac134-8ed4-4176-a330-72824008834a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c147691e33920007000065",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "f64aa6ca-7e88-45c5-8efb-f5736c141aeb",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "messageHeader",
+							"value": "messageHeader"
+						}
+					}
+				}
+			},
+			"connections": {
+				"connection": {
+					"type": "rabbitmq",
+					"keys": {
+						"host": "api-testing.dovetail.world",
+						"vhost": "/",
+						"port": "5672",
+						"username": "dovetail",
+						"password": "RyfYr!f9tLQdj6"
+					},
+					"id": "d93d9236-266e-4b12-a926-48889b776f90_connection",
+					"name": "rabbitmq"
+				}
+			}
+		}
+	}
+}

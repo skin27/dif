@@ -1,0 +1,111 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b851b1aaa512000700023f",
+						"name": "jsontoxmlsimple",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "18e86659-b508-467a-9e7b-629b8eb1f79c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "df840492-1d6e-4d85-ba3c-22e43c9943ae",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "df840492-1d6e-4d85-ba3c-22e43c9943ae",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"Formula1\": {\n    \"Drivers\": {\n      \"Driver\": [\n        {\n          \"Age\": 19,\n          \"Name\": \"Max Verstappen\"\n        },\n        {\n          \"Age\": 30,\n          \"Name\": \"Nico Hulkenberg\"\n        }\n      ]\n    },\n    \"Teams\": {\n      \"Team\": [\n        {\n          \"Principal\": \"Christian Horner\",\n          \"Name\": \"Redbull Racing\"\n        },\n        {\n          \"Principal\": \"Carlos Ghosn\",\n          \"Name\": \"Renault\"\n        }\n      ]\n    }\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "df840492-1d6e-4d85-ba3c-22e43c9943ae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "93fe5570-f04a-454f-9ccf-fbd421a20c82",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "93fe5570-f04a-454f-9ccf-fbd421a20c82",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": false,
+										"rootTag": "root",
+										"checkJsonKeys": "false",
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "93fe5570-f04a-454f-9ccf-fbd421a20c82",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0350e11d-1c40-405a-9bb5-30af7fea77be",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0350e11d-1c40-405a-9bb5-30af7fea77be",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0350e11d-1c40-405a-9bb5-30af7fea77be",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b851b1aaa5120007000241",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

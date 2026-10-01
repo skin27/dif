@@ -1,0 +1,108 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b959c9aaa5120007000125",
+						"name": "encoder",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f4caa905-1da4-43fa-bfe5-ebf1bd35c5f7",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "707edef0-ca65-42cf-bb54-16641ce29cfb",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "707edef0-ca65-42cf-bb54-16641ce29cfb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Joyeux Noël "
+									},
+									"links": {
+										"link": [
+											{
+												"id": "707edef0-ca65-42cf-bb54-16641ce29cfb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b43b7928-a001-4c95-af6c-70c992d2654c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b43b7928-a001-4c95-af6c-70c992d2654c",
+									"type": "action",
+									"uri": "encoder",
+									"options": {
+										"originCharset": "UTF-8",
+										"targetCharset": "UTF-8"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b43b7928-a001-4c95-af6c-70c992d2654c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9c35deee-2b66-4b8f-8045-589fb5a5536e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9c35deee-2b66-4b8f-8045-589fb5a5536e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "9c35deee-2b66-4b8f-8045-589fb5a5536e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b959c9aaa5120007000127",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

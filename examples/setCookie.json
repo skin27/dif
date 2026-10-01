@@ -1,0 +1,86 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b6bf1aaaa512000600009a",
+						"name": "setCookie",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "71bb0b35-99d8-4678-9f2f-8c3de51bc89b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "d40ac1f7-a97e-4941-90ce-3fa184505fc3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d40ac1f7-a97e-4941-90ce-3fa184505fc3",
+									"type": "action",
+									"uri": "setcookie",
+									"options": {
+										"name": "MyCookie",
+										"value": "MyCookie",
+										"domain": "fluxygen.com",
+										"isSecure": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d40ac1f7-a97e-4941-90ce-3fa184505fc3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "82c6ca59-0896-4d28-a5f2-f480b1f11545",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "82c6ca59-0896-4d28-a5f2-f480b1f11545",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test finished"
+									},
+									"links": {
+										"link": {
+											"id": "82c6ca59-0896-4d28-a5f2-f480b1f11545",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b6bf1aaaa512000600009c",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

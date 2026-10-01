@@ -1,0 +1,131 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c903031e33920007000000",
+						"name": "contentrouter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "12f6c026-c894-4ef2-9274-f4dc0748e1f2",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "9c8c1aec-9cd4-4174-a43e-d8aba8d8eeb1",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9c8c1aec-9cd4-4174-a43e-d8aba8d8eeb1",
+									"type": "router",
+									"uri": "content",
+									"links": {
+										"link": [
+											{
+												"id": "9c8c1aec-9cd4-4174-a43e-d8aba8d8eeb1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ec2066f1-24b3-4b42-ba28-2d2f1bb6d424",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "a70ccc99-b2a4-49de-a5e8-3cf4c1de871d",
+												"bound": "out",
+												"expression": "$.store.book[*].author",
+												"language": "jsonpath",
+												"pattern": "InOut",
+												"rule": "234",
+												"transport": "sync"
+											},
+											{
+												"id": "b6745c2e-3861-4eae-a401-ebe29edff7f2",
+												"bound": "out",
+												"expression": "${bodyAs(String)} == '123'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "123",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ec2066f1-24b3-4b42-ba28-2d2f1bb6d424",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body Otherwise:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "ec2066f1-24b3-4b42-ba28-2d2f1bb6d424",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a70ccc99-b2a4-49de-a5e8-3cf4c1de871d",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body 234 (xpath):\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "a70ccc99-b2a4-49de-a5e8-3cf4c1de871d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b6745c2e-3861-4eae-a401-ebe29edff7f2",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body 123:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "b6745c2e-3861-4eae-a401-ebe29edff7f2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c903031e33920007000002",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

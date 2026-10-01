@@ -1,0 +1,86 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68bb13651e33920007000168",
+						"name": "fileOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "dbcc2e21-758b-4d0b-a381-bc6018376b47",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "f1a5d330-f698-4090-8d46-82b06e8e0131",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f1a5d330-f698-4090-8d46-82b06e8e0131",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "5678"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f1a5d330-f698-4090-8d46-82b06e8e0131",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "67ad0ec2-f6bb-4f46-a403-c040bc0d1780",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "67ad0ec2-f6bb-4f46-a403-c040bc0d1780",
+									"type": "sink",
+									"uri": "file:/data/.assimbly/tenants/_new2/tmp",
+									"options": {
+										"fileName": "test1234.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Append"
+									},
+									"links": {
+										"link": {
+											"id": "67ad0ec2-f6bb-4f46-a403-c040bc0d1780",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68bb13651e3392000700016a",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

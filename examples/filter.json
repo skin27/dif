@@ -1,0 +1,107 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68cd1586eb49c3000700011a",
+						"name": "filter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "96ee5107-83e2-4bbb-ac85-ba4fc5806c31",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "38905c94-bd65-499c-81ef-2b1cbdcf06c0",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "38905c94-bd65-499c-81ef-2b1cbdcf06c0",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Do</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "38905c94-bd65-499c-81ef-2b1cbdcf06c0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "19070121-448f-47b7-996c-694b0ae0ad02",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "19070121-448f-47b7-996c-694b0ae0ad02",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"expression": "/persons/person/name= 'John Doe'",
+										"language": "xpath"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "19070121-448f-47b7-996c-694b0ae0ad02",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2f9011fb-f237-428d-89f6-bdfac3e0c2c5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2f9011fb-f237-428d-89f6-bdfac3e0c2c5",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Passed!"
+									},
+									"links": {
+										"link": {
+											"id": "2f9011fb-f237-428d-89f6-bdfac3e0c2c5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68cd1586eb49c3000700011c",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

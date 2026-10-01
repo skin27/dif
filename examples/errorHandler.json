@@ -1,0 +1,162 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c929df1e33920007000035",
+						"name": "errorHandler",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "738b5d30-88c1-490c-a164-72c33d9e5d12",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "7f1964d5-e08f-486a-9d2e-1b2fe8942016",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7f1964d5-e08f-486a-9d2e-1b2fe8942016",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7f1964d5-e08f-486a-9d2e-1b2fe8942016",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ecb786f1-c0e7-4314-af03-e448f7a26032",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ecb786f1-c0e7-4314-af03-e448f7a26032",
+									"type": "action",
+									"uri": "xmltojsonsimple",
+									"options": {
+										"keepStrings": false,
+										"removeNamespaces": false,
+										"removeRoot": false,
+										"hasTypes": false,
+										"typeValueMismatch": "ORIGINAL"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ecb786f1-c0e7-4314-af03-e448f7a26032",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "74d1f23a-7642-471e-af0d-5da9cb300901",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "74d1f23a-7642-471e-af0d-5da9cb300901",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "74d1f23a-7642-471e-af0d-5da9cb300901",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c929df1e33920007000037",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"redeliveryAttempts": 0,
+										"redeliveryInterval": 0
+									},
+									"links": {
+										"link": {
+											"id": "de8503cb-b66a-4503-88fe-fb9edeaec662",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "de8503cb-b66a-4503-88fe-fb9edeaec662",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "There was an error"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "de8503cb-b66a-4503-88fe-fb9edeaec662",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c486c359-ff85-4d25-9d9e-498c0d99d467",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c486c359-ff85-4d25-9d9e-498c0d99d467",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c486c359-ff85-4d25-9d9e-498c0d99d467",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

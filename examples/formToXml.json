@@ -1,0 +1,104 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b94488aaa5120007000000",
+						"name": "formToXml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a6ed0e1f-79a9-472a-a1d4-b3544d51c8d0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "dbf64d4e-41b6-46f2-8ad8-4b62654d2891",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dbf64d4e-41b6-46f2-8ad8-4b62654d2891",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "first-name=Joe&last-name=Foo&age=21"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dbf64d4e-41b6-46f2-8ad8-4b62654d2891",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fe583b8a-6f28-45e4-9a48-eff5ddd8a1c6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fe583b8a-6f28-45e4-9a48-eff5ddd8a1c6",
+									"type": "action",
+									"uri": "unknown",
+									"links": {
+										"link": [
+											{
+												"id": "fe583b8a-6f28-45e4-9a48-eff5ddd8a1c6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e2bf4f5a-2058-4015-8903-e7966e1cb67b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e2bf4f5a-2058-4015-8903-e7966e1cb67b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e2bf4f5a-2058-4015-8903-e7966e1cb67b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b94488aaa5120007000002",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

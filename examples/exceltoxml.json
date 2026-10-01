@@ -1,0 +1,94 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b94646aaa5120007000090",
+						"name": "exceltoxml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a5118a89-ed9b-4de9-a5e0-6fc2340bf310",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "fccc0417-8db9-4130-993f-1679dc1ab079",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fccc0417-8db9-4130-993f-1679dc1ab079",
+									"type": "action",
+									"uri": "unknown",
+									"options": {
+										"rules": [
+											{
+												"name": "node1",
+												"worksheet": "Sheet1",
+												"cellRange": "A2:C4",
+												"transpose": false,
+												"headerRow": false,
+												"discardEmpty": false,
+												"_id": "c94df562-6265-463b-bcfa-7d5a47c48825"
+											}
+										]
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fccc0417-8db9-4130-993f-1679dc1ab079",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c24a57e-9da5-4c49-97eb-4e936ec9ed7c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c24a57e-9da5-4c49-97eb-4e936ec9ed7c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4c24a57e-9da5-4c49-97eb-4e936ec9ed7c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b94646aaa5120007000092",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

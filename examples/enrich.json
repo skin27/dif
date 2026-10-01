@@ -1,0 +1,159 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68ccf218eb49c30007000000",
+						"name": "enrich",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7deb03c5-f0fe-4039-ac3e-2a86cd72540d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "6881cbfc-1974-43f2-8718-c6434a2cd9a2",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6881cbfc-1974-43f2-8718-c6434a2cd9a2",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6881cbfc-1974-43f2-8718-c6434a2cd9a2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1f91843a-5f69-4b72-a38c-9d1ef72340c7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1f91843a-5f69-4b72-a38c-9d1ef72340c7",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "override",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1f91843a-5f69-4b72-a38c-9d1ef72340c7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d14490bb-037e-4958-ac0e-eb87c7f9c942",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "dd26c95b-4e69-4d46-92be-5dbbcf3471dd",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d14490bb-037e-4958-ac0e-eb87c7f9c942",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "d14490bb-037e-4958-ac0e-eb87c7f9c942",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dd26c95b-4e69-4d46-92be-5dbbcf3471dd",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Enriched:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "dd26c95b-4e69-4d46-92be-5dbbcf3471dd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68ccf218eb49c30007000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"redeliveryAttempts": 0,
+										"redeliveryInterval": 0,
+										"maximumRedeliveries": "0",
+										"redeliveryDelay": "0"
+									},
+									"links": {
+										"link": {
+											"id": "2f1f9909-ddea-4c17-a708-5955ed7461ed",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2f1f9909-ddea-4c17-a708-5955ed7461ed",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "2f1f9909-ddea-4c17-a708-5955ed7461ed",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

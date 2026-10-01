@@ -1,0 +1,152 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b19dcdaaa512000700007d",
+						"name": "velocity",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6c8447c3-3cdc-4a60-b868-10b093e5e87b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "542602e5-6765-4dde-b9ce-3c989aa8f10e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "542602e5-6765-4dde-b9ce-3c989aa8f10e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "12345"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "542602e5-6765-4dde-b9ce-3c989aa8f10e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4eb2f738-2a0b-4162-9015-ae1b0ca2af30",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4eb2f738-2a0b-4162-9015-ae1b0ca2af30",
+									"type": "action",
+									"uri": "setheaders:message:4eb2f738-2a0b-4162-9015-ae1b0ca2af30",
+									"links": {
+										"link": [
+											{
+												"id": "4eb2f738-2a0b-4162-9015-ae1b0ca2af30",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6147f44e-7430-4e69-9496-9bccfc30d61f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6147f44e-7430-4e69-9496-9bccfc30d61f",
+									"type": "action",
+									"uri": "velocity:ref:27d8b445-511e-44a7-9c87-1f360dc6f01f",
+									"links": {
+										"link": [
+											{
+												"id": "6147f44e-7430-4e69-9496-9bccfc30d61f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "854526f8-edb6-46be-83df-ddde20a4b8cb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "854526f8-edb6-46be-83df-ddde20a4b8cb",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "854526f8-edb6-46be-83df-ddde20a4b8cb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b19dcdaaa512000700007f",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "27d8b445-511e-44a7-9c87-1f360dc6f01f",
+					"content": "Dear ${headers.firstName} ${headers.lastName}\n\nThe magic number is:\n\n${body}"
+				}
+			},
+			"messages": {
+				"message": {
+					"name": "4eb2f738-2a0b-4162-9015-ae1b0ca2af30",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "firstName",
+								"value": "John"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "lastName",
+								"value": "Doe"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

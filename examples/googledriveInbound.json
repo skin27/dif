@@ -1,0 +1,72 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69316f11bb703e000c000023",
+						"name": "googledriveInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5171d0dd-a5af-48b3-a4e9-03bc805692ac",
+									"type": "source",
+									"uri": "googledrive:1HYnwLTICJPLGbPL4AUcUJC-cRuGeTrG3",
+									"options": {
+										"accessToken": "@{GoogleDriveAccessToken_Temp}",
+										"filterFiles": "BrunoDIL.txt",
+										"moveTo": ".dovetail",
+										"initialDelay": 1000,
+										"delay": 1000,
+										"gSuiteFiles": "Ignore",
+										"flowId": "69316f11bb703e000c000023",
+										"tenant": "_new2"
+									},
+									"links": {
+										"link": {
+											"id": "1042e9ae-a01c-45b4-82db-0f5feba2570d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1042e9ae-a01c-45b4-82db-0f5feba2570d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1042e9ae-a01c-45b4-82db-0f5feba2570d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69316f11bb703e000c000025",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

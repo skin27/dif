@@ -1,0 +1,133 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c147731e3392000700007c",
+						"name": "rabbitmqEnrich",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e9d226bd-ab01-4c2c-9498-bdf137b8dac2",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "104f15cf-3fa9-4a69-bee1-1187d58361da",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "104f15cf-3fa9-4a69-bee1-1187d58361da",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "104f15cf-3fa9-4a69-bee1-1187d58361da",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f86e0ef9-b57f-494d-8ab5-2f6dc6f2584e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f86e0ef9-b57f-494d-8ab5-2f6dc6f2584e",
+									"type": "action",
+									"uri": "rabbitmqenrich:dev.test.force.inbound.with.routingkey",
+									"options": {
+										"exchangeType": "direct",
+										"routingKey": "routing.key.dev.test.force.inbound",
+										"queues": "dev.test.force.inbound",
+										"autoDelete": true,
+										"durable": true,
+										"useErrorRoute": true
+									},
+									"blocks": {
+										"block": {
+											"id": "f86e0ef9-b57f-494d-8ab5-2f6dc6f2584e_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f86e0ef9-b57f-494d-8ab5-2f6dc6f2584e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "60d1a771-5efa-4b06-a3a3-0ec3f9d347fa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "60d1a771-5efa-4b06-a3a3-0ec3f9d347fa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "60d1a771-5efa-4b06-a3a3-0ec3f9d347fa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c147731e3392000700007e",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"type": "rabbitmq",
+					"keys": {
+						"host": "api-testing.dovetail.world",
+						"vhost": "/",
+						"port": "5672",
+						"username": "dovetail",
+						"password": "RyfYr!f9tLQdj6"
+					},
+					"id": "f86e0ef9-b57f-494d-8ab5-2f6dc6f2584e_connection",
+					"name": "rabbitmq"
+				}
+			}
+		}
+	}
+}

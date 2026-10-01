@@ -1,0 +1,107 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1bd7caaa51200070001b0",
+						"name": "xmltoedifact",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "86724e47-94f9-418f-82da-208708a8ebee",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "a93869b5-a415-4efd-b80b-8ef1dc2a65d6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a93869b5-a415-4efd-b80b-8ef1dc2a65d6",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<env:unEdifact xmlns:env=\"urn:org.milyn.edi.unedifact.v41\">\n\t<env:UNB>\n\t\t<env:syntaxIdentifier>\n\t\t\t<env:id>UNOA</env:id>\n\t\t\t<env:versionNum>2</env:versionNum>\n\t\t</env:syntaxIdentifier>\n\t\t<env:sender>\n\t\t\t<env:id>8714252014808</env:id>\n\t\t\t<env:internalId>14</env:internalId>\n\t\t</env:sender>\n\t\t<env:recipient>\n\t\t\t<env:id>8714252011517</env:id>\n\t\t\t<env:internalId>14</env:internalId>\n\t\t</env:recipient>\n\t\t<env:dateTime>\n\t\t\t<env:date>130402</env:date>\n\t\t\t<env:time>1219</env:time>\n\t\t</env:dateTime>\n\t\t<env:controlRef>24535</env:controlRef>\n\t</env:UNB>\n\t<env:interchangeMessage xmlns:c=\"urn:org.milyn.edi.unedifact:un:d96a:common\" xmlns:iftmin=\"urn:org.milyn.edi.unedifact:un:d96a:iftmin\">\n\t\t<env:UNH>\n\t\t\t<env:messageRefNum>24546</env:messageRefNum>\n\t\t\t<env:messageIdentifier>\n\t\t\t\t<env:id>IFTMIN</env:id>\n\t\t\t\t<env:versionNum>D</env:versionNum>\n\t\t\t\t<env:releaseNum>96A</env:releaseNum>\n\t\t\t\t<env:controllingAgencyCode>UN</env:controllingAgencyCode>\n\t\t\t</env:messageIdentifier>\n\t\t</env:UNH>\n\t\t<iftmin:IFTMIN>\n\t\t\t<iftmin:BGM>\n\t\t\t\t<c:C002>\n\t\t\t\t\t<c:e1001>340</c:e1001>\n\t\t\t\t</c:C002>\n\t\t\t\t<c:e1004>347605</c:e1004>\n\t\t\t\t<c:e1225>9</c:e1225>\n\t\t\t</iftmin:BGM>\n\t\t\t<iftmin:DTM>\n\t\t\t\t<c:C507>\n\t\t\t\t\t<c:e2005>137</c:e2005>\n\t\t\t\t\t<c:e2380>20130402</c:e2380>\n\t\t\t\t\t<c:e2379>102</c:e2379>\n\t\t\t\t</c:C507>\n\t\t\t</iftmin:DTM>\n\t\t\t<iftmin:DTM>\n\t\t\t\t<c:C507>\n\t\t\t\t\t<c:e2005>2</c:e2005>\n\t\t\t\t\t<c:e2380>20130404</c:e2380>\n\t\t\t\t\t<c:e2379>102</c:e2379>\n\t\t\t\t</c:C507>\n\t\t\t</iftmin:DTM>\n\t\t\t<iftmin:DTM>\n\t\t\t\t<c:C507>\n\t\t\t\t\t<c:e2005>200</c:e2005>\n\t\t\t\t\t<c:e2380>20130403</c:e2380>\n\t\t\t\t\t<c:e2379>102</c:e2379>\n\t\t\t\t</c:C507>\n\t\t\t</iftmin:DTM>\n\t\t\t<iftmin:TSR>\n\t\t\t\t<c:C536>\n\t\t\t\t\t<c:e4065>11</c:e4065>\n\t\t\t\t</c:C536>\n\t\t\t\t<c:C537>\n\t\t\t\t\t<c:e4219>N</c:e4219>\n\t\t\t\t</c:C537>\n\t\t\t</iftmin:TSR>\n\t\t\t<iftmin:FTX>\n\t\t\t\t<c:e4451>DEL</c:e4451>\n\t\t\t\t<c:C108>\n\t\t\t\t\t<c:e4440_-_-1>EXACT DONDERDAG 4.4 TUSSEN 8.15-12.00 UUR</c:e4440_-_-1>\n\t\t\t\t\t<c:e4440_-_-2>AFLEVEREN</c:e4440_-_-2>\n\t\t\t\t</c:C108>\n\t\t\t</iftmin:FTX>\n\t\t\t<iftmin:Segment_group_2>\n\t\t\t\t<iftmin:TOD>\n\t\t\t\t\t<c:e4055>6</c:e4055>\n\t\t\t\t\t<c:C100>\n\t\t\t\t\t\t<c:e4053>CIP</c:e4053>\n\t\t\t\t\t</c:C100>\n\t\t\t\t</iftmin:TOD>\n\t\t\t</iftmin:Segment_group_2>\n\t\t\t<iftmin:Segment_group_11>\n\t\t\t\t<iftmin:NAD>\n\t\t\t\t\t<c:e3035>DP</c:e3035>\n\t\t\t\t\t<c:C080>\n\t\t\t\t\t\t<c:e3036_-_-1>DUMMY B.V.</c:e3036_-_-1>\n\t\t\t\t\t</c:C080>\n\t\t\t\t\t<c:C059>\n\t\t\t\t\t\t<c:e3042_-_-1>VERLENGDE VOORBEELDWEG 123</c:e3042_-_-1>\n\t\t\t\t\t</c:C059>\n\t\t\t\t\t<c:e3164>AMSTERDAM</c:e3164>\n\t\t\t\t\t<c:e3251>1234AB</c:e3251>\n\t\t\t\t\t<c:e3207>670</c:e3207>\n\t\t\t\t</iftmin:NAD>\n\t\t\t</iftmin:Segment_group_11>\n\t\t\t<iftmin:Segment_group_11>\n\t\t\t\t<iftmin:NAD>\n\t\t\t\t\t<c:e3035>CZ</c:e3035>\n\t\t\t\t\t<c:C080>\n\t\t\t\t\t\t<c:e3036_-_-1>DUMMY WIRE &amp; CABLE B.V.</c:e3036_-_-1>\n\t\t\t\t\t</c:C080>\n\t\t\t\t\t<c:C059>\n\t\t\t\t\t\t<c:e3042_-_-1>INDUSTRIEGEBIED: 1234</c:e3042_-_-1>\n\t\t\t\t\t\t<c:e3042_-_-2>VOORBEELDWEG 10</c:e3042_-_-2>\n\t\t\t\t\t</c:C059>\n\t\t\t\t\t<c:e3164>AMSTERDAM</c:e3164>\n\t\t\t\t\t<c:e3251>1234 AB</c:e3251>\n\t\t\t\t\t<c:e3207>670</c:e3207>\n\t\t\t\t</iftmin:NAD>\n\t\t\t\t<iftmin:Segment_group_12>\n\t\t\t\t\t<iftmin:CTA>\n\t\t\t\t\t\t<c:e3139>IC</c:e3139>\n\t\t\t\t\t\t<c:C056>\n\t\t\t\t\t\t\t<c:e3412>JANE DOE</c:e3412>\n\t\t\t\t\t\t</c:C056>\n\t\t\t\t\t</iftmin:CTA>\n\t\t\t\t\t<iftmin:COM>\n\t\t\t\t\t\t<c:C076>\n\t\t\t\t\t\t\t<c:e3148>+31(0)12 3456789</c:e3148>\n\t\t\t\t\t\t\t<c:e3155>TE</c:e3155>\n\t\t\t\t\t\t</c:C076>\n\t\t\t\t\t</iftmin:COM>\n\t\t\t\t</iftmin:Segment_group_12>\n\t\t\t</iftmin:Segment_group_11>\n\t\t\t<iftmin:Segment_group_11>\n\t\t\t\t<iftmin:NAD>\n\t\t\t\t\t<c:e3035>SF</c:e3035>\n\t\t\t\t\t<c:C080>\n\t\t\t\t\t\t<c:e3036_-_-1>DUMMY WIRE &amp; CABLE B.V.</c:e3036_-_-1>\n\t\t\t\t\t</c:C080>\n\t\t\t\t\t<c:C059>\n\t\t\t\t\t\t<c:e3042_-_-1>INDUSTRIEGEBIED: 1234</c:e3042_-_-1>\n\t\t\t\t\t\t<c:e3042_-_-2>VOORBEELDWEG 10</c:e3042_-_-2>\n\t\t\t\t\t</c:C059>\n\t\t\t\t\t<c:e3164>AMSTERDAM</c:e3164>\n\t\t\t\t\t<c:e3251>1234 AB</c:e3251>\n\t\t\t\t\t<c:e3207>670</c:e3207>\n\t\t\t\t</iftmin:NAD>\n\t\t\t\t<iftmin:Segment_group_12>\n\t\t\t\t\t<iftmin:CTA>\n\t\t\t\t\t\t<c:e3139>IC</c:e3139>\n\t\t\t\t\t\t<c:C056>\n\t\t\t\t\t\t\t<c:e3412>JANE DOE</c:e3412>\n\t\t\t\t\t\t</c:C056>\n\t\t\t\t\t</iftmin:CTA>\n\t\t\t\t\t<iftmin:COM>\n\t\t\t\t\t\t<c:C076>\n\t\t\t\t\t\t\t<c:e3148>+31(0)12 3456789</c:e3148>\n\t\t\t\t\t\t\t<c:e3155>TE</c:e3155>\n\t\t\t\t\t\t</c:C076>\n\t\t\t\t\t</iftmin:COM>\n\t\t\t\t</iftmin:Segment_group_12>\n\t\t\t</iftmin:Segment_group_11>\n\t\t\t<iftmin:Segment_group_11>\n\t\t\t\t<iftmin:NAD>\n\t\t\t\t\t<c:e3035>FW</c:e3035>\n\t\t\t\t\t<c:C080>\n\t\t\t\t\t\t<c:e3036_-_-1>LOGISTICS B.V.</c:e3036_-_-1>\n\t\t\t\t\t</c:C080>\n\t\t\t\t\t<c:e3251>1234 AB</c:e3251>\n\t\t\t\t\t<c:e3207>670</c:e3207>\n\t\t\t\t</iftmin:NAD>\n\t\t\t</iftmin:Segment_group_11>\n\t\t\t<iftmin:Segment_group_18>\n\t\t\t\t<iftmin:GID>\n\t\t\t\t\t<c:e1496>1.0</c:e1496>\n\t\t\t\t\t<c:C213_-_-1>\n\t\t\t\t\t\t<c:e7224>1.0</c:e7224>\n\t\t\t\t\t\t<c:e7065>E827</c:e7065>\n\t\t\t\t\t\t<c:e3055>9</c:e3055>\n\t\t\t\t\t</c:C213_-_-1>\n\t\t\t\t</iftmin:GID>\n\t\t\t\t<iftmin:HAN>\n\t\t\t\t\t<c:C524>\n\t\t\t\t\t\t<c:e4079>UST</c:e4079>\n\t\t\t\t\t\t<c:e3055>9</c:e3055>\n\t\t\t\t\t</c:C524>\n\t\t\t\t</iftmin:HAN>\n\t\t\t\t<iftmin:Segment_group_20>\n\t\t\t\t\t<iftmin:MEA>\n\t\t\t\t\t\t<c:e6311>AAE</c:e6311>\n\t\t\t\t\t\t<c:C502>\n\t\t\t\t\t\t\t<c:e6313>G</c:e6313>\n\t\t\t\t\t\t</c:C502>\n\t\t\t\t\t\t<c:C174>\n\t\t\t\t\t\t\t<c:e6411>KGM</c:e6411>\n\t\t\t\t\t\t\t<c:e6314>24.0</c:e6314>\n\t\t\t\t\t\t</c:C174>\n\t\t\t\t\t</iftmin:MEA>\n\t\t\t\t</iftmin:Segment_group_20>\n\t\t\t\t<iftmin:Segment_group_20>\n\t\t\t\t\t<iftmin:MEA>\n\t\t\t\t\t\t<c:e6311>AAE</c:e6311>\n\t\t\t\t\t\t<c:C502>\n\t\t\t\t\t\t\t<c:e6313>GMC</c:e6313>\n\t\t\t\t\t\t</c:C502>\n\t\t\t\t\t\t<c:C174>\n\t\t\t\t\t\t\t<c:e6411>MTQ</c:e6411>\n\t\t\t\t\t\t\t<c:e6314>80.0</c:e6314>\n\t\t\t\t\t\t</c:C174>\n\t\t\t\t\t</iftmin:MEA>\n\t\t\t\t</iftmin:Segment_group_20>\n\t\t\t\t<iftmin:Segment_group_21>\n\t\t\t\t\t<iftmin:DIM>\n\t\t\t\t\t\t<c:e6145>1</c:e6145>\n\t\t\t\t\t\t<c:C211>\n\t\t\t\t\t\t\t<c:e6411>MTR</c:e6411>\n\t\t\t\t\t\t\t<c:e6168>41.0</c:e6168>\n\t\t\t\t\t\t\t<c:e6140>41.0</c:e6140>\n\t\t\t\t\t\t\t<c:e6008>48.0</c:e6008>\n\t\t\t\t\t\t</c:C211>\n\t\t\t\t\t</iftmin:DIM>\n\t\t\t\t</iftmin:Segment_group_21>\n\t\t\t\t<iftmin:Segment_group_23>\n\t\t\t\t\t<iftmin:PCI>\n\t\t\t\t\t\t<c:e4233>33E</c:e4233>\n\t\t\t\t\t</iftmin:PCI>\n\t\t\t\t\t<iftmin:GIN>\n\t\t\t\t\t\t<c:e7405>BJ</c:e7405>\n\t\t\t\t\t\t<c:C208_-_-1>\n\t\t\t\t\t\t\t<c:e7402_-_-1>00387142520086154710</c:e7402_-_-1>\n\t\t\t\t\t\t</c:C208_-_-1>\n\t\t\t\t\t</iftmin:GIN>\n\t\t\t\t</iftmin:Segment_group_23>\n\t\t\t</iftmin:Segment_group_18>\n\t\t</iftmin:IFTMIN>\n\t\t<env:UNT>\n\t\t\t<env:segmentCount>98126</env:segmentCount>\n\t\t\t<env:messageRefNum>24546</env:messageRefNum>\n\t\t</env:UNT>\n\t</env:interchangeMessage>\n\t<env:UNZ>\n\t\t<env:controlCount>1</env:controlCount>\n\t\t<env:controlRef>24535</env:controlRef>\n\t</env:UNZ>\n</env:unEdifact>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a93869b5-a415-4efd-b80b-8ef1dc2a65d6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "360a9346-7b7e-4d64-b674-1eec5d3f0148",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "360a9346-7b7e-4d64-b674-1eec5d3f0148",
+									"type": "action",
+									"uri": "xmltoedifact",
+									"options": {
+										"edifactType": "d96a"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "360a9346-7b7e-4d64-b674-1eec5d3f0148",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "eec3f4bc-29b8-4348-8ea7-0892d8a4502a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "eec3f4bc-29b8-4348-8ea7-0892d8a4502a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "eec3f4bc-29b8-4348-8ea7-0892d8a4502a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1bd7caaa51200070001b2",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

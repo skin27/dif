@@ -1,0 +1,104 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1c46eaaa5120007000301",
+						"name": "zip",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "03cc6c4b-118b-4584-9c1e-1b4f083c75d9",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "9f2a460c-f639-40a3-af20-88b5d9bb0ce8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9f2a460c-f639-40a3-af20-88b5d9bb0ce8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9f2a460c-f639-40a3-af20-88b5d9bb0ce8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c7a9a649-8547-40de-a0fe-ae6d3a7a42ea",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c7a9a649-8547-40de-a0fe-ae6d3a7a42ea",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "c7a9a649-8547-40de-a0fe-ae6d3a7a42ea",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fd9cb73d-aa83-4018-8d43-8aae0b016ea4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fd9cb73d-aa83-4018-8d43-8aae0b016ea4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "fd9cb73d-aa83-4018-8d43-8aae0b016ea4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1c46eaaa5120007000303",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

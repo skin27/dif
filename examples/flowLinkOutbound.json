@@ -1,0 +1,85 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c2dfbb1e3392000700001b",
+						"name": "flowLinkOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ee9d2a24-1ff9-44e6-8f6c-dc04bee502b2",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "202f2dd9-fe7a-46ac-a41d-83349983a285",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "202f2dd9-fe7a-46ac-a41d-83349983a285",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "202f2dd9-fe7a-46ac-a41d-83349983a285",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8b894b75-d406-426c-9bc9-21f5da171ed0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8b894b75-d406-426c-9bc9-21f5da171ed0",
+									"type": "sink",
+									"uri": "unknown",
+									"options": {
+										"targetFlowId": "68c2dfb31e33920007000001",
+										"transport": "async",
+										"exchangePattern": "InOnly"
+									},
+									"links": {
+										"link": {
+											"id": "8b894b75-d406-426c-9bc9-21f5da171ed0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c2dfbb1e3392000700001d",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

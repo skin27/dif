@@ -1,0 +1,136 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b69592aaa5120006000000",
+						"name": "split",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1fa754b7-e0ef-4e05-a7ef-5ed5e38911ec",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "cf93d4b5-6786-4d7c-84a2-6c6ef6f3eaa9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cf93d4b5-6786-4d7c-84a2-6c6ef6f3eaa9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cf93d4b5-6786-4d7c-84a2-6c6ef6f3eaa9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "66d66bc6-19db-452f-b9c0-a8e09ddaf47b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "66d66bc6-19db-452f-b9c0-a8e09ddaf47b",
+									"type": "router",
+									"uri": "split",
+									"options": {
+										"language": "xpath",
+										"expression": "/persons/person",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOnly"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "66d66bc6-19db-452f-b9c0-a8e09ddaf47b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "65d4f68e-a685-4858-82fa-03f8889a53b0",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "3b266002-3978-4d3f-be69-59fe6b3000b3",
+												"bound": "out",
+												"expression": "/persons/person",
+												"language": "xpath",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "65d4f68e-a685-4858-82fa-03f8889a53b0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "65d4f68e-a685-4858-82fa-03f8889a53b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3b266002-3978-4d3f-be69-59fe6b3000b3",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "3b266002-3978-4d3f-be69-59fe6b3000b3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b69592aaa5120006000002",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

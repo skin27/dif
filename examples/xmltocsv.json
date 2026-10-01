@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b1b400aaa5120007000135",
+						"name": "xmltocsv",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6fcadf7f-7473-42ad-9cc0-5c61808d733c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "62ebadd4-5da2-4dd0-8698-d361c0b2e76a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "62ebadd4-5da2-4dd0-8698-d361c0b2e76a",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<breakfast_menu>\n\t<food>\n\t\t<name>food1</name>\n\t\t<price>1</price>\n\t\t<description>desc1</description>\n\t</food>\n\t<food>\n\t\t<name>food2</name>\n\t\t<price>2</price>\n\t\t<description>desc2</description>\n\t</food>\n\t<food>\n\t\t<name>food3</name>\n\t\t<price>3</price>\n\t\t<description>desc3</description>\n\t</food>\n</breakfast_menu>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "62ebadd4-5da2-4dd0-8698-d361c0b2e76a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b91a6505-a4a1-4e8f-bd45-a2408f52a333",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b91a6505-a4a1-4e8f-bd45-a2408f52a333",
+									"type": "action",
+									"uri": "xmltocsv",
+									"options": {
+										"includeHeader": false,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"delimiter": ",",
+										"lineSeparator": "linefeed",
+										"orderHeaders": "unordered",
+										"quoteFields": "all_fields"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b91a6505-a4a1-4e8f-bd45-a2408f52a333",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7d0da19a-2a2c-4d6e-8be6-289ef37f53fa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7d0da19a-2a2c-4d6e-8be6-289ef37f53fa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7d0da19a-2a2c-4d6e-8be6-289ef37f53fa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b1b400aaa5120007000137",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

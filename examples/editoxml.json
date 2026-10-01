@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b959d2aaa512000700013e",
+						"name": "editoxml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "17de8eb9-8def-4c22-a14d-0d8498754d3d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "4d82d778-5d46-45e0-a9be-56c16690486b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4d82d778-5d46-45e0-a9be-56c16690486b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "CUS~John^Doe~1901-01-07~john.doe@example.com"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4d82d778-5d46-45e0-a9be-56c16690486b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "59291dd5-2de1-4713-9c11-9eb3754ad5a3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "59291dd5-2de1-4713-9c11-9eb3754ad5a3",
+									"type": "action",
+									"uri": "editoxml",
+									"options": {
+										"segment": "LB",
+										"field": "~",
+										"component": "^",
+										"subComponent": "!"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "59291dd5-2de1-4713-9c11-9eb3754ad5a3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "395c49ee-1f71-4ad5-908c-cb70231a7d79",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "395c49ee-1f71-4ad5-908c-cb70231a7d79",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "395c49ee-1f71-4ad5-908c-cb70231a7d79",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b959d2aaa5120007000140",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,114 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68be988c1e339200070000c8",
+						"name": "sambaEnrich",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "48939aa8-120f-47fe-ab3b-bcb76c7c2a72",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "a9b9af97-c959-410a-81fc-7143cab20041",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a9b9af97-c959-410a-81fc-7143cab20041",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "1234"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a9b9af97-c959-410a-81fc-7143cab20041",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3313099f-c07b-40f0-9cac-ffe4ab9032f4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3313099f-c07b-40f0-9cac-ffe4ab9032f4",
+									"type": "action",
+									"uri": "smbenrich://dovetail@api-testing.dovetail.world:445/Data/development/_New2/test",
+									"options": {
+										"fileName": "abcdef.xyz",
+										"charset": "utf-8",
+										"password": "dovetail",
+										"autoCreate": true,
+										"recursive": false,
+										"delete": false,
+										"move": "RAW(.dovetail)",
+										"readLock": "none"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3313099f-c07b-40f0-9cac-ffe4ab9032f4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4e2e8ccb-c445-454c-bf56-d7a9bbbc9a91",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4e2e8ccb-c445-454c-bf56-d7a9bbbc9a91",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4e2e8ccb-c445-454c-bf56-d7a9bbbc9a91",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68be988c1e339200070000ca",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

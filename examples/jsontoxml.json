@@ -1,0 +1,111 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b85114aaa51200070001de",
+						"name": "jsontoxml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a2005999-ec68-42cc-b041-21fc45d5db56",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "57efba74-8e7f-46f5-aa53-7089a3ff80c9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "57efba74-8e7f-46f5-aa53-7089a3ff80c9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"Formula1\": {\n    \"Drivers\": {\n      \"Driver\": [\n        {\n          \"Age\": 19,\n          \"Name\": \"Max Verstappen\"\n        },\n        {\n          \"Age\": 30,\n          \"Name\": \"Nico Hulkenberg\"\n        }\n      ]\n    },\n    \"Teams\": {\n      \"Team\": [\n        {\n          \"Principal\": \"Christian Horner\",\n          \"Name\": \"Redbull Racing\"\n        },\n        {\n          \"Principal\": \"Carlos Ghosn\",\n          \"Name\": \"Renault\"\n        }\n      ]\n    }\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "57efba74-8e7f-46f5-aa53-7089a3ff80c9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "677ee14f-271b-4233-92ed-0097cd7dd1df",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "677ee14f-271b-4233-92ed-0097cd7dd1df",
+									"type": "action",
+									"uri": "jsontoxml",
+									"options": {
+										"elementName": "element",
+										"arrayName": "array",
+										"rootName": "MyRoot",
+										"namespaceLenient": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "677ee14f-271b-4233-92ed-0097cd7dd1df",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "991ef050-0209-4e4f-bcab-90df76c8ddf2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "991ef050-0209-4e4f-bcab-90df76c8ddf2",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "991ef050-0209-4e4f-bcab-90df76c8ddf2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b85114aaa51200070001e0",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

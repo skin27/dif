@@ -1,0 +1,155 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68b83d1faaa5120007000034",
+						"name": "removeHeaders",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1f568c07-b6e7-446f-97e4-3843931122f0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "500ce7a9-7418-45da-975b-f816da888b36",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "500ce7a9-7418-45da-975b-f816da888b36",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "500ce7a9-7418-45da-975b-f816da888b36",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e41ef44f-e31d-4d66-b41c-f3f5bb4422d8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e41ef44f-e31d-4d66-b41c-f3f5bb4422d8",
+									"type": "action",
+									"uri": "setheaders:message:e41ef44f-e31d-4d66-b41c-f3f5bb4422d8",
+									"links": {
+										"link": [
+											{
+												"id": "e41ef44f-e31d-4d66-b41c-f3f5bb4422d8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4faeb0e5-e4e5-4d0c-98b0-7888939a7d40",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4faeb0e5-e4e5-4d0c-98b0-7888939a7d40",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "last*",
+										"excludePattern": "lastName"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4faeb0e5-e4e5-4d0c-98b0-7888939a7d40",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ef2279b1-c598-4a76-adfb-05968c1baeaf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ef2279b1-c598-4a76-adfb-05968c1baeaf",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Headers:\n\nFirstname:  ${headers.firstName}\nLastname: ${headers.lastName}\nLastversion (should be empty): ${headers.lastVersion}\n\nMessage Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "ef2279b1-c598-4a76-adfb-05968c1baeaf",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68b83d1faaa5120007000036",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "e41ef44f-e31d-4d66-b41c-f3f5bb4422d8",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "firstName",
+								"value": "John"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "lastName",
+								"value": "Doe"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "lastVersion",
+								"value": "123"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

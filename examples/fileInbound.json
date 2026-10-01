@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68be7e0f1e33920007000000",
+						"name": "fileInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9d52e8e9-91cf-4e6a-968c-a4970d54ad37",
+									"type": "source",
+									"uri": "file:/data/.assimbly/tenants/_new2/tmp",
+									"options": {
+										"fileName": "test1234.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"recursive": false,
+										"delete": true,
+										"initialDelay": 60000,
+										"delay": 60000
+									},
+									"links": {
+										"link": {
+											"id": "9ec3beb6-bd6f-445c-abfa-3caf0a186025",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9ec3beb6-bd6f-445c-abfa-3caf0a186025",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "9ec3beb6-bd6f-445c-abfa-3caf0a186025",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68be7e0f1e33920007000002",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

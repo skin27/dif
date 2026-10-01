@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68c7aed81e33920007000002",
+						"name": "deadletter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f085139d-6dc3-44d0-a43e-9e643ce57c28",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "e32247ad-5c04-4693-9b71-01f644b5967a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e32247ad-5c04-4693-9b71-01f644b5967a",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Failed Message Body:\n\n${bodyAs(BlaBla)}"
+									},
+									"links": {
+										"link": {
+											"id": "e32247ad-5c04-4693-9b71-01f644b5967a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68c7aed81e33920007000004",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"redeliveryAttempts": 0,
+										"redeliveryInterval": 0,
+										"maximumRedeliveries": "3",
+										"redeliveryDelay": "10000"
+									},
+									"links": {
+										"link": {
+											"id": "68513f81-1b54-4b2b-ac98-50b65c979014",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68513f81-1b54-4b2b-ac98-50b65c979014",
+									"type": "sink",
+									"uri": "unknown",
+									"options": {
+										"deadLetterQueue": "DLQ:68c7aed81e33920007000002"
+									},
+									"links": {
+										"link": {
+											"id": "68513f81-1b54-4b2b-ac98-50b65c979014",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

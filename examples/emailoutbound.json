@@ -1,0 +1,115 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68bee81a1e33920007000881",
+						"name": "emailoutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "89d0e183-31a6-411b-814a-9a53a32e26fa",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "467c8863-95bf-4fd9-9424-75f0472793f7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "467c8863-95bf-4fd9-9424-75f0472793f7",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "123456"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "467c8863-95bf-4fd9-9424-75f0472793f7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fdd4e951-e2c4-407d-bd50-9b76e447916f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fdd4e951-e2c4-407d-bd50-9b76e447916f",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "brunovg@gmail.com",
+										"subject": "test",
+										"exchangeBodyAs": "body",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"username": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "basic",
+										"password": "btfz onfr sial rmdg",
+										"tenantDbName": "_new2"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fdd4e951-e2c4-407d-bd50-9b76e447916f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6cf7ac0a-e555-4654-b4fc-9ca62e79f5b8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6cf7ac0a-e555-4654-b4fc-9ca62e79f5b8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6cf7ac0a-e555-4654-b4fc-9ca62e79f5b8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68bee81a1e33920007000883",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

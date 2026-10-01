@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69316bb2bb703e000c000005",
+						"name": "getTenantVariable",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "54bc4075-74b5-4ffd-82e7-2371602cd13a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false
+									},
+									"links": {
+										"link": {
+											"id": "748a8013-59db-4980-88be-8a893c64ce09",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "748a8013-59db-4980-88be-8a893c64ce09",
+									"type": "action",
+									"uri": "gettenantvariable:TestTenantVar1",
+									"options": {
+										"headerName": "TestTenantVar",
+										"tenantDbName": "_new2"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "748a8013-59db-4980-88be-8a893c64ce09",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4669d4d0-00eb-48ce-8f6d-2f8114a93992",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4669d4d0-00eb-48ce-8f6d-2f8114a93992",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.TestTenantVar}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4669d4d0-00eb-48ce-8f6d-2f8114a93992",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0b3394ff-a68c-4c17-a489-e8d5f58fa665",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0b3394ff-a68c-4c17-a489-e8d5f58fa665",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": true
+									},
+									"links": {
+										"link": {
+											"id": "0b3394ff-a68c-4c17-a489-e8d5f58fa665",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69316bb2bb703e000c000007",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}
