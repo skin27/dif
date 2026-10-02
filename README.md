@@ -80,8 +80,8 @@ Type a command at the "> " prompt; "help" lists all commands.
   2026/10/02 13:37:40.106536 message 1: {"body":"HELLO WORLD","greeting":"hello",…} trail: source:hello-source -> action:hello-action -> sink:hello-sink (0 ms)
 > stop timer --force
   flow timer stopped (forced)
-> load examples/log.json
-  error: flow 6970d9a1c9b9a4000d000053: step 492db687-…: no processor for "https" (source)
+> load examples/scheduler.json
+  error: flow 68b70775aaa512000600033b: step 8943a4b2-…: no processor for "quartz" (source)
 > exit
   exit: 3 messages processed, 0 failed
 ```
@@ -192,7 +192,9 @@ Processor
 ```
 
 - A source is not executed per message: it runs for the whole run of the flow
-  and emits a message per tick, file, …
+  and emits a message per tick, file, request, … A request-reply source (https)
+  passes a reply callback to `emit`; the flow calls it with the final message or
+  the error once the message has been processed.
 - Processors return errors to the engine and never retry; error handling is the
   engine's job. They honour `ctx`. A message the flow has taken completes even
   when the flow is stopped meanwhile, unless the stop is forced. They log with
@@ -212,7 +214,7 @@ modelled on the Kamelet properties). When a flow is loaded, every step is
 checked:
 
 - a step without a registered processor rejects the flow:
-  `no processor for "https" (source)`
+  `no processor for "sftp" (source)`
 - options are validated against the schema; defaults are applied and, because
   DIL converted from XML stores numbers and booleans as strings, `"5"` and
   `"true"` are accepted for integers and booleans. Unknown options are errors.
@@ -232,6 +234,11 @@ using anything else fails registration.
 | `setheader` | action | `name` (required), `language` constant\|simple (simple), `value` ("") | Sets one header; not `body` or `metadata.*` |
 | `passthrough` | action | – | Passes the message on unchanged |
 | `message:<name>` | source | – | Produces nothing; messages are sent to the flow (`send`) |
+| `https://<host>:<port>/<path>` | source | `matchPrefix` (false), `preserveHttpHeaders` (false), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
+| `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD (GET), `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (false) | Calls the endpoint; the response becomes the message, see [HTTPS](#https) |
+| `setheaders:message:<name>` | action | – | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
+| `base64totext` | action | – | Decodes a base64 body to text (whitespace ignored, padding optional) |
+| `texttobase64` | action | – | Encodes the body as base64, without line breaks |
 
 Language `constant` is the literal text; `simple` replaces `${body}`,
 `${header.<name>}` and `${headers.<name>}` (other `${…}` expressions are
@@ -248,9 +255,62 @@ api.RegisterStep(api.StepDefinition{
 })
 ```
 
-Of the examples, `hello.json`, `timer.json` and `fileInbound.json` load; the
-others use steps that have no processor yet (https, setheaders, …) and are
-rejected.
+### HTTPS
+
+The `https` source makes a flow an HTTPS endpoint, request-reply: a request
+becomes a message (body = request body; request headers = message headers, plus
+`http.method`, `http.path`, `http.query` and `http.uri` with
+`preserveHttpHeaders`), and the caller gets the final message body back, with
+its `Content-Type` header (default `text/plain; charset=utf-8`).
+
+| Outcome | Response |
+|---|---|
+| message processed | 200 with the final body |
+| message failed | 500 with the error |
+| flow stopping or stopped | 503 |
+| no flow serves the path | 404 |
+
+A paused flow holds requests until it is resumed. Flows on the same host:port
+share one listener, each on its own path (`matchPrefix` also serves the paths
+below it); a second flow on a path already served fails to start, and its log
+says why (`source stopped: path … is already served by another flow`).
+
+The `https` action calls an endpoint with the message: the body (not for GET and
+HEAD) and its string headers, never `metadata.*` or `http.*`. The response sets
+the body, `http.status` and `Content-Type`. An error status fails the message
+only with `throwExceptionOnFailure`.
+
+TLS uses PKCS#12 keystores (`.p12`), read by DIF's own reader in `keystore`
+(no dependencies). It supports what Java keytool (JDK 18+) and OpenSSL 3 write
+by default: PBES2 with PBKDF2 and AES; legacy 3DES/RC2 keystores are rejected.
+
+| Keystore | Used by | Default file | Password |
+|---|---|---|---|
+| server identity: private key + certificate | https source | `security/server-identity.p12` | option `serverIdentityPassword`, else `DIF_SERVER_IDENTITY_PASSWORD` |
+| trust store: certificates to trust | https action | `security/outbound-truststore.p12` | option `trustStorePassword`, else `DIF_TRUSTSTORE_PASSWORD` |
+
+Paths are relative to the working directory. Keystores are read when the flow
+is loaded, so a missing file or a wrong password rejects the flow. The action
+trusts only the trust store's certificates.
+
+```text
+$ DIF_SERVER_IDENTITY_PASSWORD=… DIF_TRUSTSTORE_PASSWORD=… go run ./cmd/dif
+> run examples/httpsInbound.json examples/httpsClient.json
+$ curl -k -d hello https://localhost:9001/_new2/httpsinbound
+12345
+```
+
+`httpsClient` posts to `httpsInbound` every 5 seconds and logs its reply.
+
+### Examples that load
+
+12 of the examples load (given the keystores): base64ToText, fileInbound,
+fileOutbound, hello, httpsClient, httpsInbound, log, queueAsynchronousOutbound,
+setBody, test, textToBase64 and timer. The others use steps without a processor
+yet, or `${bodyAs(String)}` and `groovy` expressions. Several https examples
+listen on the same path (`/_new2/httpsinbound`), so only one of them can run at
+a time.
+
 
 ## Packages
 
@@ -259,7 +319,8 @@ rejected.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options |
-| `steps/impl`       | Built-in steps (timer, file, log, setbody, setheader, passthrough, message) and their schemas |
+| `steps/impl`       | Built-in steps (timer, file, https, log, setbody, setheader, setheaders, base64totext, texttobase64, passthrough, message) and their schemas |
+| `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`), independent of any DSL             |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
 | `engine`           | `Run` takes one message through a flow; `Runner` holds the lifecycle; `Engine` is the registry of flows by id |
@@ -277,12 +338,15 @@ steps plug in through the registry without touching the engine.
   may be an object instead of an array; both are accepted.
 - A step's `uri` scheme selects its processor and its `options` are validated
   against the processor's schema.
+- A step URI `<step>:message:<name>` (such as `setheaders`) refers to the core
+  message `<name>`; the parser passes its headers to the step as the option `headers`.
 - `error` steps are skipped; `router` steps are rejected.
 
 ## Future work
 
-- More sources and steps (https, queue, quartz, setheaders, …) and routers,
+- More sources and steps (queue, quartz, sftp, XML/JSON converters, …) and routers,
   splitters, aggregators; multiple flows per file
+- `${bodyAs(String)}` in the simple language (11 examples use it)
 - More expression languages and simple-language functions
 - Error channels (`error` steps and the flows hanging off them), retry policies in the engine
 - Concurrent message execution within a flow (processors are already safe for it)

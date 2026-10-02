@@ -24,12 +24,19 @@ import (
 // RouterProcessor or SinkProcessor.
 type Processor any
 
-// SourceProcessor produces messages until it is done or ctx is cancelled.
-// emit runs one message through the flow; it returns an error only when the
-// flow is stopping, never because a step failed.
+// SourceProcessor produces messages until it is done or ctx is cancelled,
+// handing each to the flow with emit.
 type SourceProcessor interface {
-	Run(ctx context.Context, emit func(message.Message) error) error
+	Run(ctx context.Context, emit Emit) error
 }
+
+// Emit hands m to the flow and returns once the flow has taken it. It returns
+// an error only when the flow is stopping, never because a step failed.
+//
+// A source that needs the outcome, such as a request-reply endpoint, passes
+// reply: the flow calls it once m has been processed, with the final message
+// or the error. reply may be nil.
+type Emit func(m message.Message, reply func(message.Message, error)) error
 
 // ActionProcessor modifies or inspects m and returns the message for the next step.
 type ActionProcessor interface {

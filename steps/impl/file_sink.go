@@ -51,13 +51,7 @@ func (s *fileSink) Consume(_ context.Context, m message.Message) error {
 	}
 	path := filepath.Join(s.dir, filepath.FromSlash(name))
 
-	var data []byte
-	switch b := m[message.Body].(type) {
-	case []byte:
-		data = b
-	default:
-		data = []byte(text(b))
-	}
+	data := bytesOf(m[message.Body])
 
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -93,3 +93,11 @@ func text(v any) string {
 	}
 	return fmt.Sprint(v)
 }
+
+// bytesOf renders a message value as bytes: []byte as is, anything else as text.
+func bytesOf(v any) []byte {
+	if b, ok := v.([]byte); ok {
+		return b
+	}
+	return []byte(text(v))
+}

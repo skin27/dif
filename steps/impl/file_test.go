@@ -52,7 +52,7 @@ func poll(t *testing.T, dir string, opts map[string]any, want int) map[string]an
 	msgs := make(chan message.Message, 100)
 	done := make(chan error, 1)
 	go func() {
-		done <- src.Run(ctx, func(m message.Message) error { msgs <- m; return nil })
+		done <- src.Run(ctx, func(m message.Message, _ func(message.Message, error)) error { msgs <- m; return nil })
 	}()
 
 	got := map[string]any{}
@@ -151,7 +151,7 @@ func TestFileSourceAutoCreate(t *testing.T) {
 
 	missing := filepath.Join(t.TempDir(), "missing")
 	src := mustProcessor(t, stepdef.Source, "file:"+missing, map[string]any{"autoCreate": false, "initialDelay": 0.0}).(stepdef.SourceProcessor)
-	if err := src.Run(context.Background(), func(message.Message) error { return nil }); err == nil {
+	if err := src.Run(context.Background(), func(message.Message, func(message.Message, error)) error { return nil }); err == nil {
 		t.Error("missing directory without autoCreate: want error")
 	}
 }
@@ -162,7 +162,7 @@ func TestFileSourceStopsDuringInitialDelay(t *testing.T) {
 	defer cancel()
 
 	start := time.Now()
-	src.Run(ctx, func(message.Message) error { return nil })
+	src.Run(ctx, func(message.Message, func(message.Message, error)) error { return nil })
 	if d := time.Since(start); d > time.Second {
 		t.Errorf("stop took %v", d)
 	}

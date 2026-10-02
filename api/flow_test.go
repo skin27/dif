@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -178,8 +179,10 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 			`step b: setbody: option language: "groovy" is not one of "constant", "simple"`},
 		{"setheader without name", []step{timer(nil), {"h", "action", "setheader", map[string]any{"value": "x"}}, logSink},
 			"step h: setheader: missing required option name"},
-		{"unknown source", []step{{"src", "source", "https://0.0.0.0:9001/in", nil}, logSink}, `step src: no processor for "https" (source)`},
-		{"unknown action", []step{timer(nil), {"x", "action", "setheaders:message:x", nil}, logSink}, `step x: no processor for "setheaders" (action)`},
+		{"unknown source", []step{{"src", "source", "sftp://example.com/in", nil}, logSink}, `step src: no processor for "sftp" (source)`},
+		{"keystore missing", []step{{"src", "source", "https://0.0.0.0:9001/in", map[string]any{"serverIdentityFile": "nope.p12"}}, logSink}, "step src: https: server identity: open nope.p12"},
+		{"unknown action", []step{timer(nil), {"x", "action", "xmltojson", nil}, logSink}, `step x: no processor for "xmltojson" (action)`},
+		{"unknown core message", []step{timer(nil), {"x", "action", "setheaders:message:x", nil}, logSink}, `step x: message "x" not found`},
 		{"timer as sink", []step{timer(nil), {"t", "sink", "timer:t", nil}}, `step t: no processor for "timer" (sink)`},
 	}
 	for _, tt := range tests {
@@ -191,8 +194,8 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 		})
 	}
 
-	if _, err := Load("../examples/log.json", nil); err == nil || !strings.Contains(err.Error(), `no processor for "https"`) {
-		t.Errorf("examples/log.json: err = %v, want the https source rejected", err)
+	if _, err := Load("../examples/flowLinkInbound.json", nil); err == nil || !strings.Contains(err.Error(), `no processor for "unknown" (source)`) {
+		t.Errorf("examples/flowLinkInbound.json: err = %v, want its placeholder source rejected", err)
 	}
 }
 
@@ -228,5 +231,90 @@ func TestRegisterStep(t *testing.T) {
 	}
 	if res := await(t, results); res.Message[Body] != "SHOUT" {
 		t.Errorf("body = %v, want SHOUT", res.Message[Body])
+	}
+}
+
+// TestHTTPSFlows runs two flows over HTTPS through the real engine:
+// server: https source -> setbody "pong ${body}"
+// client: timer -> setbody "ping" -> https action (POST to server) -> log
+func TestHTTPSFlows(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	addr := ln.Addr().String()
+	ln.Close()
+
+	server := dil(t, "server",
+		step{"in", "source", "https://" + addr + "/pingpong", map[string]any{
+			"serverIdentityFile": "../keystore/testdata/server-identity.p12", "serverIdentityPassword": "changeit"}},
+		step{"reply", "sink", "setbody", map[string]any{"language": "simple", "expression": "pong ${body}"}},
+	)
+	client := dil(t, "client",
+		step{"tick", "source", "timer:tick", map[string]any{"period": 50, "repeatCount": 1}},
+		step{"ping", "action", "setbody", map[string]any{"expression": "ping"}},
+		step{"call", "action", "https://" + addr + "/pingpong", map[string]any{
+			"httpMethod": "POST", "trustStoreFile": "../keystore/testdata/truststore.p12", "trustStorePassword": "changeit"}},
+		step{"log", "sink", "log", map[string]any{"showBody": true}},
+	)
+
+	_, serverResults := start(t, server, nil)
+	var logged bytes.Buffer
+	_, clientResults := start(t, client, log.New(&logged, "", 0))
+
+	res := await(t, clientResults)
+	if res.Message[Body] != "pong ping" || res.Message["http.status"] != 200 {
+		t.Errorf("client message = %v, want body \"pong ping\" and http.status 200", res.Message)
+	}
+	if got := strings.Join(res.Trail, " "); got != "source:tick action:ping action:call sink:log" {
+		t.Errorf("client trail = %s", got)
+	}
+	if res := await(t, serverResults); res.Message[Body] != "pong ping" {
+		t.Errorf("server message = %v", res.Message)
+	}
+	if !strings.Contains(logged.String(), "body=pong ping") {
+		t.Errorf("client log = %q", logged.String())
+	}
+}
+
+// TestExamplesThatLoad pins which examples load. The https examples use the
+// default keystores in security/, so the test runs in a directory holding the
+// test keystores under those names.
+func TestExamplesThatLoad(t *testing.T) {
+	examples, err := filepath.Abs("../examples")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	for from, to := range map[string]string{"server-identity.p12": "server-identity.p12", "truststore.p12": "outbound-truststore.p12"} {
+		data, err := os.ReadFile("../keystore/testdata/" + from)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.MkdirAll(filepath.Join(dir, "security"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "security", to), data, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Chdir(dir)
+	t.Setenv("DIF_SERVER_IDENTITY_PASSWORD", "changeit")
+	t.Setenv("DIF_TRUSTSTORE_PASSWORD", "changeit")
+
+	files, err := filepath.Glob(filepath.Join(examples, "*.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var loaded []string
+	for _, f := range files {
+		if _, err := Load(f, nil); err == nil {
+			loaded = append(loaded, filepath.Base(f))
+		}
+	}
+	want := "base64ToText.json fileInbound.json fileOutbound.json hello.json httpsClient.json httpsInbound.json " +
+		"log.json queueAsynchronousOutbound.json setBody.json test.json textToBase64.json timer.json"
+	if got := strings.Join(loaded, " "); got != want {
+		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)
 	}
 }

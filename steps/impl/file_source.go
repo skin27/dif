@@ -49,7 +49,7 @@ func newFileSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	return s, nil
 }
 
-func (s fileSource) Run(ctx context.Context, emit func(message.Message) error) error {
+func (s fileSource) Run(ctx context.Context, emit stepdef.Emit) error {
 	if s.autoCreate {
 		if err := os.MkdirAll(s.dir, 0o755); err != nil {
 			return err
@@ -78,7 +78,7 @@ func (s fileSource) Run(ctx context.Context, emit func(message.Message) error) e
 			}
 			m := message.New(string(data))
 			m[FileName] = filepath.ToSlash(rel)
-			if emit(m) != nil {
+			if emit(m, nil) != nil {
 				return nil // flow is stopping; the file stays for the next run
 			}
 			if err := s.consumed(path, rel); err != nil {

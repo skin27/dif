@@ -3,6 +3,8 @@ package impl
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
+	"strings"
 
 	flowdef "dif/flows/definition"
 	"dif/message"
@@ -25,7 +27,12 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		return nil, fmt.Errorf("expected exactly one flow, found %d", len(flows))
 	}
 
-	f, err := build(flows[0], newProcessor)
+	messages := map[string]dilMessage{}
+	for _, m := range doc.DIL.Core.Messages.Message {
+		messages[m.Name] = m
+	}
+
+	f, err := build(flows[0], messages, newProcessor)
 	if err != nil {
 		return nil, fmt.Errorf("flow %s: %w", flows[0].ID, err)
 	}
@@ -42,7 +49,7 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 	return f, nil
 }
 
-func build(df dilFlow, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
@@ -61,7 +68,11 @@ func build(df dilFlow, newProcessor func(*flowdef.Node) (stepdef.Processor, erro
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
 		}
 
-		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: s.URI, Options: s.Options}
+		opts, err := resolveMessage(s, messages)
+		if err != nil {
+			return nil, fmt.Errorf("step %s: %w", s.ID, err)
+		}
+		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: s.URI, Options: opts}
 
 		var ins, outs []string
 		for _, l := range s.Links.Link {
@@ -141,4 +152,33 @@ func build(df dilFlow, newProcessor func(*flowdef.Node) (stepdef.Processor, erro
 	}
 
 	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source}, nil
+}
+
+// resolveMessage returns the step's options. A step whose URI refers to a core
+// message, <scheme>:message:<name> (such as setheaders), also gets the
+// option "headers": that message's headers as a JSON array of
+// {name, value, language}. The processor then needs no knowledge of DIL.
+func resolveMessage(s dilStep, messages map[string]dilMessage) (map[string]any, error) {
+	_, rest, _ := strings.Cut(s.URI, ":")
+	name, ok := strings.CutPrefix(rest, "message:")
+	if !ok {
+		return s.Options, nil
+	}
+	m, ok := messages[name]
+	if !ok {
+		return nil, fmt.Errorf("message %q not found in dil.core.messages", name)
+	}
+
+	headers := make([]map[string]string, 0, len(m.Headers.Header))
+	for _, h := range m.Headers.Header {
+		headers = append(headers, map[string]string{"name": h.Name, "value": h.Value, "language": h.Language})
+	}
+	data, err := json.Marshal(headers)
+	if err != nil {
+		return nil, err
+	}
+	opts := make(map[string]any, len(s.Options)+1)
+	maps.Copy(opts, s.Options)
+	opts["headers"] = string(data)
+	return opts, nil
 }

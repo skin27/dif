@@ -1,0 +1,39 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:https-source",
+	"title": "https source",
+	"description": "Receives HTTPS requests and replies with the flow's outcome (request-reply). Flows on the same host:port share one listener.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address and path",
+			"description": "From the URI: https://<host>:<port>/<path>",
+			"type": "string"
+		},
+		"matchPrefix": {
+			"title": "Match prefix",
+			"description": "Also accept requests whose path starts with this path",
+			"type": "boolean",
+			"default": false
+		},
+		"preserveHttpHeaders": {
+			"title": "Preserve HTTP headers",
+			"description": "Add the headers http.method, http.path, http.query and http.uri",
+			"type": "boolean",
+			"default": false
+		},
+		"serverIdentityFile": {
+			"title": "Server identity",
+			"description": "PKCS#12 keystore with the server's private key and certificate",
+			"type": "string",
+			"default": "security/server-identity.p12"
+		},
+		"serverIdentityPassword": {
+			"title": "Server identity password",
+			"description": "Password of the keystore; defaults to the environment variable DIF_SERVER_IDENTITY_PASSWORD",
+			"type": "string"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

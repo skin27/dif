@@ -17,7 +17,7 @@ func timer(t *testing.T, opts map[string]any) stepdef.SourceProcessor {
 
 func TestTimerRepeatCount(t *testing.T) {
 	var bodies []any
-	err := timer(t, map[string]any{"period": 1.0, "repeatCount": "3"}).Run(context.Background(), func(m message.Message) error {
+	err := timer(t, map[string]any{"period": 1.0, "repeatCount": "3"}).Run(context.Background(), func(m message.Message, _ func(message.Message, error)) error {
 		bodies = append(bodies, m[message.Body])
 		if m[message.TraceID] == nil {
 			t.Error("message has no trace id")
@@ -34,7 +34,7 @@ func TestTimerRepeatCount(t *testing.T) {
 
 func TestTimerPeriod(t *testing.T) {
 	start := time.Now()
-	timer(t, map[string]any{"period": 30.0, "repeatCount": 2.0}).Run(context.Background(), func(message.Message) error { return nil })
+	timer(t, map[string]any{"period": 30.0, "repeatCount": 2.0}).Run(context.Background(), func(message.Message, func(message.Message, error)) error { return nil })
 	if d := time.Since(start); d < 60*time.Millisecond {
 		t.Errorf("2 ticks of 30ms took %v, want at least 60ms", d)
 	}
@@ -52,7 +52,7 @@ func TestTimerStopsOnCancel(t *testing.T) {
 
 	done := make(chan struct{})
 	go func() {
-		timer(t, map[string]any{"period": 1.0}).Run(ctx, func(message.Message) error { return nil })
+		timer(t, map[string]any{"period": 1.0}).Run(ctx, func(message.Message, func(message.Message, error)) error { return nil })
 		close(done)
 	}()
 	select {
@@ -64,7 +64,7 @@ func TestTimerStopsOnCancel(t *testing.T) {
 
 func TestTimerStopsWhenFlowStops(t *testing.T) {
 	n := 0
-	timer(t, map[string]any{"period": 1.0}).Run(context.Background(), func(message.Message) error {
+	timer(t, map[string]any{"period": 1.0}).Run(context.Background(), func(message.Message, func(message.Message, error)) error {
 		n++
 		return errors.New("flow is stopping")
 	})

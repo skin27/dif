@@ -22,7 +22,7 @@ func newTimerSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	}, nil
 }
 
-func (t timerSource) Run(ctx context.Context, emit func(message.Message) error) error {
+func (t timerSource) Run(ctx context.Context, emit stepdef.Emit) error {
 	ticker := time.NewTicker(t.period)
 	defer ticker.Stop()
 
@@ -32,7 +32,7 @@ func (t timerSource) Run(ctx context.Context, emit func(message.Message) error) 
 			return nil
 		case <-ticker.C:
 		}
-		if emit(message.New(i)) != nil {
+		if emit(message.New(i), nil) != nil {
 			return nil // flow is stopping
 		}
 	}

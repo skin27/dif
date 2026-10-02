@@ -113,3 +113,29 @@ func TestParseErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestParseMessageReference(t *testing.T) {
+	data, err := os.ReadFile("../../examples/log.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var headers any
+	_, err = Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
+		if strings.HasPrefix(n.URI, "setheaders:") {
+			headers = n.Options["headers"]
+		}
+		return noop{}, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `[{"language":"simple","name":"MyHeader","value":"SomeValue"}]`; headers != want {
+		t.Errorf("headers option = %v, want %s", headers, want)
+	}
+
+	bad := flow(`{"id":"a","type":"source","uri":"timer","links":{"link":{"id":"b","bound":"out"}}},` +
+		`{"id":"b","type":"sink","uri":"setheaders:message:nope","links":{"link":{"id":"b","bound":"in"}}}`)
+	if _, err := Parse([]byte(bad), newNoop); err == nil || !strings.Contains(err.Error(), `step b: message "nope" not found`) {
+		t.Errorf("unknown message: err = %v", err)
+	}
+}

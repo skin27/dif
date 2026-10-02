@@ -17,13 +17,13 @@ import (
 // chanSource emits every message sent on it, so a test decides when messages arrive.
 type chanSource chan message.Message
 
-func (c chanSource) Run(ctx context.Context, emit func(message.Message) error) error {
+func (c chanSource) Run(ctx context.Context, emit stepdef.Emit) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		case m, ok := <-c:
-			if !ok || emit(m) != nil {
+			if !ok || emit(m, nil) != nil {
 				return nil
 			}
 		}
@@ -339,5 +339,62 @@ func TestSetLogger(t *testing.T) {
 	must(t, r.Stop())
 	if buf.String() != "processed a\n" {
 		t.Errorf("log = %q, want processed a", buf.String())
+	}
+}
+
+// replySource emits each body it receives with a reply callback that sends the outcome back.
+type replySource struct {
+	bodies  chan string
+	replies chan result
+}
+
+func (s replySource) Run(ctx context.Context, emit stepdef.Emit) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case b := <-s.bodies:
+			err := emit(message.New(b), func(m message.Message, err error) {
+				s.replies <- result{&Result{Message: m}, err}
+			})
+			if err != nil {
+				return nil
+			}
+		}
+	}
+}
+
+func TestReply(t *testing.T) {
+	src := replySource{make(chan string), make(chan result, 1)}
+	r := NewRunner(flow(src), nil)
+	must(t, r.Start())
+	defer r.Stop()
+
+	src.bodies <- "ok"
+	if got := next(t, src.replies); got.err != nil || got.res.Message[message.Body] != "ok" {
+		t.Errorf("reply = %+v, want the processed message", got)
+	}
+	src.bodies <- "fail"
+	if got := next(t, src.replies); got.err == nil || !strings.Contains(got.err.Error(), "boom") {
+		t.Errorf("reply err = %v, want the step's error", got.err)
+	}
+}
+
+// failingSource returns an error at once, like an https source whose port is taken.
+type failingSource struct{}
+
+func (failingSource) Run(context.Context, stepdef.Emit) error { return errors.New("port in use") }
+
+func TestSourceErrorIsLogged(t *testing.T) {
+	var buf bytes.Buffer
+	r := NewRunner(flow(failingSource{}), nil)
+	r.SetLogger(log.New(&buf, "", 0))
+	must(t, r.Start())
+	must(t, r.Stop()) // waits for the source, which logged its error before ending
+	if err := r.Wait(); err == nil || err.Error() != "port in use" {
+		t.Errorf("Wait = %v, want the source's error", err)
+	}
+	if !strings.Contains(buf.String(), "source stopped: port in use") {
+		t.Errorf("log = %q, want the source error", buf.String())
 	}
 }

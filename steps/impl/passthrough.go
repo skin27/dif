@@ -22,4 +22,4 @@ type messageSource struct{}
 
 func newMessageSource(string, stepdef.Params) (stepdef.Processor, error) { return messageSource{}, nil }
 
-func (messageSource) Run(context.Context, func(message.Message) error) error { return nil }
+func (messageSource) Run(context.Context, stepdef.Emit) error { return nil }

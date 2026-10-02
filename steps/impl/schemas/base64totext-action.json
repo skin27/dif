@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:base64totext-action",
+	"title": "base64totext action",
+	"description": "Decodes a base64 body to text.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

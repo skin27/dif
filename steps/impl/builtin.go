@@ -21,10 +21,15 @@ func Register(r *registry.Registry) error {
 		{"timer", stepdef.Source, newTimerSource},
 		{"file", stepdef.Source, newFileSource},
 		{"message", stepdef.Source, newMessageSource},
+		{"https", stepdef.Source, newHTTPSSource},
 		{"log", stepdef.Action, newLogAction},
 		{"setbody", stepdef.Action, newSetBodyAction},
 		{"setheader", stepdef.Action, newSetHeaderAction},
 		{"passthrough", stepdef.Action, newPassthrough},
+		{"setheaders", stepdef.Action, newSetHeadersAction},
+		{"base64totext", stepdef.Action, newBase64ToTextAction},
+		{"texttobase64", stepdef.Action, newTextToBase64Action},
+		{"https", stepdef.Action, newHTTPSAction},
 		{"file", stepdef.Sink, newFileSink},
 	}
 	for _, b := range builtins {

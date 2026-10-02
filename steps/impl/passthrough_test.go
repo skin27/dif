@@ -17,7 +17,7 @@ func TestPassthrough(t *testing.T) {
 
 func TestMessageSourceEmitsNothing(t *testing.T) {
 	src := mustProcessor(t, stepdef.Source, "message:hello", nil).(stepdef.SourceProcessor)
-	err := src.Run(context.Background(), func(message.Message) error {
+	err := src.Run(context.Background(), func(message.Message, func(message.Message, error)) error {
 		t.Error("message source emitted a message")
 		return nil
 	})

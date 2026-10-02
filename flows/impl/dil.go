@@ -59,8 +59,9 @@ type dilMessage struct {
 }
 
 type dilHeader struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name     string `json:"name"`
+	Value    string `json:"value"`
+	Language string `json:"language"`
 }
 
 // oneOrMany decodes either a single JSON object or an array of them.

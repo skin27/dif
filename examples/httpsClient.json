@@ -1,0 +1,101 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "httpsClient",
+						"name": "httpsClient",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "httpsClient-timer",
+									"type": "source",
+									"uri": "timer:tick",
+									"options": {
+										"period": 5000
+									},
+									"links": {
+										"link": {
+											"id": "httpsClient-setbody",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "httpsClient-setbody",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "ping ${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "httpsClient-setbody",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "httpsClient-call",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "httpsClient-call",
+									"type": "action",
+									"uri": "https://localhost:9001/_new2/httpsinbound",
+									"options": {
+										"httpMethod": "POST"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "httpsClient-call",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "httpsClient-log",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "httpsClient-log",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "httpsClient-log",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "httpsClient-error",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						}
+					}
+				}
+			}
+		}
+	}
+}
