@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	flowdef "dif/flows/definition"
@@ -34,6 +35,9 @@ type Runner struct {
 	source   stepdef.SourceProcessor // nil when messages only arrive through Send
 	onResult func(*Result, error)    // called for every message, success or failure
 	inbox    chan envelope
+
+	// Message counts over the runner's lifetime; a restart does not reset them.
+	completed, failed atomic.Int64
 
 	mu     sync.Mutex
 	logger *log.Logger // the flow's logger for processors; nil for the standard logger
@@ -192,11 +196,11 @@ func (r *Runner) State() State {
 	return r.state
 }
 
-// Status returns the flow's id, state and the time its current run started.
+// Status returns the flow's id, state, the time its current run started and its message counts.
 func (r *Runner) Status() FlowStatus {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return FlowStatus{ID: r.flow.ID, State: r.state, Since: r.since}
+	return FlowStatus{ID: r.flow.ID, State: r.state, Since: r.since, Completed: r.completed.Load(), Failed: r.failed.Load()}
 }
 
 // Wait blocks until the flow is stopped and returns the source's error, if any.
@@ -237,6 +241,11 @@ func (r *Runner) loop(ctx, msgCtx context.Context, done chan struct{}) {
 			res, err := Run(msgCtx, r.flow, e.msg)
 			if err != nil && msgCtx.Err() != nil {
 				err = fmt.Errorf("aborted by forced stop: %w", err)
+			}
+			if err != nil {
+				r.failed.Add(1)
+			} else {
+				r.completed.Add(1) // also when an error route handled it
 			}
 			if r.onResult != nil {
 				r.onResult(res, err) // a failing message is reported; the flow keeps going

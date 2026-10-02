@@ -173,3 +173,28 @@ func TestRegisterErrors(t *testing.T) {
 		t.Errorf("same name, other kind: %v", err)
 	}
 }
+
+func TestSteps(t *testing.T) {
+	r := New()
+	for _, d := range []stepdef.Definition{
+		{Name: "rec", Kind: stepdef.Action, New: newRecorder, Schema: []byte(`{"type": "object", "description": "Records.",
+			"properties": {"path": {"type": "string", "description": "Where"}, "n": {"type": "integer", "default": 1}}, "required": ["path"]}`)},
+		{Name: "out", Kind: stepdef.Sink, Schema: []byte(`{"type": "object"}`), New: newRecorder},
+		{Name: "out", Kind: stepdef.Action, Schema: []byte(`{"type": "object"}`), New: newRecorder},
+	} {
+		if err := r.Register(d); err != nil {
+			t.Fatal(err)
+		}
+	}
+	want := []StepInfo{
+		{Name: "out", Kind: stepdef.Action},
+		{Name: "out", Kind: stepdef.Sink},
+		{Name: "rec", Kind: stepdef.Action, Description: "Records.", Options: []OptionInfo{
+			{Name: "n", Type: "integer", Default: 1},
+			{Name: "path", Type: "string", Description: "Where", Required: true},
+		}},
+	}
+	if got := r.Steps(); !reflect.DeepEqual(got, want) {
+		t.Errorf("Steps() = %+v\nwant %+v", got, want)
+	}
+}

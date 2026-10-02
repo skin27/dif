@@ -6,6 +6,7 @@ package registry
 import (
 	"fmt"
 	"maps"
+	"slices"
 	"strings"
 	"sync"
 
@@ -97,6 +98,45 @@ func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 		return nil, fmt.Errorf("%s: processor %T is not a %s processor", name, p, e.def.Kind)
 	}
 	return p, nil
+}
+
+// StepInfo describes a registered step for a catalog, from its definition and schema.
+type StepInfo struct {
+	Name        string
+	Kind        string // Source, Action, Router or Sink
+	Description string
+	Options     []OptionInfo // sorted by name
+}
+
+// OptionInfo describes one option of a step, from its schema.
+type OptionInfo struct {
+	Name        string
+	Type        string // string, integer, number or boolean
+	Description string
+	Default     any // nil for none
+	Required    bool
+}
+
+// Steps returns the registered steps, sorted by name and kind.
+func (r *Registry) Steps() []StepInfo {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	steps := make([]StepInfo, 0, len(r.defs))
+	for _, e := range r.defs {
+		info := StepInfo{Name: e.def.Name, Kind: e.def.Kind, Description: e.schema.description}
+		for _, name := range e.schema.names {
+			p := e.schema.props[name]
+			info.Options = append(info.Options, OptionInfo{
+				Name: name, Type: p.typ, Description: p.description, Default: p.def,
+				Required: slices.Contains(e.schema.required, name),
+			})
+		}
+		steps = append(steps, info)
+	}
+	slices.SortFunc(steps, func(a, b StepInfo) int {
+		return strings.Compare(a.Name+"/"+a.Kind, b.Name+"/"+b.Kind)
+	})
+	return steps
 }
 
 func (r *Registry) lookup(name, kind string) (entry, bool) {

@@ -4,6 +4,7 @@ package cli
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,31 +14,14 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"text/tabwriter"
 	"time"
 
 	"dif/api"
+	"dif/engine"
 )
 
 const usage = `usage: dif                        open the CLI without flows; add them with "load" or "run"
        dif start <flow.json>...    load and start the flows, then open the CLI`
-
-const help = `commands:
-  load <flow.json>...     register the flows in the files; they stay stopped until started
-  run <flow.json>...      load the flows and start them
-  send <flow> [body]      send the flow's configured message; with <body>, use that as its body
-  start <flow>            start the flow (again, after stop), or continue it after pause
-  pause <flow>            stop taking new messages until the flow is started or resumed
-  resume <flow>           continue a paused flow
-  stop <flow> [--force]   stop the flow once its current message is done;
-                          --force stops it at once, and that message may be lost
-  log <flow> [--lines n]  follow the flow's log live (press Enter to stop);
-                          with --lines, show its last n lines
-  list [state]            list the flows and their state; state is started, paused or stopped
-  status                  show the message counts
-  help                    show this help
-  exit                    stop all flows and exit dif (Ctrl+C does the same)
-<flow> is the flow id from the DIL file. Each flow logs to its own file in ` + "`logs`" + `.`
 
 // followLines is the number of past lines "log <flow>" shows before following, as tail -f does.
 const followLines = 10
@@ -56,9 +40,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 2
 	}
 
-	con := &console{w: stdout, interactive: isTerminal(stdin)}
-	var processed, failed atomic.Int64
-
+	con := &console{w: stdout, interactive: isTerminal(stdin), color: useColor(stdout)}
 	eng := api.NewEngine()
 
 	var logsMu sync.Mutex
@@ -79,13 +61,11 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	// load reads the flow in path and registers it; it stays stopped.
 	// Its results and the lines of its log steps go to its log file.
 	load := func(path string) (*api.Flow, error) {
-		var fl *flowLog // set before the flow starts, so onResult can use it
-		var count atomic.Int64
+		var fl *flowLog      // set before the flow starts, so onResult can use it
+		var seq atomic.Int64 // numbers the messages in the log; the engine counts them
 		flow, err := api.Load(path, func(res *api.Result, err error) {
-			n := count.Add(1)
-			processed.Add(1)
+			n := seq.Add(1)
 			if err != nil {
-				failed.Add(1)
 				fl.logger.Printf("message %d failed: %v", n, err)
 				return
 			}
@@ -147,16 +127,13 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return nil
 	}
 
-	if len(paths) == 0 {
-		fmt.Fprintln(stdout, `DIF CLI: no flows yet; add them with "load <flow.json>" or "run <flow.json>".`)
-	}
 	for _, path := range paths {
 		flow, err := load(path)
 		if err == nil {
 			err = flow.Start()
 		}
 		if err != nil {
-			fmt.Fprintln(stderr, "error:", err)
+			fmt.Fprintln(stderr, "Error:", err)
 			running := eng.ListFlows("")
 			eng.Shutdown()
 			closeLogs(running)
@@ -165,9 +142,28 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		if l, err := flowLogOf(flow.ID()); err == nil {
 			l.logger.Printf("flow %s started", flow.ID())
 		}
-		fmt.Fprintf(stdout, "DIF CLI: flow %s (%s) is started.\n", flow.ID(), path)
 	}
-	fmt.Fprintf(stdout, "Type a command at the %q prompt; \"help\" lists all commands.\n", prompt)
+	fmt.Fprintf(stdout, "DIF - Data Integration Framework\nVersion: %s\n\n", Version)
+	if len(paths) == 0 {
+		fmt.Fprintln(stdout, "No flows loaded.")
+	} else {
+		fmt.Fprintf(stdout, "Flows: %d\n", len(paths))
+	}
+	fmt.Fprint(stdout, "Use 'help' for available commands.\n\n")
+
+	// flowError reports err, explaining an unknown flow.
+	flowError := func(err error) {
+		var nf *engine.NotFoundError
+		if !errors.As(err, &nf) {
+			con.fail("%v", err)
+			return
+		}
+		hint := "Use 'list' to see loaded flows."
+		if len(nf.Suggestions) > 0 {
+			hint = "Did you mean: " + strings.Join(nf.Suggestions, ", ") + "?\n" + hint
+		}
+		con.fail("flow '%s' not found\n\n%s", nf.ID, hint)
+	}
 
 	quit := make(chan struct{})
 	var quitOnce sync.Once
@@ -183,26 +179,41 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			cmd, rest, _ := strings.Cut(line, " ")
 			fields := strings.Fields(rest)
 			id, body, _ := strings.Cut(strings.TrimSpace(rest), " ")
+			// args checks that the command has min to max fields; missing names a missing one.
+			args := func(min, max int, missing string) bool {
+				switch {
+				case len(fields) < min:
+					con.usage(cmd, "missing %s argument", missing)
+				case len(fields) > max:
+					con.usage(cmd, "unexpected argument '%s'", fields[max])
+				default:
+					return true
+				}
+				return false
+			}
 			switch cmd {
 			case "":
 			case "load", "run":
-				if len(fields) == 0 {
-					con.say("error: usage: %s <flow.json>...", cmd)
+				if !args(1, len(fields), "flow file") {
+					break
 				}
 				for _, path := range fields {
 					flow, err := load(path)
 					if err != nil {
-						con.say("error: %v", err)
+						con.fail("%v", err)
 					} else if cmd == "load" {
 						con.say("flow %s loaded from %s; it is %s", flow.ID(), path, flow.State())
 					} else if err := lifecycle(eng.StartFlow, flow.ID(), " (loaded from "+path+")"); err != nil {
-						con.say("error: %v", err)
+						flowError(err)
 					}
 				}
 			case "send":
+				if !args(1, len(fields), "flow") {
+					break
+				}
 				flow, err := eng.GetFlow(id)
 				if err != nil {
-					con.say("error: %v", err)
+					flowError(err)
 					break
 				}
 				m := flow.NewMessage()
@@ -210,20 +221,22 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 					m[api.Body] = body
 				}
 				if err := flow.Send(m); err != nil {
-					con.say("error: %v", err)
+					con.fail("%v", err)
 				} else {
 					con.say("message sent to flow %s; its result is in the flow's log", id)
 				}
 			case "start", "pause", "resume":
+				if !args(1, 1, "flow") {
+					break
+				}
 				op := map[string]func(string) error{"start": eng.StartFlow, "pause": eng.PauseFlow, "resume": eng.ResumeFlow}[cmd]
 				if err := lifecycle(op, id, ""); err != nil {
-					con.say("error: %v", err)
+					flowError(err)
 				}
 			case "stop":
 				force := slices.Contains(fields, "--force")
 				fields = slices.DeleteFunc(fields, func(f string) bool { return f == "--force" })
-				if len(fields) != 1 {
-					con.say("error: usage: stop <flow> [--force]")
+				if !args(1, 1, "flow") {
 					break
 				}
 				op, note := eng.StopFlow, ""
@@ -231,23 +244,23 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 					op, note = eng.ForceStopFlow, " (forced)"
 				}
 				if err := lifecycle(op, fields[0], note); err != nil {
-					con.say("error: %v", err)
+					flowError(err)
 				}
 			case "log":
 				id, lines, err := parseLog(fields)
 				if err != nil {
-					con.say("error: %v", err)
+					con.usage(cmd, "%v", err)
 					break
 				}
 				l, err := flowLogOf(id)
 				if err != nil {
-					con.say("error: %v", err)
+					flowError(err)
 					break
 				}
 				if lines > 0 {
 					tail, err := l.Tail(lines)
 					if err != nil {
-						con.say("error: %v", err)
+						con.fail("%v", err)
 					}
 					for _, line := range tail {
 						con.say("%s", line)
@@ -257,7 +270,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				con.say("following %s; press Enter to stop", l.path)
 				stop, err := l.Follow(followLines, func(line string) { con.say("%s", line) })
 				if err != nil {
-					con.say("error: %v", err)
+					con.fail("%v", err)
 					break
 				}
 				more := sc.Scan() // any line, usually empty, ends following
@@ -266,22 +279,74 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				if !more {
 					return
 				}
-			case "list":
-				state := api.State(id)
-				if state != "" && state != api.Started && state != api.Paused && state != api.Stopped {
-					con.say("error: unknown state %q; use started, paused or stopped", id)
+			case "list", "ps":
+				if !args(0, 1, "state") {
 					break
 				}
-				con.say("%s", table(eng.ListFlows(state), time.Now()))
+				state := api.State(id)
+				if state != "" && state != api.Started && state != api.Paused && state != api.Stopped {
+					con.usage(cmd, "unknown state '%s'; use started, paused or stopped", id)
+					break
+				}
+				if len(eng.ListFlows("")) == 0 {
+					con.block("No flows loaded.")
+					break
+				}
+				con.block(flowsText(eng.ListFlows(state), time.Now(), con.color))
+			case "stats":
+				if !args(0, 1, "flow") {
+					break
+				}
+				if id == "" {
+					con.block(statsText(eng.ListFlows("")))
+					break
+				}
+				flow, err := eng.GetFlow(id)
+				if err != nil {
+					flowError(err)
+					break
+				}
+				con.block(flowStatsText(flow.Status(), time.Now(), con.color))
 			case "status":
-				con.say("%d flows: %d messages processed, %d failed", len(eng.ListFlows("")), processed.Load(), failed.Load())
+				flows := eng.ListFlows("")
+				completed, failed := totals(flows)
+				con.say("%d flows: %d messages processed, %d failed", len(flows), completed+failed, failed)
+			case "catalog":
+				if !args(0, 1, "step") {
+					break
+				}
+				steps := api.StepCatalog()
+				if id == "" {
+					con.block(catalogText(steps))
+					break
+				}
+				var texts []string
+				for _, s := range steps {
+					if s.Name == id {
+						texts = append(texts, stepText(s))
+					}
+				}
+				if texts == nil {
+					con.fail("step '%s' not found\n\nUse 'catalog' to see available steps.", id)
+					break
+				}
+				con.block(strings.Join(texts, "\n\n"))
 			case "help":
-				con.say("%s", help)
+				if !args(0, 1, "command") {
+					break
+				}
+				if id == "" {
+					con.block(helpText())
+				} else if c, ok := findCommand(id); ok {
+					con.block(commandHelp(c))
+				} else {
+					con.fail("unknown command '%s'\n\nUse 'help' to see available commands.", id)
+				}
 			case "exit":
 				exit()
 				return
 			default:
-				con.say("unknown command %q; type \"help\" for all commands", cmd)
+				con.fail("unknown command '%s'\n\nUse 'help' to see available commands.", cmd)
 			}
 		}
 	}()
@@ -301,12 +366,13 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	running := eng.ListFlows("")
 	srcErr := eng.Shutdown()
 	if srcErr != nil {
-		con.say("error: %v", srcErr)
+		con.fail("%v", srcErr)
 	}
 	closeLogs(running)
-	con.close("exit: %d messages processed, %d failed", processed.Load(), failed.Load())
+	completed, failed := totals(eng.ListFlows(""))
+	con.close("exit: %d messages processed, %d failed", completed+failed, failed)
 
-	if srcErr != nil || failed.Load() > 0 {
+	if srcErr != nil || failed > 0 {
 		return 1
 	}
 	return 0
@@ -317,50 +383,46 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 func parseLog(args []string) (id string, lines int, err error) {
 	for i := 0; i < len(args); i++ {
 		switch {
-		case args[i] == "--lines" && i+1 < len(args):
-			i++
-			if lines, err = strconv.Atoi(args[i]); err != nil || lines < 1 {
-				return "", 0, fmt.Errorf("--lines needs a positive number, not %q", args[i])
+		case args[i] == "--lines":
+			if i++; i == len(args) {
+				return "", 0, fmt.Errorf("--lines needs a number")
 			}
-		case id == "" && !strings.HasPrefix(args[i], "-"):
+			if lines, err = strconv.Atoi(args[i]); err != nil || lines < 1 {
+				return "", 0, fmt.Errorf("--lines needs a positive number, not '%s'", args[i])
+			}
+		case strings.HasPrefix(args[i], "-"):
+			return "", 0, fmt.Errorf("unknown option '%s'", args[i])
+		case id == "":
 			id = args[i]
 		default:
-			id = ""
-			i = len(args)
+			return "", 0, fmt.Errorf("unexpected argument '%s'", args[i])
 		}
 	}
 	if id == "" {
-		return "", 0, fmt.Errorf("usage: log <flow> [--lines n]")
+		return "", 0, fmt.Errorf("missing flow argument")
 	}
 	return id, lines, nil
 }
 
-// table formats flows as a table with a header row, like docker ps.
-func table(flows []api.FlowStatus, now time.Time) string {
-	var b strings.Builder
-	w := tabwriter.NewWriter(&b, 0, 0, 3, ' ', 0)
-	fmt.Fprint(w, "ID\tSTATUS\tSTARTUP TIME\tUPTIME")
+// totals returns the message counts of all flows together.
+func totals(flows []api.FlowStatus) (completed, failed int64) {
 	for _, f := range flows {
-		started, uptime := "-", "-"
-		if !f.Since.IsZero() {
-			started = f.Since.Format(time.DateTime)
-			uptime = now.Sub(f.Since).Truncate(time.Second).String()
-		}
-		fmt.Fprintf(w, "\n%s\t%s\t%s\t%s", f.ID, f.State, started, uptime)
+		completed += f.Completed
+		failed += f.Failed
 	}
-	w.Flush()
-	return b.String()
+	return completed, failed
 }
 
 const prompt = "> "
 
 // console keeps user input and program output apart: input follows the
-// prompt, output is indented. Output can arrive at any time from the flow,
+// prompt, output does not. Output can arrive at any time from the flow,
 // so it is written above a fresh prompt when the user is typing.
 type console struct {
 	mu          sync.Mutex
 	w           io.Writer
 	interactive bool // a terminal echoes the typed commands itself
+	color       bool // the terminal shows ANSI colors
 	reading     bool // the prompt is showing
 	closed      bool // nothing is written after close
 }
@@ -393,7 +455,21 @@ func (c *console) read(sc *bufio.Scanner) (string, bool) {
 	return line, true
 }
 
-// say writes program output, indented.
+// block writes a block of output, such as a table, between blank lines.
+func (c *console) block(s string) { c.say("\n%s\n", s) }
+
+// fail reports an error as "Error: <message>"; lines with a hint may follow the message.
+func (c *console) fail(format string, a ...any) {
+	c.say("%s %s", paint("Error:", red, c.color), fmt.Sprintf(format, a...))
+}
+
+// usage reports a wrong use of command cmd, followed by its usage.
+func (c *console) usage(cmd, format string, a ...any) {
+	doc, _ := findCommand(cmd)
+	c.fail("%s\n\nUsage:\n  %s", fmt.Sprintf(format, a...), doc.usageLine())
+}
+
+// say writes program output.
 func (c *console) say(format string, a ...any) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -419,7 +495,7 @@ func (c *console) write(format string, a ...any) {
 		fmt.Fprint(c.w, "\r") // print over the waiting prompt
 	}
 	for _, line := range strings.Split(fmt.Sprintf(format, a...), "\n") {
-		fmt.Fprintf(c.w, "  %s\n", line)
+		fmt.Fprintln(c.w, line)
 	}
 }
 

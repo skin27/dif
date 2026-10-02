@@ -20,8 +20,12 @@ DIL `flow.id`. Messages are sent to a running flow separately.
   start), or `load <flow.json>` and later `start <flow>`.
 - `dif start <flow.json>...` loads and starts the given flows, then opens the CLI.
 
-You type commands after the `> ` prompt, and the program's answers are
-indented below them. `<flow>` is a flow id.
+You type commands after the `> ` prompt; the answers follow below them, tables
+between blank lines. `<flow>` is a flow id. `help` lists the commands by group
+and `help <command>` explains one. Mistakes are reported as `Error: ...` with
+a hint, such as the usage of the command or `Did you mean: timer?` for a
+mistyped flow id. On a terminal that supports it, flow states are colored
+(started green, paused yellow, stopped gray); set `NO_COLOR` to turn that off.
 
 | Command                  | Effect                                                                  |
 |--------------------------|-------------------------------------------------------------------------|
@@ -36,9 +40,14 @@ indented below them. `<flow>` is a flow id.
 | `stop <flow> --force`    | Stop the flow at once; the message it is processing may be lost         |
 | `log <flow>`             | Follow the flow's log live, starting with its last 10 lines (like `tail -f`); press Enter to stop |
 | `log <flow> --lines <n>` | Show the last `n` lines of the flow's log                               |
-| `list [state]`           | Table of the flows: id, state, startup time and uptime of the current run; filter on `started`, `paused` or `stopped` |
-| `status`                 | Show the number of flows and the message counts                         |
-| `help`                   | List all commands                                                       |
+| `list [state]`           | Table of the flows: id, state, completed and failed messages, and uptime of the current run; filter on `started`, `paused` or `stopped` |
+| `ps [state]`             | Same as `list`                                                          |
+| `stats`                  | Completed, failed and total messages per flow, with a total row         |
+| `stats <flow>`           | State, message counts, startup time and uptime of one flow              |
+| `status`                 | Show the number of flows and the message counts on one line             |
+| `catalog`                | List the steps flows can use: name, type (source, action, router, sink) and description |
+| `catalog <step>`         | Describe a step and its options (type, default, required), from its schema |
+| `help [command]`         | List all commands, or explain one                                       |
 | `exit`                   | Stop all flows and exit `dif` (Ctrl+C does the same)                    |
 
 ### Flow logs
@@ -56,35 +65,76 @@ Read it with `log <flow>` or any other tool.
 
 ```text
 $ go run ./cmd/dif
-DIF CLI: no flows yet; add them with "load <flow.json>" or "run <flow.json>".
-Type a command at the "> " prompt; "help" lists all commands.
-> run examples/timer.json examples/hello.json
-  flow timer started (loaded from examples/timer.json)
-  flow hello started (loaded from examples/hello.json)
-> send hello
-  message sent to flow hello; its result is in the flow's log
-> list
-  ID      STATUS    STARTUP TIME          UPTIME
-  hello   started   2026-10-02 13:37:40   10s
-  timer   started   2026-10-02 13:37:40   10s
-> log timer
-  following logs/timer.log; press Enter to stop
-  2026/10/02 13:37:40.104371 flow timer loaded from examples/timer.json
-  2026/10/02 13:37:40.105789 flow timer started (loaded from examples/timer.json)
-  2026/10/02 13:37:45.106427 step timer-log: traceid=c98d… headers={metadata.timestamp=…, source=timer} body=tick 1
-  2026/10/02 13:37:45.106427 message 1: {"body":"tick 1",…} trail: source:timer-source -> action:timer-setbody -> action:timer-setheader -> sink:timer-log (0 ms)
-  2026/10/02 13:37:50.107112 step timer-log: traceid=84cf… headers={metadata.timestamp=…, source=timer} body=tick 2
-  2026/10/02 13:37:50.109383 message 2: {"body":"tick 2",…} trail: … (1 ms)
+DIF - Data Integration Framework
+Version: 0.1.0
 
-  stopped following logs/timer.log
+No flows loaded.
+Use 'help' for available commands.
+
+> run examples/timer.json examples/hello.json
+flow timer started (loaded from examples/timer.json)
+flow hello started (loaded from examples/hello.json)
+> send hello
+message sent to flow hello; its result is in the flow's log
+> list
+
+FLOWS
+
+ID      STATUS      COMPLETED   FAILED   UPTIME
+───────────────────────────────────────────────
+hello   ● STARTED           1        0   10s
+timer   ● STARTED           2        0   10s
+
+2 flows
+
+> stats
+
+DIF MESSAGE STATISTICS
+
+FLOW    COMPLETED   FAILED   TOTAL
+──────────────────────────────────
+hello           1        0       1
+timer           2        0       2
+──────────────────────────────────
+TOTAL           3        0       3
+
+> log timer
+following logs/timer.log; press Enter to stop
+2026/10/02 13:37:40.104371 flow timer loaded from examples/timer.json
+2026/10/02 13:37:40.105789 flow timer started (loaded from examples/timer.json)
+2026/10/02 13:37:45.106427 step timer-log: traceid=c98d… headers={metadata.timestamp=…, source=timer} body=tick 1
+2026/10/02 13:37:45.106427 message 1: {"body":"tick 1",…} trail: source:timer-source -> action:timer-setbody -> action:timer-setheader -> sink:timer-log (0 ms)
+2026/10/02 13:37:50.107112 step timer-log: traceid=84cf… headers={metadata.timestamp=…, source=timer} body=tick 2
+2026/10/02 13:37:50.109383 message 2: {"body":"tick 2",…} trail: … (1 ms)
+
+stopped following logs/timer.log
 > log hello --lines 1
-  2026/10/02 13:37:40.106536 message 1: {"body":"HELLO WORLD","greeting":"hello",…} trail: source:hello-source -> action:hello-action -> sink:hello-sink (0 ms)
+2026/10/02 13:37:40.106536 message 1: {"body":"HELLO WORLD","greeting":"hello",…} trail: source:hello-source -> action:hello-action -> sink:hello-sink (0 ms)
 > stop timer --force
-  flow timer stopped (forced)
+flow timer stopped (forced)
+> pause helo
+Error: flow 'helo' not found
+
+Did you mean: hello?
+Use 'list' to see loaded flows.
+> catalog timer
+
+STEP: timer
+TYPE: SOURCE
+
+Produces a message on every tick. The body is the tick counter (1, 2, 3, ...).
+
+Options:
+  NAME          TYPE      DEFAULT   REQUIRED   DESCRIPTION
+  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  path          string    -         no         Name of the timer, from the URI (timer:<name>); informational only
+  period        integer   1000      no         Milliseconds between two ticks
+  repeatCount   integer   0         no         Number of messages to produce; 0 means unlimited
+
 > load examples/scheduler.json
-  error: flow 68b70775aaa512000600033b: step 8943a4b2-…: no processor for "quartz" (source)
+Error: flow 68b70775aaa512000600033b: step 8943a4b2-…: no processor for "quartz" (source)
 > exit
-  exit: 3 messages processed, 0 failed
+exit: 3 messages processed, 0 failed
 ```
 
 `examples/timer.json` runs timer → setbody → setheader → log: the timer
@@ -152,6 +202,9 @@ Engine ── flow id → Runner
 - `Shutdown` stops every flow and waits until all have finished.
 - The startup time is when the current run began: pausing and starting again
   keeps it, stopping clears it (`-` in `list`).
+- Every flow counts its completed and failed messages (a message the error
+  route handled counts as completed); stopping and starting keeps the counts.
+  `list`, `stats` and `status` show them.
 
 ```go
 e := api.NewEngine()
@@ -161,7 +214,7 @@ e.StartFlow("hello")
 f.Send(f.NewMessage())
 e.PauseFlow("hello")
 e.StartFlow("hello")                  // continues the paused flow
-e.ListFlows(api.Started)              // [{hello started <startup time>}]
+e.ListFlows(api.Started)              // [{hello started <startup time> 1 0}]: id, state, start, completed, failed
 e.Shutdown()
 ```
 
@@ -455,7 +508,7 @@ at a time.
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
 | `engine`           | `Run` takes one message through a flow, with redelivery and the error route; `Runner` holds the lifecycle; `Engine` is the registry of flows by id |
 | `api`              | Public entry point: `api.Load(path, onResult)` returns a `Flow` with lifecycle methods and `Send`; `api.NewEngine()` manages several flows; `api.RegisterStep` adds steps |
-| `cli`, `cmd/dif`   | `dif` / `dif start <flow.json>...` with `load`, `run`, `send`, `log`, `list` and lifecycle commands on stdin; one log file per flow |
+| `cli`, `cmd/dif`   | `dif` / `dif start <flow.json>...` with `load`, `run`, `send`, `log`, `list`/`ps`, `stats`, `catalog` and lifecycle commands on stdin; one log file per flow |
 
 The engine depends only on the flow model and the processor interfaces. New
 steps plug in through the registry without touching the engine.

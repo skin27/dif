@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -302,6 +303,10 @@ func TestGetFlowSuggests(t *testing.T) {
 	}
 	if err := e.PauseFlow("time"); err == nil || !strings.Contains(err.Error(), "Do you mean: timer") {
 		t.Errorf("PauseFlow(time) = %v, want a suggestion", err)
+	}
+	var nf *NotFoundError
+	if _, err := e.GetFlow("time"); !errors.As(err, &nf) || nf.ID != "time" || !reflect.DeepEqual(nf.Suggestions, []string{"timer", "timer2"}) {
+		t.Errorf("GetFlow(time) = %#v, want a *NotFoundError with suggestions timer, timer2", err)
 	}
 }
 

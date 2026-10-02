@@ -237,6 +237,41 @@ func TestFailingMessageContinues(t *testing.T) {
 	must(t, r.Stop())
 }
 
+func TestMessageCounts(t *testing.T) {
+	r, src, results := setup()
+	wantCounts := func(completed, failed int64) {
+		t.Helper()
+		if s := r.Status(); s.Completed != completed || s.Failed != failed {
+			t.Errorf("counts = %d completed, %d failed; want %d, %d", s.Completed, s.Failed, completed, failed)
+		}
+	}
+	wantCounts(0, 0)
+	must(t, r.Start())
+	for _, body := range []string{"ok", "fail", "ok"} {
+		src <- message.New(body)
+		next(t, results)
+	}
+	wantCounts(2, 1)
+
+	// A restart keeps the counts.
+	must(t, r.Stop())
+	must(t, r.Start())
+	src <- message.New("fail")
+	next(t, results)
+	must(t, r.Stop())
+	wantCounts(2, 2)
+
+	// A failure handled by the error route counts as completed.
+	var ran []string
+	handled := NewRunner(withError(&ran, tagger{&ran, "x", errors.New("boom")}, 0), nil)
+	must(t, handled.Start())
+	must(t, handled.Send(message.New("-")))
+	must(t, handled.Stop()) // the taken message completes first
+	if s := handled.Status(); s.Completed != 1 || s.Failed != 0 {
+		t.Errorf("handled failure: %d completed, %d failed; want 1, 0", s.Completed, s.Failed)
+	}
+}
+
 // waitFor blocks until release is closed, then fails if its context was cancelled.
 type waitFor chan struct{}
 

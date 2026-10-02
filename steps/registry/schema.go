@@ -17,17 +17,19 @@ import (
 // A schema using any other keyword is rejected when it is compiled, so it can
 // never silently rely on something that is not checked.
 type schema struct {
-	props      map[string]*property
-	names      []string // property names, sorted
-	required   []string
-	additional bool // whether options not in props are allowed
+	description string
+	props       map[string]*property
+	names       []string // property names, sorted
+	required    []string
+	additional  bool // whether options not in props are allowed
 }
 
 type property struct {
-	typ     string // string, integer, number or boolean
-	enum    []any  // allowed values, coerced to typ; nil for any
-	def     any    // default, coerced to typ; nil for none
-	minimum *float64
+	description string
+	typ         string // string, integer, number or boolean
+	enum        []any  // allowed values, coerced to typ; nil for any
+	def         any    // default, coerced to typ; nil for none
+	minimum     *float64
 }
 
 var (
@@ -51,6 +53,7 @@ func compile(data []byte) (*schema, error) {
 	}
 
 	s := &schema{props: map[string]*property{}, additional: true}
+	s.description, _ = raw["description"].(string)
 	props, _ := raw["properties"].(map[string]any)
 	if raw["properties"] != nil && props == nil {
 		return nil, fmt.Errorf("schema: properties must be an object")
@@ -98,6 +101,7 @@ func compileProperty(raw map[string]any) (*property, error) {
 		return nil, fmt.Errorf("type must be one of %s", strings.Join(scalarTypes, ", "))
 	}
 	p := &property{typ: typ}
+	p.description, _ = raw["description"].(string)
 
 	if e, ok := raw["enum"]; ok {
 		list, _ := e.([]any)

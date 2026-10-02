@@ -19,11 +19,29 @@ type Engine struct {
 	flows map[string]*Runner
 }
 
-// FlowStatus is a flow id with its lifecycle state and the start of its current run.
+// FlowStatus is a flow id with its lifecycle state, the start of its current
+// run and the number of messages it has processed.
 type FlowStatus struct {
 	ID    string
 	State State
 	Since time.Time // when the current run started; zero when stopped
+
+	Completed int64 // messages processed to the end, including those an error route handled
+	Failed    int64 // messages that failed
+}
+
+// NotFoundError is returned for an unknown flow id, with the registered ids
+// that look like it.
+type NotFoundError struct {
+	ID          string
+	Suggestions []string
+}
+
+func (e *NotFoundError) Error() string {
+	if len(e.Suggestions) > 0 {
+		return fmt.Sprintf("flow %s not found. Do you mean: %s?", e.ID, strings.Join(e.Suggestions, ", "))
+	}
+	return fmt.Sprintf("flow %s not found", e.ID)
 }
 
 // New returns an empty engine.
@@ -59,10 +77,7 @@ func (e *Engine) GetFlow(id string) (*Runner, error) {
 	for known := range e.flows {
 		ids = append(ids, known)
 	}
-	if s := suggest(id, ids); len(s) > 0 {
-		return nil, fmt.Errorf("flow %s not found. Do you mean: %s?", id, strings.Join(s, ", "))
-	}
-	return nil, fmt.Errorf("flow %s not found", id)
+	return nil, &NotFoundError{ID: id, Suggestions: suggest(id, ids)}
 }
 
 func (e *Engine) StartFlow(id string) error  { return e.do(id, (*Runner).Start) }

@@ -19,6 +19,8 @@ type (
 	Engine         = engine.Engine
 	FlowStatus     = engine.FlowStatus
 	StepDefinition = stepdef.Definition
+	StepInfo       = registry.StepInfo
+	OptionInfo     = registry.OptionInfo
 )
 
 // Body is the message key of the body.
@@ -41,6 +43,10 @@ var steps = func() *registry.Registry {
 
 // RegisterStep adds a step processor that flows loaded afterwards can use.
 func RegisterStep(d StepDefinition) error { return steps.Register(d) }
+
+// StepCatalog returns the steps flows can use: the built-in steps and those
+// added with RegisterStep, sorted by name and kind.
+func StepCatalog() []StepInfo { return steps.Steps() }
 
 // NewEngine returns an engine without flows; register loaded flows with Add.
 func NewEngine() *Engine { return engine.New() }
