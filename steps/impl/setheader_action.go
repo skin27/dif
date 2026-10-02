@@ -40,6 +40,10 @@ func checkHeaderName(name string) error {
 }
 
 func (a setHeaderAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	m[a.name] = a.value.eval(m)
+	v, err := a.value.eval(m)
+	if err != nil {
+		return nil, err
+	}
+	m[a.name] = v
 	return m, nil
 }

@@ -258,6 +258,14 @@ A failure on a branch of a router goes to the error route with that branch's
 message; a detached route (wire tap) never does. A forced stop never takes the
 error route.
 
+An error route can end in a **dead letter queue**: the `deadletter` step puts
+the message, with its `error.*` headers, on an in-memory queue, and another
+flow can read it with the source `queue:<name>`. `examples/deadletter.json` fails
+every message (`${bodyAs(BlaBla)}`), retries 3 times 10 seconds apart, then
+sends it to the queue `DLQ:68c7aed81e33920007000002`; the caller gets 200 with
+the message as it failed. A flow of your own with the source
+`queue:DLQ:68c7aed81e33920007000002` and a `log` sink shows what arrives there.
+
 ## Steps
 
 The scheme of a step's `uri` selects its processor in the registry
@@ -287,6 +295,8 @@ using anything else fails registration.
 | `setheader` | action | `name` (required), `language` constant\|simple (simple), `value` ("") | Sets one header; not `body` or `metadata.*` |
 | `passthrough` | action | – | Passes the message on unchanged |
 | `message:<name>` | source | – | Produces nothing; messages are sent to the flow (`send`) |
+| `queue:<name>` | source | – | Emits the messages of the in-memory queue `<name>` as they arrive (headers and trace id kept); see [Queues](#queues) |
+| `deadletter` | sink | `deadLetterQueue` (DLQ), `connectionFactory` (no effect) | Puts a copy of the message on the in-memory queue `deadLetterQueue`; for error routes |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` (false), `preserveHttpHeaders` (false), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
 | `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD (GET), `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (false) | Calls the endpoint; the response becomes the message, see [HTTPS](#https) |
 | `setheaders:message:<name>` | action | – | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
@@ -313,8 +323,19 @@ Aggregates are, for XML, the parts' root elements in `<Aggregated>…</Aggregate
 and, for JSON, an array of the parts.
 
 Language `constant` is the literal text; `simple` replaces `${body}` (also
-written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}` (other
-`${…}` expressions are rejected when the flow is loaded).
+written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}`.
+`${bodyAs(<type>)}` with another type loads but fails the message when it is
+evaluated, as the conversion does in Camel (`deadletter.json` relies on it).
+Other `${…}` expressions are rejected when the flow is loaded.
+
+### Queues
+
+Queues are named, in-memory FIFO queues shared by all flows of a `dif`
+process: `deadletter` puts messages on one, a `queue:<name>` source takes them
+off (several flows reading one queue share its messages). A queue holds at
+most 10000 messages; putting more fails the message. Queues are not persisted:
+their messages are lost when `dif` exits. A flow that stops while it waits to
+take a message leaves it on the queue.
 
 Conditions (`content`, `filter`) and split expressions use small subsets, built
 on the standard library; anything else is rejected when the flow is loaded:
@@ -408,14 +429,15 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-34 of the examples load (given the keystores): aggregate, base64ToText,
-contentrouter, csvtoxml, encoder, enrich, errorHandler, fileInbound,
-fileOutbound, filter, hello, httpsClient, httpsInbound, jsontoxml,
-jsontoxmlsimple, log, queueAsynchronousOutbound, recipient, removeHeaders,
-repeater, replace, setBody, simplereplace, split, splitAndAggregate, test,
-textToBase64, timer, unzip, wiretap, xmltocsv, xmltojson, xmltojsonsimple and
-zip. The others use steps without a processor yet (such as the dead letter
-queue in deadletter), or expressions such as `groovy` and `${date:now:ss}`. Several https examples
+35 of the examples load (given the keystores): aggregate, base64ToText,
+contentrouter, csvtoxml, deadletter, encoder, enrich, errorHandler,
+fileInbound, fileOutbound, filter, hello, httpsClient, httpsInbound,
+jsontoxml, jsontoxmlsimple, log, queueAsynchronousOutbound, recipient,
+removeHeaders, repeater, replace, setBody, simplereplace, split,
+splitAndAggregate, test, textToBase64, timer, unzip, wiretap, xmltocsv,
+xmltojson, xmltojsonsimple and zip. The others use steps without a processor
+yet (sftp, rabbitmq, xslt, …; the queue examples name no queue), or
+expressions such as `groovy` and `${date:now:ss}`. Several https examples
 listen on the same path (`/_new2/httpsinbound`), so only one of them can run
 at a time.
 
@@ -427,7 +449,7 @@ at a time.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple, xpath and jsonpath subsets |
+| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple, xpath and jsonpath subsets |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
@@ -457,11 +479,15 @@ steps plug in through the registry without touching the engine.
   `redeliveryAttempts` and `redeliveryInterval`, used when the first are
   absent) set the redelivery, and its outbound link, if any, starts the error
   route. It has no inbound link.
+- DIL exports some steps with the URI `unknown`; the parser names them by an
+  option only that step has: `deadLetterQueue` makes it `deadletter`. Other
+  `unknown` steps (such as flow links) stay unknown and are rejected.
 
 ## Future work
 
-- More sources and steps (queue, quartz, sftp, xslt, EDI and Excel converters, …);
-  multiple flows per file
+- More sources and steps (quartz, sftp, xslt, EDI and Excel converters, a
+  queue sink, …); multiple flows per file
+- Persisted queues, so dead letters survive a restart; a CLI command to inspect queues
 - Aggregation by time (`completionTimeout`, `completionInterval`) and by
   correlation key; it needs a timer that emits into the flow
 - More expression languages and simple-language functions (`${date:now:<format>}`, …)

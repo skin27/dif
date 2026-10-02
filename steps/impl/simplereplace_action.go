@@ -21,6 +21,10 @@ func (simpleReplaceAction) Process(_ context.Context, m message.Message) (messag
 	if err != nil {
 		return nil, fmt.Errorf("body: %w", err)
 	}
-	m[message.Body] = expr.eval(m)
+	v, err := expr.eval(m)
+	if err != nil {
+		return nil, fmt.Errorf("body: %w", err)
+	}
+	m[message.Body] = v
 	return m, nil
 }

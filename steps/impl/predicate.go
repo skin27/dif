@@ -7,8 +7,9 @@ import (
 	"dif/message"
 )
 
-// predicate is a compiled condition on a message.
-type predicate func(message.Message) bool
+// predicate is a compiled condition on a message. It fails only when a
+// simple expression in it does (${bodyAs(<type>)}).
+type predicate func(message.Message) (bool, error)
 
 // compilePredicate compiles a condition in one of these languages:
 //
@@ -26,13 +27,13 @@ func compilePredicate(language, expr string) (predicate, error) {
 		if err != nil {
 			return nil, err
 		}
-		return func(m message.Message) bool { return p.match(bytesOf(m[message.Body])) }, nil
+		return func(m message.Message) (bool, error) { return p.match(bytesOf(m[message.Body])), nil }, nil
 	case "jsonpath":
 		p, err := compileJSONPath(expr)
 		if err != nil {
 			return nil, err
 		}
-		return func(m message.Message) bool { return p.matchJSON(m[message.Body]) }, nil
+		return func(m message.Message) (bool, error) { return p.matchJSON(m[message.Body]), nil }, nil
 	}
 	return nil, fmt.Errorf("language %q is not supported; use simple, xpath or jsonpath", language)
 }
@@ -50,7 +51,10 @@ func compileSimplePredicate(expr string) (predicate, error) {
 		if err != nil {
 			return nil, err
 		}
-		return func(m message.Message) bool { return strings.EqualFold(strings.TrimSpace(e.eval(m)), "true") }, nil
+		return func(m message.Message) (bool, error) {
+			v, err := e.eval(m)
+			return strings.EqualFold(strings.TrimSpace(v), "true"), err
+		}, nil
 	}
 
 	left, err := compileExpression("simple", strings.TrimSpace(expr[:i]))
@@ -65,13 +69,19 @@ func compileSimplePredicate(expr string) (predicate, error) {
 		}
 	}
 
-	switch op {
-	case " == ":
-		return func(m message.Message) bool { return left.eval(m) == right.eval(m) }, nil
-	case " != ":
-		return func(m message.Message) bool { return left.eval(m) != right.eval(m) }, nil
-	}
-	return func(m message.Message) bool { return strings.Contains(left.eval(m), right.eval(m)) }, nil
+	compare := map[string]func(a, b string) bool{
+		" == ":       func(a, b string) bool { return a == b },
+		" != ":       func(a, b string) bool { return a != b },
+		" contains ": strings.Contains,
+	}[op]
+	return func(m message.Message) (bool, error) {
+		l, err := left.eval(m)
+		if err != nil {
+			return false, err
+		}
+		r, err := right.eval(m)
+		return compare(l, r), err
+	}, nil
 }
 
 // findOutsideRefs returns the first of ops that occurs in s outside ${...}

@@ -1,10 +1,12 @@
 package impl
 
 import (
+	"context"
 	"strings"
 	"testing"
 
 	"dif/message"
+	stepdef "dif/steps/definition"
 )
 
 func TestSimplePredicate(t *testing.T) {
@@ -27,7 +29,7 @@ func TestSimplePredicate(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: %v", expr, err)
 		}
-		if got := p(m); got != want {
+		if got, err := p(m); err != nil || got != want {
 			t.Errorf("%s = %v, want %v", expr, got, want)
 		}
 	}
@@ -50,9 +52,26 @@ func TestPredicateLanguages(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if got := p(tt.m); got != tt.want {
+		if got, err := p(tt.m); err != nil || got != tt.want {
 			t.Errorf("%s %s = %v, want %v", tt.lang, tt.expr, got, tt.want)
 		}
+	}
+}
+
+func TestPredicateFailsAtRuntime(t *testing.T) {
+	p, err := compilePredicate("simple", "${bodyAs(Integer)} == '1'")
+	if err != nil {
+		t.Fatalf("${bodyAs(Integer)} must compile: %v", err)
+	}
+	if _, err := p(message.New("1")); err == nil || !strings.Contains(err.Error(), "${bodyAs(Integer)}: the body cannot be converted to Integer") {
+		t.Errorf("err = %v", err)
+	}
+	r, err := newRouter(stepdef.Router, "content", nil, stepdef.Link{}, stepdef.Link{Rule: "r", Expression: "${bodyAs(Integer)} == '1'"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.Route(context.Background(), message.New("1")); err == nil || !strings.Contains(err.Error(), "outbound link 1: ${bodyAs(Integer)}") {
+		t.Errorf("content router: err = %v", err)
 	}
 }
 
@@ -63,6 +82,7 @@ func TestPredicateInvalid(t *testing.T) {
 		{"simple", "${body} == 'a' or ${body} == 'b'", "combining conditions is not supported"},
 		{"simple", "${date:now} == 'x'", "unsupported simple expression ${date:now}"},
 		{"simple", "${body} == ${random(3)}", "unsupported simple expression ${random(3)}"},
+		{"simple", "${bodyAs(String} == 'x'", "unsupported simple expression ${bodyAs(String}"},
 		{"xpath", "//person", "unsupported xpath"},
 		{"jsonpath", "$..author", "unsupported jsonpath"},
 	} {

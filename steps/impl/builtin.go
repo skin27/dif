@@ -22,6 +22,7 @@ func Register(r *registry.Registry) error {
 		{"file", stepdef.Source, newFileSource},
 		{"message", stepdef.Source, newMessageSource},
 		{"https", stepdef.Source, newHTTPSSource},
+		{"queue", stepdef.Source, newQueueSource},
 		{"repeater", stepdef.Source, newTimerSource},
 		{"log", stepdef.Action, newLogAction},
 		{"setbody", stepdef.Action, newSetBodyAction},
@@ -53,6 +54,7 @@ func Register(r *registry.Registry) error {
 		{"aggregate", stepdef.Router, newAggregateRouter},
 		{"splitandaggregate", stepdef.Router, newSplitAndAggregateRouter},
 		{"file", stepdef.Sink, newFileSink},
+		{"deadletter", stepdef.Sink, newDeadLetterSink},
 	}
 	for _, b := range builtins {
 		schema, err := schemas.ReadFile("schemas/" + b.name + "-" + b.kind + ".json")

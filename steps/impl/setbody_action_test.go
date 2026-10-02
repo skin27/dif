@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"context"
 	"testing"
 
 	"dif/message"
@@ -41,9 +42,21 @@ func TestSetBody(t *testing.T) {
 	}
 }
 
+// ${bodyAs(<type>)} loads but fails the message, as in examples/deadletter.json.
+func TestSetBodyFailsAtRuntime(t *testing.T) {
+	p := mustProcessor(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "Body: ${bodyAs(BlaBla)}"}).(stepdef.ActionProcessor)
+	m := message.New("x")
+	if _, err := p.Process(context.Background(), m); err == nil || err.Error() != "${bodyAs(BlaBla)}: the body cannot be converted to BlaBla; only String is supported" {
+		t.Errorf("err = %v", err)
+	}
+	if m[message.Body] != "x" {
+		t.Errorf("body = %v, want it unchanged", m[message.Body])
+	}
+}
+
 func TestSetBodyInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "groovy"}, `option language: "groovy" is not one of "constant", "simple"`)
-	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${bodyAs(Integer)}"}, "unsupported simple expression ${bodyAs(Integer)}")
+	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${bodyAs()}x"}, "unsupported simple expression ${bodyAs()")
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${header.}"}, "unsupported simple expression")
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${body"}, "unclosed ${")
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"value": "x"}, "unknown option value")

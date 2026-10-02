@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:deadletter-sink",
+	"title": "deadletter sink",
+	"description": "Puts the message on an in-memory dead letter queue, which a flow with the source queue:<name> can read. Not persisted.",
+	"type": "object",
+	"properties": {
+		"deadLetterQueue": {
+			"title": "Dead letter queue",
+			"description": "Name of the queue",
+			"type": "string",
+			"default": "DLQ"
+		},
+		"connectionFactory": {
+			"title": "Connection factory",
+			"description": "Accepted for compatibility; has no effect (the queue is in memory)",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

@@ -81,7 +81,7 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
-		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: s.URI, Options: opts}
+		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: knownURI(s), Options: opts}
 
 		var ins []string
 		var outs []dilLink
@@ -179,6 +179,25 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 	}
 
 	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source, Error: errh}, nil
+}
+
+// unknownSteps names the steps that DIL exports with the URI "unknown", by
+// an option only that step has.
+var unknownSteps = []struct{ option, uri string }{
+	{"deadLetterQueue", "deadletter"},
+}
+
+// knownURI returns the step's URI; for "unknown", the URI of the step its
+// options identify, if any.
+func knownURI(s dilStep) string {
+	if s.URI == "unknown" {
+		for _, u := range unknownSteps {
+			if _, ok := s.Options[u.option]; ok {
+				return u.uri
+			}
+		}
+	}
+	return s.URI
 }
 
 // errorHandler returns the error handler an error step defines, and the id of

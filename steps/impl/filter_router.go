@@ -26,7 +26,11 @@ func newFilterRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 }
 
 func (r filterRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
-	if r.cond(m) {
+	ok, err := r.cond(m)
+	if err != nil {
+		return nil, err
+	}
+	if ok {
 		return []stepdef.Route{{Next: 0, Message: m}}, nil
 	}
 	return nil, nil

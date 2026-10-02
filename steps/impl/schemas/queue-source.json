@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:queue-source",
+	"title": "queue source",
+	"description": "Emits the messages of an in-memory queue (such as a dead letter queue) as they arrive.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Queue",
+			"description": "Name of the queue, from the URI (queue:<name>)",
+			"type": "string"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

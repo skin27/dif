@@ -135,6 +135,34 @@ func TestParseErrorHandler(t *testing.T) {
 	}
 }
 
+func TestParseUnknownURI(t *testing.T) {
+	data, err := os.ReadFile("../../examples/deadletter.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, err := Parse(data, newNoop)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if uri := f.Error.Route.URI; uri != "deadletter" {
+		t.Errorf("dead letter step URI = %q, want deadletter (from its deadLetterQueue option)", uri)
+	}
+
+	// Without a known option it stays unknown.
+	data, err = os.ReadFile("../../examples/flowLinkOutbound.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var uris []string
+	Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
+		uris = append(uris, n.URI)
+		return noop{}, nil
+	})
+	if !strings.Contains(strings.Join(uris, " "), "unknown") {
+		t.Errorf("URIs = %v, want the flow link step to stay unknown", uris)
+	}
+}
+
 func TestParseErrorHandlerInvalid(t *testing.T) {
 	const errStep = `{"id":"e","type":"error","uri":"failedexchange"`
 	tests := []struct {

@@ -46,7 +46,11 @@ func newContentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 
 func (r contentRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
 	for _, w := range r.when {
-		if w.cond(m) {
+		ok, err := w.cond(m)
+		if err != nil {
+			return nil, fmt.Errorf("outbound link %d: %w", w.next, err)
+		}
+		if ok {
 			return []stepdef.Route{{Next: w.next, Message: m}}, nil
 		}
 	}

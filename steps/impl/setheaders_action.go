@@ -53,7 +53,11 @@ func newSetHeadersAction(_ string, p stepdef.Params) (stepdef.Processor, error) 
 // Process sets the headers in order, so a header can refer to an earlier one.
 func (a setHeadersAction) Process(_ context.Context, m message.Message) (message.Message, error) {
 	for _, h := range a.headers {
-		m[h.name] = h.value.eval(m)
+		v, err := h.value.eval(m)
+		if err != nil {
+			return nil, fmt.Errorf("header %s: %w", h.name, err)
+		}
+		m[h.name] = v
 	}
 	return m, nil
 }
