@@ -148,18 +148,31 @@ func TestParseUnknownURI(t *testing.T) {
 		t.Errorf("dead letter step URI = %q, want deadletter (from its deadLetterQueue option)", uri)
 	}
 
-	// Without a known option it stays unknown.
-	data, err = os.ReadFile("../../examples/flowLinkOutbound.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var uris []string
-	Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
-		uris = append(uris, n.URI)
+	// Flow links: the sender by targetFlowId, the source by transport; the
+	// source gets its own flow id.
+	nodes := map[string]*flowdef.Node{}
+	collect := func(n *flowdef.Node) (stepdef.Processor, error) {
+		nodes[n.Kind+":"+n.URI] = n
 		return noop{}, nil
-	})
-	if !strings.Contains(strings.Join(uris, " "), "unknown") {
-		t.Errorf("URIs = %v, want the flow link step to stay unknown", uris)
+	}
+	for _, file := range []string{"flowLinkOutbound.json", "flowLinkInbound.json", "xslt.json"} {
+		data, err := os.ReadFile("../../examples/" + file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Parse(data, collect); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if n := nodes["sink:flowlink"]; n == nil || n.Options["targetFlowId"] != "68c2dfb31e33920007000001" {
+		t.Errorf("flow link sink = %+v", n)
+	}
+	if n := nodes["source:flowlink"]; n == nil || n.Options["flowId"] != "68c2dfb31e33920007000001" || n.Options["transport"] != "async" {
+		t.Errorf("flow link source = %+v, want its flow id added", n)
+	}
+	// Without a known option it stays unknown.
+	if n := nodes["action:unknown"]; n == nil || n.Options["stylesheet"] == nil {
+		t.Errorf("xslt step = %+v, want it to stay unknown", n)
 	}
 }
 

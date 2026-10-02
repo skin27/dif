@@ -27,13 +27,13 @@ func TestQueueOrderAndCapacity(t *testing.T) {
 		t.Errorf("err = %v, want full", err)
 	}
 	for i := range 3 {
-		if m, _ := q.take(context.Background()); m[message.Body] != i {
-			t.Fatalf("took %v, want %d", m[message.Body], i)
+		if e, _ := q.take(context.Background()); e.m[message.Body] != i {
+			t.Fatalf("took %v, want %d", e.m[message.Body], i)
 		}
 	}
-	q.putBack(message.New("back"))
-	if m, _ := q.take(context.Background()); m[message.Body] != "back" {
-		t.Errorf("took %v, want the message put back first", m[message.Body])
+	q.putBack(queued{m: message.New("back")})
+	if e, _ := q.take(context.Background()); e.m[message.Body] != "back" {
+		t.Errorf("took %v, want the message put back first", e.m[message.Body])
 	}
 	if q.len() != queueCapacity-3 {
 		t.Errorf("len = %d", q.len())
@@ -46,8 +46,8 @@ func TestQueueTakeWaits(t *testing.T) {
 		time.Sleep(20 * time.Millisecond)
 		q.put(message.New("late"))
 	}()
-	if m, err := q.take(context.Background()); err != nil || m[message.Body] != "late" {
-		t.Errorf("took %v, %v", m, err)
+	if e, err := q.take(context.Background()); err != nil || e.m[message.Body] != "late" {
+		t.Errorf("took %v, %v", e.m, err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)

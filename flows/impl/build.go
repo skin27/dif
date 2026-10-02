@@ -82,6 +82,11 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
 		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: knownURI(s), Options: opts}
+		if n.Kind == flowdef.Source && n.URI == "flowlink" && opts["flowId"] == nil {
+			// A flow link source listens for its own flow, which DIL leaves out.
+			n.Options = maps.Clone(opts)
+			n.Options["flowId"] = df.ID
+		}
 
 		var ins []string
 		var outs []dilLink
@@ -182,17 +187,19 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 }
 
 // unknownSteps names the steps that DIL exports with the URI "unknown", by
-// an option only that step has.
-var unknownSteps = []struct{ option, uri string }{
-	{"deadLetterQueue", "deadletter"},
+// their type (any if empty) and an option only that step has.
+var unknownSteps = []struct{ kind, option, uri string }{
+	{"", "deadLetterQueue", "deadletter"},
+	{"", "targetFlowId", "flowlink"},
+	{flowdef.Source, "transport", "flowlink"},
 }
 
 // knownURI returns the step's URI; for "unknown", the URI of the step its
-// options identify, if any.
+// type and options identify, if any.
 func knownURI(s dilStep) string {
 	if s.URI == "unknown" {
 		for _, u := range unknownSteps {
-			if _, ok := s.Options[u.option]; ok {
+			if _, ok := s.Options[u.option]; ok && (u.kind == "" || u.kind == s.Type) {
 				return u.uri
 			}
 		}

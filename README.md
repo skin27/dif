@@ -350,6 +350,8 @@ using anything else fails registration.
 | `message:<name>` | source | – | Produces nothing; messages are sent to the flow (`send`) |
 | `queue:<name>` | source | – | Emits the messages of the in-memory queue `<name>` as they arrive (headers and trace id kept); see [Queues](#queues) |
 | `deadletter` | sink | `deadLetterQueue` (DLQ), `connectionFactory` (no effect) | Puts a copy of the message on the in-memory queue `deadLetterQueue`; for error routes |
+| `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow; see [Flow links](#flow-links) |
+| `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda (sync), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000) | Sends a copy of the message to the flow `targetFlowId`; see [Flow links](#flow-links) |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` (false), `preserveHttpHeaders` (false), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
 | `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD (GET), `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (false) | Calls the endpoint; the response becomes the message, see [HTTPS](#https) |
 | `setheaders:message:<name>` | action | – | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
@@ -389,6 +391,24 @@ off (several flows reading one queue share its messages). A queue holds at
 most 10000 messages; putting more fails the message. Queues are not persisted:
 their messages are lost when `dif` exits. A flow that stops while it waits to
 take a message leaves it on the queue.
+
+### Flow links
+
+A flow with a `flowlink` source can be called by other flows of the same `dif`
+process: its endpoint is an in-memory queue named after its flow id, so a
+message sent before it starts waits until it does. The `flowlink` step sends a
+copy of the message to it:
+
+| `transport` | `exchangePattern` | The sender |
+|---|---|---|
+| async, seda | InOnly | does not wait: the message goes on at once |
+| sync, direct, vm | InOnly | waits until the target flow has processed the copy; the message goes on unchanged, or fails if the target failed |
+| any | InOut | waits for the target flow's outcome, which replaces the message |
+
+Waiting ends after `requestTimeout` (`flow x did not reply within 20s`); a copy
+the target has not taken by then is dropped, so it is never processed late.
+`flowLinkOutbound.json` and `flowLinkInbound.json` show it: run both, and a
+request to the outbound flow is logged by the inbound one.
 
 Conditions (`content`, `filter`) and split expressions use small subsets, built
 on the standard library; anything else is rejected when the flow is loaded:
@@ -482,9 +502,10 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-35 of the examples load (given the keystores): aggregate, base64ToText,
+39 of the examples load (given the keystores): aggregate, base64ToText,
 contentrouter, csvtoxml, deadletter, encoder, enrich, errorHandler,
-fileInbound, fileOutbound, filter, hello, httpsClient, httpsInbound,
+fileInbound, fileOutbound, filter, flowLinkInbound, flowLinkOutbound,
+flowlinkAsynInbound, flowlinkAsyncOutbound, hello, httpsClient, httpsInbound,
 jsontoxml, jsontoxmlsimple, log, queueAsynchronousOutbound, recipient,
 removeHeaders, repeater, replace, setBody, simplereplace, split,
 splitAndAggregate, test, textToBase64, timer, unzip, wiretap, xmltocsv,
@@ -502,7 +523,7 @@ at a time.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple, xpath and jsonpath subsets |
+| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple, xpath and jsonpath subsets |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
@@ -533,8 +554,10 @@ steps plug in through the registry without touching the engine.
   absent) set the redelivery, and its outbound link, if any, starts the error
   route. It has no inbound link.
 - DIL exports some steps with the URI `unknown`; the parser names them by an
-  option only that step has: `deadLetterQueue` makes it `deadletter`. Other
-  `unknown` steps (such as flow links) stay unknown and are rejected.
+  option only that step has: `deadLetterQueue` makes it `deadletter`,
+  `targetFlowId` a `flowlink` step, and `transport` on a source a `flowlink`
+  source, which also gets the option `flowId` (the flow's id). Other
+  `unknown` steps stay unknown and are rejected.
 
 ## Future work
 

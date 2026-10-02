@@ -184,6 +184,7 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 		{"unknown action", []step{timer(nil), {"x", "action", "xslt", nil}, logSink}, `step x: no processor for "xslt" (action)`},
 		{"unknown core message", []step{timer(nil), {"x", "action", "setheaders:message:x", nil}, logSink}, `step x: message "x" not found`},
 		{"timer as sink", []step{timer(nil), {"t", "sink", "timer:t", nil}}, `step t: no processor for "timer" (sink)`},
+		{"unknown placeholder", []step{timer(nil), {"x", "action", "unknown", map[string]any{"stylesheet": "<xsl/>"}}, logSink}, `step x: no processor for "unknown" (action)`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -194,9 +195,6 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 		})
 	}
 
-	if _, err := Load("../examples/flowLinkInbound.json", nil); err == nil || !strings.Contains(err.Error(), `no processor for "unknown" (source)`) {
-		t.Errorf("examples/flowLinkInbound.json: err = %v, want its placeholder source rejected", err)
-	}
 }
 
 // upper is a custom step: it upper-cases the body.
@@ -313,7 +311,7 @@ func TestExamplesThatLoad(t *testing.T) {
 		}
 	}
 	want := "aggregate.json base64ToText.json contentrouter.json csvtoxml.json deadletter.json encoder.json enrich.json errorHandler.json fileInbound.json fileOutbound.json filter.json " +
-		"hello.json httpsClient.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json queueAsynchronousOutbound.json " +
+		"flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json hello.json httpsClient.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json queueAsynchronousOutbound.json " +
 		"recipient.json removeHeaders.json repeater.json replace.json setBody.json simplereplace.json split.json splitAndAggregate.json test.json " +
 		"textToBase64.json timer.json unzip.json wiretap.json xmltocsv.json xmltojson.json xmltojsonsimple.json zip.json"
 	if got := strings.Join(loaded, " "); got != want {

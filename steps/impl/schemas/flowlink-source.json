@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:flowlink-source",
+	"title": "flowlink source",
+	"description": "Emits the messages other flows send to this flow with a flowlink step.",
+	"type": "object",
+	"properties": {
+		"flowId": {
+			"title": "Flow ID",
+			"description": "Id of this flow; the DIL parser fills it in",
+			"type": "string"
+		},
+		"transport": {
+			"title": "Transport",
+			"description": "Accepted for compatibility; the sender's transport decides",
+			"type": "string",
+			"default": "sync"
+		}
+	},
+	"required": ["flowId"],
+	"additionalProperties": false
+}
