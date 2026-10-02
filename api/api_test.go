@@ -32,11 +32,11 @@ func TestHello(t *testing.T) {
 		t.Fatalf("got %d results, want 1", len(results))
 	}
 	res := results[0]
-	if res.Message.Body != "HELLO WORLD" {
-		t.Errorf("body = %v, want HELLO WORLD", res.Message.Body)
+	if res.Message[Body] != "HELLO WORLD" {
+		t.Errorf("body = %v, want HELLO WORLD", res.Message[Body])
 	}
-	if got := res.Message.Headers["greeting"]; got != "hello" {
-		t.Errorf("header greeting = %q, want hello", got)
+	if got := res.Message["greeting"]; got != "hello" {
+		t.Errorf("header greeting = %v, want hello", got)
 	}
 	if len(res.Trail) != 3 {
 		t.Errorf("trail = %v, want 3 steps", res.Trail)

@@ -1,0 +1,41 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:file-sink",
+	"title": "file sink",
+	"description": "Writes the message body to a file in a directory. Headers and metadata are not written.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Directory",
+			"description": "Directory to write to, from the URI (file:<directory>)",
+			"type": "string"
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Name of the file; defaults to the header file.name, else the message's trace id",
+			"type": "string"
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the file",
+			"type": "string",
+			"enum": ["utf-8", "UTF-8"],
+			"default": "utf-8"
+		},
+		"autoCreate": {
+			"title": "Auto create",
+			"description": "Create missing directories",
+			"type": "boolean",
+			"default": true
+		},
+		"fileExist": {
+			"title": "File exist",
+			"description": "What to do when the file exists: Override, Append, Fail (error) or Ignore (skip)",
+			"type": "string",
+			"enum": ["Override", "Append", "Fail", "Ignore"],
+			"default": "Override"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

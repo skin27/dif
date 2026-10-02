@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:timer-source",
+	"title": "timer source",
+	"description": "Produces a message on every tick. The body is the tick counter (1, 2, 3, ...).",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Name",
+			"description": "Name of the timer, from the URI (timer:<name>); informational only",
+			"type": "string"
+		},
+		"period": {
+			"title": "Period",
+			"description": "Milliseconds between two ticks",
+			"type": "integer",
+			"minimum": 1,
+			"default": 1000
+		},
+		"repeatCount": {
+			"title": "Repeat count",
+			"description": "Number of messages to produce; 0 means unlimited",
+			"type": "integer",
+			"minimum": 0,
+			"default": 0
+		}
+	},
+	"additionalProperties": false
+}

@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setheader-action",
+	"title": "setheader action",
+	"description": "Sets one header of the message by an expression.",
+	"type": "object",
+	"properties": {
+		"name": {
+			"title": "Name",
+			"description": "Name of the header (case-sensitive); not body and not a metadata header",
+			"type": "string"
+		},
+		"language": {
+			"title": "Language",
+			"description": "Expression language: constant (literal text) or simple (${body}, ${header.name})",
+			"type": "string",
+			"enum": ["constant", "simple"],
+			"default": "simple"
+		},
+		"value": {
+			"title": "Value",
+			"description": "The value of the header",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"required": ["name"],
+	"additionalProperties": false
+}

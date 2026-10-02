@@ -14,29 +14,33 @@
 									"type": "source",
 									"uri": "timer:tick",
 									"options": {
-										"period": 1000
+										"period": 5000
 									},
 									"links": {
 										"link": {
-											"id": "timer-action",
+											"id": "timer-setbody",
 											"bound": "out",
 											"transport": "sync"
 										}
 									}
 								},
 								{
-									"id": "timer-action",
+									"id": "timer-setbody",
 									"type": "action",
-									"uri": "passthrough",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "tick ${body}"
+									},
 									"links": {
 										"link": [
 											{
-												"id": "timer-action",
+												"id": "timer-setbody",
 												"bound": "in",
 												"transport": "sync"
 											},
 											{
-												"id": "timer-sink",
+												"id": "timer-setheader",
 												"bound": "out",
 												"transport": "sync"
 											}
@@ -44,12 +48,41 @@
 									}
 								},
 								{
-									"id": "timer-sink",
+									"id": "timer-setheader",
+									"type": "action",
+									"uri": "setheader",
+									"options": {
+										"name": "source",
+										"language": "constant",
+										"value": "timer"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "timer-setheader",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "timer-log",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "timer-log",
 									"type": "sink",
-									"uri": "passthrough",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": false
+									},
 									"links": {
 										"link": {
-											"id": "timer-sink",
+											"id": "timer-log",
 											"bound": "in",
 											"transport": "sync"
 										}

@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -12,17 +13,17 @@ import (
 
 type noop struct{}
 
-func (noop) Execute(m *message.Message) (*message.Message, error) { return m, nil }
+func (noop) Process(_ context.Context, m message.Message) (message.Message, error) { return m, nil }
 
-func newNoop(*flowdef.Node) (stepdef.Step, error) { return noop{}, nil }
+func newNoop(*flowdef.Node) (stepdef.Processor, error) { return noop{}, nil }
 
 // path returns "kind:id" for each node from source to sink.
 func path(f *flowdef.Flow) []string {
 	var p []string
 	for n := f.Source; n != nil; {
 		p = append(p, n.Kind+":"+n.ID)
-		if n.Step == nil {
-			p = append(p, "<nil step>")
+		if n.Processor == nil {
+			p = append(p, "<nil processor>")
 		}
 		if len(n.Next) == 0 {
 			break
@@ -74,7 +75,7 @@ func TestParseInputMessage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := f.Input.Headers["MyHeader"]; got != "SomeValue" {
+	if got := f.Input["MyHeader"]; got != "SomeValue" {
 		t.Errorf("header MyHeader = %q, want SomeValue", got)
 	}
 }

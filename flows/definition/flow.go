@@ -2,24 +2,27 @@
 // It is independent of DIL or any other DSL.
 package definition
 
-import stepdef "dif/steps/definition"
+import (
+	"dif/message"
+	stepdef "dif/steps/definition"
+)
 
 // Step kinds.
 const (
-	Source = "source" // one outbound link
-	Action = "action" // one inbound, one outbound link
-	Router = "router" // one inbound, multiple outbound links (not supported yet)
-	Sink   = "sink"   // one inbound link
+	Source = stepdef.Source // one outbound link
+	Action = stepdef.Action // one inbound, one outbound link
+	Router = stepdef.Router // one inbound, multiple outbound links (not supported yet)
+	Sink   = stepdef.Sink   // one inbound link
 )
 
 // Node is a step in a flow together with its outbound links.
 type Node struct {
-	ID      string
-	Kind    string
-	URI     string
-	Options map[string]any
-	Next    []*Node      // targets of the outbound links
-	Step    stepdef.Step // the executable step
+	ID        string
+	Kind      string
+	URI       string
+	Options   map[string]any
+	Next      []*Node           // targets of the outbound links
+	Processor stepdef.Processor // the step's processor
 }
 
 // Flow is a graph of nodes starting at Source.
@@ -27,11 +30,5 @@ type Flow struct {
 	ID     string
 	Name   string
 	Source *Node
-	Input  InputMessage
-}
-
-// InputMessage is the initial message fed into the source.
-type InputMessage struct {
-	Body    any
-	Headers map[string]string
+	Input  message.Message // headers and body of the configured message; nil if there is none
 }

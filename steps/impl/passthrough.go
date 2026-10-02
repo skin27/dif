@@ -1,19 +1,25 @@
-// Package impl contains the concrete steps.
 package impl
 
 import (
-	flowdef "dif/flows/definition"
+	"context"
+
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
 
-// Passthrough returns the message unchanged.
-type Passthrough struct{}
+// passthrough returns the message unchanged.
+type passthrough struct{}
 
-func (Passthrough) Execute(m *message.Message) (*message.Message, error) { return m, nil }
+func newPassthrough(string, stepdef.Params) (stepdef.Processor, error) { return passthrough{}, nil }
 
-// New creates the step for a node. Every node is a Passthrough for now;
-// mapping node URIs to concrete steps belongs here, not in the engine.
-func New(*flowdef.Node) (stepdef.Step, error) {
-	return Passthrough{}, nil
+func (passthrough) Process(_ context.Context, m message.Message) (message.Message, error) {
+	return m, nil
 }
+
+// messageSource produces nothing by itself: its flow receives messages only
+// when they are sent to it, such as the configured message by the CLI's send.
+type messageSource struct{}
+
+func newMessageSource(string, stepdef.Params) (stepdef.Processor, error) { return messageSource{}, nil }
+
+func (messageSource) Run(context.Context, func(message.Message) error) error { return nil }

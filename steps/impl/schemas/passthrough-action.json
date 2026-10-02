@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:passthrough-action",
+	"title": "passthrough action",
+	"description": "Passes the message on unchanged.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Name",
+			"description": "Optional name from the URI; informational only",
+			"type": "string"
+		}
+	},
+	"additionalProperties": false
+}

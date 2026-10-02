@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:log-action",
+	"title": "log action",
+	"description": "Logs the message and passes it on unchanged.",
+	"type": "object",
+	"properties": {
+		"showHeaders": {
+			"title": "Show headers",
+			"description": "Log all message headers",
+			"type": "boolean",
+			"default": false
+		},
+		"showBody": {
+			"title": "Show body",
+			"description": "Log the message body",
+			"type": "boolean",
+			"default": false
+		},
+		"showException": {
+			"title": "Show exception",
+			"description": "Log exceptions; accepted for DIL compatibility, has no effect yet",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"additionalProperties": false
+}

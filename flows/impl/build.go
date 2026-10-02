@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	flowdef "dif/flows/definition"
+	"dif/message"
 	stepdef "dif/steps/definition"
 )
 
 // Parse converts a DIL JSON document holding exactly one flow into the flow model.
-// newStep creates the executable step for each node.
-func Parse(data []byte, newStep func(*flowdef.Node) (stepdef.Step, error)) (*flowdef.Flow, error) {
+// newProcessor creates the processor for each node.
+func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
 	var doc dilDoc
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("parse dil: %w", err)
@@ -24,22 +25,24 @@ func Parse(data []byte, newStep func(*flowdef.Node) (stepdef.Step, error)) (*flo
 		return nil, fmt.Errorf("expected exactly one flow, found %d", len(flows))
 	}
 
-	f, err := build(flows[0], newStep)
+	f, err := build(flows[0], newProcessor)
 	if err != nil {
 		return nil, fmt.Errorf("flow %s: %w", flows[0].ID, err)
 	}
 
 	if msgs := doc.DIL.Core.Messages.Message; len(msgs) > 0 {
-		f.Input.Body = msgs[0].Body
-		f.Input.Headers = map[string]string{}
+		f.Input = message.Message{}
 		for _, h := range msgs[0].Headers.Header {
-			f.Input.Headers[h.Name] = h.Value
+			f.Input[h.Name] = h.Value
+		}
+		if msgs[0].Body != nil {
+			f.Input[message.Body] = msgs[0].Body
 		}
 	}
 	return f, nil
 }
 
-func build(df dilFlow, newStep func(*flowdef.Node) (stepdef.Step, error)) (*flowdef.Flow, error) {
+func build(df dilFlow, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
@@ -130,11 +133,11 @@ func build(df dilFlow, newStep func(*flowdef.Node) (stepdef.Step, error)) (*flow
 	}
 
 	for _, n := range nodes {
-		step, err := newStep(n)
+		p, err := newProcessor(n)
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", n.ID, err)
 		}
-		n.Step = step
+		n.Processor = p
 	}
 
 	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source}, nil
