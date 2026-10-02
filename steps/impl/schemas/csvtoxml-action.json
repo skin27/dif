@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:csvtoxml-action",
+	"title": "csvtoxml action",
+	"description": "Converts a CSV body to XML: <rows><row><field>…</field>…</row>…</rows>.",
+	"type": "object",
+	"properties": {
+		"delimiter": {
+			"title": "Delimiter",
+			"description": "The character between fields",
+			"type": "string",
+			"default": ","
+		},
+		"useHeader": {
+			"title": "Use header",
+			"description": "The first record names the fields; otherwise they are field1, field2, ...",
+			"type": "boolean",
+			"default": false
+		},
+		"encoding": {
+			"title": "Encoding",
+			"description": "Encoding named in the XML declaration; the body itself stays text (use the encoder step to convert it)",
+			"type": "string",
+			"default": "UTF-8"
+		}
+	},
+	"additionalProperties": false
+}

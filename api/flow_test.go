@@ -181,7 +181,7 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 			"step h: setheader: missing required option name"},
 		{"unknown source", []step{{"src", "source", "sftp://example.com/in", nil}, logSink}, `step src: no processor for "sftp" (source)`},
 		{"keystore missing", []step{{"src", "source", "https://0.0.0.0:9001/in", map[string]any{"serverIdentityFile": "nope.p12"}}, logSink}, "step src: https: server identity: open nope.p12"},
-		{"unknown action", []step{timer(nil), {"x", "action", "xmltojson", nil}, logSink}, `step x: no processor for "xmltojson" (action)`},
+		{"unknown action", []step{timer(nil), {"x", "action", "xslt", nil}, logSink}, `step x: no processor for "xslt" (action)`},
 		{"unknown core message", []step{timer(nil), {"x", "action", "setheaders:message:x", nil}, logSink}, `step x: message "x" not found`},
 		{"timer as sink", []step{timer(nil), {"t", "sink", "timer:t", nil}}, `step t: no processor for "timer" (sink)`},
 	}
@@ -312,10 +312,10 @@ func TestExamplesThatLoad(t *testing.T) {
 			loaded = append(loaded, filepath.Base(f))
 		}
 	}
-	want := "base64ToText.json contentrouter.json encoder.json fileInbound.json fileOutbound.json filter.json hello.json " +
-		"httpsClient.json httpsInbound.json log.json queueAsynchronousOutbound.json recipient.json removeHeaders.json " +
-		"repeater.json replace.json setBody.json simplereplace.json split.json test.json textToBase64.json timer.json " +
-		"unzip.json wiretap.json zip.json"
+	want := "base64ToText.json contentrouter.json csvtoxml.json encoder.json fileInbound.json fileOutbound.json filter.json " +
+		"hello.json httpsClient.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json queueAsynchronousOutbound.json " +
+		"recipient.json removeHeaders.json repeater.json replace.json setBody.json simplereplace.json split.json test.json " +
+		"textToBase64.json timer.json unzip.json wiretap.json xmltocsv.json xmltojson.json xmltojsonsimple.json zip.json"
 	if got := strings.Join(loaded, " "); got != want {
 		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)
 	}

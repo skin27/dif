@@ -289,6 +289,25 @@ on the standard library; anything else is rejected when the flow is loaded:
 A body that is not XML or JSON matches no xpath or jsonpath condition; a split
 of such a body fails the message.
 
+### Converters
+
+The converters turn the body from one format into another; the result is text.
+A body that is not the input format fails the message. They follow the
+libraries the DIL components were built on:
+
+| Step | Options (default) | Mapping |
+|---|---|---|
+| `xmltojson` | `forceTopLevelObject`, `skipWhitespace`, `trimSpaces`, `skipNamespaces`, `removeNamespacePrefixes`, `typeHints` (all false) | json-lib (Camel's xmljson): attributes as `"@name"`, text beside attributes or children as `"#text"`, repeated elements as an array, an element whose two or more children share one name as an array of their values, an empty element as `""`. The root is left out unless `forceTopLevelObject`. All values are strings; with `typeHints`, a `json_type` attribute (`number`, `boolean`, `string`, `null`, `array`, `object`) sets the type |
+| `jsontoxml` | `rootName` (o), `arrayName` (a), `elementName` (e), `typeHints` (false), `namespaceLenient` (no effect) | The reverse: members as elements, `"@name"` as attributes, `"#text"` as text, array items as `elementName` elements; starts with an XML declaration. `typeHints` adds `json_type` to every element, so `xmltojson` can restore the JSON exactly |
+| `xmltojsonsimple` | `keepStrings`, `removeNamespaces`, `removeRoot`, `hasTypes` (false), `typeValueMismatch` NULL\|ORIGINAL (ORIGINAL) | org.json: `{"root": …}` unless `removeRoot`, attributes and children by name, text beside them as `"content"`, repeated elements as an array, trimmed text. Numbers, `true`, `false` and `null` become JSON values unless `keepStrings`. With `hasTypes` a `type` attribute (`string`, `number`, `integer`, `double`, `boolean`, `null`) sets the type; text that does not fit becomes `null` or stays a string |
+| `jsontoxmlsimple` | `addRoot` (false), `rootTag` (root), `changeArrayElements` (false), `arrayElementName` (element), `checkJsonKeys` (false) | The reverse: members as elements, `"content"` as text, an array as one element per item named after its key (with `changeArrayElements`: one element holding `arrayElementName` items), `null` as the text `null`, no declaration. A key that is not an XML name fails the message with `checkJsonKeys`, else its invalid characters become `_` |
+| `csvtoxml` | `delimiter` (,), `useHeader` (false), `encoding` (UTF-8) | `<rows><row><name>value</name>…</row>…</rows>`; with `useHeader` the first record names the fields (invalid characters become `_`), else `field1`, `field2`, … `encoding` only sets the XML declaration; the `encoder` step converts the bytes |
+| `xmltocsv` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `delimiter` (,), `lineSeparator` linefeed\|carriage_return\|carriage_return_linefeed, `orderHeaders` unordered\|ordered, `quoteFields` all_fields\|non_empty_fields\|no_fields (no_fields) | Every child of the root is a record, every child of a record a field (trimmed text); a record without children is one field. Columns in order of appearance or (`ordered`) alphabetical. A field holding the delimiter, a quote or a line break is always quoted |
+
+The Kamelets only pass these options on to Assimbly's components, so where a
+detail is not defined by json-lib or org.json (the CSV element names, the
+`hasTypes` type names, `checkJsonKeys`), DIF's choice is the one above.
+
 New steps plug in without touching the engine:
 
 ```go
@@ -349,12 +368,14 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-24 of the examples load (given the keystores): base64ToText, contentrouter,
-encoder, fileInbound, fileOutbound, filter, hello, httpsClient, httpsInbound,
-log, queueAsynchronousOutbound, recipient, removeHeaders, repeater, replace,
-setBody, simplereplace, split, test, textToBase64, timer, unzip, wiretap and
-zip. The others use steps without a processor yet (such as `aggregate`), or
-expressions such as `groovy` and `${date:now:ss}`. Several https examples
+30 of the examples load (given the keystores): base64ToText, contentrouter,
+csvtoxml, encoder, fileInbound, fileOutbound, filter, hello, httpsClient,
+httpsInbound, jsontoxml, jsontoxmlsimple, log, queueAsynchronousOutbound,
+recipient, removeHeaders, repeater, replace, setBody, simplereplace, split,
+test, textToBase64, timer, unzip, wiretap, xmltocsv, xmltojson,
+xmltojsonsimple and zip. The others use steps without a processor yet (such as
+`aggregate`), expressions such as `groovy` and `${date:now:ss}`, or steps
+hanging off an `error` step (errorHandler). Several https examples
 listen on the same path (`/_new2/httpsinbound`), so only one of them can run
 at a time.
 
@@ -366,7 +387,7 @@ at a time.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, and the routers wiretap, recipient, content, filter, split) and their schemas; the simple, xpath and jsonpath subsets |
+| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split) and their schemas; the simple, xpath and jsonpath subsets |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`), independent of any DSL             |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
@@ -395,7 +416,7 @@ steps plug in through the registry without touching the engine.
 
 ## Future work
 
-- More sources and steps (queue, quartz, sftp, XML/JSON converters, …) and
+- More sources and steps (queue, quartz, sftp, xslt, EDI and Excel converters, …) and
   routers: `aggregate` and `splitandaggregate` (they need aggregation state),
   `enrich`; multiple flows per file
 - More expression languages and simple-language functions (`${date:now:<format>}`, …)

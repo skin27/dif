@@ -44,7 +44,7 @@ func isXMLName(s string) bool {
 			return false
 		}
 	}
-	return s[0] < '0' || s[0] > '9'
+	return (s[0] < '0' || s[0] > '9') && s[0] != '-' && s[0] != '.'
 }
 
 // xmlNode is an element the path selected.
