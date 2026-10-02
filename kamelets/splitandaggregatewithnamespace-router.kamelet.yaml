@@ -1,0 +1,106 @@
+apiVersion: "camel.apache.org/v1"
+kind: "Kamelet"
+metadata:
+  name: "splitandaggregatewithnamespace-router"
+  labels:
+    camel.apache.org/kamelet.type: "router"
+spec:
+  definition:
+    title: "splitandaggregate-router"
+    description: "Splits message by an expression and aggregate result by XML or JSON"
+    type: "object"
+    properties:
+      expression:
+        title: "Expression"
+        description: "Expression"
+        type: "string"
+      parallelProcessing:
+        title: "Parallel Processing"
+        description: "Parallel Processing of split"
+        type: "boolean"
+        default: false
+      streaming:
+        title: "Streaming"
+        description: "Use Streaming"
+        type: "boolean"
+        default: false
+      nsprefix:
+        title: "NSprefix"
+        description: "Namespace prefix"
+        type: "string"
+      namespace:
+        title: "Namespace"
+        description: "Namespace for xpath"
+        type: "string"
+      aggregateType:
+        title: "Aggregate Type"
+        description: "Content-Type to use for aggregation (XML or JSON)"
+        type: "string"
+        default: "xml"
+      in:
+        title: "Source Endpoint"
+        type: "string"
+        default: "kamelet:source"
+      out_split:
+        title: "OutSplit"
+        description: "Out Split Rule"
+        type: "string"
+      out_default:
+        title: "Out Default Rule"
+        description: "Out Default Rule"
+        type: "string"
+        default: "mock:0"
+      routeId:
+        title: "Route ID"
+        type: "string"
+      stepId:
+        title: "Step ID"
+        type: "string"
+      routeConfigurationId:
+        title: "Route Configuration ID"
+        type: "string"
+        default: "0"
+  dependencies:
+  - "camel:kamelet"
+  template:
+    beans:
+      - name: "Namespace"
+        type: "#class:org.apache.camel.support.builder.Namespaces"
+        properties:
+          h: "http://www.w3.org/TR/html4/"
+    route:
+      routeConfigurationId: "{{routeConfigurationId}}"
+      from:
+        uri: "{{in}}"
+        steps:
+          - step:
+              id: "step-{{stepId}}"
+              steps:
+                - setProperty:
+                    name: "Aggregate-Type"
+                    constant:
+                      expression: "{{aggregateType}}"
+                - split:
+                    aggregationStrategy: "AggregateStrategy"
+                    parallelProcessing: "{{parallelProcessing}}"
+                    streaming: "{{streaming}}"
+                    xpath:
+                      expression: "{{expression}}"
+                      namespace:
+                        - key: "{{nsprefix}}"
+                          value: "{{namespace}}"
+                    steps:
+                      - setHeader:
+                          name: "CamelSplitIndex"
+                          simple: "${exchangeProperty.CamelSplitIndex}"
+                      - setHeader:
+                          name: "CamelSplitSize"
+                          simple: "${exchangeProperty.CamelSplitSize}"
+                      - setHeader:
+                          name: "CamelSplitComplete"
+                          simple: "${exchangeProperty.CamelSplitComplete.toString().trim()}"
+                      - convertBodyTo:
+                          type: "java.lang.String"
+                      - to: "{{out_split}}"
+                - to:
+                    uri: "{{out_default}}"

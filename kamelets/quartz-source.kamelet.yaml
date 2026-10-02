@@ -1,0 +1,59 @@
+apiVersion: "camel.apache.org/v1"
+kind: "Kamelet"
+metadata:
+  name: "quartz-source"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "quatz source"
+    description: "Scheduler using quartz"
+    type: "object"
+    properties:
+      path:
+        title: "path"
+        description: "Path"
+        type: "string"
+      cron:
+        title: "cron"
+        description: "Cron expression"
+        type: "string"
+      manualCron:
+        title: "cron"
+        description: "Cron expression input manually"
+        type: "string"
+      timeZone:
+        title: "timeZone"
+        description: "timeZone"
+        type: "string"
+      in:
+        title: "Source Endpoint"
+        type: "string"
+        default: "kamelet:source"
+      out:
+        title: "Sink Endpoint"
+        type: "string"
+        default: "kamelet:sink"
+      routeId:
+        title: "Route ID"
+        type: "string"
+      stepId:
+        title: "Step ID"
+        type: "string"
+      routeConfigurationId:
+        title: "Route Configuration ID"
+        type: "string"
+        default: "0"
+  dependencies:
+  - "camel:kamelet"
+  template:
+    route:
+      routeConfigurationId: "{{routeConfigurationId}}"
+      from:
+        uri: "quartz:{{path}}?cron={{cron}}&trigger.timeZone={{timeZone}}"
+        steps:
+        - step:
+            id: "step-{{stepId}}"
+            steps:
+            - to:
+                uri: "{{out}}"

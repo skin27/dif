@@ -1,0 +1,78 @@
+apiVersion: camel.apache.org/v1
+kind: Kamelet
+metadata:
+  name: counter-source
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "Counter Source"
+    description: "Generates sequential number events starting from a configurable value, incrementing by a specified step. Useful for testing, scheduled tasks, or creating ordered event sequences."
+    type: object
+    properties:
+      period:
+        title: Period
+        description: The time interval between two numbers
+        type: integer
+        default: 1000
+      start:
+        title: Starting Number
+        description: The starting number
+        type: integer
+        default: 1
+      numbers:
+        title: Numbers
+        description: How many numbers to generate
+        type: integer
+      in:
+        title: "Source Endpoint"
+        type: "string"
+        default: "kamelet:source"
+      out:
+        title: "Sink Endpoint"
+        type: "string"
+        default: "kamelet:sink"
+      routeId:
+        title: "Route ID"
+        type: "string"
+      stepId:
+        title: "Step ID"
+        type: "string"
+      routeConfigurationId:
+        title: "Route Configuration ID"
+        type: "string"
+        default: "0"
+  dependencies:
+    - "camel:timer"
+    - "camel:core"
+    - "camel:bean"
+    - "camel:kamelet"
+  template:
+    from:
+      uri: timer:counter
+      parameters:
+        period: "{{period}}"
+        repeatCount: "{{?numbers}}"
+      steps:
+        - choice:
+            when:
+              - simple: "${variable.route:counter} == null"
+                steps:
+                  - setVariable:
+                      name: route:counter
+                      simple:
+                        expression: "{{start}}"
+                        resultType: java.lang.Integer
+            otherwise:
+              steps:
+                - setVariable:
+                    name: route:counter
+                    simple:
+                      expression: "${variable.route:counter}++"
+                      resultType: java.lang.Integer
+        - setBody:
+            simple: "${variable.route:counter}"
+        - setHeader:
+            name: "Content-Type"
+            constant: "text/plain"
+        - to: "{{out}}"
