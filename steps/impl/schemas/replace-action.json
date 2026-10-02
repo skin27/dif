@@ -1,0 +1,35 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:replace-action",
+	"title": "replace action",
+	"description": "Replaces every match of a regular expression in the body.",
+	"type": "object",
+	"properties": {
+		"regex": {
+			"title": "Regular expression",
+			"description": "The text to find (Go RE2 syntax)",
+			"type": "string"
+		},
+		"replaceWith": {
+			"title": "Replace with",
+			"description": "The replacement; $1 or ${name} insert a capture group",
+			"type": "string",
+			"default": ""
+		},
+		"flags": {
+			"title": "Flags",
+			"description": "Comma-separated: i (ignore case), m (^ and $ match at line breaks), s (. matches line breaks)",
+			"type": "string",
+			"default": ""
+		},
+		"group": {
+			"title": "Group",
+			"description": "Capture group to replace within each match; 0 replaces the whole match",
+			"type": "integer",
+			"minimum": 0,
+			"default": 0
+		}
+	},
+	"required": ["regex"],
+	"additionalProperties": false
+}

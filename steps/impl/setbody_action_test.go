@@ -24,6 +24,7 @@ func TestSetBody(t *testing.T) {
 		{"simple json body", map[string]any{"language": "simple", "expression": "${body}"}, map[string]any{"a": 1.0}, `{"a":1}`},
 		{"simple bytes body", map[string]any{"language": "simple", "expression": "${body}"}, []byte("raw"), "raw"},
 		{"simple no references", map[string]any{"language": "simple", "expression": "plain"}, nil, "plain"},
+		{"simple bodyAs string", map[string]any{"language": "simple", "expression": "Body: ${bodyAs(String)}"}, []byte("raw"), "Body: raw"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -42,7 +43,7 @@ func TestSetBody(t *testing.T) {
 
 func TestSetBodyInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "groovy"}, `option language: "groovy" is not one of "constant", "simple"`)
-	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${bodyAs(String)}"}, "unsupported simple expression ${bodyAs(String)}")
+	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${bodyAs(Integer)}"}, "unsupported simple expression ${bodyAs(Integer)}")
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${header.}"}, "unsupported simple expression")
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "${body"}, "unclosed ${")
 	wantInvalid(t, stepdef.Action, "setbody", map[string]any{"value": "x"}, "unknown option value")

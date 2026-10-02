@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:unzip-action",
+	"title": "unzip action",
+	"description": "Extracts the one file of a zip archive in the body; its name becomes the header file.name.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

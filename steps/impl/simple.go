@@ -18,7 +18,8 @@ type segment struct {
 }
 
 // compileExpression compiles expr in language "constant" (literal text) or
-// "simple", which supports ${body}, ${header.<name>} and ${headers.<name>}.
+// "simple", which supports ${body} (also written ${bodyAs(String)}),
+// ${header.<name>} and ${headers.<name>}.
 func compileExpression(language, expr string) (expression, error) {
 	if language == "constant" {
 		return expression{{text: expr}}, nil
@@ -50,7 +51,7 @@ func compileExpression(language, expr string) (expression, error) {
 }
 
 func simpleRef(ref string) (string, error) {
-	if ref == "body" {
+	if ref == "body" || ref == "bodyAs(String)" { // values are rendered as text anyway
 		return message.Body, nil
 	}
 	for _, prefix := range []string{"header.", "headers."} {

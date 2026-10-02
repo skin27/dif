@@ -79,3 +79,17 @@ func TestTimerInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"repeatCount": -1.0}, "option repeatCount: -1 is less than 0")
 	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"numbers": 2.0}, "unknown option numbers")
 }
+
+func TestRepeater(t *testing.T) {
+	if got, want := mustProcessor(t, stepdef.Source, "repeater", nil), (timerSource{period: 10 * time.Second}); got != want {
+		t.Errorf("repeater = %+v, want %+v", got, want)
+	}
+	var bodies []any
+	mustProcessor(t, stepdef.Source, "repeater", map[string]any{"period": "1", "repeatCount": "2"}).(stepdef.SourceProcessor).Run(context.Background(), func(m message.Message, _ func(message.Message, error)) error {
+		bodies = append(bodies, m[message.Body])
+		return nil
+	})
+	if len(bodies) != 2 {
+		t.Errorf("bodies = %v, want 2", bodies)
+	}
+}

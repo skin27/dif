@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:zip-action",
+	"title": "zip action",
+	"description": "Compresses the body into a zip archive with one file, named after the header file.name (else the trace id).",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

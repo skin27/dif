@@ -239,10 +239,18 @@ using anything else fails registration.
 | `setheaders:message:<name>` | action | – | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
 | `base64totext` | action | – | Decodes a base64 body to text (whitespace ignored, padding optional) |
 | `texttobase64` | action | – | Encodes the body as base64, without line breaks |
+| `repeater[:<name>]` | source | `period` ms (10000), `repeatCount` (0 = unlimited) | The timer source with Camel's repeater defaults |
+| `removeheaders` | action | `pattern` (required), `excludePattern` ("") | Removes the headers matching `pattern` but not `excludePattern`: an exact name, a prefix ending with `*` or a regular expression, case-insensitive. Never removes the body or `metadata.*` |
+| `replace` | action | `regex` (required), `replaceWith` (""), `flags` (`i`, `m`, `s`, comma-separated), `group` (0) | Replaces every match in the body; `$1` in `replaceWith` inserts a group. With `group` > 0 only that group of each match is replaced |
+| `simplereplace` | action | – | Evaluates the body as a simple expression: `${header.<name>}` in the body becomes the header's value |
+| `zip` | action | – | Zips the body as one file named after `file.name` (else the trace id); sets `file.name` to `<name>.zip` and `Content-Type: application/zip` |
+| `unzip` | action | – | Extracts the one file of a zip body; `file.name` becomes its name. An archive with several files fails the message (that needs a splitter) |
+| `throttle` | action | `maxRequests` (required), `timePeriod` ms (1000) | Lets at most `maxRequests` messages pass per `timePeriod` (sliding window); the others wait |
+| `encoder` | action | `originCharset` (UTF-8), `targetCharset` (UTF-8) | Converts the body between UTF-8, ISO-8859-1 and US-ASCII; characters the target cannot hold become `?` |
 
-Language `constant` is the literal text; `simple` replaces `${body}`,
-`${header.<name>}` and `${headers.<name>}` (other `${…}` expressions are
-rejected when the flow is loaded).
+Language `constant` is the literal text; `simple` replaces `${body}` (also
+written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}` (other
+`${…}` expressions are rejected when the flow is loaded).
 
 New steps plug in without touching the engine:
 
@@ -304,12 +312,13 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-12 of the examples load (given the keystores): base64ToText, fileInbound,
-fileOutbound, hello, httpsClient, httpsInbound, log, queueAsynchronousOutbound,
-setBody, test, textToBase64 and timer. The others use steps without a processor
-yet, or `${bodyAs(String)}` and `groovy` expressions. Several https examples
-listen on the same path (`/_new2/httpsinbound`), so only one of them can run at
-a time.
+19 of the examples load (given the keystores): base64ToText, encoder,
+fileInbound, fileOutbound, hello, httpsClient, httpsInbound, log,
+queueAsynchronousOutbound, removeHeaders, repeater, replace, setBody,
+simplereplace, test, textToBase64, timer, unzip and zip. The others use steps
+without a processor yet (routers among them), or expressions such as `groovy`
+and `${date:now:ss}`. Several https examples listen on the same path
+(`/_new2/httpsinbound`), so only one of them can run at a time.
 
 
 ## Packages
@@ -319,7 +328,7 @@ a time.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options |
-| `steps/impl`       | Built-in steps (timer, file, https, log, setbody, setheader, setheaders, base64totext, texttobase64, passthrough, message) and their schemas |
+| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message) and their schemas |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`), independent of any DSL             |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
@@ -346,8 +355,7 @@ steps plug in through the registry without touching the engine.
 
 - More sources and steps (queue, quartz, sftp, XML/JSON converters, …) and routers,
   splitters, aggregators; multiple flows per file
-- `${bodyAs(String)}` in the simple language (11 examples use it)
-- More expression languages and simple-language functions
+- More expression languages and simple-language functions (`${date:now:<format>}`, …)
 - Error channels (`error` steps and the flows hanging off them), retry policies in the engine
 - Concurrent message execution within a flow (processors are already safe for it)
 - A separate engine process with a network API for clients

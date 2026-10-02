@@ -22,6 +22,7 @@ func Register(r *registry.Registry) error {
 		{"file", stepdef.Source, newFileSource},
 		{"message", stepdef.Source, newMessageSource},
 		{"https", stepdef.Source, newHTTPSSource},
+		{"repeater", stepdef.Source, newTimerSource},
 		{"log", stepdef.Action, newLogAction},
 		{"setbody", stepdef.Action, newSetBodyAction},
 		{"setheader", stepdef.Action, newSetHeaderAction},
@@ -30,6 +31,13 @@ func Register(r *registry.Registry) error {
 		{"base64totext", stepdef.Action, newBase64ToTextAction},
 		{"texttobase64", stepdef.Action, newTextToBase64Action},
 		{"https", stepdef.Action, newHTTPSAction},
+		{"removeheaders", stepdef.Action, newRemoveHeadersAction},
+		{"replace", stepdef.Action, newReplaceAction},
+		{"simplereplace", stepdef.Action, newSimpleReplaceAction},
+		{"zip", stepdef.Action, newZipAction},
+		{"unzip", stepdef.Action, newUnzipAction},
+		{"throttle", stepdef.Action, newThrottleAction},
+		{"encoder", stepdef.Action, newEncoderAction},
 		{"file", stepdef.Sink, newFileSink},
 	}
 	for _, b := range builtins {
