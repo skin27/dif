@@ -38,6 +38,11 @@ func Register(r *registry.Registry) error {
 		{"unzip", stepdef.Action, newUnzipAction},
 		{"throttle", stepdef.Action, newThrottleAction},
 		{"encoder", stepdef.Action, newEncoderAction},
+		{"wiretap", stepdef.Router, newWireTapRouter},
+		{"recipient", stepdef.Router, newRecipientRouter},
+		{"content", stepdef.Router, newContentRouter},
+		{"filter", stepdef.Router, newFilterRouter},
+		{"split", stepdef.Router, newSplitRouter},
 		{"file", stepdef.Sink, newFileSink},
 	}
 	for _, b := range builtins {

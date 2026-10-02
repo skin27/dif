@@ -46,8 +46,11 @@ type dilStep struct {
 }
 
 type dilLink struct {
-	ID    string `json:"id"`
-	Bound string `json:"bound"`
+	ID         string `json:"id"`
+	Bound      string `json:"bound"`
+	Rule       string `json:"rule"`       // a router's outbound link: its role, such as "wiretap"
+	Language   string `json:"language"`   // a router's outbound link: language of expression
+	Expression string `json:"expression"` // a router's outbound link: its condition
 }
 
 type dilMessage struct {

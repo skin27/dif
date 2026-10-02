@@ -57,6 +57,30 @@ func process(t *testing.T, uri string, opts map[string]any, m message.Message) m
 	return out
 }
 
+// newRouter creates the router step uri, in a position of kind, with opts
+// and the given outbound links.
+func newRouter(kind, uri string, opts map[string]any, links ...stepdef.Link) (stepdef.RouterProcessor, error) {
+	p, err := steps.Processor(&flowdef.Node{ID: "test-step", Kind: kind, URI: uri, Options: opts, Links: links, Next: make([]*flowdef.Node, len(links))})
+	if err != nil {
+		return nil, err
+	}
+	return p.(stepdef.RouterProcessor), nil
+}
+
+// route runs m through the router step uri and returns its routes.
+func route(t *testing.T, uri string, opts map[string]any, links []stepdef.Link, m message.Message) []stepdef.Route {
+	t.Helper()
+	r, err := newRouter(stepdef.Router, uri, opts, links...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	routes, err := r.Route(context.Background(), m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return routes
+}
+
 // captureLog sends the standard logger's output to the returned buffer for
 // the rest of the test.
 func captureLog(t *testing.T) *bytes.Buffer {
@@ -85,7 +109,7 @@ func TestEverySchemaIsRegistered(t *testing.T) {
 			t.Errorf("%s: %v", f, err)
 		}
 	}
-	if len(files) != 21 {
-		t.Errorf("found %d schemas, want 21", len(files))
+	if len(files) != 26 {
+		t.Errorf("found %d schemas, want 26", len(files))
 	}
 }

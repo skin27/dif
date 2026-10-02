@@ -4,6 +4,7 @@ package message
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"maps"
 	"strings"
 	"time"
 )
@@ -36,6 +37,11 @@ func New(body any) Message {
 		Body:      body,
 	}
 }
+
+// Copy returns a copy of m to send down another path, such as a router's
+// branch. Values are shared, which is safe as steps replace values rather than
+// change them.
+func (m Message) Copy() Message { return maps.Clone(m) }
 
 // IsMetadata reports whether key is a metadata header.
 func IsMetadata(key string) bool { return strings.HasPrefix(key, MetadataPrefix) }

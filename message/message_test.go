@@ -32,3 +32,17 @@ func TestIsMetadata(t *testing.T) {
 		}
 	}
 }
+
+func TestCopy(t *testing.T) {
+	m := New("x")
+	m["h"] = "v"
+	c := m.Copy()
+	c[Body], c["h2"] = "y", "w"
+	delete(c, "h")
+	if m[Body] != "x" || m["h"] != "v" || m["h2"] != nil {
+		t.Errorf("changing the copy changed the original: %v", m)
+	}
+	if c[TraceID] != m[TraceID] {
+		t.Error("the copy has another trace id")
+	}
+}

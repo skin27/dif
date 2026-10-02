@@ -43,17 +43,40 @@ type ActionProcessor interface {
 	Process(ctx context.Context, m message.Message) (message.Message, error)
 }
 
-// RouterProcessor decides which outbound links receive which messages.
-// Routers are defined for completeness; the engine does not run them yet.
+// RouterProcessor decides which outbound links receive which messages. The
+// engine runs the routes in order, each to the end of its path. The message
+// that comes out of the last route that is not Detached is the router's
+// outcome; with no such route it is m as it entered the router (no routes at
+// all ends the message there, as a filter does).
+//
+// A router in an action position has one outbound link, so it either passes
+// the message on or stops it.
 type RouterProcessor interface {
 	Route(ctx context.Context, m message.Message) ([]Route, error)
 }
 
-// Route sends Message to the step's outbound link with index Next.
+// Route sends Message to the step's outbound link with index Next. Routes run
+// one after another and must not share a Message: a router that sends m to
+// several links sends copies (message.Message.Copy).
 type Route struct {
 	Next    int
 	Message message.Message
+
+	// Detached routes, such as a wire tap, do not affect the outcome: their
+	// result is ignored and their error is logged instead of failing the message.
+	Detached bool
 }
+
+// Link describes an outbound link of a router, as the flow defines it: the
+// rule that names its role (such as "wiretap" or "split") and, for a
+// condition, its language and expression. A router gets its links, in the
+// order of its outbound links, as Params[Links]; Route.Next indexes them.
+type Link struct {
+	Rule, Language, Expression string
+}
+
+// Links is the Params key under which a router processor gets its []Link.
+const Links = "links"
 
 // SinkProcessor consumes m, typically by sending it outside the flow.
 type SinkProcessor interface {

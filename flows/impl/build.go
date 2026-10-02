@@ -53,17 +53,15 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
-		byInLink = map[string]*flowdef.Node{}   // inbound link id -> node
-		outLinks = map[*flowdef.Node][]string{} // node -> outbound link ids
+		byInLink = map[string]*flowdef.Node{}    // inbound link id -> node
+		outLinks = map[*flowdef.Node][]dilLink{} // node -> outbound links
 	)
 
 	for _, s := range df.Steps.Step {
 		switch s.Type {
-		case flowdef.Source, flowdef.Action, flowdef.Sink:
+		case flowdef.Source, flowdef.Action, flowdef.Router, flowdef.Sink:
 		case "error":
 			continue // error handlers are not supported yet
-		case flowdef.Router:
-			return nil, fmt.Errorf("step %s: router steps are not supported yet", s.ID)
 		default:
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
 		}
@@ -74,13 +72,14 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 		}
 		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: s.URI, Options: opts}
 
-		var ins, outs []string
+		var ins []string
+		var outs []dilLink
 		for _, l := range s.Links.Link {
 			switch l.Bound {
 			case "in":
 				ins = append(ins, l.ID)
 			case "out":
-				outs = append(outs, l.ID)
+				outs = append(outs, l)
 			default:
 				return nil, fmt.Errorf("step %s: link %s has invalid bound %q", s.ID, l.ID, l.Bound)
 			}
@@ -92,6 +91,10 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 			wantIn = 0
 		case flowdef.Sink:
 			wantOut = 0
+		case flowdef.Router:
+			if len(outs) > 0 {
+				wantOut = len(outs) // a router has one or more outbound links
+			}
 		}
 		if len(ins) != wantIn || len(outs) != wantOut {
 			return nil, fmt.Errorf("step %s: %s step needs %d inbound and %d outbound links, has %d and %d",
@@ -119,25 +122,27 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 	}
 
 	for _, n := range nodes {
-		for _, id := range outLinks[n] {
-			target, ok := byInLink[id]
+		for _, l := range outLinks[n] {
+			target, ok := byInLink[l.ID]
 			if !ok {
-				return nil, fmt.Errorf("step %s: outbound link %s has no target", n.ID, id)
+				return nil, fmt.Errorf("step %s: outbound link %s has no target", n.ID, l.ID)
 			}
 			n.Next = append(n.Next, target)
+			n.Links = append(n.Links, stepdef.Link{Rule: l.Rule, Language: l.Language, Expression: l.Expression})
 		}
 	}
 
-	// Walk from source to sink so the engine never sees a cycle or a dangling step.
+	// Walk every path from the source so the engine never sees a cycle or a
+	// dangling step. Every step has one inbound link, so the paths form a tree.
 	seen := map[*flowdef.Node]bool{}
-	for n := source; ; n = n.Next[0] {
+	for todo := []*flowdef.Node{source}; len(todo) > 0; {
+		n := todo[len(todo)-1]
+		todo = todo[:len(todo)-1]
 		if seen[n] {
 			return nil, fmt.Errorf("step %s: flow contains a cycle", n.ID)
 		}
 		seen[n] = true
-		if len(n.Next) == 0 {
-			break
-		}
+		todo = append(todo, n.Next...)
 	}
 	if len(seen) != len(nodes) {
 		return nil, fmt.Errorf("flow has %d steps not reachable from the source", len(nodes)-len(seen))

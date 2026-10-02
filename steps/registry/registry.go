@@ -61,7 +61,9 @@ func (r *Registry) Register(d stepdef.Definition) error {
 // validated against the step's schema.
 //
 // An action node may use a sink processor (the message passes on unchanged
-// after it is consumed) and a sink node may use an action processor.
+// after it is consumed) or a router processor (one that passes the message on
+// or stops it, such as a filter); a sink node may use an action processor.
+// A router processor gets the node's outbound links as Params[stepdef.Links].
 func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 	name, path, _ := strings.Cut(n.URI, ":")
 	e, ok := r.lookup(name, n.Kind)
@@ -79,6 +81,14 @@ func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 		return nil, fmt.Errorf("%s: %w", name, err)
 	}
 
+	if e.def.Kind == stepdef.Router {
+		links := n.Links
+		if len(links) != len(n.Next) { // a flow built without link attributes
+			links = make([]stepdef.Link, len(n.Next))
+		}
+		params[stepdef.Links] = links
+	}
+
 	p, err := e.def.New(n.ID, params)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", name, err)
@@ -93,7 +103,7 @@ func (r *Registry) lookup(name, kind string) (entry, bool) {
 	kinds := []string{kind}
 	switch kind {
 	case stepdef.Action:
-		kinds = append(kinds, stepdef.Sink)
+		kinds = append(kinds, stepdef.Sink, stepdef.Router)
 	case stepdef.Sink:
 		kinds = append(kinds, stepdef.Action)
 	}

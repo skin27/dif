@@ -79,6 +79,48 @@ func TestProcessorKindFallback(t *testing.T) {
 	}
 }
 
+// routerRecorder is a router processor that remembers its params.
+type routerRecorder struct{ params stepdef.Params }
+
+func (routerRecorder) Route(context.Context, message.Message) ([]stepdef.Route, error) {
+	return nil, nil
+}
+
+func TestProcessorRouter(t *testing.T) {
+	r := New()
+	err := r.Register(stepdef.Definition{Name: "pick", Kind: stepdef.Router, Schema: []byte(`{"type": "object"}`),
+		New: func(_ string, p stepdef.Params) (stepdef.Processor, error) { return routerRecorder{p}, nil }})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	links := []stepdef.Link{{Rule: "a", Language: "simple", Expression: "${body} == 'x'"}, {}}
+	p, err := r.Processor(&flowdef.Node{Kind: flowdef.Router, URI: "pick", Next: make([]*flowdef.Node, 2), Links: links})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := p.(routerRecorder).params[stepdef.Links]; !reflect.DeepEqual(got, links) {
+		t.Errorf("links = %v, want %v", got, links)
+	}
+
+	// A flow built without link attributes gives the router empty ones; a
+	// router in an action position (such as a filter) gets its one link.
+	p, err = r.Processor(&flowdef.Node{Kind: flowdef.Action, URI: "pick", Next: make([]*flowdef.Node, 1)})
+	if err != nil {
+		t.Fatalf("router in an action position: %v", err)
+	}
+	if got := p.(routerRecorder).params[stepdef.Links]; !reflect.DeepEqual(got, []stepdef.Link{{}}) {
+		t.Errorf("links = %v, want one empty link", got)
+	}
+
+	if _, err := r.Processor(&flowdef.Node{Kind: flowdef.Sink, URI: "pick"}); err == nil {
+		t.Error("router in a sink position: want an error")
+	}
+	if _, err := r.Processor(&flowdef.Node{Kind: flowdef.Router, URI: "pick", Options: map[string]any{"links": "x"}}); err != nil {
+		t.Errorf("an option named links: %v", err) // the router still gets the node's links
+	}
+}
+
 func TestProcessorErrors(t *testing.T) {
 	r := testRegistry(t)
 	tests := []struct {

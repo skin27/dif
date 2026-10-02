@@ -11,7 +11,7 @@ import (
 const (
 	Source = stepdef.Source // one outbound link
 	Action = stepdef.Action // one inbound, one outbound link
-	Router = stepdef.Router // one inbound, multiple outbound links (not supported yet)
+	Router = stepdef.Router // one inbound, one or more outbound links
 	Sink   = stepdef.Sink   // one inbound link
 )
 
@@ -22,6 +22,7 @@ type Node struct {
 	URI       string
 	Options   map[string]any
 	Next      []*Node           // targets of the outbound links
+	Links     []stepdef.Link    // the outbound links' rules and conditions, parallel to Next; nil if they have none
 	Processor stepdef.Processor // the step's processor
 }
 

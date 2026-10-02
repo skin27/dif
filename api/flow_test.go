@@ -312,9 +312,10 @@ func TestExamplesThatLoad(t *testing.T) {
 			loaded = append(loaded, filepath.Base(f))
 		}
 	}
-	want := "base64ToText.json encoder.json fileInbound.json fileOutbound.json hello.json httpsClient.json httpsInbound.json " +
-		"log.json queueAsynchronousOutbound.json removeHeaders.json repeater.json replace.json setBody.json " +
-		"simplereplace.json test.json textToBase64.json timer.json unzip.json zip.json"
+	want := "base64ToText.json contentrouter.json encoder.json fileInbound.json fileOutbound.json filter.json hello.json " +
+		"httpsClient.json httpsInbound.json log.json queueAsynchronousOutbound.json recipient.json removeHeaders.json " +
+		"repeater.json replace.json setBody.json simplereplace.json split.json test.json textToBase64.json timer.json " +
+		"unzip.json wiretap.json zip.json"
 	if got := strings.Join(loaded, " "); got != want {
 		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)
 	}

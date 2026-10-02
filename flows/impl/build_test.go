@@ -66,6 +66,34 @@ func TestParseExamples(t *testing.T) {
 	}
 }
 
+func TestParseRouter(t *testing.T) {
+	data, err := os.ReadFile("../../examples/contentrouter.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, err := Parse(data, newNoop)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := f.Source.Next[0]
+	if r.Kind != flowdef.Router || r.URI != "content" || len(r.Next) != 3 || len(r.Links) != 3 {
+		t.Fatalf("router = %+v, want content with 3 outbound links", r)
+	}
+	want := []stepdef.Link{
+		{},
+		{Rule: "234", Language: "jsonpath", Expression: "$.store.book[*].author"},
+		{Rule: "123", Language: "simple", Expression: "${bodyAs(String)} == '123'"},
+	}
+	for i, l := range r.Links {
+		if l != want[i] {
+			t.Errorf("link %d = %+v, want %+v", i, l, want[i])
+		}
+		if r.Next[i].Kind != flowdef.Sink || r.Next[i].Processor == nil {
+			t.Errorf("link %d leads to %+v, want a sink", i, r.Next[i])
+		}
+	}
+}
+
 func TestParseInputMessage(t *testing.T) {
 	data, err := os.ReadFile("../../examples/log.json")
 	if err != nil {
@@ -99,7 +127,8 @@ func TestParseErrors(t *testing.T) {
 		{"two flows", `{"dil":{"integrations":{"integration":{"flows":{"flow":[{"id":"x"},{"id":"y"}]}}}}}`, "found 2"},
 		{"no source", flow(sink), "no source"},
 		{"dangling link", flow(src), "has no target"},
-		{"router", flow(src + `,{"id":"b","type":"router"}`), "not supported"},
+		{"router without out link", flow(src + `,{"id":"b","type":"router","links":{"link":{"id":"b","bound":"in"}}}`), "router step needs 1 inbound and 1 outbound links, has 1 and 0"},
+		{"action with two out links", flow(src + `,{"id":"b","type":"action","links":{"link":[{"id":"b","bound":"in"},{"id":"c","bound":"out"},{"id":"d","bound":"out"}]}}`), "action step needs 1 inbound and 1 outbound links, has 1 and 2"},
 		{"unknown type", flow(src + `,{"id":"b","type":"bogus"}`), "unknown step type"},
 		{"sink with out link", flow(src + `,{"id":"b","type":"sink","links":{"link":[{"id":"b","bound":"in"},{"id":"c","bound":"out"}]}}`), "needs 1 inbound and 0 outbound"},
 		{"unreachable", flow(src + `,` + sink + `,{"id":"c","type":"sink","links":{"link":{"id":"c","bound":"in"}}}`), "not reachable"},
