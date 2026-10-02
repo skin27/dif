@@ -91,6 +91,12 @@ func TestRun(t *testing.T) {
 			"> send\n  error: flow  not found\n",
 			"> log nope\n  error: flow nope not found\n",
 		}, nil},
+		{"suggestions", []string{"start", "../examples/hello.json", "../examples/timer.json"}, "pause time\npause timer\nlog helo --lines 1\nstop nope\nexit\n", 0, []string{
+			"> pause time\n  error: flow time not found. Do you mean: timer?\n",
+			"> pause timer\n  flow timer paused\n",
+			"> log helo --lines 1\n  error: flow helo not found. Do you mean: hello?\n",
+			"> stop nope\n  error: flow nope not found\n",
+		}, nil},
 		{"help and unknown", []string{"start", "../examples/hello.json"}, "help\nquit\nexit\n", 0, []string{
 			"> help\n  commands:\n",
 			"    run <flow.json>...",

@@ -69,7 +69,11 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		if l := logs[id]; l != nil {
 			return l, nil
 		}
-		return nil, fmt.Errorf("flow %s not found", id)
+		_, err := eng.GetFlow(id) // every registered flow has a log, so this explains the miss
+		if err == nil {
+			err = fmt.Errorf("flow %s has no log", id)
+		}
+		return nil, err
 	}
 
 	// load reads the flow in path and registers it; it stays stopped.

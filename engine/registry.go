@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -45,15 +46,23 @@ func (e *Engine) Add(r *Runner) error {
 	return nil
 }
 
-// GetFlow returns the flow with the given id.
+// GetFlow returns the flow with the given id. If there is none, the error
+// suggests registered flows with a similar id: "flow time not found. Do you mean: timer?"
 func (e *Engine) GetFlow(id string) (*Runner, error) {
 	e.mu.RLock()
-	r, ok := e.flows[id]
-	e.mu.RUnlock()
-	if !ok {
-		return nil, fmt.Errorf("flow %s not found", id)
+	defer e.mu.RUnlock()
+	if r, ok := e.flows[id]; ok {
+		return r, nil
 	}
-	return r, nil
+
+	ids := make([]string, 0, len(e.flows))
+	for known := range e.flows {
+		ids = append(ids, known)
+	}
+	if s := suggest(id, ids); len(s) > 0 {
+		return nil, fmt.Errorf("flow %s not found. Do you mean: %s?", id, strings.Join(s, ", "))
+	}
+	return nil, fmt.Errorf("flow %s not found", id)
 }
 
 func (e *Engine) StartFlow(id string) error  { return e.do(id, (*Runner).Start) }

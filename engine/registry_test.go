@@ -280,3 +280,45 @@ func TestConcurrentAccess(t *testing.T) {
 		t.Fatalf("not all flows stopped after shutdown: %v", e.ListFlows(""))
 	}
 }
+
+func TestGetFlowSuggests(t *testing.T) {
+	e := newEngine(t, nil, "timer", "timer2", "hello", "68f87b0d1310490006000004", "fileInbound")
+	tests := []struct{ id, want string }{
+		{"time", "flow time not found. Do you mean: timer, timer2?"},
+		{"tmer", "flow tmer not found. Do you mean: timer?"},
+		{"Timer", "flow Timer not found. Do you mean: timer, timer2?"},
+		{"helo", "flow helo not found. Do you mean: hello?"},
+		{"fileinbound", "flow fileinbound not found. Do you mean: fileInbound?"},
+		{"68f87", "flow 68f87 not found. Do you mean: 68f87b0d1310490006000004?"},
+		{"68f87b0d1310490006000005", "flow 68f87b0d1310490006000005 not found. Do you mean: 68f87b0d1310490006000004?"},
+		{"nope", "flow nope not found"},
+		{"ti", "flow ti not found"},
+		{"", "flow  not found"},
+	}
+	for _, tt := range tests {
+		if _, err := e.GetFlow(tt.id); err == nil || err.Error() != tt.want {
+			t.Errorf("GetFlow(%q) = %v, want %q", tt.id, err, tt.want)
+		}
+	}
+	if err := e.PauseFlow("time"); err == nil || !strings.Contains(err.Error(), "Do you mean: timer") {
+		t.Errorf("PauseFlow(time) = %v, want a suggestion", err)
+	}
+}
+
+func TestSuggestLimit(t *testing.T) {
+	got := suggest("flow", []string{"flow1", "flow2", "flow3", "flow4", "other"})
+	if strings.Join(got, ",") != "flow1,flow2,flow3" {
+		t.Errorf("suggest = %v, want the first 3 matches", got)
+	}
+}
+
+func TestDistance(t *testing.T) {
+	for _, tt := range []struct {
+		a, b string
+		want int
+	}{{"", "", 0}, {"", "abc", 3}, {"time", "timer", 1}, {"tmer", "timer", 1}, {"kitten", "sitting", 3}, {"abc", "abc", 0}} {
+		if got := distance(tt.a, tt.b); got != tt.want {
+			t.Errorf("distance(%q, %q) = %d, want %d", tt.a, tt.b, got, tt.want)
+		}
+	}
+}
