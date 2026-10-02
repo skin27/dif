@@ -3,6 +3,8 @@
 package definition
 
 import (
+	"time"
+
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
@@ -32,4 +34,14 @@ type Flow struct {
 	Name   string
 	Source *Node
 	Input  message.Message // headers and body of the configured message; nil if there is none
+	Error  *ErrorHandler   // what to do when a step fails; nil: the message fails
+}
+
+// ErrorHandler is what a flow does when a step fails: try the step again,
+// and if it keeps failing, send the message along the error route.
+type ErrorHandler struct {
+	ID              string        // the error step, for the trail
+	Redeliveries    int           // times a failing step is tried again
+	RedeliveryDelay time.Duration // wait before each new try
+	Route           *Node         // first step of the error route; nil if there is none
 }

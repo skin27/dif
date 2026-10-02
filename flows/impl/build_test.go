@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	flowdef "dif/flows/definition"
 	"dif/message"
@@ -91,6 +92,75 @@ func TestParseRouter(t *testing.T) {
 		if r.Next[i].Kind != flowdef.Sink || r.Next[i].Processor == nil {
 			t.Errorf("link %d leads to %+v, want a sink", i, r.Next[i])
 		}
+	}
+}
+
+func TestParseErrorHandler(t *testing.T) {
+	tests := []struct {
+		file         string
+		redeliveries int
+		delay        time.Duration
+		route        string // kind:id of the error route's first step, "" for none
+	}{
+		{"errorHandler.json", 0, 0, "action:de8503cb-b66a-4503-88fe-fb9edeaec662"},
+		{"deadletter.json", 3, 10 * time.Second, "sink:68513f81-1b54-4b2b-ac98-50b65c979014"},
+		{"log.json", 0, 0, ""},
+		{"hello.json", 0, time.Second, ""}, // no options: the defaults
+	}
+	for _, tt := range tests {
+		t.Run(tt.file, func(t *testing.T) {
+			data, err := os.ReadFile("../../examples/" + tt.file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			f, err := Parse(data, newNoop)
+			if err != nil {
+				t.Fatal(err)
+			}
+			h := f.Error
+			if h == nil || h.Redeliveries != tt.redeliveries || h.RedeliveryDelay != tt.delay {
+				t.Fatalf("error handler = %+v, want %d redeliveries every %v", h, tt.redeliveries, tt.delay)
+			}
+			route := ""
+			if h.Route != nil {
+				route = h.Route.Kind + ":" + h.Route.ID
+				if h.Route.Processor == nil {
+					t.Errorf("error route %+v has no processor", h.Route)
+				}
+			}
+			if route != tt.route {
+				t.Errorf("error route = %q, want %q", route, tt.route)
+			}
+		})
+	}
+}
+
+func TestParseErrorHandlerInvalid(t *testing.T) {
+	const errStep = `{"id":"e","type":"error","uri":"failedexchange"`
+	tests := []struct {
+		name, json, want string
+	}{
+		{"two error steps", flow(src + `,` + sink + `,` + errStep + `},` + errStep + `}`), "step e: flow has more than one error step"},
+		{"unknown uri", flow(src + `,` + sink + `,{"id":"e","type":"error","uri":"deadletter"}`), `step e: error step uri "deadletter" is not supported`},
+		{"unknown option", flow(src + `,` + sink + `,` + errStep + `,"options":{"retries":1}}`), "step e: error step: unknown option retries"},
+		{"bad option", flow(src + `,` + sink + `,` + errStep + `,"options":{"maximumRedeliveries":"x"}}`), `option maximumRedeliveries: want an integer, got "x"`},
+		{"negative option", flow(src + `,` + sink + `,` + errStep + `,"options":{"redeliveryDelay":-1}}`), "option redeliveryDelay: want an integer of 0 or more"},
+		{"inbound link", flow(src + `,` + sink + `,` + errStep + `,"links":{"link":{"id":"x","bound":"in"}}}`), "error step needs 0 inbound links"},
+		{"dangling route", flow(src + `,` + sink + `,` + errStep + `,"links":{"link":{"id":"x","bound":"out"}}}`), "step e: outbound link x has no target"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := Parse([]byte(tt.json), newNoop)
+			if err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Errorf("err = %v, want containing %q", err, tt.want)
+			}
+		})
+	}
+
+	// Aliases: redeliveryAttempts and redeliveryInterval count when the Camel names are absent.
+	f, err := Parse([]byte(flow(src+`,`+sink+`,`+errStep+`,"options":{"redeliveryAttempts":"2","redeliveryInterval":5}}`)), newNoop)
+	if err != nil || f.Error.Redeliveries != 2 || f.Error.RedeliveryDelay != 5*time.Millisecond {
+		t.Errorf("error handler = %+v, %v; want 2 redeliveries every 5ms", f.Error, err)
 	}
 }
 

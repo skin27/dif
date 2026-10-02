@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"strconv"
 	"strings"
+	"time"
 
 	flowdef "dif/flows/definition"
 	"dif/message"
@@ -55,13 +57,22 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 		nodes    []*flowdef.Node
 		byInLink = map[string]*flowdef.Node{}    // inbound link id -> node
 		outLinks = map[*flowdef.Node][]dilLink{} // node -> outbound links
+		errh     *flowdef.ErrorHandler
+		errLink  string // outbound link of the error step: the start of the error route
 	)
 
 	for _, s := range df.Steps.Step {
 		switch s.Type {
 		case flowdef.Source, flowdef.Action, flowdef.Router, flowdef.Sink:
 		case "error":
-			continue // error handlers are not supported yet
+			if errh != nil {
+				return nil, fmt.Errorf("step %s: flow has more than one error step", s.ID)
+			}
+			var err error
+			if errh, errLink, err = errorHandler(s); err != nil {
+				return nil, fmt.Errorf("step %s: %w", s.ID, err)
+			}
+			continue
 		default:
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
 		}
@@ -132,10 +143,21 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 		}
 	}
 
-	// Walk every path from the source so the engine never sees a cycle or a
-	// dangling step. Every step has one inbound link, so the paths form a tree.
+	starts := []*flowdef.Node{source}
+	if errLink != "" {
+		route, ok := byInLink[errLink]
+		if !ok {
+			return nil, fmt.Errorf("step %s: outbound link %s has no target", errh.ID, errLink)
+		}
+		errh.Route = route
+		starts = append(starts, route)
+	}
+
+	// Walk every path from the source and the error step so the engine never
+	// sees a cycle or a dangling step. Every step has one inbound link, so the
+	// paths form trees.
 	seen := map[*flowdef.Node]bool{}
-	for todo := []*flowdef.Node{source}; len(todo) > 0; {
+	for todo := starts; len(todo) > 0; {
 		n := todo[len(todo)-1]
 		todo = todo[:len(todo)-1]
 		if seen[n] {
@@ -156,7 +178,79 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 		n.Processor = p
 	}
 
-	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source}, nil
+	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source, Error: errh}, nil
+}
+
+// errorHandler returns the error handler an error step defines, and the id of
+// its outbound link (empty if it has no error route). Its options are Camel's
+// redelivery settings: maximumRedeliveries (or redeliveryAttempts) and
+// redeliveryDelay (or redeliveryInterval) in milliseconds, default 1000.
+func errorHandler(s dilStep) (*flowdef.ErrorHandler, string, error) {
+	if s.URI != "failedexchange" {
+		return nil, "", fmt.Errorf("error step uri %q is not supported; use failedexchange", s.URI)
+	}
+	var out []string
+	for _, l := range s.Links.Link {
+		if l.Bound != "out" {
+			return nil, "", fmt.Errorf("error step needs 0 inbound links and at most 1 outbound link")
+		}
+		out = append(out, l.ID)
+	}
+	if len(out) > 1 {
+		return nil, "", fmt.Errorf("error step needs 0 inbound links and at most 1 outbound link")
+	}
+
+	opts := map[string]int{"maximumRedeliveries": -1, "redeliveryAttempts": -1, "redeliveryDelay": -1, "redeliveryInterval": -1}
+	for k, v := range s.Options {
+		if _, ok := opts[k]; !ok {
+			return nil, "", fmt.Errorf("error step: unknown option %s", k)
+		}
+		n, err := nonNegativeInt(v)
+		if err != nil {
+			return nil, "", fmt.Errorf("error step: option %s: %w", k, err)
+		}
+		opts[k] = n
+	}
+	pick := func(name, alias string, def int) int {
+		if opts[name] >= 0 {
+			return opts[name]
+		}
+		if opts[alias] >= 0 {
+			return opts[alias]
+		}
+		return def
+	}
+
+	h := &flowdef.ErrorHandler{
+		ID:              s.ID,
+		Redeliveries:    pick("maximumRedeliveries", "redeliveryAttempts", 0),
+		RedeliveryDelay: time.Duration(pick("redeliveryDelay", "redeliveryInterval", 1000)) * time.Millisecond,
+	}
+	if len(out) == 0 {
+		return h, "", nil
+	}
+	return h, out[0], nil
+}
+
+// nonNegativeInt returns v, a JSON number or (as DIL converted from XML has
+// it) a string, as an int of 0 or more.
+func nonNegativeInt(v any) (int, error) {
+	var n float64
+	switch x := v.(type) {
+	case float64:
+		n = x
+	case string:
+		var err error
+		if n, err = strconv.ParseFloat(x, 64); err != nil {
+			return 0, fmt.Errorf("want an integer, got %q", x)
+		}
+	default:
+		return 0, fmt.Errorf("want an integer, got %v", v)
+	}
+	if n < 0 || n != float64(int(n)) {
+		return 0, fmt.Errorf("want an integer of 0 or more, got %v", v)
+	}
+	return int(n), nil
 }
 
 // resolveMessage returns the step's options. A step whose URI refers to a core

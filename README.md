@@ -48,7 +48,8 @@ to its own file, `logs/<flow id>.log` in the working directory (appended to
 across runs):
 
 - lifecycle events: loaded, started, paused, stopped (forced, or because `dif` exits)
-- every message: its content and trail, or why it failed
+- every message: its content and trail (and the error the error route handled, if any), or why it failed
+- redeliveries of failing steps
 - the lines of the flow's `log` steps
 
 Read it with `log <flow>` or any other tool.
@@ -127,7 +128,8 @@ Started | Paused --Stop|ForceStop--> Stopped
   as failed (`aborted by forced stop`) and may be lost.
 - Processors log to the flow's logger (`Runner.SetLogger`), which they get from
   their context; the CLI points it at the flow's log file.
-- A failing message is reported and the flow continues with the next one.
+- A failing message is reported and the flow continues with the next one; see
+  [Error handling](#error-handling) for retries and error routes.
 - A stopped flow can be started again. Starting a started flow, pausing a paused
   flow and so on are refused with an error such as `cannot start: flow is started`.
 
@@ -195,8 +197,8 @@ Processor
   and emits a message per tick, file, request, … A request-reply source (https)
   passes a reply callback to `emit`; the flow calls it with the final message or
   the error once the message has been processed.
-- Processors return errors to the engine and never retry; error handling is the
-  engine's job. They honour `ctx`. A message the flow has taken completes even
+- Processors return errors to the engine and never retry; error handling
+  (redelivery, error routes) is the engine's job. They honour `ctx`. A message the flow has taken completes even
   when the flow is stopped meanwhile, unless the stop is forced. They log with
   `stepdef.Logger(ctx)`, the flow's logger.
 - Processor instances are shared by all messages of a flow and are safe for
@@ -224,6 +226,31 @@ goroutines). Then:
 
 The trail lists the steps in the order they ran, branch after branch:
 `source:a -> router:r -> sink:tap -> sink:main`.
+
+### Error handling
+
+A flow may have an error handler (in DIL, its `error` step, `failedexchange`).
+It works like Camel's dead letter channel:
+
+1. **Redelivery.** A step that fails is tried again, up to
+   `maximumRedeliveries` times (default 0), `redeliveryDelay` ms apart
+   (default 1000). Each try is logged:
+   `step x: redelivery 1 of 2 in 200ms after: <error>`. Only the failing step
+   runs again, with the message as it got it (and any change it made before
+   failing). A forced stop ends the wait.
+2. **Error route.** If the step keeps failing and the error step has an
+   outbound link, the message goes along that route, with the headers
+   `error.message` (what went wrong) and `error.step` (the step's id). The
+   error is then handled: the message counts as processed, the error route's
+   outcome is what an https source replies (200), and the trail shows
+   `error:<id>` before the error route's steps. The flow log adds
+   `(error route handled: <error>)`.
+3. Without an error route, or when the error route fails too, the message
+   fails (`step x: …; error route: step y: …`).
+
+A failure on a branch of a router goes to the error route with that branch's
+message; a detached route (wire tap) never does. A forced stop never takes the
+error route.
 
 ## Steps
 
@@ -330,6 +357,7 @@ its `Content-Type` header (default `text/plain; charset=utf-8`).
 | Outcome | Response |
 |---|---|
 | message processed | 200 with the final body |
+| message failed, handled by the error route | 200 with the error route's final body |
 | message failed | 500 with the error |
 | flow stopping or stopped | 503 |
 | no flow serves the path | 404 |
@@ -368,14 +396,14 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-30 of the examples load (given the keystores): base64ToText, contentrouter,
-csvtoxml, encoder, fileInbound, fileOutbound, filter, hello, httpsClient,
-httpsInbound, jsontoxml, jsontoxmlsimple, log, queueAsynchronousOutbound,
-recipient, removeHeaders, repeater, replace, setBody, simplereplace, split,
-test, textToBase64, timer, unzip, wiretap, xmltocsv, xmltojson,
-xmltojsonsimple and zip. The others use steps without a processor yet (such as
-`aggregate`), expressions such as `groovy` and `${date:now:ss}`, or steps
-hanging off an `error` step (errorHandler). Several https examples
+31 of the examples load (given the keystores): base64ToText, contentrouter,
+csvtoxml, encoder, errorHandler, fileInbound, fileOutbound, filter, hello,
+httpsClient, httpsInbound, jsontoxml, jsontoxmlsimple, log,
+queueAsynchronousOutbound, recipient, removeHeaders, repeater, replace,
+setBody, simplereplace, split, test, textToBase64, timer, unzip, wiretap,
+xmltocsv, xmltojson, xmltojsonsimple and zip. The others use steps without a
+processor yet (such as `aggregate`, `enrich` or the dead letter queue in
+deadletter), or expressions such as `groovy` and `${date:now:ss}`. Several https examples
 listen on the same path (`/_new2/httpsinbound`), so only one of them can run
 at a time.
 
@@ -389,9 +417,9 @@ at a time.
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
 | `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split) and their schemas; the simple, xpath and jsonpath subsets |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
-| `flows/definition` | Internal flow model (`Flow`, `Node`), independent of any DSL             |
+| `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
-| `engine`           | `Run` takes one message through a flow; `Runner` holds the lifecycle; `Engine` is the registry of flows by id |
+| `engine`           | `Run` takes one message through a flow, with redelivery and the error route; `Runner` holds the lifecycle; `Engine` is the registry of flows by id |
 | `api`              | Public entry point: `api.Load(path, onResult)` returns a `Flow` with lifecycle methods and `Send`; `api.NewEngine()` manages several flows; `api.RegisterStep` adds steps |
 | `cli`, `cmd/dif`   | `dif` / `dif start <flow.json>...` with `load`, `run`, `send`, `log`, `list` and lifecycle commands on stdin; one log file per flow |
 
@@ -412,7 +440,11 @@ steps plug in through the registry without touching the engine.
   outbound link, `rule` (its role, such as `wiretap` or `split`), `language`
   and `expression` (its condition), are kept in the flow model (`Node.Links`)
   and given to the router; `pattern` is ignored.
-- `error` steps are skipped.
+- The `error` step (`failedexchange`, at most one per flow) becomes the flow's
+  error handler: its options `maximumRedeliveries` and `redeliveryDelay` (or
+  `redeliveryAttempts` and `redeliveryInterval`, used when the first are
+  absent) set the redelivery, and its outbound link, if any, starts the error
+  route. It has no inbound link.
 
 ## Future work
 
@@ -420,7 +452,7 @@ steps plug in through the registry without touching the engine.
   routers: `aggregate` and `splitandaggregate` (they need aggregation state),
   `enrich`; multiple flows per file
 - More expression languages and simple-language functions (`${date:now:<format>}`, …)
-- Error channels (`error` steps and the flows hanging off them), retry policies in the engine
+- More error handling: exponential backoff, retrying only some errors, keeping the original message
 - Concurrent message execution within a flow (processors are already safe for it)
 - A separate engine process with a network API for clients
 - State: `Message` is JSON-serializable, so it can be persisted later; nothing is persisted now

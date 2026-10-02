@@ -90,7 +90,11 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				return
 			}
 			msg, _ := json.Marshal(res.Message)
-			fl.logger.Printf("message %d: %s trail: %s (%d ms)", n, msg, strings.Join(res.Trail, " -> "), res.Duration.Milliseconds())
+			handled := ""
+			if res.Err != nil {
+				handled = fmt.Sprintf(" (error route handled: %v)", res.Err)
+			}
+			fl.logger.Printf("message %d: %s trail: %s (%d ms)%s", n, msg, strings.Join(res.Trail, " -> "), res.Duration.Milliseconds(), handled)
 		})
 		if err != nil {
 			return nil, err
