@@ -27,35 +27,56 @@ type splitRouter struct {
 }
 
 func newSplitRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
+	r, err := newSplitter(p[stepdef.Links].([]stepdef.Link), p["language"].(string), p["expression"].(string))
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// newSplitter returns a splitRouter for links that splits by expression in
+// language (xpath or jsonpath).
+func newSplitter(links []stepdef.Link, language, expression string) (splitRouter, error) {
 	r := splitRouter{split: -1, main: -1}
-	links := p[stepdef.Links].([]stepdef.Link)
 	for i, l := range links {
 		target := &r.main
 		if l.Rule == "split" || len(links) == 1 {
 			target = &r.split
 		}
 		if *target >= 0 {
-			return nil, fmt.Errorf("needs one outbound link with rule split and at most one other")
+			return r, fmt.Errorf("needs one outbound link with rule split and at most one other")
 		}
 		*target = i
 	}
 	if r.split < 0 {
-		return nil, fmt.Errorf("needs an outbound link with rule split")
+		return r, fmt.Errorf("needs an outbound link with rule split")
 	}
 
 	var err error
-	if p["language"] == "xpath" {
-		r.xpath, err = compileXPath(p["expression"].(string))
+	if language == "xpath" {
+		r.xpath, err = compileXPath(expression)
 	} else {
-		r.jsonPath, err = compileJSONPath(p["expression"].(string))
+		r.jsonPath, err = compileJSONPath(expression)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("option expression: %w", err)
+		return r, fmt.Errorf("option expression: %w", err)
 	}
 	return r, nil
 }
 
 func (r splitRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
+	routes, err := r.partRoutes(m)
+	if err != nil {
+		return nil, err
+	}
+	if r.main >= 0 {
+		routes = append(routes, stepdef.Route{Next: r.main, Message: m})
+	}
+	return routes, nil
+}
+
+// partRoutes returns a route along the split link for every part of m's body.
+func (r splitRouter) partRoutes(m message.Message) ([]stepdef.Route, error) {
 	parts, err := r.parts(m[message.Body])
 	if err != nil {
 		return nil, err
@@ -66,9 +87,6 @@ func (r splitRouter) Route(_ context.Context, m message.Message) ([]stepdef.Rout
 		c[message.Body] = part
 		c[SplitIndex], c[SplitSize], c[SplitComplete] = i, len(parts), i == len(parts)-1
 		routes = append(routes, stepdef.Route{Next: r.split, Message: c})
-	}
-	if r.main >= 0 {
-		routes = append(routes, stepdef.Route{Next: r.main, Message: m})
 	}
 	return routes, nil
 }
