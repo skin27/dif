@@ -223,6 +223,12 @@ goroutines). Then:
 - An error on any other route fails the message, and later routes do not run.
 - A router that sends a message along several links sends copies
   (`Message.Copy`), so branches never see each other's changes.
+- A router that is also a **gatherer** (`stepdef.Gatherer`, scatter-gather,
+  such as `enrich`) gets the outcomes of its routes instead: the message or
+  the error of each route that is not detached. It combines them and returns
+  the routes to run next, which run as above. A failed route does not stop the
+  message; the gatherer decides (returning the route's error keeps its step
+  and message for the error route).
 
 The trail lists the steps in the order they ran, branch after branch:
 `source:a -> router:r -> sink:tap -> sink:main`.
@@ -299,6 +305,7 @@ using anything else fails registration.
 | `content` | router | – (conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
 | `split` | router or action | `language` xpath\|jsonpath (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. XML parts are the elements as written; JSON parts are JSON (strings as is) |
+| `enrich` | router | `enrichType` override\|xml\|json (xml), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
 
 Language `constant` is the literal text; `simple` replaces `${body}` (also
 written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}` (other
@@ -396,14 +403,14 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-31 of the examples load (given the keystores): base64ToText, contentrouter,
-csvtoxml, encoder, errorHandler, fileInbound, fileOutbound, filter, hello,
-httpsClient, httpsInbound, jsontoxml, jsontoxmlsimple, log,
+32 of the examples load (given the keystores): base64ToText, contentrouter,
+csvtoxml, encoder, enrich, errorHandler, fileInbound, fileOutbound, filter,
+hello, httpsClient, httpsInbound, jsontoxml, jsontoxmlsimple, log,
 queueAsynchronousOutbound, recipient, removeHeaders, repeater, replace,
 setBody, simplereplace, split, test, textToBase64, timer, unzip, wiretap,
 xmltocsv, xmltojson, xmltojsonsimple and zip. The others use steps without a
-processor yet (such as `aggregate`, `enrich` or the dead letter queue in
-deadletter), or expressions such as `groovy` and `${date:now:ss}`. Several https examples
+processor yet (such as `aggregate` or the dead letter queue in deadletter), or
+expressions such as `groovy` and `${date:now:ss}`. Several https examples
 listen on the same path (`/_new2/httpsinbound`), so only one of them can run
 at a time.
 
@@ -413,9 +420,9 @@ at a time.
 | Package            | Role                                                                     |
 |--------------------|--------------------------------------------------------------------------|
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
-| `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `SinkProcessor`) and `Definition` |
+| `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split) and their schemas; the simple, xpath and jsonpath subsets |
+| `steps/impl`       | Built-in steps (timer, repeater, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, and the routers wiretap, recipient, content, filter, split, enrich) and their schemas; the simple, xpath and jsonpath subsets |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
@@ -449,8 +456,9 @@ steps plug in through the registry without touching the engine.
 ## Future work
 
 - More sources and steps (queue, quartz, sftp, xslt, EDI and Excel converters, …) and
-  routers: `aggregate` and `splitandaggregate` (they need aggregation state),
-  `enrich`; multiple flows per file
+  routers: `aggregate` (it needs state across messages) and
+  `splitandaggregate` (a gatherer, once the aggregation format is known);
+  multiple flows per file
 - More expression languages and simple-language functions (`${date:now:<format>}`, …)
 - More error handling: exponential backoff, retrying only some errors, keeping the original message
 - Concurrent message execution within a flow (processors are already safe for it)

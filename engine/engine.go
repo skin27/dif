@@ -163,15 +163,38 @@ func (r *run) retry(ctx context.Context, n *flowdef.Node, do func() error) error
 }
 
 // route runs the routes of router n, which msg entered, and returns the
-// message that comes out of the last route that is not detached (msg if none).
+// message that comes out of the last route that is not detached (msg if
+// none). A router that is a stepdef.Gatherer gets the routes' outcomes and
+// returns the routes to run next.
 func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, routes []stepdef.Route) (message.Message, error) {
+	g, gathers := n.Processor.(stepdef.Gatherer)
+	out, outcomes, err := r.runRoutes(ctx, n, msg, routes, gathers)
+	if err != nil || !gathers {
+		return out, err
+	}
+	next, err := g.Gather(ctx, msg, outcomes)
+	if err != nil {
+		if errors.As(err, new(*StepError)) { // a route's failure: keep its step and message
+			return nil, err
+		}
+		return nil, &StepError{n.ID, msg, err}
+	}
+	out, _, err = r.runRoutes(ctx, n, msg, next, false)
+	return out, err
+}
+
+// runRoutes runs routes one after another. With gather it collects their
+// outcomes instead of stopping at the first error; otherwise it returns the
+// message of the last route that is not detached (msg if none).
+func (r *run) runRoutes(ctx context.Context, n *flowdef.Node, msg message.Message, routes []stepdef.Route, gather bool) (message.Message, []stepdef.Outcome, error) {
 	out := msg
+	var outcomes []stepdef.Outcome
 	for _, rt := range routes {
 		if rt.Next < 0 || rt.Next >= len(n.Next) {
-			return nil, fmt.Errorf("step %s: route to link %d, but the step has %d", n.ID, rt.Next, len(n.Next))
+			return nil, nil, fmt.Errorf("step %s: route to link %d, but the step has %d", n.ID, rt.Next, len(n.Next))
 		}
 		if rt.Message == nil {
-			return nil, fmt.Errorf("step %s: route to link %d has no message", n.ID, rt.Next)
+			return nil, nil, fmt.Errorf("step %s: route to link %d has no message", n.ID, rt.Next)
 		}
 		res, err := r.path(ctx, n.Next[rt.Next], rt.Message)
 		switch {
@@ -179,13 +202,18 @@ func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, r
 			if err != nil {
 				stepdef.Logger(ctx).Printf("step %s: detached route to link %d failed: %v", n.ID, rt.Next, err)
 			}
+		case gather:
+			if err != nil && ctx.Err() != nil {
+				return nil, nil, err // a forced stop is not an outcome
+			}
+			outcomes = append(outcomes, stepdef.Outcome{Message: res, Err: err})
 		case err != nil:
-			return nil, err
+			return nil, nil, err
 		default:
 			out = res
 		}
 	}
-	return out, nil
+	return out, outcomes, nil
 }
 
 // nextStep returns the step after n, or nil if n ends its path. Only a router may

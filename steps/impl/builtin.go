@@ -49,6 +49,7 @@ func Register(r *registry.Registry) error {
 		{"content", stepdef.Router, newContentRouter},
 		{"filter", stepdef.Router, newFilterRouter},
 		{"split", stepdef.Router, newSplitRouter},
+		{"enrich", stepdef.Router, newEnrichRouter},
 		{"file", stepdef.Sink, newFileSink},
 	}
 	for _, b := range builtins {

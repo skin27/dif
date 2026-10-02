@@ -67,6 +67,24 @@ type Route struct {
 	Detached bool
 }
 
+// A Gatherer is a router that combines what comes out of its routes
+// (scatter-gather), such as an enricher. The engine runs the routes Route
+// returns and, instead of stopping at a failed one, collects the outcome of
+// every route that is not detached, in order. It then calls Gather with the
+// message that entered the router and those outcomes, and runs the routes
+// Gather returns as it runs any router's routes. An error from Gather fails
+// the message; to fail it with a route's error, return Outcome.Err.
+type Gatherer interface {
+	Gather(ctx context.Context, m message.Message, outcomes []Outcome) ([]Route, error)
+}
+
+// Outcome is what came out of a route: the message at the end of its path,
+// or the error that stopped it.
+type Outcome struct {
+	Message message.Message
+	Err     error
+}
+
 // Link describes an outbound link of a router, as the flow defines it: the
 // rule that names its role (such as "wiretap" or "split") and, for a
 // condition, its language and expression. A router gets its links, in the
