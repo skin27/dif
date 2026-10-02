@@ -77,5 +77,6 @@ func (a csvToXMLAction) Process(_ context.Context, m message.Message) (message.M
 	}
 	b.WriteString("</rows>")
 	m[message.Body] = b.String()
+	m[message.ContentType] = "application/xml"
 	return m, nil
 }

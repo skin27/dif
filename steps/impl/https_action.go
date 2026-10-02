@@ -89,9 +89,9 @@ func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Me
 	m[message.Body] = string(data)
 	m["http.status"] = resp.StatusCode
 	if ct := resp.Header.Get("Content-Type"); ct != "" {
-		m["Content-Type"] = ct
+		m[message.ContentType] = ct
 	} else {
-		delete(m, "Content-Type")
+		delete(m, message.ContentType)
 	}
 	return m, nil
 }

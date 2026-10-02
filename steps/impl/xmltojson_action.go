@@ -54,6 +54,7 @@ func (a xmlToJSONAction) Process(_ context.Context, m message.Message) (message.
 	var b bytes.Buffer
 	writeJSON(&b, v)
 	m[message.Body] = b.String()
+	m[message.ContentType] = "application/json"
 	return m, nil
 }
 

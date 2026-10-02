@@ -102,7 +102,7 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 				http.Error(w, o.err.Error(), http.StatusInternalServerError)
 				return
 			}
-			ct, _ := o.m["Content-Type"].(string)
+			ct, _ := o.m[message.ContentType].(string)
 			if ct == "" {
 				ct = "text/plain; charset=utf-8"
 			}

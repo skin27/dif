@@ -15,7 +15,7 @@ func TestZipRoundTrip(t *testing.T) {
 	m := message.New("1234")
 	m[FileName] = "content.txt"
 	zipped := process(t, "zip", nil, m)
-	if zipped[FileName] != "content.txt.zip" || zipped["Content-Type"] != "application/zip" {
+	if zipped[FileName] != "content.txt.zip" || zipped[message.ContentType] != "application/zip" {
 		t.Errorf("zipped headers = %v", zipped)
 	}
 	if b, ok := zipped[message.Body].([]byte); !ok || !bytes.HasPrefix(b, []byte("PK")) {
@@ -26,8 +26,8 @@ func TestZipRoundTrip(t *testing.T) {
 	if string(bytesOf(out[message.Body])) != "1234" || out[FileName] != "content.txt" {
 		t.Errorf("unzipped = %v", out)
 	}
-	if _, ok := out["Content-Type"]; ok {
-		t.Error("unzip kept Content-Type application/zip")
+	if out[message.ContentType] != "text/plain" {
+		t.Errorf("Content-Type = %v, want text/plain by the file's extension", out[message.ContentType])
 	}
 }
 
@@ -36,6 +36,9 @@ func TestZipNamesFileAfterTraceID(t *testing.T) {
 	out := process(t, "unzip", nil, process(t, "zip", nil, m))
 	if out[FileName] != m[message.TraceID] {
 		t.Errorf("file name = %v, want the trace id %v", out[FileName], m[message.TraceID])
+	}
+	if ct, ok := out[message.ContentType]; ok {
+		t.Errorf("Content-Type = %v, want none for a name without a known extension", ct)
 	}
 }
 

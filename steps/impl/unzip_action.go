@@ -14,7 +14,8 @@ import (
 // unzipAction extracts the file of a zip archive in the body: its content
 // becomes the body and its name the FileName header. An archive with more
 // than one file is rejected, as one message cannot hold several files (that
-// needs a splitter). Content-Type application/zip is removed.
+// needs a splitter). Content-Type is set by the file's extension, or removed
+// when the extension is unknown.
 type unzipAction struct{}
 
 func newUnzipAction(string, stepdef.Params) (stepdef.Processor, error) {
@@ -57,8 +58,6 @@ func (unzipAction) Process(_ context.Context, m message.Message) (message.Messag
 
 	m[message.Body] = content
 	m[FileName] = file.Name
-	if m["Content-Type"] == "application/zip" {
-		delete(m, "Content-Type")
-	}
+	setContentType(m, file.Name)
 	return m, nil
 }

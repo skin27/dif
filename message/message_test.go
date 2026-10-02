@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestIsMetadata(t *testing.T) {
-	for key, want := range map[string]bool{TraceID: true, Timestamp: true, Body: false, "greeting": false, "Metadata.x": false} {
+	for key, want := range map[string]bool{TraceID: true, Timestamp: true, Trail: true, Step: true, OriginalBody: true, Body: false, ContentType: false, "greeting": false, "Metadata.x": false} {
 		if got := IsMetadata(key); got != want {
 			t.Errorf("IsMetadata(%q) = %v, want %v", key, got, want)
 		}

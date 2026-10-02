@@ -57,6 +57,7 @@ func (a jsonToXMLAction) Process(_ context.Context, m message.Message) (message.
 		return nil, err
 	}
 	m[message.Body] = b.String()
+	m[message.ContentType] = "application/xml"
 	return m, nil
 }
 

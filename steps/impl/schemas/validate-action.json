@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:validate-action",
+	"title": "validate action",
+	"description": "Validates a JSON body against a JSON Schema; an invalid message fails with every problem found. Set schema or schemaFile.",
+	"type": "object",
+	"properties": {
+		"schema": {
+			"title": "Schema",
+			"description": "The JSON Schema, inline. Supports type, properties, required, additionalProperties, items, enum, const, minimum, maximum, exclusiveMinimum, exclusiveMaximum, minLength, maxLength, pattern, minItems and maxItems",
+			"type": "string",
+			"default": ""
+		},
+		"schemaFile": {
+			"title": "Schema file",
+			"description": "Path of a file holding the JSON Schema, read when the flow is loaded",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

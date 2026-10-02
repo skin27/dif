@@ -23,10 +23,25 @@ type Message map[string]any
 
 // Fixed keys.
 const (
-	Body           = "body"
+	Body = "body"
+
+	// ContentType is the media type of the body, such as application/json.
+	// It is a user header: steps that produce a known format set it, https
+	// sends it outside and setheader can change it.
+	ContentType = "Content-Type"
+
 	MetadataPrefix = "metadata."
 	TraceID        = MetadataPrefix + "traceid"
 	Timestamp      = MetadataPrefix + "timestamp" // RFC 3339 string
+
+	// Trail lists the steps the message entered, as space-separated "kind:id"
+	// entries, across flows: entering a flow adds "flow:id". It is a string, so
+	// copies of a message never share a trail they append to.
+	Trail = MetadataPrefix + "trail"
+	Step  = MetadataPrefix + "step" // id of the step the message is in, or was last in
+
+	// OriginalBody is the body as the message entered its current flow.
+	OriginalBody = MetadataPrefix + "originalbody"
 )
 
 // New returns a Message with a fresh trace id, the current time and the given body.

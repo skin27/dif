@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"os/signal"
 	"slices"
@@ -18,6 +19,7 @@ import (
 
 	"dif/api"
 	"dif/engine"
+	"dif/message"
 )
 
 const usage = `usage: dif                        open the CLI without flows; add them with "load" or "run"
@@ -69,7 +71,10 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				fl.logger.Printf("message %d failed: %v", n, err)
 				return
 			}
-			msg, _ := json.Marshal(res.Message)
+			// The original body repeats a body; leave it out of the log.
+			m := maps.Clone(res.Message)
+			delete(m, message.OriginalBody)
+			msg, _ := json.Marshal(m)
 			handled := ""
 			if res.Err != nil {
 				handled = fmt.Sprintf(" (error route handled: %v)", res.Err)

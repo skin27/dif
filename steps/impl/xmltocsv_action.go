@@ -89,6 +89,7 @@ func (a xmlToCSVAction) Process(_ context.Context, m message.Message) (message.M
 		a.writeLine(&b, line)
 	}
 	m[message.Body] = b.String()
+	m[message.ContentType] = "text/csv"
 	return m, nil
 }
 

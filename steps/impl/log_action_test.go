@@ -31,7 +31,7 @@ func TestLog(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := captureLog(t)
-			in := message.Message{message.TraceID: "abc", message.Timestamp: "now", message.Body: "hi", "greeting": "hello", "n": 42}
+			in := message.Message{message.TraceID: "abc", message.Timestamp: "now", message.Body: "hi", message.OriginalBody: "hi", "greeting": "hello", "n": 42}
 			want := maps.Clone(in)
 
 			out := process(t, "log", tt.opts, in)

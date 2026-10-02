@@ -47,6 +47,7 @@ func Register(r *registry.Registry) error {
 		{"jsontoxmlsimple", stepdef.Action, newJSONToXMLSimpleAction},
 		{"csvtoxml", stepdef.Action, newCSVToXMLAction},
 		{"xmltocsv", stepdef.Action, newXMLToCSVAction},
+		{"validate", stepdef.Action, newValidateAction},
 		{"wiretap", stepdef.Router, newWireTapRouter},
 		{"recipient", stepdef.Router, newRecipientRouter},
 		{"content", stepdef.Router, newContentRouter},

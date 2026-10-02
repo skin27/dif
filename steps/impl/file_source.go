@@ -17,6 +17,26 @@ import (
 // The file source sets it; the file sink uses it when no fileName is configured.
 const FileName = "file.name"
 
+// contentTypes maps file extensions to the Content-Type of the content. It is
+// a fixed table, not mime.TypeByExtension, whose answers differ by platform.
+var contentTypes = map[string]string{
+	".csv":  "text/csv",
+	".json": "application/json",
+	".txt":  "text/plain",
+	".xml":  "application/xml",
+	".zip":  "application/zip",
+}
+
+// setContentType sets the Content-Type of m by the extension of the file
+// name, or removes it when the extension is not in contentTypes.
+func setContentType(m message.Message, name string) {
+	if ct, ok := contentTypes[strings.ToLower(filepath.Ext(name))]; ok {
+		m[message.ContentType] = ct
+	} else {
+		delete(m, message.ContentType)
+	}
+}
+
 // doneDir is the subdirectory consumed files are moved to, unless they are deleted.
 const doneDir = ".done"
 
@@ -78,6 +98,7 @@ func (s fileSource) Run(ctx context.Context, emit stepdef.Emit) error {
 			}
 			m := message.New(string(data))
 			m[FileName] = filepath.ToSlash(rel)
+			setContentType(m, rel)
 			if emit(m, nil) != nil {
 				return nil // flow is stopping; the file stays for the next run
 			}

@@ -79,6 +79,19 @@ func poll(t *testing.T, dir string, opts map[string]any, want int) map[string]an
 	return got
 }
 
+func TestSetContentType(t *testing.T) {
+	for name, want := range map[string]any{
+		"a.json": "application/json", "dir/B.XML": "application/xml", "x.csv": "text/csv",
+		"notes.txt": "text/plain", "a.zip": "application/zip", "a.bin": nil, "noext": nil,
+	} {
+		m := message.Message{message.ContentType: "application/octet-stream"}
+		setContentType(m, name)
+		if m[message.ContentType] != want {
+			t.Errorf("%s: Content-Type = %v, want %v", name, m[message.ContentType], want)
+		}
+	}
+}
+
 func TestFileSourceMovesToDone(t *testing.T) {
 	dir := t.TempDir()
 	write(t, filepath.Join(dir, "a.txt"), "A")

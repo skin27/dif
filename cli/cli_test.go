@@ -48,7 +48,8 @@ func TestRun(t *testing.T) {
 		}, map[string][]string{"hello": {
 			"flow hello loaded from ../examples/hello.json\n",
 			"flow hello started\n",
-			`message 1: {"body":"HELLO WORLD","greeting":"hello","metadata.timestamp":"`,
+			`message 1: {"body":"HELLO WORLD","greeting":"hello","metadata.step":"hello-sink","metadata.timestamp":"`,
+			`"metadata.trail":"flow:hello source:hello-source action:hello-action sink:hello-sink"}`,
 			"trail: source:hello-source -> action:hello-action -> sink:hello-sink (",
 			`message 2: {"body":"bye"`,
 			"flow hello stopped (dif exits)\n",

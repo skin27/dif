@@ -102,9 +102,9 @@ TOTAL           3        0       3
 following logs/timer.log; press Enter to stop
 2026/10/02 13:37:40.104371 flow timer loaded from examples/timer.json
 2026/10/02 13:37:40.105789 flow timer started (loaded from examples/timer.json)
-2026/10/02 13:37:45.106427 step timer-log: traceid=c98d… headers={metadata.timestamp=…, source=timer} body=tick 1
+2026/10/02 13:37:45.106427 step timer-log: traceid=c98d… headers={metadata.step=timer-log, metadata.timestamp=…, metadata.trail=flow:timer source:timer-source action:timer-setbody action:timer-setheader sink:timer-log, source=timer} body=tick 1
 2026/10/02 13:37:45.106427 message 1: {"body":"tick 1",…} trail: source:timer-source -> action:timer-setbody -> action:timer-setheader -> sink:timer-log (0 ms)
-2026/10/02 13:37:50.107112 step timer-log: traceid=84cf… headers={metadata.timestamp=…, source=timer} body=tick 2
+2026/10/02 13:37:50.107112 step timer-log: traceid=84cf… headers={metadata.step=timer-log, …, source=timer} body=tick 2
 2026/10/02 13:37:50.109383 message 2: {"body":"tick 2",…} trail: … (1 ms)
 
 stopped following logs/timer.log
@@ -224,11 +224,24 @@ A message is one mutable map (`message.Message`, a `map[string]any`) holding:
 
 - the body under the fixed key `body`
 - user headers under any other key; values are strings, booleans, ints,
-  `[]byte`, decoded JSON (maps, slices) or XML (as a string)
-- metadata headers, prefixed `metadata.`: `metadata.traceid` and
-  `metadata.timestamp` (RFC 3339). Metadata is internal: it is never sent
-  outside a flow (the file sink writes the body only), and `setheader` cannot
-  set it.
+  `[]byte`, decoded JSON (maps, slices) or XML (as a string). `Content-Type`
+  holds the media type of the body: the converters, the file source, `zip`,
+  `unzip` and https set it, https sends it, and `setheader` can change it
+- metadata headers, prefixed `metadata.`. Metadata is internal: it is never
+  sent outside a flow (the file sink writes the body only), and `setheader`
+  cannot set it.
+
+| Metadata header | Set by | Value |
+|-----------------|--------|-------|
+| `metadata.traceid` | a new message | 32 hex characters; copies keep it |
+| `metadata.timestamp` | a new message | when it was created (RFC 3339) |
+| `metadata.trail` | the engine | the steps the message entered, as `kind:id` separated by spaces, across flows: entering a flow adds `flow:id` (e.g. `flow:orders source:in action:check error:h sink:dlq flow:retry source:q`) |
+| `metadata.step` | the engine | the id of the step the message is in, or was last in |
+| `metadata.originalbody` | the engine | the body as the message entered its current flow; `setbody` with simple `${header.metadata.originalbody}` restores it. The log step and the CLI leave it out |
+
+So a message carries where it has been: one taken from a dead letter queue
+still shows the flow and step it failed in. Its trail is its own path; the
+trail of a run (below) lists the steps of all branches.
 
 Keys are case-sensitive. A message is a plain map, so it is JSON-serializable
 and can be persisted later; nothing is persisted now.
@@ -283,8 +296,9 @@ goroutines). Then:
   message; the gatherer decides (returning the route's error keeps its step
   and message for the error route).
 
-The trail lists the steps in the order they ran, branch after branch:
-`source:a -> router:r -> sink:tap -> sink:main`.
+The trail of a run (in the CLI's log) lists the steps in the order they ran,
+branch after branch: `source:a -> router:r -> sink:tap -> sink:main`. The
+`metadata.trail` of each copy holds only its own branch.
 
 ### Error handling
 
@@ -341,7 +355,7 @@ using anything else fails registration.
 | Step | Kind | Options (default) | Behavior |
 |---|---|---|---|
 | `timer:<name>` | source | `period` ms (1000), `repeatCount` (0 = unlimited) | Emits the counter 1, 2, 3… as body every period |
-| `file:<dir>` | source | `fileName` (all files), `charset` utf-8, `autoCreate` (true), `recursive` (false), `delete` (false), `initialDelay` ms (1000), `delay` ms (500) | Polls the directory; body is the file content, header `file.name` its path relative to the directory. Consumed files are deleted or moved to `<dir>/.done`. Names starting with a dot are skipped |
+| `file:<dir>` | source | `fileName` (all files), `charset` utf-8, `autoCreate` (true), `recursive` (false), `delete` (false), `initialDelay` ms (1000), `delay` ms (500) | Polls the directory; body is the file content, header `file.name` its path relative to the directory, `Content-Type` by its extension (`.json`, `.xml`, `.csv`, `.txt`, `.zip`). Consumed files are deleted or moved to `<dir>/.done`. Names starting with a dot are skipped |
 | `file:<dir>` | sink | `fileName` (header `file.name`, else the trace id), `charset` utf-8, `autoCreate` (true), `fileExist` Override\|Append\|Fail\|Ignore (Override) | Writes the body to the file |
 | `log` | action | `showHeaders` (false), `showBody` (false), `showException` (no effect yet) | Logs `step <id>: traceid=… headers={…} body=…` to the flow's log |
 | `setbody` | action | `language` constant\|simple (constant), `expression` ("") | Sets the body |
@@ -362,7 +376,8 @@ using anything else fails registration.
 | `replace` | action | `regex` (required), `replaceWith` (""), `flags` (`i`, `m`, `s`, comma-separated), `group` (0) | Replaces every match in the body; `$1` in `replaceWith` inserts a group. With `group` > 0 only that group of each match is replaced |
 | `simplereplace` | action | – | Evaluates the body as a simple expression: `${header.<name>}` in the body becomes the header's value |
 | `zip` | action | – | Zips the body as one file named after `file.name` (else the trace id); sets `file.name` to `<name>.zip` and `Content-Type: application/zip` |
-| `unzip` | action | – | Extracts the one file of a zip body; `file.name` becomes its name. An archive with several files fails the message (that needs a splitter) |
+| `unzip` | action | – | Extracts the one file of a zip body; `file.name` becomes its name and `Content-Type` is set by its extension (as the file source does) or removed. An archive with several files fails the message (that needs a splitter) |
+| `validate` | action | `schema` (inline JSON Schema) or `schemaFile` (path) | Validates a JSON body against the schema; an invalid message fails with every problem, e.g. `body is not valid: /id: want integer, got string; /: missing required property lines`. Supports `type`, `properties`, `required`, `additionalProperties`, `items`, `enum`, `const`, `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, `minLength`, `maxLength`, `pattern` and `minItems`/`maxItems`; a schema with any other keyword (`$ref`, `oneOf`, `format`, …) is rejected when the flow is loaded |
 | `throttle` | action | `maxRequests` (required), `timePeriod` ms (1000) | Lets at most `maxRequests` messages pass per `timePeriod` (sliding window); the others wait |
 | `encoder` | action | `originCharset` (UTF-8), `targetCharset` (UTF-8) | Converts the body between UTF-8, ISO-8859-1 and US-ASCII; characters the target cannot hold become `?` |
 | `wiretap` | router | – | Sends a copy to the link with rule `wiretap` (detached), then the message along the other link |
@@ -424,8 +439,10 @@ of such a body fails the message.
 
 ### Converters
 
-The converters turn the body from one format into another; the result is text.
-A body that is not the input format fails the message. They follow the
+The converters turn the body from one format into another; the result is text,
+and `Content-Type` is set to the new format (`application/json`,
+`application/xml` or `text/csv`). A body that is not the input format fails
+the message. They follow the
 libraries the DIL components were built on:
 
 | Step | Options (default) | Mapping |

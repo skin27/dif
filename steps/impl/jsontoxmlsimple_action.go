@@ -59,6 +59,7 @@ func (a jsonToXMLSimpleAction) Process(_ context.Context, m message.Message) (me
 		return nil, err
 	}
 	m[message.Body] = b.String()
+	m[message.ContentType] = "application/xml"
 	return m, nil
 }
 

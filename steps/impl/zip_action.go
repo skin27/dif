@@ -39,6 +39,6 @@ func (zipAction) Process(_ context.Context, m message.Message) (message.Message,
 
 	m[message.Body] = buf.Bytes()
 	m[FileName] = name + ".zip"
-	m["Content-Type"] = "application/zip"
+	m[message.ContentType] = "application/zip"
 	return m, nil
 }

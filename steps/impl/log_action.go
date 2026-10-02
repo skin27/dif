@@ -31,7 +31,7 @@ func (l logAction) Process(ctx context.Context, m message.Message) (message.Mess
 	if l.showHeaders {
 		keys := make([]string, 0, len(m))
 		for k := range m {
-			if k != message.Body && k != message.TraceID {
+			if k != message.Body && k != message.TraceID && k != message.OriginalBody { // the original body repeats a body
 				keys = append(keys, k)
 			}
 		}

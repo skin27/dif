@@ -172,6 +172,23 @@ func TestXMLToCSV(t *testing.T) {
 	}
 }
 
+func TestConvertersSetContentType(t *testing.T) {
+	for _, tt := range []struct{ uri, body, want string }{
+		{"xmltojson", "<a><b>1</b></a>", "application/json"},
+		{"xmltojsonsimple", "<a><b>1</b></a>", "application/json"},
+		{"jsontoxml", `{"b":"1"}`, "application/xml"},
+		{"jsontoxmlsimple", `{"a":{"b":"1"}}`, "application/xml"},
+		{"csvtoxml", "a,b\n", "application/xml"},
+		{"xmltocsv", "<a><b>1</b></a>", "text/csv"},
+	} {
+		m := message.New(tt.body)
+		m[message.ContentType] = "text/plain"
+		if got := process(t, tt.uri, nil, m)[message.ContentType]; got != tt.want {
+			t.Errorf("%s: Content-Type = %v, want %s", tt.uri, got, tt.want)
+		}
+	}
+}
+
 func TestConvertersInvalid(t *testing.T) {
 	for _, tt := range []struct{ uri, body, want string }{
 		{"xmltojson", "not xml", "body is not XML"},

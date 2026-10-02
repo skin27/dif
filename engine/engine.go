@@ -46,9 +46,19 @@ func (e *StepError) Unwrap() error { return e.Err }
 // the message as the step got it, with the ErrorMessage and ErrorStep
 // headers, goes along the error route. The message has then not failed: its
 // outcome is the error route's, and Result.Err says what was handled.
+//
+// The message itself records where it went: Run sets its OriginalBody and
+// continues its Trail with the flow and source, and every step it enters
+// becomes its Step and is added to its Trail. Unlike Result.Trail, which
+// lists the steps of all branches, a message's Trail is its own path.
 func Run(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, error) {
 	start := time.Now()
 	r := run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error} // the source produced msg
+	msg[message.OriginalBody] = msg[message.Body]
+	if f.ID != "" {
+		addTrail(msg, "flow:"+f.ID)
+	}
+	enter(msg, f.Source.Kind, f.Source.ID)
 
 	n, err := nextStep(f.Source)
 	if err != nil {
@@ -84,6 +94,7 @@ func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
 	r.trail = append(r.trail, "error:"+r.errh.ID)
+	addTrail(m, "error:"+r.errh.ID)
 	out, routeErr := r.path(ctx, r.errh.Route, m)
 	if routeErr != nil {
 		return nil, fmt.Errorf("%w; error route: %w", err, routeErr)
@@ -98,6 +109,7 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 		if err := ctx.Err(); err != nil {
 			return nil, fmt.Errorf("step %s: %w", n.ID, err)
 		}
+		enter(msg, n.Kind, n.ID)
 
 		switch p := n.Processor.(type) {
 		case stepdef.ActionProcessor:
@@ -214,6 +226,21 @@ func (r *run) runRoutes(ctx context.Context, n *flowdef.Node, msg message.Messag
 		}
 	}
 	return out, outcomes, nil
+}
+
+// enter records in the metadata of m that it entered step id of kind: the
+// step becomes its Step and "kind:id" is added to its Trail.
+func enter(m message.Message, kind, id string) {
+	addTrail(m, kind+":"+id)
+	m[message.Step] = id
+}
+
+// addTrail adds entry to the Trail of m.
+func addTrail(m message.Message, entry string) {
+	if t, _ := m[message.Trail].(string); t != "" {
+		entry = t + " " + entry
+	}
+	m[message.Trail] = entry
 }
 
 // nextStep returns the step after n, or nil if n ends its path. Only a router may
