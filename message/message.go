@@ -42,6 +42,18 @@ const (
 
 	// OriginalBody is the body as the message entered its current flow.
 	OriginalBody = MetadataPrefix + "originalbody"
+
+	// ExchangePattern is InOnly once the exchange of the message in its
+	// current flow is one-way: its sender, if it waits for a reply, gets one
+	// at once and the flow goes on without it. InOut, request-reply, is the
+	// default.
+	ExchangePattern = MetadataPrefix + "exchangepattern"
+)
+
+// Exchange patterns.
+const (
+	InOnly = "InOnly" // one-way, fire and forget
+	InOut  = "InOut"  // request-reply
 )
 
 // New returns a Message with a fresh trace id, the current time and the given body.

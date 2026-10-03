@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setrequestreply-action",
+	"title": "setrequestreply action",
+	"description": "Keeps the exchange request-reply (InOut, the default): the sender gets the message the flow ends with. It cannot take back a reply setoneway already sent. Same as settwoways and setrequestandreply.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

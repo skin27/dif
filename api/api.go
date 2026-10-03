@@ -52,8 +52,9 @@ func StepCatalog() []StepInfo { return steps.Steps() }
 func NewEngine() *Engine { return engine.New() }
 
 // Flow is a loaded flow with lifecycle methods (Start, Pause, Resume, Stop,
-// State, Wait), Send to hand it a message while it runs and NewMessage to
-// build its configured message.
+// State, Wait), Send to hand it a message while it runs (one-way), Request to
+// call it like a function and get its reply (request-reply), and NewMessage
+// to build its configured message.
 type Flow struct {
 	*engine.Runner
 }

@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setoneway-action",
+	"title": "setoneway action",
+	"description": "Makes the exchange one-way (InOnly, fire and forget): a sender that waits for a reply, such as an https source, gets the message as it is now, and the flow goes on without it. Same as setfireandforget.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

@@ -12,60 +12,86 @@ import (
 //go:embed schemas/*.json
 var schemas embed.FS
 
+// Enterprise Integration Patterns the built-in steps implement.
+const (
+	contentBasedRouter       = "Content-Based Router"
+	messageFilter            = "Message Filter"
+	splitter                 = "Splitter"
+	aggregator               = "Aggregator"
+	composedMessageProcessor = "Composed Message Processor"
+	recipientList            = "Recipient List"
+	wireTap                  = "Wire Tap"
+	contentEnricher          = "Content Enricher"
+	deadLetterChannel        = "Dead Letter Channel"
+	pointToPointChannel      = "Point-to-Point Channel"
+	pollingConsumer          = "Polling Consumer"
+	throttler                = "Throttler"
+	contentFilter            = "Content Filter"
+	messageTranslator        = "Message Translator"
+	eventMessage             = "Event Message"
+	requestReply             = "Request-Reply"
+)
+
 // Register adds the built-in steps to r.
 func Register(r *registry.Registry) error {
 	builtins := []struct {
-		name, kind string
-		new        func(string, stepdef.Params) (stepdef.Processor, error)
+		name, kind, pattern string
+		new                 func(string, stepdef.Params) (stepdef.Processor, error)
+		aliases             []string // other names of the same step, sharing its schema
 	}{
-		{"timer", stepdef.Source, newTimerSource},
-		{"file", stepdef.Source, newFileSource},
-		{"message", stepdef.Source, newMessageSource},
-		{"https", stepdef.Source, newHTTPSSource},
-		{"queue", stepdef.Source, newQueueSource},
-		{"flowlink", stepdef.Source, newFlowLinkSource},
-		{"repeater", stepdef.Source, newTimerSource},
-		{"log", stepdef.Action, newLogAction},
-		{"setbody", stepdef.Action, newSetBodyAction},
-		{"setheader", stepdef.Action, newSetHeaderAction},
-		{"passthrough", stepdef.Action, newPassthrough},
-		{"setheaders", stepdef.Action, newSetHeadersAction},
-		{"base64totext", stepdef.Action, newBase64ToTextAction},
-		{"texttobase64", stepdef.Action, newTextToBase64Action},
-		{"https", stepdef.Action, newHTTPSAction},
-		{"flowlink", stepdef.Action, newFlowLinkAction},
-		{"removeheaders", stepdef.Action, newRemoveHeadersAction},
-		{"replace", stepdef.Action, newReplaceAction},
-		{"simplereplace", stepdef.Action, newSimpleReplaceAction},
-		{"zip", stepdef.Action, newZipAction},
-		{"unzip", stepdef.Action, newUnzipAction},
-		{"throttle", stepdef.Action, newThrottleAction},
-		{"encoder", stepdef.Action, newEncoderAction},
-		{"xmltojson", stepdef.Action, newXMLToJSONAction},
-		{"jsontoxml", stepdef.Action, newJSONToXMLAction},
-		{"xmltojsonsimple", stepdef.Action, newXMLToJSONSimpleAction},
-		{"jsontoxmlsimple", stepdef.Action, newJSONToXMLSimpleAction},
-		{"csvtoxml", stepdef.Action, newCSVToXMLAction},
-		{"xmltocsv", stepdef.Action, newXMLToCSVAction},
-		{"validate", stepdef.Action, newValidateAction},
-		{"wiretap", stepdef.Router, newWireTapRouter},
-		{"recipient", stepdef.Router, newRecipientRouter},
-		{"content", stepdef.Router, newContentRouter},
-		{"filter", stepdef.Router, newFilterRouter},
-		{"split", stepdef.Router, newSplitRouter},
-		{"enrich", stepdef.Router, newEnrichRouter},
-		{"aggregate", stepdef.Router, newAggregateRouter},
-		{"splitandaggregate", stepdef.Router, newSplitAndAggregateRouter},
-		{"file", stepdef.Sink, newFileSink},
-		{"deadletter", stepdef.Sink, newDeadLetterSink},
+		{"timer", stepdef.Source, "", newTimerSource, nil},
+		{"file", stepdef.Source, pollingConsumer, newFileSource, nil},
+		{"message", stepdef.Source, "", newMessageSource, nil},
+		{"https", stepdef.Source, requestReply, newHTTPSSource, nil},
+		{"queue", stepdef.Source, pointToPointChannel, newQueueSource, nil},
+		{"flowlink", stepdef.Source, "", newFlowLinkSource, nil},
+		{"repeater", stepdef.Source, "", newTimerSource, nil},
+		{"quartz", stepdef.Source, "", newQuartzSource, nil},
+		{"log", stepdef.Action, "", newLogAction, nil},
+		{"setbody", stepdef.Action, "", newSetBodyAction, nil},
+		{"setheader", stepdef.Action, "", newSetHeaderAction, nil},
+		{"passthrough", stepdef.Action, "", newPassthrough, nil},
+		{"setheaders", stepdef.Action, "", newSetHeadersAction, nil},
+		{"base64totext", stepdef.Action, messageTranslator, newBase64ToTextAction, nil},
+		{"texttobase64", stepdef.Action, messageTranslator, newTextToBase64Action, nil},
+		{"https", stepdef.Action, "", newHTTPSAction, nil},
+		{"flowlink", stepdef.Action, "", newFlowLinkAction, nil},
+		{"removeheaders", stepdef.Action, contentFilter, newRemoveHeadersAction, nil},
+		{"replace", stepdef.Action, messageTranslator, newReplaceAction, nil},
+		{"simplereplace", stepdef.Action, messageTranslator, newSimpleReplaceAction, nil},
+		{"zip", stepdef.Action, messageTranslator, newZipAction, nil},
+		{"unzip", stepdef.Action, messageTranslator, newUnzipAction, nil},
+		{"throttle", stepdef.Action, throttler, newThrottleAction, nil},
+		{"encoder", stepdef.Action, messageTranslator, newEncoderAction, nil},
+		{"xmltojson", stepdef.Action, messageTranslator, newXMLToJSONAction, nil},
+		{"jsontoxml", stepdef.Action, messageTranslator, newJSONToXMLAction, nil},
+		{"xmltojsonsimple", stepdef.Action, messageTranslator, newXMLToJSONSimpleAction, nil},
+		{"jsontoxmlsimple", stepdef.Action, messageTranslator, newJSONToXMLSimpleAction, nil},
+		{"csvtoxml", stepdef.Action, messageTranslator, newCSVToXMLAction, nil},
+		{"xmltocsv", stepdef.Action, messageTranslator, newXMLToCSVAction, nil},
+		{"validate", stepdef.Action, "", newValidateAction, nil},
+		{"setoneway", stepdef.Action, eventMessage, newSetOneWayAction, []string{"setfireandforget"}},
+		{"setrequestreply", stepdef.Action, requestReply, newSetRequestReplyAction, []string{"settwoways", "setrequestandreply"}},
+		{"wiretap", stepdef.Router, wireTap, newWireTapRouter, nil},
+		{"recipient", stepdef.Router, recipientList, newRecipientRouter, nil},
+		{"content", stepdef.Router, contentBasedRouter, newContentRouter, nil},
+		{"filter", stepdef.Router, messageFilter, newFilterRouter, nil},
+		{"split", stepdef.Router, splitter, newSplitRouter, nil},
+		{"enrich", stepdef.Router, contentEnricher, newEnrichRouter, nil},
+		{"aggregate", stepdef.Router, aggregator, newAggregateRouter, nil},
+		{"splitandaggregate", stepdef.Router, composedMessageProcessor, newSplitAndAggregateRouter, nil},
+		{"file", stepdef.Sink, "", newFileSink, nil},
+		{"deadletter", stepdef.Sink, deadLetterChannel, newDeadLetterSink, nil},
 	}
 	for _, b := range builtins {
 		schema, err := schemas.ReadFile("schemas/" + b.name + "-" + b.kind + ".json")
 		if err != nil {
 			return err
 		}
-		if err := r.Register(stepdef.Definition{Name: b.name, Kind: b.kind, Schema: schema, New: b.new}); err != nil {
-			return err
+		for _, name := range append([]string{b.name}, b.aliases...) {
+			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, New: b.new}); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

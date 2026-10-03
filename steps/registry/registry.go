@@ -104,6 +104,7 @@ func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 type StepInfo struct {
 	Name        string
 	Kind        string // Source, Action, Router or Sink
+	Pattern     string // Enterprise Integration Pattern; "" for none
 	Description string
 	Options     []OptionInfo // sorted by name
 }
@@ -123,7 +124,7 @@ func (r *Registry) Steps() []StepInfo {
 	defer r.mu.RUnlock()
 	steps := make([]StepInfo, 0, len(r.defs))
 	for _, e := range r.defs {
-		info := StepInfo{Name: e.def.Name, Kind: e.def.Kind, Description: e.schema.description}
+		info := StepInfo{Name: e.def.Name, Kind: e.def.Kind, Pattern: e.def.Pattern, Description: e.schema.description}
 		for _, name := range e.schema.names {
 			p := e.schema.props[name]
 			info.Options = append(info.Options, OptionInfo{

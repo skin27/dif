@@ -3,6 +3,7 @@ package main
 
 import (
 	"os"
+	_ "time/tzdata" // time zones (the quartz source) without a zoneinfo database on the machine
 
 	"dif/cli"
 )

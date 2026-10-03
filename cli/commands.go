@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"cmp"
 	"fmt"
 	"strconv"
 	"strings"
@@ -25,7 +26,8 @@ var commands = []cmdDoc{
 	{"FLOW MANAGEMENT", "pause", "<flow>", "Pause a flow", "A paused flow takes no new messages until it is started or resumed."},
 	{"FLOW MANAGEMENT", "resume", "<flow>", "Resume a paused flow", ""},
 	{"FLOW MANAGEMENT", "stop", "<flow> [--force]", "Stop a flow", "The flow stops once its current message is done.\n--force stops it at once; that message may be lost."},
-	{"MESSAGING", "send", "<flow> [body]", "Send a message to a flow", "Sends the flow's configured message; with [body], that is its body.\nThe result is in the flow's log."},
+	{"MESSAGING", "send", "<flow> [body]", "Send a message to a flow", "Sends the flow's configured message; with [body], that is its body.\nThe result is in the flow's log; use request to wait for the reply."},
+	{"MESSAGING", "request", "<flow> [body]", "Send a message and show the reply", "Sends the flow's configured message, as send does, and shows the reply:\nthe message the flow ends with, or the message at a setoneway step.\nWaits at most 30 seconds."},
 	{"MONITORING", "list", "[state]", "List flows and their state", "state is started, paused or stopped."},
 	{"MONITORING", "ps", "[state]", "Alias for list", "state is started, paused or stopped."},
 	{"MONITORING", "stats", "[flow]", "Show message statistics", "With [flow], show the details of one flow."},
@@ -134,15 +136,19 @@ func flowStatsText(f api.FlowStatus, now time.Time, color bool) string {
 func catalogText(steps []api.StepInfo) string {
 	rows := make([][]string, len(steps))
 	for i, s := range steps {
-		rows[i] = []string{s.Name, strings.ToUpper(s.Kind), shorten(firstSentence(s.Description), 70)}
+		rows[i] = []string{s.Name, strings.ToUpper(s.Kind), cmp.Or(s.Pattern, "-"), shorten(firstSentence(s.Description), 60)}
 	}
-	return "DIF STEP CATALOG\n\n" + renderTable([]string{"NAME", "TYPE", "DESCRIPTION"}, rows, nil, nil) +
+	return "DIF STEP CATALOG\n\n" + renderTable([]string{"NAME", "TYPE", "PATTERN", "DESCRIPTION"}, rows, nil, nil) +
 		"\n\n" + plural(len(steps), "step")
 }
 
 // stepText returns the description and options of a step.
 func stepText(s api.StepInfo) string {
-	text := "STEP: " + s.Name + "\nTYPE: " + strings.ToUpper(s.Kind) + "\n\n" + s.Description + "\n\nOptions:"
+	text := "STEP: " + s.Name + "\nTYPE: " + strings.ToUpper(s.Kind) + "\n"
+	if s.Pattern != "" {
+		text += "PATTERN: " + s.Pattern + "\n"
+	}
+	text += "\n" + s.Description + "\n\nOptions:"
 	if len(s.Options) == 0 {
 		return text + " none"
 	}

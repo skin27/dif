@@ -52,8 +52,30 @@ func (e *StepError) Unwrap() error { return e.Err }
 // becomes its Step and is added to its Trail. Unlike Result.Trail, which
 // lists the steps of all branches, a message's Trail is its own path.
 func Run(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, error) {
+	return execute(ctx, f, msg, nil)
+}
+
+// execute runs msg as Run does and replies to its sender: reply, if not nil,
+// gets the outcome once. That is when the message is done, or earlier, when a
+// step makes its exchange one-way (message.InOnly): then reply gets the
+// message as it is at that point and the flow goes on.
+func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply func(message.Message, error)) (*Result, error) {
+	r := &run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error, reply: reply} // the source produced msg
+	res, err := r.flow(ctx, f, msg)
+	if r.reply != nil {
+		var out message.Message
+		if res != nil {
+			out = res.Message
+		}
+		r.reply(out, err)
+	}
+	return res, err
+}
+
+// flow passes msg from the source of f to the end of its flow.
+func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, error) {
 	start := time.Now()
-	r := run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error} // the source produced msg
+	delete(msg, message.ExchangePattern) // the pattern of an exchange in another flow
 	msg[message.OriginalBody] = msg[message.Body]
 	if f.ID != "" {
 		addTrail(msg, "flow:"+f.ID)
@@ -82,6 +104,15 @@ func Run(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, er
 type run struct {
 	trail []string
 	errh  *flowdef.ErrorHandler
+	reply func(message.Message, error) // the sender's, until it has its reply; nil if none
+}
+
+// replyIfOneWay replies to the sender with m once the exchange of m is one-way.
+func (r *run) replyIfOneWay(m message.Message) {
+	if r.reply != nil && m[message.ExchangePattern] == message.InOnly {
+		r.reply(m.Copy(), nil)
+		r.reply = nil
+	}
 }
 
 // handle sends the message of the failed step along the error route and
@@ -125,6 +156,7 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 				return nil, &StepError{n.ID, msg, err}
 			}
 			msg = out
+			r.replyIfOneWay(msg)
 		case stepdef.SinkProcessor:
 			if err := r.retry(ctx, n, func() error { return p.Consume(ctx, msg) }); err != nil {
 				return nil, &StepError{n.ID, msg, err}

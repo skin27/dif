@@ -116,9 +116,10 @@ type Params map[string]any
 
 // Definition describes a step processor so it can be registered.
 type Definition struct {
-	Name   string // the step URI's scheme, e.g. "timer" for "timer:tick"
-	Kind   string // Source, Action, Router or Sink
-	Schema []byte // JSON Schema of the step's options (a DIL step's "options" object)
+	Name    string // the step URI's scheme, e.g. "timer" for "timer:tick"
+	Kind    string // Source, Action, Router or Sink
+	Schema  []byte // JSON Schema of the step's options (a DIL step's "options" object)
+	Pattern string // the Enterprise Integration Pattern it implements, e.g. "Splitter"; "" for none
 
 	// New creates the processor for the step with id stepID from validated params.
 	New func(stepID string, p Params) (Processor, error)

@@ -54,6 +54,11 @@ func TestRun(t *testing.T) {
 			`message 2: {"body":"bye"`,
 			"flow hello stopped (dif exits)\n",
 		}}},
+		{"request", []string{"start", "../examples/hello.json"}, "request hello bye\nstop hello\nrequest hello\nexit\n", 0, []string{
+			"> request hello bye\nreply from flow hello:\n" + `{"body":"bye","greeting":"hello","metadata.step":"hello-sink","metadata.timestamp":"`,
+			`"metadata.trail":"flow:hello source:hello-source action:hello-action sink:hello-sink"}` + "\n",
+			"> request hello\nError: cannot send: flow is stopped\n",
+		}, map[string][]string{"hello": {`message 1: {"body":"bye"`}}},
 		{"stop keeps the CLI", []string{"start", "../examples/hello.json"}, "stop hello\nstatus\nsend hello\nstart hello\nsend hello\nexit\n", 0, []string{
 			"> stop hello\nflow hello stopped\n",
 			"> status\n1 flows: 0 messages processed, 0 failed\n",
@@ -270,7 +275,7 @@ func TestStats(t *testing.T) {
 func TestCatalog(t *testing.T) {
 	useLogDir(t)
 	var stdout, stderr bytes.Buffer
-	if code := Run(nil, strings.NewReader("catalog\ncatalog timer\ncatalog file\ncatalog nope\nexit\n"), &stdout, &stderr); code != 0 {
+	if code := Run(nil, strings.NewReader("catalog\ncatalog content\ncatalog timer\ncatalog file\ncatalog nope\nexit\n"), &stdout, &stderr); code != 0 {
 		t.Fatalf("exit code = %d (stderr: %s)", code, stderr.String())
 	}
 	out := stdout.String()
@@ -285,13 +290,17 @@ func TestCatalog(t *testing.T) {
 			t.Errorf("catalog has no row for %s (%s):\n%s", s.Name, s.Kind, catalog)
 		}
 	}
+	if want := regexp.MustCompile(`\ncontent +ROUTER +Content-Based Router +\S`); !want.MatchString(catalog) {
+		t.Errorf("catalog has no pattern for content:\n%s", catalog)
+	}
 	if want := fmt.Sprintf("\n%d steps\n", len(api.StepCatalog())); !strings.Contains(catalog, want) {
 		t.Errorf("catalog = %q\nwant containing %q", catalog, want)
 	}
 
 	for cmd, wants := range map[string][]string{
-		"catalog timer": {"STEP: timer\nTYPE: SOURCE\n\nProduces a message on every tick.", "\nOptions:\n  NAME ", "\n  period        integer   1000      no         Milliseconds between two ticks\n"},
-		"catalog file":  {"STEP: file\nTYPE: SINK\n", "STEP: file\nTYPE: SOURCE\n", "\n  path ", " yes "},
+		"catalog timer":   {"STEP: timer\nTYPE: SOURCE\n\nProduces a message on every tick.", "\nOptions:\n  NAME ", "\n  period        integer   1000      no         Milliseconds between two ticks\n"},
+		"catalog content": {"STEP: content\nTYPE: ROUTER\nPATTERN: Content-Based Router\n\n"},
+		"catalog file":    {"STEP: file\nTYPE: SINK\n", "STEP: file\nTYPE: SOURCE\n", "\n  path ", " yes "},
 	} {
 		got := block(t, out, cmd)
 		for _, want := range wants {

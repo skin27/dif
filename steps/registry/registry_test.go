@@ -177,7 +177,7 @@ func TestRegisterErrors(t *testing.T) {
 func TestSteps(t *testing.T) {
 	r := New()
 	for _, d := range []stepdef.Definition{
-		{Name: "rec", Kind: stepdef.Action, New: newRecorder, Schema: []byte(`{"type": "object", "description": "Records.",
+		{Name: "rec", Kind: stepdef.Action, Pattern: "Wire Tap", New: newRecorder, Schema: []byte(`{"type": "object", "description": "Records.",
 			"properties": {"path": {"type": "string", "description": "Where"}, "n": {"type": "integer", "default": 1}}, "required": ["path"]}`)},
 		{Name: "out", Kind: stepdef.Sink, Schema: []byte(`{"type": "object"}`), New: newRecorder},
 		{Name: "out", Kind: stepdef.Action, Schema: []byte(`{"type": "object"}`), New: newRecorder},
@@ -189,7 +189,7 @@ func TestSteps(t *testing.T) {
 	want := []StepInfo{
 		{Name: "out", Kind: stepdef.Action},
 		{Name: "out", Kind: stepdef.Sink},
-		{Name: "rec", Kind: stepdef.Action, Description: "Records.", Options: []OptionInfo{
+		{Name: "rec", Kind: stepdef.Action, Pattern: "Wire Tap", Description: "Records.", Options: []OptionInfo{
 			{Name: "n", Type: "integer", Default: 1},
 			{Name: "path", Type: "string", Description: "Where", Required: true},
 		}},

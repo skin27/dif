@@ -275,6 +275,27 @@ func TestHTTPSFlows(t *testing.T) {
 	}
 }
 
+// TestRequestExchangePattern calls a flow like a function: with a one-way
+// step the reply is the message at that step, otherwise at the end.
+func TestRequestExchangePattern(t *testing.T) {
+	for uri, want := range map[string]string{"setfireandforget": "early", "settwoways": "late"} {
+		path := dil(t, uri,
+			step{"in", "source", "message:in", nil},
+			step{"early", "action", "setbody", map[string]any{"expression": "early"}},
+			step{"pattern", "action", uri, nil},
+			step{"late", "sink", "setbody", map[string]any{"expression": "late"}},
+		)
+		f, results := start(t, path, nil)
+		reply, err := f.Request(context.Background(), f.NewMessage())
+		if err != nil || reply[Body] != want {
+			t.Errorf("%s: reply = %v, %v; want body %s", uri, reply, err, want)
+		}
+		if res := await(t, results); res.Message[Body] != "late" {
+			t.Errorf("%s: the flow ended with %v, want late", uri, res.Message[Body])
+		}
+	}
+}
+
 // TestExamplesThatLoad pins which examples load. The https examples use the
 // default keystores in security/, so the test runs in a directory holding the
 // test keystores under those names.
@@ -312,7 +333,7 @@ func TestExamplesThatLoad(t *testing.T) {
 	}
 	want := "aggregate.json base64ToText.json contentrouter.json csvtoxml.json deadletter.json encoder.json enrich.json errorHandler.json fileInbound.json fileOutbound.json filter.json " +
 		"flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json hello.json httpsClient.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json queueAsynchronousOutbound.json " +
-		"recipient.json removeHeaders.json repeater.json replace.json setBody.json simplereplace.json split.json splitAndAggregate.json test.json " +
+		"recipient.json removeHeaders.json repeater.json replace.json scheduler.json setBody.json setOneWay.json setRequestReply.json simplereplace.json split.json splitAndAggregate.json test.json " +
 		"textToBase64.json timer.json unzip.json wiretap.json xmltocsv.json xmltojson.json xmltojsonsimple.json zip.json"
 	if got := strings.Join(loaded, " "); got != want {
 		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)

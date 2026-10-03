@@ -170,22 +170,50 @@ func (r *Runner) stop(force bool) error {
 	return nil
 }
 
-// Send hands m to the running flow and returns once the flow has taken it.
-// A paused or stopped flow does not accept messages.
+// Send hands m to the running flow and returns once the flow has taken it:
+// a one-way exchange. A paused or stopped flow does not accept messages.
 func (r *Runner) Send(m message.Message) error {
+	return r.send(context.Background(), envelope{m, nil})
+}
+
+// Request hands m to the running flow and waits for the reply: the message
+// the flow ends with, or why it failed. A flow that makes the exchange
+// one-way (message.InOnly) replies as soon as it does, with the message at
+// that point. Waiting ends when ctx is done; the flow still processes m.
+func (r *Runner) Request(ctx context.Context, m message.Message) (message.Message, error) {
+	type outcome struct {
+		m   message.Message
+		err error
+	}
+	done := make(chan outcome, 1) // the flow never waits for a caller that gave up
+	if err := r.send(ctx, envelope{m, func(out message.Message, err error) { done <- outcome{out, err} }}); err != nil {
+		return nil, err
+	}
+	select {
+	case o := <-done:
+		return o.m, o.err
+	case <-ctx.Done():
+		return nil, fmt.Errorf("flow %s did not reply: %w", r.flow.ID, ctx.Err())
+	}
+}
+
+// send hands e to the running flow, waiting until the flow takes it or ctx is done.
+func (r *Runner) send(ctx context.Context, e envelope) error {
 	r.mu.Lock()
 	if r.state != Started {
 		defer r.mu.Unlock()
 		return r.invalid("send")
 	}
-	ctx := r.ctx
+	runCtx := r.ctx
 	r.mu.Unlock()
 
 	select {
-	case r.inbox <- envelope{m, nil}:
+	case r.inbox <- e:
 		return nil
-	case <-ctx.Done():
+	case <-runCtx.Done():
 		return fmt.Errorf("cannot send: flow is stopping")
+	case <-ctx.Done():
+		return fmt.Errorf("cannot send: %w", ctx.Err())
 	}
 }
 
@@ -238,7 +266,7 @@ func (r *Runner) loop(ctx, msgCtx context.Context, done chan struct{}) {
 	for {
 		select {
 		case e := <-r.inbox:
-			res, err := Run(msgCtx, r.flow, e.msg)
+			res, err := execute(msgCtx, r.flow, e.msg, e.reply) // replies to the sender
 			if err != nil && msgCtx.Err() != nil {
 				err = fmt.Errorf("aborted by forced stop: %w", err)
 			}
@@ -249,13 +277,6 @@ func (r *Runner) loop(ctx, msgCtx context.Context, done chan struct{}) {
 			}
 			if r.onResult != nil {
 				r.onResult(res, err) // a failing message is reported; the flow keeps going
-			}
-			if e.reply != nil {
-				var out message.Message
-				if res != nil {
-					out = res.Message
-				}
-				e.reply(out, err)
 			}
 		case <-ctx.Done():
 			err := <-srcErr

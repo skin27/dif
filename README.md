@@ -33,6 +33,7 @@ mistyped flow id. On a terminal that supports it, flow states are colored
 | `run <flow.json>...`     | Load the flows and start them, in one go                                |
 | `send <flow>`            | Send the flow's configured message (`dil.core.messages`) into the flow  |
 | `send <flow> <body>`     | Send the configured message with `<body>` as body                       |
+| `request <flow> [body]`  | Send as `send` does and show the reply at once: the message the flow ends with (or has at a `setoneway` step), as JSON; waits at most 30 s |
 | `start <flow>`           | Start the flow (again, after `stop`), or continue it after `pause`      |
 | `pause <flow>`           | Pause: the flow takes no new messages until it is started or resumed    |
 | `resume <flow>`          | Resume a paused flow                                                    |
@@ -45,8 +46,8 @@ mistyped flow id. On a terminal that supports it, flow states are colored
 | `stats`                  | Completed, failed and total messages per flow, with a total row         |
 | `stats <flow>`           | State, message counts, startup time and uptime of one flow              |
 | `status`                 | Show the number of flows and the message counts on one line             |
-| `catalog`                | List the steps flows can use: name, type (source, action, router, sink) and description |
-| `catalog <step>`         | Describe a step and its options (type, default, required), from its schema |
+| `catalog`                | List the steps flows can use: name, type (source, action, router, sink), the Enterprise Integration Pattern it implements and description |
+| `catalog <step>`         | Describe a step, its pattern and its options (type, default, required), from its schema |
 | `help [command]`         | List all commands, or explain one                                       |
 | `exit`                   | Stop all flows and exit `dif` (Ctrl+C does the same)                    |
 
@@ -211,7 +212,8 @@ e := api.NewEngine()
 f, err := api.Load("examples/hello.json", func(res *api.Result, err error) { /* per message */ })
 e.Add(f.Runner)                       // registered as "hello"
 e.StartFlow("hello")
-f.Send(f.NewMessage())
+f.Send(f.NewMessage())                // one-way: the result goes to the callback
+reply, err := f.Request(ctx, f.NewMessage()) // request-reply: call the flow like a function
 e.PauseFlow("hello")
 e.StartFlow("hello")                  // continues the paused flow
 e.ListFlows(api.Started)              // [{hello started <startup time> 1 0}]: id, state, start, completed, failed
@@ -237,6 +239,7 @@ A message is one mutable map (`message.Message`, a `map[string]any`) holding:
 | `metadata.timestamp` | a new message | when it was created (RFC 3339) |
 | `metadata.trail` | the engine | the steps the message entered, as `kind:id` separated by spaces, across flows: entering a flow adds `flow:id` (e.g. `flow:orders source:in action:check error:h sink:dlq flow:retry source:q`) |
 | `metadata.step` | the engine | the id of the step the message is in, or was last in |
+| `metadata.exchangepattern` | `setoneway` (`InOnly`), `setrequestreply` (`InOut`) | the exchange pattern of the message in its current flow; see [Exchange patterns](#exchange-patterns). Reset when the message enters a flow |
 | `metadata.originalbody` | the engine | the body as the message entered its current flow; `setbody` with simple `${header.metadata.originalbody}` restores it. The log step and the CLI leave it out |
 
 So a message carries where it has been: one taken from a dead letter queue
@@ -372,6 +375,9 @@ using anything else fails registration.
 | `base64totext` | action | – | Decodes a base64 body to text (whitespace ignored, padding optional) |
 | `texttobase64` | action | – | Encodes the body as base64, without line breaks |
 | `repeater[:<name>]` | source | `period` ms (10000), `repeatCount` (0 = unlimited) | The timer source with Camel's repeater defaults |
+| `quartz:<name>` | source | `cron` (required), `timeZone` (local) | Emits a message without a body, with header `quartz.firetime` (RFC 3339), at every time the Quartz cron expression matches: `seconds minutes hours day-of-month month day-of-week [year]`, e.g. `0 0 3 * * ?` (03:00 daily). Supports `*`, `?`, values, ranges, steps, lists and names (`JAN`, `MON`; day-of-week 1–7 is SUN–SAT); not `L`, `W`, `#` or a year other than `*`. Times missed while the flow is busy or paused are skipped. Daylight saving time: a time that does not exist that day is skipped (as in Quartz), and a fixed time fires once when the clocks go back |
+| `setoneway`, `setfireandforget` | action | – | Makes the exchange one-way: a waiting sender gets its reply now; see [Exchange patterns](#exchange-patterns) |
+| `setrequestreply`, `settwoways`, `setrequestandreply` | action | – | Keeps the exchange request-reply (the default) |
 | `removeheaders` | action | `pattern` (required), `excludePattern` ("") | Removes the headers matching `pattern` but not `excludePattern`: an exact name, a prefix ending with `*` or a regular expression, case-insensitive. Never removes the body or `metadata.*` |
 | `replace` | action | `regex` (required), `replaceWith` (""), `flags` (`i`, `m`, `s`, comma-separated), `group` (0) | Replaces every match in the body; `$1` in `replaceWith` inserts a group. With `group` > 0 only that group of each match is replaced |
 | `simplereplace` | action | – | Evaluates the body as a simple expression: `${header.<name>}` in the body becomes the header's value |
@@ -397,6 +403,25 @@ written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}`.
 `${bodyAs(<type>)}` with another type loads but fails the message when it is
 evaluated, as the conversion does in Camel (`deadletter.json` relies on it).
 Other `${…}` expressions are rejected when the flow is loaded.
+
+### Exchange patterns
+
+How a sender and a flow communicate:
+
+| Pattern | In DIF |
+|---|---|
+| One-way (fire and forget) | `send`, `Flow.Send`, timer, file and quartz sources, queues, `flowlink` with `exchangePattern` InOnly |
+| Request-reply | `request`, `Flow.Request`, the https source, `flowlink` with InOut: the sender gets the message the flow ends with, or the error |
+| Scatter-gather | `enrich`, `splitandaggregate` |
+
+A flow can make its exchange one-way part way. When a message reaches
+`setoneway` (or `setfireandforget`), a sender that waits for a reply gets the
+message as it is then. The flow goes on without the sender. A step that fails
+after that no longer reaches the sender; it goes to the error route and the
+log. `setrequestreply` (or `settwoways`, `setrequestandreply`) keeps the
+default, InOut. It cannot take back a reply that `setoneway` already sent. In
+`examples/setOneWay.json` the https caller gets `1234`, the body at
+`setoneway`; in `setRequestReply.json` it gets `last step`.
 
 ### Queues
 
@@ -519,12 +544,13 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsinbound
 
 ### Examples that load
 
-39 of the examples load (given the keystores): aggregate, base64ToText,
+42 of the examples load (given the keystores): aggregate, base64ToText,
 contentrouter, csvtoxml, deadletter, encoder, enrich, errorHandler,
 fileInbound, fileOutbound, filter, flowLinkInbound, flowLinkOutbound,
 flowlinkAsynInbound, flowlinkAsyncOutbound, hello, httpsClient, httpsInbound,
 jsontoxml, jsontoxmlsimple, log, queueAsynchronousOutbound, recipient,
-removeHeaders, repeater, replace, setBody, simplereplace, split,
+removeHeaders, repeater, replace, scheduler, setBody, setOneWay,
+setRequestReply, simplereplace, split,
 splitAndAggregate, test, textToBase64, timer, unzip, wiretap, xmltocsv,
 xmltojson, xmltojsonsimple and zip. The others use steps without a processor
 yet (sftp, rabbitmq, xslt, …; the queue examples name no queue), or
@@ -578,8 +604,9 @@ steps plug in through the registry without touching the engine.
 
 ## Future work
 
-- More sources and steps (quartz, sftp, xslt, EDI and Excel converters, a
-  queue sink, …); multiple flows per file
+- More sources and steps (sftp, xslt, EDI and Excel converters, a queue sink,
+  …); multiple flows per file
+- Publish-subscribe: an in-memory topic that every subscribed flow gets a copy from
 - Persisted queues, so dead letters survive a restart; a CLI command to inspect queues
 - Aggregation by time (`completionTimeout`, `completionInterval`) and by
   correlation key; it needs a timer that emits into the flow

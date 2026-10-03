@@ -3,6 +3,7 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -71,10 +72,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				fl.logger.Printf("message %d failed: %v", n, err)
 				return
 			}
-			// The original body repeats a body; leave it out of the log.
-			m := maps.Clone(res.Message)
-			delete(m, message.OriginalBody)
-			msg, _ := json.Marshal(m)
+			msg := messageJSON(res.Message)
 			handled := ""
 			if res.Err != nil {
 				handled = fmt.Sprintf(" (error route handled: %v)", res.Err)
@@ -212,7 +210,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 						flowError(err)
 					}
 				}
-			case "send":
+			case "send", "request":
 				if !args(1, len(fields), "flow") {
 					break
 				}
@@ -225,7 +223,16 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				if body != "" {
 					m[api.Body] = body
 				}
-				if err := flow.Send(m); err != nil {
+				if cmd == "request" {
+					ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+					reply, err := flow.Request(ctx, m)
+					cancel()
+					if err != nil {
+						con.fail("%v", err)
+					} else {
+						con.say("reply from flow %s:\n%s", id, messageJSON(reply))
+					}
+				} else if err := flow.Send(m); err != nil {
 					con.fail("%v", err)
 				} else {
 					con.say("message sent to flow %s; its result is in the flow's log", id)
@@ -512,4 +519,15 @@ func isTerminal(r io.Reader) bool {
 	}
 	fi, err := f.Stat()
 	return err == nil && fi.Mode()&os.ModeCharDevice != 0
+}
+
+// requestTimeout is how long the request command waits for a flow's reply.
+const requestTimeout = 30 * time.Second
+
+// messageJSON returns m as JSON, without the original body, which repeats a body.
+func messageJSON(m api.Message) string {
+	m = maps.Clone(m)
+	delete(m, message.OriginalBody)
+	b, _ := json.Marshal(m)
+	return string(b)
 }
