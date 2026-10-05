@@ -50,6 +50,11 @@ func TestFlowLinkAsync(t *testing.T) {
 	target(t, id, func(m message.Message) (message.Message, error) { got <- m; return m, nil })
 	select {
 	case r := <-got:
+		for _, key := range []string{message.MessageID, message.CorrelationID, message.CausationID, message.TraceID} {
+			if r[key] != m[key] {
+				t.Errorf("flowlink changed %s", key)
+			}
+		}
 		if r[message.Body] != "Test" || r[message.TraceID] != m[message.TraceID] {
 			t.Errorf("target got %v, want a copy with the trace id", r)
 		}

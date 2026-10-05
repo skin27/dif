@@ -16,12 +16,12 @@ func TestRemoveHeaders(t *testing.T) {
 		opts map[string]any
 		want string // headers left, sorted
 	}{
-		{"wildcard with exclude", map[string]any{"pattern": "last*", "excludePattern": "lastName"}, "Content-Type firstName lastName"},
-		{"exact, case-insensitive", map[string]any{"pattern": "content-type"}, "firstName lastName lastVersion"},
-		{"regex", map[string]any{"pattern": "first.*|Content-.*"}, "lastName lastVersion"},
+		{"wildcard with exclude", map[string]any{"pattern": "last*", "excludePattern": "lastName"}, "Content-Type Correlation-Id Message-Id firstName lastName"},
+		{"exact, case-insensitive", map[string]any{"pattern": "content-type"}, "Correlation-Id Message-Id firstName lastName lastVersion"},
+		{"regex", map[string]any{"pattern": "first.*|Content-.*"}, "Correlation-Id Message-Id lastName lastVersion"},
 		{"regex exclude", map[string]any{"pattern": "*", "excludePattern": "last(Name|Version)"}, "lastName lastVersion"},
 		{"everything", map[string]any{"pattern": "*"}, ""},
-		{"no match", map[string]any{"pattern": "none"}, "Content-Type firstName lastName lastVersion"},
+		{"no match", map[string]any{"pattern": "none"}, "Content-Type Correlation-Id Message-Id firstName lastName lastVersion"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

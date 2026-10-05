@@ -19,7 +19,8 @@ import (
 // httpsAction calls an HTTPS endpoint with the message and replaces the body
 // with the response. The message body is sent (except with GET and HEAD) and
 // its string headers become HTTP headers; metadata and http.* headers are
-// never sent. The response sets the body, http.status and Content-Type.
+// never sent directly. Trace identity is mapped explicitly to DIF-Trace-Id.
+// The response sets the body, http.status and Content-Type.
 // Only servers whose certificate chains to the trust store are trusted.
 type httpsAction struct {
 	url            string
@@ -56,6 +57,7 @@ func newHTTPSAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 }
 
 func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	m.EnsureIdentity()
 	var body io.Reader
 	if a.method != http.MethodGet && a.method != http.MethodHead {
 		body = bytes.NewReader(bytesOf(m[message.Body]))
@@ -66,13 +68,14 @@ func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Me
 	}
 	for k, v := range m {
 		s, ok := v.(string)
-		if !ok || k == message.Body || message.IsMetadata(k) || strings.HasPrefix(k, "http.") ||
+		if !ok || k == message.Body || message.IsMetadata(k) || strings.HasPrefix(k, "http.") || strings.EqualFold(k, traceIDHeader) ||
 			notForwarded[http.CanonicalHeaderKey(k)] || !validHeader(k, s) {
 			continue
 		}
 		req.Header.Set(k, s)
 	}
 
+	writeIdentityHeaders(req.Header, m)
 	resp, err := a.client.Do(req)
 	if err != nil {
 		return nil, err

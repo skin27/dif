@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"dif/keystore"
 	"dif/message"
@@ -20,7 +21,7 @@ import (
 // httpsSource receives HTTPS requests on host:port/path and replies with the
 // outcome of the flow (request-reply). The body of a request is the message
 // body and its headers are message headers; the reply is the final body with
-// its Content-Type header.
+// its Content-Type and identity headers.
 type httpsSource struct {
 	addr, path          string
 	matchPrefix         bool
@@ -80,10 +81,16 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 
 		// Header names arrive canonicalized ("Content-Type"), so they never
 		// clash with the body or metadata keys.
-		m := message.New(string(body))
+		m := message.Message{message.Body: string(body)}
 		for k, v := range r.Header {
 			m[k] = strings.Join(v, ",")
 		}
+		m[message.Timestamp] = time.Now().Format(time.RFC3339Nano)
+		if id := r.Header.Get(traceIDHeader); id != "" {
+			m[message.TraceID] = id
+		}
+		delete(m, http.CanonicalHeaderKey(traceIDHeader))
+		m.EnsureIdentity()
 		if s.preserveHTTPHeaders {
 			m["http.method"] = r.Method
 			m["http.path"] = r.URL.Path
@@ -102,6 +109,7 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 				http.Error(w, o.err.Error(), http.StatusInternalServerError)
 				return
 			}
+			writeIdentityHeaders(w.Header(), o.m)
 			ct, _ := o.m[message.ContentType].(string)
 			if ct == "" {
 				ct = "text/plain; charset=utf-8"

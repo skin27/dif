@@ -83,8 +83,7 @@ func (r splitRouter) partRoutes(m message.Message) ([]stepdef.Route, error) {
 	}
 	routes := make([]stepdef.Route, 0, len(parts)+1)
 	for i, part := range parts {
-		c := m.Copy()
-		c[message.Body] = part
+		c := m.Child(part)
 		c[SplitIndex], c[SplitSize], c[SplitComplete] = i, len(parts), i == len(parts)-1
 		routes = append(routes, stepdef.Route{Next: r.split, Message: c})
 	}

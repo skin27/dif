@@ -229,13 +229,50 @@ A message is one mutable map (`message.Message`, a `map[string]any`) holding:
   `[]byte`, decoded JSON (maps, slices) or XML (as a string). `Content-Type`
   holds the media type of the body: the converters, the file source, `zip`,
   `unzip` and https set it, https sends it, and `setheader` can change it
-- metadata headers, prefixed `metadata.`. Metadata is internal: it is never
-  sent outside a flow (the file sink writes the body only), and `setheader`
-  cannot set it.
+- metadata headers, prefixed `metadata.`. Metadata is internal and `setheader`
+  cannot set it. HTTPS/REST explicitly maps the trace ID to `DIF-Trace-Id`;
+  other metadata is not exported (the file sink writes the body only).
+
+### Message identity
+
+| Header | Meaning |
+|--------|---------|
+| `Message-Id` | Identity of the logical message; generated as 32 random hex characters |
+| `Correlation-Id` | Conversation or business-process identity; defaults to the root message's ID |
+| `Causation-Id` | Immediate parent message's ID; absent on a new root message |
+
+These are ordinary, case-sensitive message headers, available through
+`message.MessageID`, `message.CorrelationID`, and `message.CausationID`.
+For example, `setheader` can set `Correlation-Id` to an order number.
+The independent `metadata.traceid` connects execution for diagnostics.
+
+`message.New` creates fresh message and trace IDs. Engine entry initializes
+missing, empty or non-string message, correlation and trace IDs, preserving
+existing non-empty strings. `Copy`, routing, retries, dead-letter queues and
+flow links preserve identity. Transformations and enrichment also retain the
+current identity. These IDs do not by themselves provide deduplication.
+
+Split and split-and-aggregate create children with new message IDs and
+timestamps, the parent's ID as causation, and inherited correlation and trace
+IDs. Nested splits reference their immediate parent. Custom processors can
+use `m.Child(body)`; like `Copy`, it shares nested values, which must not be
+mutated in place. Split-and-aggregate resumes the original message after
+gathering; standalone aggregation retains the completing message's identity.
+
+HTTPS/REST requests and successful replies carry the three identity headers
+and `DIF-Trace-Id`. Sources preserve supplied IDs and initialize missing ones;
+HTTP header names are canonicalized to the spellings above. The trace header
+is imported into `metadata.traceid`, not kept as a separate ordinary header.
+Outbound trace identity comes from that metadata, overriding a stale ordinary
+`DIF-Trace-Id` header. This is a DIF mapping, not W3C `traceparent` support.
+HTTP actions retain their current message identity when updating the body
+from a response; response identity headers do not replace it. Invalid HTTP
+header values are not exported. Generated HTTP error responses have no message
+identity headers. Other transports keep their existing serialization behavior.
 
 | Metadata header | Set by | Value |
 |-----------------|--------|-------|
-| `metadata.traceid` | a new message | 32 hex characters; copies keep it |
+| `metadata.traceid` | a new message, engine entry or HTTP import | generated as 32 hex characters; supplied IDs are preserved; copies and children keep it |
 | `metadata.timestamp` | a new message | when it was created (RFC 3339) |
 | `metadata.trail` | the engine | the steps the message entered, as `kind:id` separated by spaces, across flows: entering a flow adds `flow:id` (e.g. `flow:orders source:in action:check error:h sink:dlq flow:retry source:q`) |
 | `metadata.step` | the engine | the id of the step the message is in, or was last in |
@@ -516,7 +553,8 @@ below it); a second flow on a path already served fails to start, and its log
 says why (`source stopped: path … is already served by another flow`).
 
 The `https` action calls an endpoint with the message: the body (not for GET and
-HEAD) and its string headers, never `metadata.*` or `http.*`. The response sets
+HEAD) and its string headers. It maps the trace ID to `DIF-Trace-Id` and never
+sends other `metadata.*` or `http.*` headers. The response sets
 the body, `http.status` and `Content-Type`. An error status fails the message
 only with `throwExceptionOnFailure`.
 

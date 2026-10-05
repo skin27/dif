@@ -71,11 +71,13 @@ func (r *Runner) ID() string { return r.flow.ID }
 // message, or an empty message if there is none. Its metadata is always fresh.
 func (r *Runner) NewMessage() message.Message {
 	m := message.New(nil)
+	delete(m, message.CorrelationID) // default after applying configured identity headers
 	for k, v := range r.flow.Input {
 		if !message.IsMetadata(k) {
 			m[k] = v
 		}
 	}
+	m.EnsureIdentity()
 	return m
 }
 

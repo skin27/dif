@@ -60,6 +60,10 @@ func Run(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, er
 // step makes its exchange one-way (message.InOnly): then reply gets the
 // message as it is at that point and the flow goes on.
 func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply func(message.Message, error)) (*Result, error) {
+	if msg == nil {
+		msg = message.Message{}
+	}
+	msg.EnsureIdentity()
 	r := &run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error, reply: reply} // the source produced msg
 	res, err := r.flow(ctx, f, msg)
 	if r.reply != nil {

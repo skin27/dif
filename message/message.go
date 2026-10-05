@@ -14,8 +14,8 @@ import (
 // prefixed with MetadataPrefix). Keys are case-sensitive.
 //
 // Header values are strings, booleans, ints, []byte, decoded JSON (maps and
-// slices) or XML (as a string). Metadata is internal to DIF and is never sent
-// outside a flow.
+// slices) or XML (as a string). Metadata is internal to DIF; HTTP explicitly
+// maps TraceID to DIF-Trace-Id without exposing other metadata.
 //
 // A Message is a plain map so it can be serialized, which is the extension
 // point for persisting state in a later iteration.
@@ -29,6 +29,11 @@ const (
 	// It is a user header: steps that produce a known format set it, https
 	// sends it outside and setheader can change it.
 	ContentType = "Content-Type"
+
+	// Identity headers travel with the logical message, including on retries.
+	MessageID     = "Message-Id"
+	CorrelationID = "Correlation-Id"
+	CausationID   = "Causation-Id"
 
 	MetadataPrefix = "metadata."
 	TraceID        = MetadataPrefix + "traceid"
@@ -56,18 +61,46 @@ const (
 	InOut  = "InOut"  // request-reply
 )
 
-// New returns a Message with a fresh trace id, the current time and the given body.
+// New returns a Message with fresh message and trace IDs, the current time and body.
 func New(body any) Message {
-	return Message{
-		TraceID:   newTraceID(),
+	m := Message{
 		Timestamp: time.Now().Format(time.RFC3339Nano),
 		Body:      body,
 	}
+	m.EnsureIdentity()
+	return m
+}
+
+// EnsureIdentity initializes missing, empty or non-string message, correlation
+// and trace IDs on a non-nil message. Supplied non-empty strings are preserved.
+// A root's correlation ID defaults to its message ID; causation is optional.
+func (m Message) EnsureIdentity() {
+	for _, key := range []string{MessageID, TraceID} {
+		if id, _ := m[key].(string); id == "" {
+			m[key] = newTraceID()
+		}
+	}
+	if id, _ := m[CorrelationID].(string); id == "" {
+		m[CorrelationID] = m[MessageID]
+	}
+}
+
+// Child copies m into a new logical message, retaining correlation and trace,
+// and recording m as its cause. It initializes m's identity if needed. Like
+// Copy, it shares payload values: processors must replace rather than mutate them.
+func (m Message) Child(body any) Message {
+	m.EnsureIdentity()
+	c := m.Copy()
+	c[MessageID] = newTraceID()
+	c[CausationID] = m[MessageID]
+	c[Timestamp] = time.Now().Format(time.RFC3339Nano)
+	c[Body] = body
+	return c
 }
 
 // Copy returns a copy of m to send down another path, such as a router's
 // branch. Values are shared, which is safe as steps replace values rather than
-// change them.
+// change them. All IDs are preserved; use Child to create a new logical message.
 func (m Message) Copy() Message { return maps.Clone(m) }
 
 // IsMetadata reports whether key is a metadata header.
