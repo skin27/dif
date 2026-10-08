@@ -77,7 +77,10 @@ The flows were written for the Dovetail test servers. For a local run:
   become the same local address, so that flows can call each other. This is done
   in memory (`overlay` in `dil_test.go`); the files are not changed.
 - The server identity is a throwaway key, `sanitize/dummy-identity.p12`
-  (password `dummy-password`). The test trusts it through `SSL_CERT_FILE`.
+  (password `dummy-password`). The test trusts it through `SSL_CERT_FILE`, and
+  the working directory gets it as `security/outbound-truststore.p12` too, so
+  that the `https` and `rest` actions, which look there for the certificates to
+  trust, trust the flows they call.
 - Other systems (SFTP, SMB, SQL, mail, SOAP, ...) are not reachable, and are
   replaced by mocks and fakes as the steps for them are added.
 

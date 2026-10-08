@@ -28,7 +28,7 @@ var (
 
 var (
 	repoRoot string // absolute path of the repository
-	workdir  string // scratch directory with security/server-identity.p12, the working directory of the tests
+	workdir  string // scratch directory with security/server-identity.p12 and outbound-truststore.p12, the working directory of the tests
 )
 
 func TestMain(m *testing.M) {
@@ -60,6 +60,11 @@ func run(m *testing.M) (int, error) {
 	if err := os.WriteFile(filepath.Join(workdir, "security", "server-identity.p12"), identity, 0o600); err != nil {
 		return 0, err
 	}
+	// The https and rest actions trust the certificates of security/outbound-truststore.p12,
+	// which here is the dummy identity again, so that they trust the sources of these flows.
+	if err := os.WriteFile(filepath.Join(workdir, "security", "outbound-truststore.p12"), identity, 0o600); err != nil {
+		return 0, err
+	}
 	_, certs, err := keystore.Decode(identity, sanitize.DummyPassword)
 	if err != nil || len(certs) == 0 {
 		return 0, fmt.Errorf("dummy identity: %v", err)
@@ -70,6 +75,7 @@ func run(m *testing.M) (int, error) {
 	}
 	os.Setenv("SSL_CERT_FILE", ca)
 	os.Setenv("DIF_SERVER_IDENTITY_PASSWORD", sanitize.DummyPassword)
+	os.Setenv("DIF_TRUSTSTORE_PASSWORD", sanitize.DummyPassword)
 	// The ENC(...) values in the fixtures are encrypted with the test password.
 	os.Setenv(secret.PasswordEnv, sanitize.TestEncryptionPassword)
 	return m.Run(), nil
