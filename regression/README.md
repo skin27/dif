@@ -25,7 +25,8 @@ DIF_POSTMAN_COLLECTION=Steps-Basic go test ./regression -run Postman -postman   
 Without `-postman` the tests do the following.
 
 - `TestFlowsLoad` builds every flow that is not skipped, as `dif run` does before
-  it starts one, and compares the flows that build with `loadable.json`.
+  it starts one, and compares the flows that build with `loadable.json`. Why each
+  flow does not build is written to `regression/.cache/load-failures.txt`.
 - `TestSkipManifest` checks `skip.json`.
 - `TestFixturesHaveNoCredentials` fails if a fixture holds a credential.
 
