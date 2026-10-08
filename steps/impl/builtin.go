@@ -54,6 +54,7 @@ func Register(r *registry.Registry) error {
 		{"ftps", stepdef.Source, pollingConsumer, newRemoteSource(ftpsProtocol), nil},
 		{"sftp", stepdef.Source, pollingConsumer, newRemoteSource(sftpProtocol), nil},
 		{"smb", stepdef.Source, pollingConsumer, newRemoteSource(smbProtocol), nil},
+		{"imaps", stepdef.Source, pollingConsumer, newIMAPSSource, nil},
 		{"flowlink", stepdef.Source, "", newFlowLinkSource, []string{"flowlink-async"}},
 		{"repeater", stepdef.Source, "", newTimerSource, nil},
 		{"quartz", stepdef.Source, "", newQuartzSource, nil},
