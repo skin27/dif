@@ -629,6 +629,8 @@ Camel's DSL does; the body of a message that `simplereplace` evaluates is not.
 | `${hash(x,alg)}` | lower case hexadecimal digest; MD5, SHA-1, SHA-224/256/384/512 (default SHA-256), SHA3-224/256/384/512 |
 | `${jsonpath(path)}`, `${jsonpath(path,Integer)}` | on the body: the value, or a list for a path with `*` |
 | `${xpath(expression)}` | on the body: the text of the first item the XPath 2.0 expression selects |
+| `${jq(program)}`, `${jq(program,Integer)}` | the [jq](https://jqlang.github.io/jq/) program ([gojq](https://github.com/itchyny/gojq)) on the body (JSON): nothing is empty, one result is that value (a text as it is, an object or array as JSON), several are a list. The program has `$headers`, `$body`, `header("name")` and `body`, and is stopped after 10 seconds. Write a `}` in it as `\}`, as in any block |
+| `${file:name}`, `${file:name.ext}`, `${file:name.ext.single}`, `${file:name.noext}`, `${file:onlyname}`, `${file:parent}`, `${file:path}`, `${file:length}`, ... | the file headers `CamelFileName` (else `file.name`), `CamelFileNameOnly`, `CamelFileParent`, `CamelFilePath`, `CamelFileAbsolute`, `CamelFileAbsolutePath`, `CamelFileLength`, `CamelFileLastModified`; `.ext` is after the first dot of the name, `.single` after the last |
 | `${flowId}`, `${flowName}`, `${flowVersion}`, `${tenant}`, `${environment}`, and `${variable:group:<id>:MetaData.FlowID}` (also `FlowName`, `FlowVersion`, `TenantName`, `EnvironmentName`) | the flow's own properties; a DIL flow has them in its `options` (`tenant`, `environment`, `version`) |
 | `${exception}`, `${exception.message}`, `${exception.class}`, `${exception.stacktrace}` | the error on a message that goes along the error route |
 | `${headers}`, `${variable.<name>}`, `${variables}` | all headers, written `{a=1, b=2}`; variables, which an `$init` block sets and which stay on the message |
@@ -645,8 +647,7 @@ function on the right); after a value `++` and `--`; in a function
 the operators have a space on both sides, and numbers are compared as numbers.
 An expression may start with an init block that sets variables, as in Camel:
 `$init{ $limit := 18; $who := ${uppercase(${body})}; }init$` and then
-`$who is over $limit`. Not (yet) supported: `${jq(...)}`, and the
-functions that need the Camel exchange (`${exchangeId}`, `${routeId}`,
+`$who is over $limit`. Not supported: the functions that need the Camel exchange (`${exchangeId}`, `${routeId}`,
 `exchangeProperty`, ...).
 Other `${...}` expressions are rejected when the flow is loaded.
 

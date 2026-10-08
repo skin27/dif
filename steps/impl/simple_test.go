@@ -3,6 +3,7 @@ package impl
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"dif/message"
 )
@@ -282,7 +283,6 @@ func TestSimpleErrors(t *testing.T) {
 		"${empty(thing)}":     "valid syntax: ${empty(<type>)}",
 		"${n} ?:":             "",
 		"${header.n} ?: ":     "",
-		"${jq('.a')}":         "jq is not supported yet",
 		"x \x00 y":            "control character",
 	} {
 		_, err := compileTemplate(expr)
@@ -337,5 +337,127 @@ func TestSimpleListsRenderAsJava(t *testing.T) {
 	}
 	if got := render([]any{"a", 1.0}); got != `["a",1]` {
 		t.Errorf("a list of the message is JSON: %q", got)
+	}
+}
+
+const journal = `{"FinancialPeriod":11,"GeneralJournalEntryLines":[` +
+	`{"GLAccountCode":801001,"Description":null,"Amount":-92.64},{"GLAccountCode":122001,"Description":"SW230","Amount":10},` +
+	`{"GLAccountCode":130000,"Description":null},{"GLAccountCode":122001,"Description":"SW217"}]}`
+
+func TestSimpleJQ(t *testing.T) {
+	m := message.New(journal)
+	m["Greeting"] = "hello"
+	m["person"] = `{"person":{"name":"John Doe","address":{"city":"Anytown"}}}`
+	for expr, want := range map[string]string{
+		// From the SetHeaders Simple request.
+		`${jq('[.GeneralJournalEntryLines[].GLAccountCode] | join(",")')}`:               "801001,122001,130000,122001",
+		`${jq('[.GeneralJournalEntryLines[].Description] | join(",")')}`:                 ",SW230,,SW217",
+		`${empty(String)}${jq('[.GeneralJournalEntryLines[].Description] | join(",")')}`: ",SW230,,SW217",
+		"${jq('.FinancialPeriod')}":                                                          "11",
+		"${jq('.FinancialPeriod + 1')}":                                                      "12",
+		"${jq('.GeneralJournalEntryLines[0].Amount')}":                                       "-92.64",
+		"${jq('.GeneralJournalEntryLines | length')}":                                        "4",
+		"${jq('.GeneralJournalEntryLines[1].Description')}":                                  "SW230",
+		"${jq('.nothing')}":                                                                  "",
+		"${jq('.GeneralJournalEntryLines[] | select(.Amount == 10) | .GLAccountCode')}":      "122001",
+		"${jq('.GeneralJournalEntryLines[].GLAccountCode')}":                                 "[801001, 122001, 130000, 122001]",
+		"${jq('{count: (.GeneralJournalEntryLines | length), p: .FinancialPeriod\\}')}":      `{"count":4,"p":11}`,
+		"${jq('[.GeneralJournalEntryLines[].GLAccountCode]')}":                               "[801001,122001,130000,122001]",
+		"${jq('header(\"Greeting\")')}":                                                      "hello",
+		"${jq('$headers.Greeting')}":                                                         "hello",
+		"${jq('.FinancialPeriod', String)}":                                                  "11",
+		"${jq('.FinancialPeriod', Integer)} ok":                                              "11 ok",
+		"${jq('\n((.p_11 // (((.p_11A // 0) - (.p_11Vat // 0)) * 100 | round) / 100 ))\n')}": "0",
+		"${jq('{wrapper: [.FinancialPeriod, (.fakeKey // {fakeKey: null\\})]\\}')}":          `{"wrapper":[11,{"fakeKey":null}]}`,
+	} {
+		got, err := evalTemplate(t, expr, m)
+		if err != nil || got != want {
+			t.Errorf("%s = %q, %v; want %q", expr, got, err, want)
+		}
+	}
+	for expr, want := range map[string]string{
+		"${jq('.[')}":           "jq program",
+		"${jq('error(\"x\")')}": "jq: error: x",
+		"${jq()}":               "valid syntax",
+	} {
+		if x, err := compileTemplate(expr); err == nil {
+			if _, err := x.eval(m); err == nil || !strings.Contains(err.Error(), want) {
+				t.Errorf("%s: err = %v, want containing %q", expr, err, want)
+			}
+		} else if !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: err = %v, want containing %q", expr, err, want)
+		}
+	}
+	if _, err := evalTemplate(t, "${jq('.a')}", message.New("not json")); err == nil || !strings.Contains(err.Error(), "body is not JSON") {
+		t.Errorf("err = %v", err)
+	}
+	// A program that never ends is stopped.
+	defer func(d time.Duration) { jqTimeout = d }(jqTimeout)
+	jqTimeout = 50 * time.Millisecond
+	if _, err := evalTemplate(t, "${jq('[repeat(1)]')}", message.New("{}")); err == nil || !strings.Contains(err.Error(), "deadline") {
+		t.Errorf("an endless program: err = %v, want the deadline", err)
+	}
+}
+
+func TestSimpleFileFunctions(t *testing.T) {
+	m := message.New("x")
+	m["CamelFileName"] = "in/box/image.tar.gz"
+	m["CamelFileParent"] = "/data/in/box"
+	m["CamelFileLength"] = int64(2048)
+	for expr, want := range map[string]string{
+		"${file:name}":                  "in/box/image.tar.gz",
+		"${file:name.ext}":              "tar.gz",
+		"${file:ext}":                   "tar.gz",
+		"${file:name.ext.single}":       "gz",
+		"${file:name.noext}":            "in/box/image",
+		"${file:name.noext.single}":     "in/box/image.tar",
+		"${file:onlyname}":              "image.tar.gz",
+		"${file:onlyname.noext}":        "image",
+		"${file:onlyname.noext.single}": "image.tar",
+		"${file:parent}":                "/data/in/box",
+		"${file:length}":                "2048",
+		"${file:size}":                  "2048",
+		"${file:path}":                  "",
+		"${file:absolute}":              "",
+		"${file:onlyname.noext}.jpg":    "image.jpg",
+	} {
+		if got, err := evalTemplate(t, expr, m); err != nil || got != want {
+			t.Errorf("%s = %q, %v; want %q", expr, got, err, want)
+		}
+	}
+	// DIF's file source sets file.name; a message without a file has no file name.
+	d := message.New("x")
+	d["file.name"] = "sub/a.csv"
+	if got, _ := evalTemplate(t, "${file:name} ${file:onlyname} ${file:ext}", d); got != "sub/a.csv a.csv csv" {
+		t.Errorf("file.name: %q", got)
+	}
+	if got, _ := evalTemplate(t, "[${file:name}][${file:onlyname.noext}]", message.New("x")); got != "[][]" {
+		t.Errorf("no file: %q", got)
+	}
+	if _, err := compileTemplate("${file:nothing}"); err == nil || !strings.Contains(err.Error(), "unknown file language syntax") {
+		t.Errorf("err = %v", err)
+	}
+}
+
+// Expressions of the SetHeaders_simple flow that must not make it fail.
+func TestSimpleShowcase(t *testing.T) {
+	m := message.New(`<products><product><price>500</price></product></products>`)
+	m["Amount"] = "1"
+	m["code"] = "200"
+	m["number"] = "1234567890"
+	for expr, want := range map[string]string{
+		"${header.Amount * 0.9}":                  "", // not a header, not an operator of the language
+		"${iif(${header.code} == 200, OK, NOK)}":  "OK",
+		"${iif(${header.code} == 201, OK, NOK)}":  "NOK",
+		"${iif(${header.code} == 200, 'Y', 'N')}": "Y",
+		"${hash($body,SHA-256)}":                  "18488eabc0e516fe30242e7c16a6b67b897e75bc421dbaedc8534614ae3d6a6e",
+		`${xpath("//product[price < 1000]")}`:     "500",
+		"${header.number.substring(3,6)}":         "456",
+		"${random(100)}":                          "", // only that it compiles
+	} {
+		got, err := evalTemplate(t, expr, m)
+		if err != nil || (want != "" && got != want) {
+			t.Errorf("%s = %q, %v; want %q", expr, got, err, want)
+		}
 	}
 }

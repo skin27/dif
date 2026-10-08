@@ -73,9 +73,7 @@ func init() {
 		"isNumeric":           isNumericFunc,
 		"jsonpath":            jsonpathFunc,
 		"xpath":               xpathFunc,
-		"jq": func(*compiler, *block, string) (evalFn, error) {
-			return nil, fmt.Errorf("jq is not supported yet")
-		},
+		"jq":                  jqFunc,
 	}
 	simpleRefs = map[string]refDef{
 		"uuid": func(*compiler, *block) (evalFn, error) {
@@ -812,11 +810,11 @@ func iif(c *compiler, b *block, args string) (evalFn, error) {
 	if err != nil {
 		return nil, err
 	}
-	yes, err := c.value(b, toks[1])
+	yes, err := c.template(b, stripQuotes(toks[1])) // text, as in ${iif(${header.n} > 1, OK, NOK)}
 	if err != nil {
 		return nil, err
 	}
-	no, err := c.value(b, toks[2])
+	no, err := c.template(b, stripQuotes(toks[2]))
 	if err != nil {
 		return nil, err
 	}

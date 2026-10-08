@@ -46,6 +46,10 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 		}
 	}
 
+	if what, ok := strings.CutPrefix(ref, "file:"); ok {
+		return c.fileRef(b, what)
+	}
+
 	// ${variable:group:<id>:MetaData.FlowVersion}: what the platform knows of the flow.
 	if rest, ok := strings.CutPrefix(ref, "variable:group:"); ok {
 		_, name, _ := strings.Cut(rest, ":")
@@ -227,7 +231,7 @@ func (c *compiler) named(b *block, head, rest string, get func(message.Message, 
 	// The name is up to the first dot or bracket that starts a method, property or
 	// index, when nothing has the whole text for a name.
 	name, suffix := splitHeaderName(rest)
-	if suffix == "" {
+	if suffix == "" || strings.ContainsAny(name, " \t") { // ${header.Amount * 0.9} names a header
 		return func(e *env) (any, error) { return lookup(e, whole) }, nil
 	}
 	nameKey, err := c.keyName(b, name)
