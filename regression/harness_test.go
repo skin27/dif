@@ -16,6 +16,7 @@ import (
 	"strings"
 	"testing"
 
+	"dif/internal/secret"
 	"dif/keystore"
 	"dif/regression/sanitize"
 )
@@ -69,6 +70,8 @@ func run(m *testing.M) (int, error) {
 	}
 	os.Setenv("SSL_CERT_FILE", ca)
 	os.Setenv("DIF_SERVER_IDENTITY_PASSWORD", sanitize.DummyPassword)
+	// The ENC(...) values in the fixtures are encrypted with the test password.
+	os.Setenv(secret.PasswordEnv, sanitize.TestEncryptionPassword)
 	return m.Run(), nil
 }
 

@@ -4,6 +4,7 @@
 package registry
 
 import (
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
@@ -11,6 +12,7 @@ import (
 	"sync"
 
 	flowdef "dif/flows/definition"
+	"dif/internal/secret"
 	stepdef "dif/steps/definition"
 )
 
@@ -71,12 +73,20 @@ func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 }
 
 // ProcessorWithParams injects trusted runtime bindings after option validation.
+//
+// Encrypted values, ENC(salt|iv|cipher) as the Java EncryptionUtil writes them,
+// are replaced by their plain text in the options the processor gets. The
+// password is DIF_ENCRYPTION_PASSWORD (or the file DIF_ENCRYPTION_PASSWORD_FILE
+// names). Validate and the flow model never hold the plain text.
 func (r *Registry) ProcessorWithParams(n *flowdef.Node, bindings stepdef.Params) (stepdef.Processor, error) {
 	e, params, err := r.parameters(n)
 	if err != nil {
 		return nil, err
 	}
 	name, _, _ := strings.Cut(n.URI, ":")
+	if err := decryptParams(params); err != nil {
+		return nil, fmt.Errorf("%s: %w", name, err)
+	}
 	for _, key := range e.def.RuntimeBindings {
 		if value, ok := bindings[key]; ok {
 			params[key] = value
@@ -203,4 +213,24 @@ func implements(p stepdef.Processor, kind string) bool {
 		return ok
 	}
 	return false
+}
+
+// decryptParams replaces the encrypted values in the string options by their
+// plain text. The errors name the option and say what to do, and never show a value.
+func decryptParams(params stepdef.Params) error {
+	for _, key := range slices.Sorted(maps.Keys(params)) {
+		s, ok := params[key].(string)
+		if !ok || !strings.Contains(s, "ENC(") {
+			continue
+		}
+		plain, err := secret.Resolve(s, secret.Password)
+		switch {
+		case errors.Is(err, secret.ErrNoPassword):
+			return fmt.Errorf("option %s holds an encrypted value (ENC(...)): %w", key, err)
+		case err != nil:
+			return fmt.Errorf("option %s: %w", key, err)
+		}
+		params[key] = plain
+	}
+	return nil
 }

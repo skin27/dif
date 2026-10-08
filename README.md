@@ -1010,6 +1010,36 @@ $ curl -k -d hello https://localhost:9001/_new2/httpsInbound
 12345
 ```
 
+### Encrypted values
+
+Any option can hold a password, token or API key as an encrypted value,
+`ENC(salt|iv|cipher)`, in the format of the Java `EncryptionUtil` of the
+platform: each part in base64, AES-256-CBC with PKCS#5 padding, and a key
+derived from the password and the salt with PBKDF2WithHmacSHA1 (10000
+iterations). Flows made for the Java platform work as they are.
+
+```json
+"options": { "password": "ENC(MUIgE3IHqgPmUQ9qyyOdtw==|3v7+OIgbaGdiodkVvrY4XQ==|jjpsKDsxY7aaQYFZU5yz8A==)" }
+```
+
+(That value is `hunter22`, encrypted with the password `vector-password-1`; the
+Java platform made it, and the tests decrypt it.)
+
+The password is `DIF_ENCRYPTION_PASSWORD`, or the file that
+`DIF_ENCRYPTION_PASSWORD_FILE` names (a mounted secret; one trailing line feed is
+removed). Values are decrypted when the flow is loaded, in the options that a
+step is built with; a value may also be part of a longer text, such as a URI
+(`...?password=ENC(...)`). Validation and `describe` do not decrypt, need no
+password, and show no option values. Text that only looks like `ENC(...)` is
+left as it is. A flow with an encrypted value is rejected when there is no
+password or when it is wrong (the error names the option and never shows the
+value). The format has no integrity check: about one wrong password in 256 does
+not fail but gives garbage, so a wrong password may only show when the remote
+system refuses the login.
+
+The value `ENC(...)` in `core.connections` is not read: DIF does not use connection
+blocks.
+
 ### FTP and SFTP
 
 The `ftp` and `sftp` steps work on a directory of a remote server as the `file`

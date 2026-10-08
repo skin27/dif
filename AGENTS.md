@@ -64,4 +64,4 @@ Recent commits use short imperative subjects, such as “Add the flowlink source
 
 ## Security & Configuration
 
-Keep local keystores and credentials out of commits. Before committing new regression fixtures, run `go run ./regression/cmd/sanitize`, which replaces credentials with dummies (`go test ./regression` fails while a fixture holds one). `security/`, runtime `logs/`, and `dif.exe` are ignored. Use the documented `DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, and `DIF_SMTP_PASSWORD` environment variables for local secrets.
+Keep local keystores and credentials out of commits. Before committing new regression fixtures, run `go run ./regression/cmd/sanitize`, which replaces credentials with dummies (`go test ./regression` fails while a fixture holds one). `security/`, runtime `logs/`, and `dif.exe` are ignored. Use the documented `DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` environment variables for local secrets.

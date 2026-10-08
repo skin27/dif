@@ -1,11 +1,15 @@
 package regression
 
 import (
+	"io/fs"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
 	"dif/api"
+	"dif/internal/secret"
 	"dif/regression/sanitize"
 )
 
@@ -75,4 +79,78 @@ func TestFixturesHaveNoCredentials(t *testing.T) {
 		}
 		t.Fatalf("%d credentials in the fixtures; run: go run ./regression/cmd/sanitize\n%s", len(found), b.String())
 	}
+}
+
+var encValue = regexp.MustCompile(`ENC\([^)]*\)`)
+
+// TestEncryptedFixturesDecrypt checks that every ENC(...) value in the fixtures
+// is a real value that decrypts under the test password.
+func TestEncryptedFixturesDecrypt(t *testing.T) {
+	var n int
+	for _, root := range []string{"regressionTests", "postman"} {
+		err := filepath.WalkDir(path(root), func(p string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return err
+			}
+			data, err := os.ReadFile(p)
+			if err != nil {
+				return err
+			}
+			for _, v := range encValue.FindAllString(string(data), -1) {
+				n++
+				if plain, err := secret.Decrypt(sanitize.TestEncryptionPassword, v); err != nil || plain != sanitize.DummyPassword {
+					t.Errorf("%s: an ENC value does not decrypt to the dummy password under the test password: %v", p, err)
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if n == 0 {
+		t.Fatal("no ENC values in the fixtures")
+	}
+	t.Logf("%d ENC values, all decrypt", n)
+}
+
+// showsValue reports whether s holds a real ENC(...) value; the text "ENC(...)" is no value.
+func showsValue(s string) bool {
+	for _, v := range encValue.FindAllString(s, -1) {
+		if secret.IsEncrypted(v) {
+			return true
+		}
+	}
+	return false
+}
+
+// TestEncryptedFlowsNeedThePassword builds the flows that hold an ENC(...) value
+// without a password: each must fail and say which variable to set, and show nothing.
+func TestEncryptedFlowsNeedThePassword(t *testing.T) {
+	t.Chdir(workdir)
+	skips := loadSkips(t)
+	t.Setenv(secret.PasswordEnv, "")
+	os.Unsetenv(secret.PasswordEnv)
+	var failed int
+	for _, f := range readList(t, "loadable.json") {
+		data, err := os.ReadFile(path(f))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, skip := skips[f]; skip || !encValue.Match(data) {
+			continue
+		}
+		_, err = api.LoadBytes(data, nil)
+		switch {
+		case err == nil:
+			continue // the value is in a part of the file that no step reads, such as a connection
+		case !strings.Contains(err.Error(), secret.PasswordEnv) || showsValue(err.Error()):
+			t.Errorf("%s: unclear or unsafe error: %v", f, err)
+		}
+		failed++
+	}
+	if failed == 0 {
+		t.Fatal("no flow with an ENC value needs the password")
+	}
+	t.Logf("%d flows with an ENC value need %s", failed, secret.PasswordEnv)
 }

@@ -16,10 +16,6 @@ package sanitize
 
 import (
 	"bytes"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/pbkdf2"
-	"crypto/sha1"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
@@ -31,6 +27,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"dif/internal/secret"
 )
 
 // TestEncryptionPassword is the password that the ENC(...) values in the
@@ -64,25 +62,16 @@ func DummyKeystoreDataURI() string {
 }
 
 // DummyENC is DummyPassword encrypted in the format of the Java EncryptionUtil
-// (ENC(salt|iv|cipher), AES-256-CBC with a PBKDF2WithHmacSHA1 key of 10000
-// iterations) under TestEncryptionPassword. Salt and IV are fixed, so the value
-// is the same on every run; that is fine for a throwaway fixture secret.
+// (see package secret) under TestEncryptionPassword. Salt and IV are fixed, so
+// the value is the same on every run; that is fine for a throwaway fixture secret.
 var DummyENC = mustEncrypt(TestEncryptionPassword, []byte("dif-regr-salt-16"), []byte("dif-regr-iv-0016"), DummyPassword)
 
 func mustEncrypt(password string, salt, iv []byte, plain string) string {
-	key, err := pbkdf2.Key(sha1.New, password, salt, 10000, 32)
+	v, err := secret.EncryptWith(password, salt, iv, plain)
 	if err != nil {
 		panic(err)
 	}
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err)
-	}
-	pad := aes.BlockSize - len(plain)%aes.BlockSize
-	data := append([]byte(plain), bytes.Repeat([]byte{byte(pad)}, pad)...)
-	cipher.NewCBCEncrypter(block, iv).CryptBlocks(data, data)
-	b64 := base64.StdEncoding.EncodeToString
-	return "ENC(" + b64(salt) + "|" + b64(iv) + "|" + b64(data) + ")"
+	return v
 }
 
 // Finding is one credential found (and, when applying, replaced). It never

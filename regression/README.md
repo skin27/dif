@@ -92,7 +92,10 @@ Run it before you commit a new import, and review the diff. It is a safety net:
 it finds credentials by name and shape.
 
 The `ENC(...)` values are one dummy, encrypted as the Java `EncryptionUtil` does
-(`ENC(salt|iv|cipher)`, AES-256-CBC, PBKDF2WithHmacSHA1 with 10000 iterations)
-under the test password `dif-regression-test-key`.
+(see "Encrypted values" in the main README) under the test password
+`dif-regression-test-key`. The tests set it as `DIF_ENCRYPTION_PASSWORD`, and
+`TestEncryptedFixturesDecrypt` checks that every value in the fixtures decrypts.
+Flows with an encrypted value fail to build without it, as they should
+(`TestEncryptedFlowsNeedThePassword`).
 
 Credentials that were committed before are in the git history: rotate them.
