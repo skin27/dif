@@ -100,6 +100,10 @@ func TestXMLToJSONSimple(t *testing.T) {
 			`{"a":{"i":12,"d":1.5,"b":false,"s":"3","n":null,"bad":"1.5"}}`},
 		{"type mismatch null", map[string]any{"hasTypes": true, "typeValueMismatch": "NULL"}, `<a><bad type="number">x</bad><odd type="date">x</odd></a>`,
 			`{"a":{"bad":null,"odd":null}}`},
+		{"type mismatch in lower case", map[string]any{"hasTypes": true, "typeValueMismatch": "null"}, `<a><bad type="number">x</bad></a>`,
+			`{"a":{"bad":null}}`},
+		{"type mismatch original", map[string]any{"hasTypes": true, "typeValueMismatch": "original"}, `<a><bad type="number">x</bad></a>`,
+			`{"a":{"bad":"x"}}`},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -226,5 +230,24 @@ func TestConvertersInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "csvtoxml", map[string]any{"encoding": `UTF-8"`}, "option encoding")
 	wantInvalid(t, stepdef.Action, "xmltocsv", map[string]any{"delimiter": ""}, "option delimiter")
 	wantInvalid(t, stepdef.Action, "xmltocsv", map[string]any{"quoteFields": "some"}, `option quoteFields: "some" is not one of`)
-	wantInvalid(t, stepdef.Action, "xmltojsonsimple", map[string]any{"typeValueMismatch": "ERROR"}, `option typeValueMismatch: "ERROR" is not one of`)
+	wantInvalid(t, stepdef.Action, "xmltojsonsimple", map[string]any{"typeValueMismatch": "WARN"}, `option typeValueMismatch: "WARN" is not one of`)
+}
+
+func TestXMLToJSONSimpleTypeMismatchError(t *testing.T) {
+	for _, mismatch := range []string{"ERROR", "error"} {
+		p := mustProcessor(t, stepdef.Action, "xmltojsonsimple", map[string]any{"hasTypes": true, "typeValueMismatch": mismatch}).(stepdef.ActionProcessor)
+		for _, xml := range []string{
+			`<a><bad type="number">x</bad></a>`,
+			`<a><b><bad type="boolean">yes</bad></b></a>`, // two levels down
+			`<a><odd type="date">x</odd></a>`,             // a type that is not known
+		} {
+			if _, err := p.Process(context.Background(), message.New(xml)); err == nil || !strings.Contains(err.Error(), "does not fit its type") {
+				t.Errorf("%s %s: err = %v, want a type mismatch", mismatch, xml, err)
+			}
+		}
+		out, err := p.Process(context.Background(), message.New(`<a><n type="number">1</n></a>`))
+		if err != nil || out[message.Body] != `{"a":{"n":1}}` {
+			t.Errorf("%s: a fitting value: %v, %v", mismatch, out[message.Body], err)
+		}
+	}
 }

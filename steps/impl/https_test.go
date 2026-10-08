@@ -161,6 +161,30 @@ func TestHTTPSSourceOptions(t *testing.T) {
 	}
 }
 
+// TestHTTPSSourceQueryParametersAreHeaders checks that ?config=A reaches the
+// flow as the header config, as in Camel, without reaching the body or metadata.
+func TestHTTPSSourceQueryParametersAreHeaders(t *testing.T) {
+	addr, c := freeAddr(t), trustingClient(t)
+	seen := make(chan message.Message, 10)
+	serve(t, "https://"+addr+"/q", nil, pong(seen))
+	waitServing(t, c, "https://"+addr+"/q")
+	<-seen
+
+	url := "https://" + addr + "/q?config=TTT&list=a&list=b&empty=&body=evil&metadata.traceid=evil&X-Test=fromquery"
+	if status, body, _ := call(t, c, http.MethodPost, url, "payload"); status != 200 || body != "pong payload" {
+		t.Fatalf("reply = %d %q, want 200 \"pong payload\"", status, body)
+	}
+	m := <-seen
+	for k, want := range map[string]any{"config": "TTT", "list": "a,b", "empty": "", message.Body: "payload", "X-Test": "yes"} {
+		if m[k] != want {
+			t.Errorf("%s = %v, want %v", k, m[k], want)
+		}
+	}
+	if m[message.TraceID] == "evil" {
+		t.Error("a query parameter set the trace id")
+	}
+}
+
 func TestHTTPSSourceOneWay(t *testing.T) {
 	addr, c := freeAddr(t), trustingClient(t)
 	seen := make(chan message.Message, 10)

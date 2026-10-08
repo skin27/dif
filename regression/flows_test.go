@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
@@ -38,7 +39,23 @@ func TestFlowsLoad(t *testing.T) {
 		loaded = append(loaded, f)
 	}
 	t.Logf("%d flows build, %d do not, %d are skipped", len(loaded), len(failed), nSkipped)
+	writeLoadFailures(t, failed)
 	ratchet(t, "loadable.json", loaded, failed)
+}
+
+// writeLoadFailures writes why each flow does not build to
+// regression/.cache/load-failures.txt, the build counterpart of postman-failures.txt.
+func writeLoadFailures(t *testing.T, failed map[string]string) {
+	lines := make([]string, 0, len(failed))
+	for f, reason := range failed {
+		lines = append(lines, f+"\n    "+reason)
+	}
+	sort.Strings(lines)
+	cache := path("regression/.cache")
+	if os.MkdirAll(cache, 0o755) == nil {
+		_ = os.WriteFile(filepath.Join(cache, "load-failures.txt"), []byte(strings.Join(lines, "\n")+"\n"), 0o644)
+		t.Logf("why each flow does not build: regression/.cache/load-failures.txt")
+	}
 }
 
 // TestSkipManifest keeps skip.json honest: every entry names a flow that exists

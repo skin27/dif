@@ -49,6 +49,8 @@ func TestValidateDefaultsAndCoercion(t *testing.T) {
 			stepdef.Params{"name": "1234", "count": 10, "enabled": false, "mode": "a"}},
 		{"null means unset", map[string]any{"name": "x", "count": nil},
 			stepdef.Params{"name": "x", "count": 10, "enabled": false, "mode": "a"}},
+		{"enum in other case", map[string]any{"name": "x", "mode": "B"},
+			stepdef.Params{"name": "x", "count": 10, "enabled": false, "mode": "b"}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -60,6 +62,21 @@ func TestValidateDefaultsAndCoercion(t *testing.T) {
 				t.Errorf("params = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestEnumIgnoresCaseAndGivesTheSchemaSpelling checks that the step gets the
+// spelling of the schema, whatever case the flow uses.
+func TestEnumIgnoresCaseAndGivesTheSchemaSpelling(t *testing.T) {
+	s := mustCompile(t, `{"type": "object", "properties": {"mismatch": {"type": "string", "enum": ["NULL", "ORIGINAL", "ERROR"]}}}`)
+	for _, in := range []string{"ORIGINAL", "original", "Original", "oRiGiNaL"} {
+		got, err := s.validate(map[string]any{"mismatch": in})
+		if err != nil || got["mismatch"] != "ORIGINAL" {
+			t.Errorf("%q: params = %v, err = %v; want ORIGINAL", in, got, err)
+		}
+	}
+	if _, err := s.validate(map[string]any{"mismatch": "originals"}); err == nil || !strings.Contains(err.Error(), `"originals" is not one of "NULL", "ORIGINAL", "ERROR"`) {
+		t.Errorf("err = %v, want the value shown as written and the schema's values listed", err)
 	}
 }
 

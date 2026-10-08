@@ -31,9 +31,9 @@
 		},
 		"typeValueMismatch": {
 			"title": "Type value mismatch",
-			"description": "With hasTypes, text that does not fit its type becomes null (NULL) or stays a string (ORIGINAL)",
+			"description": "With hasTypes, text that does not fit its type becomes null (NULL), stays a string (ORIGINAL) or fails the conversion (ERROR); not case sensitive",
 			"type": "string",
-			"enum": ["NULL", "ORIGINAL"],
+			"enum": ["NULL", "ORIGINAL", "ERROR"],
 			"default": "ORIGINAL"
 		}
 	},

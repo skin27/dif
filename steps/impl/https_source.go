@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strings"
 	"time"
@@ -126,6 +127,7 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 		for k, v := range r.Header {
 			m[k] = strings.Join(v, ",")
 		}
+		addQueryHeaders(m, r.URL.Query())
 		m[message.Timestamp] = time.Now().Format(time.RFC3339Nano)
 		if id := r.Header.Get(traceIDHeader); id != "" {
 			m[message.TraceID] = id
@@ -163,6 +165,19 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 			writeReply(w, o.m, s.produces)
 		case <-r.Context().Done(): // the client went away
 		}
+	}
+}
+
+// addQueryHeaders adds the query parameters as headers, as Camel's HTTP
+// consumers do: ?config=A sets the header config. A parameter with several
+// values becomes one comma-separated header. A request header of the same name
+// stays, and the body and metadata are not reachable from outside.
+func addQueryHeaders(m message.Message, query url.Values) {
+	for k, v := range query {
+		if _, set := m[k]; set || k == message.Body || strings.HasPrefix(k, message.MetadataPrefix) {
+			continue
+		}
+		m[k] = strings.Join(v, ",")
 	}
 }
 

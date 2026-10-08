@@ -511,6 +511,9 @@ checked:
   DIL converted from XML stores numbers and booleans as strings, `"5"` and
   `"true"` are accepted for integers and booleans. Unknown options are errors.
   All problems are reported at once: `step t1: timer: option period: want integer, got "x"; unknown option numbers`
+- an option with a fixed set of values (`enum`) accepts them in any case, as the
+  Java platform does: `original` is `ORIGINAL`. The step gets the spelling of
+  the schema.
 
 The schema validator supports a small JSON Schema subset (`type`, `properties`,
 `required`, `additionalProperties`, `enum`, `default`, `minimum`); a schema
@@ -583,7 +586,7 @@ using anything else fails registration.
 | `xmltoedi` | action | – | Converts that XML back into EDI, with its `<delimiters>` |
 | `wiretap` | router | – | Sends a copy to the link with rule `wiretap` (detached), then the message along the other link |
 | `recipient` | router | – | Sends a copy to every link, in order; the outcome is the last one's |
-| `content` | router | – (conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
+| `content` | router | `expression`, `namespace` (no effect; the conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
 | `split` | router or action | `language` xpath\|jsonpath (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. XML parts are the elements as written; JSON parts are JSON (strings as is) |
 | `enrich` | router | `enrichType` override\|xml\|json (xml), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
@@ -928,7 +931,7 @@ libraries the DIL components were built on:
 |---|---|---|
 | `xmltojson` | `forceTopLevelObject`, `skipWhitespace`, `trimSpaces`, `skipNamespaces`, `removeNamespacePrefixes`, `typeHints` (all false) | json-lib (Camel's xmljson): attributes as `"@name"`, text beside attributes or children as `"#text"`, repeated elements as an array, an element whose two or more children share one name as an array of their values, an empty element as `""`. The root is left out unless `forceTopLevelObject`. All values are strings; with `typeHints`, a `json_type` attribute (`number`, `boolean`, `string`, `null`, `array`, `object`) sets the type |
 | `jsontoxml` | `rootName` (o), `arrayName` (a), `elementName` (e), `typeHints` (false), `namespaceLenient` (no effect) | The reverse: members as elements, `"@name"` as attributes, `"#text"` as text, array items as `elementName` elements; starts with an XML declaration. `typeHints` adds `json_type` to every element, so `xmltojson` can restore the JSON exactly |
-| `xmltojsonsimple` | `keepStrings`, `removeNamespaces`, `removeRoot`, `hasTypes` (false), `typeValueMismatch` NULL\|ORIGINAL (ORIGINAL) | org.json: `{"root": …}` unless `removeRoot`, attributes and children by name, text beside them as `"content"`, repeated elements as an array, trimmed text. Numbers, `true`, `false` and `null` become JSON values unless `keepStrings`. With `hasTypes` a `type` attribute (`string`, `number`, `integer`, `double`, `boolean`, `null`) sets the type; text that does not fit becomes `null` or stays a string |
+| `xmltojsonsimple` | `keepStrings`, `removeNamespaces`, `removeRoot`, `hasTypes` (false), `typeValueMismatch` NULL\|ORIGINAL\|ERROR (ORIGINAL) | org.json: `{"root": …}` unless `removeRoot`, attributes and children by name, text beside them as `"content"`, repeated elements as an array, trimmed text. Numbers, `true`, `false` and `null` become JSON values unless `keepStrings`. With `hasTypes` a `type` attribute (`string`, `number`, `integer`, `double`, `boolean`, `null`) sets the type; text that does not fit becomes `null`, stays a string or, with `ERROR`, fails the conversion |
 | `jsontoxmlsimple` | `addRoot` (false), `rootTag` (root), `changeArrayElements` (false), `arrayElementName` (element), `checkJsonKeys` (false) | The reverse: members as elements, `"content"` as text, an array as one element per item named after its key (with `changeArrayElements`: one element holding `arrayElementName` items), `null` as the text `null`, no declaration. A key that is not an XML name fails the message with `checkJsonKeys`, else its invalid characters become `_` |
 | `csvtoxml` | `delimiter` (,), `useHeader` (false), `encoding` (UTF-8) | `<rows><row><name>value</name>…</row>…</rows>`; with `useHeader` the first record names the fields (invalid characters become `_`), else `field1`, `field2`, … `encoding` only sets the XML declaration; the `encoder` step converts the bytes |
 | `xmltocsv` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `delimiter` (,), `lineSeparator` linefeed\|carriage_return\|carriage_return_linefeed, `orderHeaders` unordered\|ordered, `quoteFields` all_fields\|non_empty_fields\|no_fields (no_fields) | Every child of the root is a record, every child of a record a field (trimmed text); a record without children is one field. Columns in order of appearance or (`ordered`) alphabetical. A field holding the delimiter, a quote or a line break is always quoted |
@@ -958,8 +961,10 @@ api.RegisterStep(api.StepDefinition{
 ### HTTPS
 
 The `https` source makes a flow an HTTPS endpoint, request-reply: a request
-becomes a message (body = request body; request headers = message headers, plus
-`http.method`, `http.path`, `http.query` and `http.uri` with
+becomes a message (body = request body; request headers = message headers; query
+parameters = message headers too, so `?config=A` sets the header `config`, unless a
+request header has that name, and `body` and `metadata.*` are never set from the
+query; plus `http.method`, `http.path`, `http.query` and `http.uri` with
 `preserveHttpHeaders`), and the caller gets the final message body back, with
 its `Content-Type` header (default `text/plain; charset=utf-8`).
 

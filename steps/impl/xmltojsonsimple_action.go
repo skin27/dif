@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"dif/message"
@@ -22,10 +23,11 @@ import (
 //
 // With hasTypes, a type attribute (string, number, integer, double, boolean or
 // null) sets the type of an element's text; text that does not fit becomes
-// null (typeValueMismatch NULL) or stays a string (ORIGINAL).
+// null (typeValueMismatch NULL), stays a string (ORIGINAL) or fails the
+// conversion (ERROR).
 type xmlToJSONSimpleAction struct {
 	keepStrings, removeNamespaces, removeRoot, hasTypes bool
-	mismatchNull                                        bool
+	mismatch                                            string // NULL, ORIGINAL or ERROR
 }
 
 func newXMLToJSONSimpleAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
@@ -34,7 +36,7 @@ func newXMLToJSONSimpleAction(_ string, p stepdef.Params) (stepdef.Processor, er
 		removeNamespaces: p["removeNamespaces"].(bool),
 		removeRoot:       p["removeRoot"].(bool),
 		hasTypes:         p["hasTypes"].(bool),
-		mismatchNull:     p["typeValueMismatch"] == "NULL",
+		mismatch:         p["typeValueMismatch"].(string),
 	}, nil
 }
 
@@ -43,7 +45,10 @@ func (a xmlToJSONSimpleAction) Process(_ context.Context, m message.Message) (me
 	if err != nil {
 		return nil, err
 	}
-	v := a.value(root)
+	v, err := a.value(root)
+	if err != nil {
+		return nil, err
+	}
 	if !a.removeRoot {
 		v = jsonObject{{a.name(root.name), v}}
 	}
@@ -61,7 +66,7 @@ func (a xmlToJSONSimpleAction) name(n string) string {
 	return n
 }
 
-func (a xmlToJSONSimpleAction) value(e *xmlElem) any {
+func (a xmlToJSONSimpleAction) value(e *xmlElem) (any, error) {
 	var attrs []xmlAttr
 	typ := ""
 	for _, at := range e.attrs {
@@ -76,9 +81,9 @@ func (a xmlToJSONSimpleAction) value(e *xmlElem) any {
 	text := strings.TrimSpace(e.text)
 	if len(attrs) == 0 && len(e.children) == 0 {
 		if typ != "" {
-			return a.typed(text, typ)
+			return a.typed(e.name, text, typ)
 		}
-		return a.scalar(text)
+		return a.scalar(text), nil
 	}
 
 	o := jsonObject{}
@@ -86,12 +91,16 @@ func (a xmlToJSONSimpleAction) value(e *xmlElem) any {
 		o.add(a.name(at.name), a.scalar(at.value))
 	}
 	for _, c := range e.children {
-		o.add(a.name(c.name), a.value(c))
+		v, err := a.value(c)
+		if err != nil {
+			return nil, err
+		}
+		o.add(a.name(c.name), v)
 	}
 	if text != "" {
 		o.add("content", a.scalar(text))
 	}
-	return o
+	return o, nil
 }
 
 // scalar returns s as a number, boolean or null when it is one, unless keepStrings.
@@ -110,8 +119,8 @@ func (a xmlToJSONSimpleAction) scalar(s string) any {
 	return s
 }
 
-// typed returns s as the type typ names.
-func (a xmlToJSONSimpleAction) typed(s, typ string) any {
+// typed returns s, the text of element name, as the type typ names.
+func (a xmlToJSONSimpleAction) typed(name, s, typ string) (any, error) {
 	ok := true
 	var v any = s
 	switch strings.ToLower(typ) {
@@ -129,9 +138,11 @@ func (a xmlToJSONSimpleAction) typed(s, typ string) any {
 	}
 	switch {
 	case ok:
-		return v
-	case a.mismatchNull:
-		return nil
+		return v, nil
+	case a.mismatch == "ERROR":
+		return nil, fmt.Errorf("element %s: %q does not fit its type %q", name, s, typ)
+	case a.mismatch == "NULL":
+		return nil, nil
 	}
-	return s
+	return s, nil
 }
