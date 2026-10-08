@@ -38,10 +38,7 @@ func newSetHeadersAction(_ string, p stepdef.Params) (stepdef.Processor, error) 
 		if lang == "" {
 			lang = "simple"
 		}
-		if lang != "constant" && lang != "simple" {
-			return nil, fmt.Errorf("header %s: language %q is not supported; use constant or simple", d.Name, lang)
-		}
-		value, err := compileExpressionIn(flowOf(p), lang, d.Value)
+		value, err := compileValue(flowOf(p), lang, d.Value)
 		if err != nil {
 			return nil, fmt.Errorf("header %s: %w", d.Name, err)
 		}

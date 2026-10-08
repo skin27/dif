@@ -72,6 +72,7 @@ func init() {
 		"isEmpty":             isEmptyFunc,
 		"isNumeric":           isNumericFunc,
 		"jsonpath":            jsonpathFunc,
+		"xpath":               xpathFunc,
 		"jq": func(*compiler, *block, string) (evalFn, error) {
 			return nil, fmt.Errorf("jq is not supported yet")
 		},
@@ -931,5 +932,53 @@ func jsonpathFunc(c *compiler, b *block, args string) (evalFn, error) {
 			return toBoolValue(out), nil
 		}
 		return nil, fmt.Errorf("jsonpath result type %q is not supported", typ)
+	}, nil
+}
+
+// xpathFunc is ${xpath(expression)} and ${xpath(expression,type)} on the body:
+// the text of the first item the XPath 2.0 expression selects ("" for none).
+func xpathFunc(c *compiler, b *block, args string) (evalFn, error) {
+	toks := splitArgs(args, false, true)
+	if len(toks) < 1 || len(toks) > 2 {
+		return nil, fmt.Errorf("valid syntax: ${xpath(expression)} or ${xpath(expression,type)}")
+	}
+	expr, err := c.template(b, toks[0])
+	if err != nil {
+		return nil, err
+	}
+	typ := ""
+	if len(toks) == 2 {
+		typ = strings.TrimPrefix(toks[1], "java.lang.")
+	}
+	var static xpath
+	if !strings.ContainsRune(toks[0], phOpen) {
+		if static, err = compileXPath(toks[0]); err != nil {
+			return nil, err
+		}
+	}
+	return func(e *env) (any, error) {
+		q := static
+		if q == nil {
+			s, _, err := str(e, expr)
+			if err != nil {
+				return nil, err
+			}
+			if q, err = compileXPath(s); err != nil {
+				return nil, err
+			}
+		}
+		v, err := q.value(bytesOf(e.bodyValue()))
+		if err != nil {
+			return nil, err
+		}
+		switch typ {
+		case "", "String":
+			return v, nil
+		case "Integer", "Long", "int", "long":
+			return toIntValue(v), nil
+		case "Boolean", "boolean":
+			return toBoolValue(v), nil
+		}
+		return nil, fmt.Errorf("xpath result type %q is not supported", typ)
 	}, nil
 }

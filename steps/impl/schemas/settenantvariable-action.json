@@ -18,9 +18,9 @@
 		},
 		"language": {
 			"title": "Language",
-			"description": "Language of the value",
+			"description": "Language of the value: simple, constant or xpath (the text of the first node it selects in the body)",
 			"type": "string",
-			"enum": ["simple", "constant"],
+			"enum": ["simple", "constant", "xpath"],
 			"default": "simple"
 		},
 		"value": {

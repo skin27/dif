@@ -628,6 +628,7 @@ Camel's DSL does; the body of a message that `simplereplace` evaluates is not.
 | `${join(sep,prefix,x)}`, `${split(x,regex)}`, `${distinct(...)}`, `${reverse(...)}`, `${sort(x,reverse)}`, `${range(min,max)}` | lists; a list is written `[a, b]`, as Java does |
 | `${hash(x,alg)}` | lower case hexadecimal digest; MD5, SHA-1, SHA-224/256/384/512 (default SHA-256), SHA3-224/256/384/512 |
 | `${jsonpath(path)}`, `${jsonpath(path,Integer)}` | on the body: the value, or a list for a path with `*` |
+| `${xpath(expression)}` | on the body: the text of the first item the XPath 2.0 expression selects |
 | `${flowId}`, `${flowName}`, `${flowVersion}`, `${tenant}`, `${environment}`, and `${variable:group:<id>:MetaData.FlowID}` (also `FlowName`, `FlowVersion`, `TenantName`, `EnvironmentName`) | the flow's own properties; a DIL flow has them in its `options` (`tenant`, `environment`, `version`) |
 | `${exception}`, `${exception.message}`, `${exception.class}`, `${exception.stacktrace}` | the error on a message that goes along the error route |
 | `${headers}`, `${variable.<name>}`, `${variables}` | all headers, written `{a=1, b=2}`; variables, which an `$init` block sets and which stay on the message |
@@ -644,7 +645,7 @@ function on the right); after a value `++` and `--`; in a function
 the operators have a space on both sides, and numbers are compared as numbers.
 An expression may start with an init block that sets variables, as in Camel:
 `$init{ $limit := 18; $who := ${uppercase(${body})}; }init$` and then
-`$who is over $limit`. Not (yet) supported: `${jq(...)}`, `${xpath(...)}`, and the
+`$who is over $limit`. Not (yet) supported: `${jq(...)}`, and the
 functions that need the Camel exchange (`${exchangeId}`, `${routeId}`,
 `exchangeProperty`, ...).
 Other `${...}` expressions are rejected when the flow is loaded.
@@ -941,17 +942,24 @@ the target has not taken by then is dropped, so it is never processed late.
 `flowLinkOutbound.json` and `flowLinkInbound.json` show it: run both, and a
 request to the outbound flow is logged by the inbound one.
 
-Conditions (`content`, `filter`) and split expressions use small subsets, built
-on the standard library; anything else is rejected when the flow is loaded:
+Conditions (`content`, `filter`) and split expressions are written in these languages; anything
+else is rejected when the flow is loaded:
 
 | Language | Supported | Condition holds when |
 |---|---|---|
 | `simple` | the conditions of Camel's simple language: `==`, `!=`, `>`, `contains`, `regex`, `in`, `range`, `startsWith`, ... joined by `&&` and `\|\|` (see above). Without an operator, the expression must be `true` | the condition holds |
-| `xpath` | absolute paths of element names, `*` for any: `/persons/person`; namespace prefixes are ignored. As a condition also `<path> = 'literal'` and `!=` | the path selects an element (whose text equals the literal) |
+| `xpath` | XPath 2.0 (also functions such as `count()`, `max()`, `distinct-values()`, `year-from-dateTime()`, `if … then … else`, `for … return`): `//person[@id = 1]/name/text()`, `//*:film`, `count(//a) > 2`. Names are namespace aware, as in XPath: `*:name` is a name in any namespace, and the content router binds the prefix `ns` to its option `namespace`. A plain path of element names (`/persons/person`) is found by scanning the document, without a tree | the expression selects a node, or its value is true, a number other than 0 or a text that is not empty |
 | `jsonpath` | `$` with `.name`, `['name']`, `[n]` (negative from the end), `.*`, `[*]` | the path selects a value other than `null` or `false` |
 
 A body that is not XML or JSON matches no xpath or jsonpath condition; a split
-of such a body fails the message.
+of such a body fails the message. An xpath that is not valid, or calls a function that does not exist,
+is rejected when the flow is loaded. The XPath 2.0 processor is
+[github.com/knroy/go-xml](https://github.com/knroy/go-xml) (pure Go), which also
+reads the document into a tree of about 35 times its size; a DOCTYPE in the body is refused.
+The text of a selected element is its XML with the namespace declarations it uses;
+of an attribute, a text node or a value, the value. The `xpath` language of
+`setheaders` and `settenantvariable` sets the text of the first item the expression selects.
+`${xpath(expression)}` in a simple expression does the same on the body.
 
 ### Converters
 
@@ -1170,7 +1178,7 @@ setBodyByHeader, setHeaderByBody, setUUID, simplevalidator and wastebin.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `Looper`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple, xpath and jsonpath subsets |
+| `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple language, XPath 2.0 and the jsonpath subset |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |

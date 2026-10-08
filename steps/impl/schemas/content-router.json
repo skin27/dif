@@ -12,7 +12,7 @@
 		},
 		"namespace": {
 			"title": "Namespace",
-			"description": "Accepted for compatibility; has no effect yet. The namespace of the ns prefix in xpath conditions, which are not supported with namespaces",
+			"description": "The namespace the prefix ns stands for in xpath conditions, such as /ns:order/ns:id",
 			"type": "string"
 		},
 		"exchangePattern": {

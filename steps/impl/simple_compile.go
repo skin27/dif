@@ -214,6 +214,23 @@ func compileExpressionIn(flow *flowProperties, language, expr string) (expressio
 	return (&compiler{flow: flow}).compile(expr)
 }
 
+// compileValue compiles the value of a header or variable, which is written in
+// language constant, simple or xpath (the text of the first item the XPath 2.0
+// expression selects in the body, "" if it selects none).
+func compileValue(flow *flowProperties, language, expr string) (expression, error) {
+	switch language {
+	case "xpath":
+		q, err := compileXPath(expr)
+		if err != nil {
+			return expression{}, err
+		}
+		return expression{fn: func(e *env) (any, error) { return q.value(bytesOf(e.bodyValue())) }}, nil
+	case "constant", "simple":
+		return compileExpressionIn(flow, language, expr)
+	}
+	return expression{}, fmt.Errorf("language %q is not supported; use constant, simple or xpath", language)
+}
+
 // compileTemplate compiles text that is to be used as it is, such as the body of
 // a message: a simple template, not trimmed.
 func compileTemplate(text string) (expression, error) {

@@ -216,7 +216,7 @@ func TestXMLToExcelInvalid(t *testing.T) {
 		"bad base64": {custom("RAW(!!)"), "RAW(...) is not base64"},
 		"bad entry":  {custom(`["nope"]`), "option worksheets: worksheet 1"},
 		"duplicate":  {custom(`[{"name":"a"},{"name":"A"}]`), `two worksheets are named "A"`},
-		"bad path":   {custom(`[{"name":"a","xPathExpression":"//a[1]"}]`), `worksheet "a": unsupported xpath`},
+		"bad path":   {custom(`[{"name":"a","xPathExpression":"//a["}]`), `worksheet "a": xpath "//a["`},
 		"order":      {map[string]any{"orderHeaders": "random"}, "orderHeaders"},
 		"not a bool": {map[string]any{"includeHeader": "maybe"}, "includeHeader"},
 	} {

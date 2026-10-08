@@ -92,7 +92,7 @@ func TestContentRouter(t *testing.T) {
 	}{
 		{[]stepdef.Link{{}, {Rule: "b"}}, "outbound links 0 and 1 both have no condition"},
 		{[]stepdef.Link{{Rule: "r", Language: "groovy", Expression: "true"}}, `outbound link 0 (rule r): language "groovy" is not supported`},
-		{[]stepdef.Link{{Rule: "r", Language: "xpath", Expression: "//a"}}, "outbound link 0 (rule r): unsupported xpath"},
+		{[]stepdef.Link{{Rule: "r", Language: "xpath", Expression: "//a["}}, `outbound link 0 (rule r): xpath "//a["`},
 	} {
 		if _, err := newRouter(stepdef.Router, "content", nil, tt.links...); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("err = %v, want containing %q", err, tt.want)
@@ -121,7 +121,7 @@ func TestFilter(t *testing.T) {
 
 	wantInvalid(t, stepdef.Action, "filter", nil, "missing required option expression")
 	wantInvalid(t, stepdef.Action, "filter", map[string]any{"language": "groovy", "expression": "true"}, `option language: "groovy" is not one of`)
-	if _, err := newRouter(stepdef.Action, "filter", map[string]any{"language": "xpath", "expression": "//a"}, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), "option expression: unsupported xpath") {
+	if _, err := newRouter(stepdef.Action, "filter", map[string]any{"language": "xpath", "expression": "//a["}, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), `option expression: xpath "//a["`) {
 		t.Errorf("err = %v", err)
 	}
 	if _, err := newRouter(stepdef.Router, "filter", map[string]any{"expression": "true"}, stepdef.Link{}, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), "needs one outbound link, has 2") {
@@ -132,12 +132,12 @@ func TestFilter(t *testing.T) {
 func TestSplitXML(t *testing.T) {
 	m := message.New(persons)
 	m["h"] = "v"
-	links := []stepdef.Link{{}, {Rule: "split", Language: "xpath", Expression: "/persons/person"}} // as in examples/split.json
-	routes := route(t, "split", map[string]any{"expression": "/persons/person", "exchangePattern": "InOnly"}, links, m)
+	links := []stepdef.Link{{}, {Rule: "split", Language: "xpath", Expression: "/persons/*[local-name() = 'person']"}} // as in examples/split.json
+	routes := route(t, "split", map[string]any{"expression": "/persons/*[local-name() = 'person']", "exchangePattern": "InOnly"}, links, m)
 	if len(routes) != 3 {
 		t.Fatalf("routes = %s, want 2 parts and the message", summary(routes))
 	}
-	for i, want := range []string{`<person id="1"><name>John Doe</name></person>`, `<p:person><name>Jane <b>Doe</b></name></p:person>`} {
+	for i, want := range []string{`<person id="1"><name>John Doe</name></person>`, `<p:person xmlns:p="urn:p"><name>Jane <b>Doe</b></name></p:person>`} {
 		p := routes[i].Message
 		if routes[i].Next != 1 || p[message.Body] != want || p["h"] != "v" || p[SplitIndex] != i || p[SplitSize] != 2 || p[SplitComplete] != (i == 1) {
 			t.Errorf("part %d = %+v", i, routes[i])
@@ -190,7 +190,7 @@ func TestSplitInvalid(t *testing.T) {
 		{map[string]any{"expression": "/a"}, []stepdef.Link{}, "needs an outbound link with rule split"},
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}, {Rule: "split"}}, "needs one outbound link with rule split and at most one other"},
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}, {}, {}}, "needs one outbound link with rule split and at most one other"},
-		{map[string]any{"expression": "//a"}, []stepdef.Link{{Rule: "split"}}, "option expression: unsupported xpath"},
+		{map[string]any{"expression": "//a["}, []stepdef.Link{{Rule: "split"}}, `option expression: xpath "//a["`},
 		{map[string]any{"language": "simple", "expression": "${body}"}, []stepdef.Link{{Rule: "split"}}, `option language: "simple" is not one of`},
 		{nil, []stepdef.Link{{Rule: "split"}}, "missing required option expression"},
 	} {

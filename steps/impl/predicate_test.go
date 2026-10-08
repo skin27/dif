@@ -84,7 +84,7 @@ func TestPredicateInvalid(t *testing.T) {
 		{"simple", "${body} == ${random(x)}", "${random(x)}: want random(<max>)"},
 		{"simple", "${body} == ${exchangeId}", "unsupported simple expression ${exchangeId}"},
 		{"simple", "${bodyAs(String} == 'x'", "unsupported simple expression ${bodyAs(String}"},
-		{"xpath", "//person", "unsupported xpath"},
+		{"xpath", "//person[", `xpath "//person["`},
 		{"jsonpath", "$..author", "unsupported jsonpath"},
 	} {
 		if _, err := compilePredicate(tt.lang, tt.expr); err == nil || !strings.Contains(err.Error(), tt.want) {

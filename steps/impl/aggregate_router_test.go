@@ -105,7 +105,7 @@ func TestAggregateInvalid(t *testing.T) {
 
 func TestSplitAndAggregate(t *testing.T) {
 	// As in examples/splitAndAggregate.json: the expression is on the split link.
-	links := []stepdef.Link{{}, {Rule: "split", Expression: "/persons/person"}}
+	links := []stepdef.Link{{}, {Rule: "split", Expression: "/persons/*[local-name() = 'person']"}}
 	r, err := newRouter(stepdef.Router, "splitandaggregate", map[string]any{"language": "xpath", "aggregateType": "xml", "exchangePattern": "InOut"}, links...)
 	if err != nil {
 		t.Fatal(err)
@@ -116,7 +116,7 @@ func TestSplitAndAggregate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := summary(routes); got != `1:<person id="1"><name>John Doe</name></person> 1:<p:person><name>Jane <b>Doe</b></name></p:person>` {
+	if got := summary(routes); got != `1:<person id="1"><name>John Doe</name></person> 1:<p:person xmlns:p="urn:p"><name>Jane <b>Doe</b></name></p:person>` {
 		t.Errorf("routes = %s, want the parts only", got)
 	}
 
@@ -147,7 +147,7 @@ func TestSplitAndAggregate(t *testing.T) {
 	}{
 		{nil, []stepdef.Link{{}, {Rule: "split"}}, "needs an expression: the option expression or the split link's"},
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}}, "needs an outbound link without a rule for the aggregate"},
-		{map[string]any{"expression": "//a"}, []stepdef.Link{{}, {Rule: "split"}}, "option expression: unsupported xpath"},
+		{map[string]any{"expression": "/a["}, []stepdef.Link{{}, {Rule: "split"}}, `option expression: xpath "/a["`},
 	} {
 		if _, err := newRouter(stepdef.Router, "splitandaggregate", tt.opts, tt.links...); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("%v %v: err = %v, want containing %q", tt.opts, tt.links, err, tt.want)
