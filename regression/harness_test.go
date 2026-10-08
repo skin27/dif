@@ -76,6 +76,13 @@ func run(m *testing.M) (int, error) {
 	os.Setenv("SSL_CERT_FILE", ca)
 	os.Setenv("DIF_SERVER_IDENTITY_PASSWORD", sanitize.DummyPassword)
 	os.Setenv("DIF_TRUSTSTORE_PASSWORD", sanitize.DummyPassword)
+	// The oauth2token steps of the fixtures name only their token: a deployment
+	// gives the endpoint and the client in DIF_OAUTH2_* (see the step). The
+	// flows are token services, whose repeaters the tests do not start, so these
+	// are never called.
+	os.Setenv("DIF_OAUTH2_TOKEN_URL", "https://localhost:9/token")
+	os.Setenv("DIF_OAUTH2_CLIENT_ID", "regression")
+	os.Setenv("DIF_OAUTH2_CLIENT_SECRET", sanitize.DummyPassword)
 	// The ENC(...) values in the fixtures are encrypted with the test password.
 	os.Setenv(secret.PasswordEnv, sanitize.TestEncryptionPassword)
 	return m.Run(), nil

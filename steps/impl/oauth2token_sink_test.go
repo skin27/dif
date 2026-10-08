@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -284,8 +286,89 @@ func TestOAuth2TokenInvalidOptions(t *testing.T) {
 	sink(base(map[string]any{"unknown": "x"}), "unknown option")
 }
 
-// The examples' flows validate but name no token endpoint, which the Java
-// platform keeps in the tenant's configuration.
+// The settings of a token come from the environment when the flow does not
+// give them, as in the fixtures, which name only the token.
+func TestOAuth2TokenSettingsFromTheEnvironment(t *testing.T) {
+	ts := newTokenServer(t)
+	t.Setenv("DIF_OAUTH2_OAUTHTOKEN_DRIVE_TOKEN_URL", ts.URL)
+	t.Setenv("DIF_OAUTH2_OAUTHTOKEN_DRIVE_CLIENT_ID", "drive-client")
+	t.Setenv("DIF_OAUTH2_OAUTHTOKEN_DRIVE_CLIENT_SECRET", "drive-secret")
+	t.Setenv("DIF_OAUTH2_OAUTHTOKEN_DRIVE_REFRESH_TOKEN", "drive-refresh")
+	t.Setenv("DIF_OAUTH2_OAUTHTOKEN_DRIVE_SCOPE", "drive.readonly")
+	// Another token's, and the settings for all tokens, do not apply to it.
+	t.Setenv("DIF_OAUTH2_OTHER_CLIENT_ID", "other")
+	t.Setenv("DIF_OAUTH2_CLIENT_ID", "all")
+
+	// The names are tried in turn: the first has no settings, the second has.
+	sink := tokenSink(t, ts, map[string]any{
+		"tokenName": "static.token, OauthToken-Drive", "tokenUrl": nil, "clientId": nil, "clientSecret": nil,
+	})
+	if err := sink.Consume(context.Background(), message.New("")); err != nil {
+		t.Fatal(err)
+	}
+	form := ts.forms[0]
+	if form.Get("grant_type") != "refresh_token" || form.Get("refresh_token") != "drive-refresh" || form.Get("scope") != "drive.readonly" {
+		t.Errorf("form = %v, want the refresh_token grant, as a refresh token is set", form)
+	}
+	if ts.basicAuth[0] != "drive-client:drive-secret" {
+		t.Errorf("basic auth = %q, want drive-client:drive-secret", ts.basicAuth[0])
+	}
+	for _, name := range []string{"static.token", "static.token_Temp", "OauthToken-Drive", "OauthToken-Drive_Temp"} {
+		if v := variable(t, name); v != "token-1" {
+			t.Errorf("variable %s = %q, want token-1", name, v)
+		}
+	}
+}
+
+func TestOAuth2TokenOptionsBeatTheEnvironment(t *testing.T) {
+	ts := newTokenServer(t)
+	t.Setenv("DIF_OAUTH2_ACCESS_TOKEN_URL", "https://unused.example.com/token")
+	t.Setenv("DIF_OAUTH2_ACCESS_CLIENT_ID", "from-env")
+	t.Setenv("DIF_OAUTH2_ACCESS_CLIENT_SECRET", "from-env")
+	t.Setenv("DIF_OAUTH2_ACCESS_SCOPE", "from-env")
+	sink := tokenSink(t, ts, map[string]any{"scope": "from-option"})
+	if err := sink.Consume(context.Background(), message.New("")); err != nil {
+		t.Fatal(err)
+	}
+	if ts.basicAuth[0] != "me:s3cret" || ts.forms[0].Get("scope") != "from-option" {
+		t.Errorf("basic auth = %q, form = %v, want the options", ts.basicAuth[0], ts.forms[0])
+	}
+}
+
+func TestOAuth2TokenSettingsForAllTokensAndFiles(t *testing.T) {
+	ts := newTokenServer(t)
+	dir := t.TempDir()
+	secretFile := filepath.Join(dir, "secret")
+	if err := os.WriteFile(secretFile, []byte("file-secret\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("DIF_OAUTH2_TOKEN_URL", ts.URL)
+	t.Setenv("DIF_OAUTH2_CLIENT_ID", "all-client")
+	t.Setenv("DIF_OAUTH2_ACCESS_CLIENT_SECRET_FILE", secretFile)
+	sink := tokenSink(t, ts, map[string]any{"tokenUrl": nil, "clientId": nil, "clientSecret": nil})
+	if err := sink.Consume(context.Background(), message.New("")); err != nil {
+		t.Fatal(err)
+	}
+	if ts.basicAuth[0] != "all-client:file-secret" || ts.forms[0].Get("grant_type") != "client_credentials" {
+		t.Errorf("basic auth = %q, form = %v", ts.basicAuth[0], ts.forms[0])
+	}
+}
+
+func TestOAuth2TokenMissingSettingsNameTheVariables(t *testing.T) {
+	opts := func(extra map[string]any) map[string]any {
+		o := map[string]any{"tokenName": "Gmail.Noreply,other"}
+		for k, v := range extra {
+			o[k] = v
+		}
+		return o
+	}
+	wantInvalid(t, stepdef.Sink, "oauth2token:id", opts(nil), "set DIF_OAUTH2_GMAIL_NOREPLY_TOKEN_URL or DIF_OAUTH2_TOKEN_URL")
+	wantInvalid(t, stepdef.Sink, "oauth2token:id", opts(map[string]any{"tokenUrl": "https://auth.example.com/token"}), "set DIF_OAUTH2_GMAIL_NOREPLY_CLIENT_ID or DIF_OAUTH2_CLIENT_ID")
+	wantInvalid(t, stepdef.Sink, "oauth2token:id", opts(map[string]any{"tokenUrl": "https://auth.example.com/token", "clientId": "me"}), "set DIF_OAUTH2_GMAIL_NOREPLY_CLIENT_SECRET or DIF_OAUTH2_CLIENT_SECRET")
+	wantInvalid(t, stepdef.Sink, "oauth2token:id", opts(map[string]any{"tokenUrl": "https://auth.example.com/token", "clientId": "me", "grantType": "refresh_token"}), "set DIF_OAUTH2_GMAIL_NOREPLY_REFRESH_TOKEN or DIF_OAUTH2_REFRESH_TOKEN")
+}
+
+// The flows of the fixtures name only the token and the tenant.
 func TestOAuth2TokenExampleOptionsNeedAnEndpoint(t *testing.T) {
 	wantInvalid(t, stepdef.Sink, "oauth2token:a75f1bad", map[string]any{
 		"expiryDelay": "60", "tokenName": "GoogleDriveAccessToken", "tenantDbName": "_new2",

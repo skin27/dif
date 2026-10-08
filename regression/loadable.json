@@ -1,4 +1,8 @@
 [
+  "regressionTests/@Authorizations/OauthGmailNoreply.json",
+  "regressionTests/@Authorizations/OauthGmailNorman.json",
+  "regressionTests/@Authorizations/OauthGoogleDriveBVG.json",
+  "regressionTests/@Authorizations/OauthGoogleDriveNorman.json",
   "regressionTests/@Control Tower/TestCollecterTestNOK.json",
   "regressionTests/@Control Tower/TestCollecterTestOK.json",
   "regressionTests/Miscellaneous/4.TVMovies.json",
@@ -480,5 +484,6 @@
   "regressionTests/zzArchive/SetTenantVariables4Movies.json",
   "regressionTests/zzArchive/test1.json",
   "regressionTests/zzz/test custom step transactions.json",
-  "regressionTests/zzz/test custom step transactions2.json"
+  "regressionTests/zzz/test custom step transactions2.json",
+  "regressionTests/zzzzBVG/setOAuth2Token.json"
 ]
