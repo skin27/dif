@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:schematron-action",
+	"title": "schematron action",
+	"description": "Checks an XML body against ISO Schematron rules: a DIL resource (schematron:ref:<name>) or a file. The body goes on unchanged; the header CamelSchematronValidationStatus says SUCCESS or FAILED (an assert did not hold) and CamelSchematronValidationReport holds the report in SVRL. The tests are XPath 2.0. Abstract patterns and rules, include and phases are not supported.",
+	"type": "object",
+	"properties": {
+		"resource": {
+			"title": "Schema",
+			"description": "The Schematron schema: the content of the resource the URI refers to, from dil.core.resources",
+			"type": "string",
+			"default": ""
+		},
+		"path": {
+			"title": "Schema file",
+			"description": "Path of a file holding the Schematron schema, read when the flow is loaded; set it or the resource",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

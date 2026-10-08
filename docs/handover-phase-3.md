@@ -22,7 +22,7 @@ asks for one.
 | 2 | Option, enum and alias fixes; output fidelity of `xmltojson`, `xmltojsonsimple`, `flv` | done (PR #2) |
 | **3** | **Expression engines: Simple functions, operators and `${exception.*}`; XPath 2.0 (`github.com/knroy/go-xml`, not the planned subset); JSONPath filters; `aggregate` timers (a new `stepdef.Releaser`); `${jq()}` via `gojq`; `oauth2token` settings from `DIF_OAUTH2_*`** | **done: 487 of 635 flows build, 1,809 of 2,399 requests pass (this handover started from 369 and 1,694)** |
 | 4 | Small steps: `base64tobinary`, `binarytobase64`, `setbodyasstring`, the `*withnamespace` splits, `ftps`, `edifacttoxml`, `docconverter` (via `yaml.v3`) | done except `edifacttoxml` (it needs the UN/EDIFACT D96A message definitions, which DIF does not have): 509 of 635 flows build, 1,825 of 2,399 requests pass |
-| 5 | Larger steps: `xslt` (own, on the XPath work), `velocity`, `soap`, `smb`, `imaps`, `sql`/`sql2`; the rest decided per step | open |
+| 5 | Larger steps: `xslt`, `velocity`, `xmlvalidator`, `soap`, `sql`/`sql2`, `smb`, `smbenrich`, `imaps`, `as2` and `schematron`; steps with fewer than two flows are out of scope | done except `pdftotext` and `headerstopdf` (see section 11): 569 of 635 flows build, 1,837 of 2,399 requests pass |
 
 Current state: **369 of 635** in-scope flows build (37 more are skipped on purpose,
 see `regression/skip.json`), **1,694 of 2,399** requests that can run pass. The
@@ -245,3 +245,64 @@ requests passing, and report both numbers to the user.
 2. Read `simple.go`, `predicate.go`, `simple_functions.go` and the `Simple` requests (5a).
 3. Extract the `Simple` expectations into an offline oracle (section 3).
 4. Write the plan for step 1 of section 6, with the open questions of section 7, and ask for approval.
+
+## 11. Phase 5, what was built and what is left
+
+Measured at the end of Phase 5: **569 of 635** flows build (509 before; 37 more are skipped on purpose),
+**1,837 of 2,399** requests pass (1,825 before). Only `xslt` (+5) and `velocity` (+7) gained requests: the
+other steps have no Postman requests that can pass against them, or only ones that need a service
+(see "What could not be verified"). The user set the scope: steps used by fewer than two flows are out of
+scope (`xmlvalidator` and `schematron` were added because they are cheap, `as2` because it was asked for).
+
+| Step | Where | Notes |
+|---|---|---|
+| `xslt` | `xslt_action.go` | go-xml `xslt` (XSLT 1.0/2.0/3.0 subset). Headers are top-level parameters. Output is post-processed to look like Saxon's (3-space indent, `<!DOCTYPE HTML>` unless a version is set). `doc()`, `document()` and `xsl:include` read nothing. |
+| `velocity` | `velocity.go`, `velocity_action.go` | Own interpreter for a subset (listed in the README). Anything else (`#macro`, `#parse`, other methods) fails the build, naming the line. `$headers` is case-insensitive as in Camel. Output limited to 64 MB. |
+| `xmlvalidator` | `xmlvalidator_action.go` | go-xml `xsd`. An invalid body does not fail the message: the body becomes the text `org.apache.camel.processor.validation.SchemaValidationException: Validation failed with N errors:` and the details, because the flows' content router tests for that text. |
+| `schematron` | `schematron_action.go` | Reads ISO Schematron directly (no XSLT step) and evaluates the tests with go-xml XPath 2.0. Sets `CamelSchematronValidationStatus` and `CamelSchematronValidationReport` (SVRL); the body is unchanged. Abstract patterns/rules, `include` and phases fail the build. |
+| `soap` | `soap_action.go` | SOAP 1.1, `extract`, and the WSDL "smart" mode (read once with `?wsdl`, cached, retried after a failure). Basic and Bearer auth. |
+| `sql`, `sql2` | `sql_*.go`, `flows/impl/build.go` | `database/sql` with pgx, go-sql-driver/mysql, go-mssqldb and go-ora, one file per dialect. `core.connections` of the DIL becomes the `connection` option of `sql2`. Pooled handles (32, closed after one minute idle). Output is the `ResultSet` XML, headers `numberOfRecords` and `hasErrors`. Password from the option or `DIF_SQL_PASSWORD`. Named parameters `:#name` and `:#${expr}`. |
+| `smb`, `smbenrich` | `smb_client.go`, `remote_steps.go` | go-smb2 behind the `remoteFS` of ftp/sftp. The first path segment is the share. `smb` is a source, a sink and an action (write and pass on). Tests use a fake share on the local disk. |
+| `imaps` | `imaps_source.go`, `mail_parse.go` | go-imap/v2, password or XOAUTH2 (the token may be a tenant variable `@{name}`). A message is marked `\Seen` after it was processed. Headers `Subject`, `From`, `To`, `Cc`, `Date`, `mail.messageId`, `mail.uid`; attachments with `content: both`. |
+| `as2` | `as2_*.go`, `cms.go`, `keystore` | RFC 4130 source and action: signed, encrypted and compressed structures, MDN receipts (sync) and MIC checks. The CMS layer is written by hand on `encoding/asn1` and `crypto` (no CMS library in the standard library); it reads BER as well as DER. Keys come from PEM text, an address, a PEM file or a PKCS #12 keystore. Interoperates with OpenSSL (`openssl cms`, `openssl smime`) in both directions; the tests skip when `openssl` is missing. |
+
+New dependencies (all listed in `AGENTS.md`): `github.com/jackc/pgx/v5`, `github.com/go-sql-driver/mysql`,
+`github.com/microsoft/go-mssqldb`, `github.com/sijms/go-ora/v2`, `github.com/hirochachacha/go-smb2` and
+`github.com/emersion/go-imap/v2` (with `go-sasl`). Adding the SQL drivers raised `golang.org/x/crypto`,
+`x/text` and `x/sys`.
+
+### What could not be verified
+
+- `soap`, `sql`, `smb` (the wire code), `imaps` (Gmail) and `as2` (the platform's partners and key service) were
+  only run against in-process fakes (an HTTP server, a fake `database/sql` connector, a fake share, an
+  in-process TLS IMAP server, an AS2 partner) and, for AS2, OpenSSL. No real database, share, mailbox or partner.
+- CMS compression is checked only against itself: the OpenSSL here has no zlib.
+- The SOAP, SQL and AS2 formats follow what the fixtures show and what Camel/Assimbly are known to do. The
+  `escapeChars` option of `sql` is accepted and does nothing.
+- The AS2 key URLs in the fixtures are addresses of the platform's key service; they cannot be reached from here.
+
+### Findings
+
+- **A successful error route makes the flow succeed.** DIF returns 200 where the platform returns 500, so Postman
+  requests that expect 500 from an error route (e.g. "Xslt Error route") fail. This is how the engine treats
+  `failedexchange` today; it was not changed in this phase. It needs a decision.
+- The test "Body contains a valid ID" expects an exchange id in the form `<15 hex>-<16 hex>`, as Camel writes it.
+  Flows that answer something else (a 404 body, a UUID from `setuuid`, XML) cannot satisfy it; it is a pattern of
+  the platform's ids, not a property of the flow.
+- `velocity_flow_property A` cannot pass: it expects the flow name `Velocity_flow_property`, but the fixture it
+  calls is named `OauthGmailNoreply`. The collection and the fixture disagree.
+- Flows whose address comes from headers (`${header.x}` in an `smb` or `sftp` URI: two SMB flows, one SFTP flow)
+  and the two `sql`/`sql2` "flowprop" flows (no host in the options) are not built. The error says why.
+
+### Not done
+
+- `pdftotext` and `headerstopdf` (2 flows each): they need a PDF reader and writer that the standard library does
+  not have, and without the platform's output nothing can check the result. Say so to the user and offer them.
+- `edifacttoxml` (2 flows): still blocked on the UN/EDIFACT message definitions.
+- One flow each, so out of scope by the user's rule: `awss3`, `jolt`, `jslt`, `jsonata`, `langchain4jagent`,
+  `langchain4jchat`, `openai`, `springaichat`, `restopenapi` (source and action).
+- Option gaps that are not steps: `xmltoexcel` `xls`, `googledrive` `Convert`, `https` `MutualSSL`, `handlers` and
+  `certificateStore`, `enrich` `zip` and `attachment`, `quartz` without `cron`, `jsonvalidator` `format`, `multipart`
+  `formFields`, `sftp` `privateKeyUri`. Each is a design decision (section 9); `regression/.cache/load-failures.txt`
+  lists the flows with the reason.
+

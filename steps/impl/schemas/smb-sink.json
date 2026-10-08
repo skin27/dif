@@ -1,0 +1,84 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:smb-sink",
+	"title": "smb sink",
+	"description": "Writes the message body to a file in a directory of an SMB server.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address",
+			"description": "From the URI: smb://[user@]host[:port]/share[/directory]. The first part of the path is the share; the directory is below it. A backslash is a slash",
+			"type": "string"
+		},
+		"userName": {
+			"title": "User name",
+			"description": "User to log in as, or DOMAIN\\user; the URI can give it too",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Password",
+			"description": "Password; env DIF_SMB_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"domain": {
+			"title": "Domain",
+			"description": "Windows domain of the user, if any",
+			"type": "string",
+			"default": ""
+		},
+		"disconnect": {
+			"title": "Disconnect",
+			"description": "Close the connection after each use; false keeps it open between uses, until it is idle for 30 seconds",
+			"type": "boolean",
+			"default": true
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to connect and log in",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Name of the file; the header file.name or CamelFileName, else the trace id, if empty",
+			"type": "string",
+			"default": ""
+		},
+		"binary": {
+			"title": "Binary",
+			"description": "Write the body as it is instead of in charset",
+			"type": "boolean",
+			"default": false
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the file: UTF-8, ISO-8859-1 or US-ASCII",
+			"type": "string",
+			"default": "utf-8"
+		},
+		"autoCreate": {
+			"title": "Auto create",
+			"description": "Create missing directories",
+			"type": "boolean",
+			"default": true
+		},
+		"fileExist": {
+			"title": "If the file exists",
+			"description": "Override, Append, Fail (fail the message) or Ignore (write nothing)",
+			"type": "string",
+			"enum": [
+				"Override",
+				"Append",
+				"Fail",
+				"Ignore"
+			],
+			"default": "Override"
+		}
+	},
+	"required": [
+		"path"
+	],
+	"additionalProperties": false
+}

@@ -1,0 +1,136 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:imaps-source",
+	"title": "imaps source",
+	"description": "Polls a mailbox of an IMAP server over TLS and produces a message for every email that is unseen (unseen) and matches the search options, the oldest first. The body is the text of the email (text/plain, else text/html); the headers are Subject, From, To, Cc, Date, mail.messageId and mail.uid, and with content both an attachment.<file name> header for each attachment, as bytes, and attachments, the names. An email is marked as seen once the flow has processed it; if processing failed it stays unseen and is taken again.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Server",
+			"description": "From the URI: imaps:<host>[:<port>]; the port is 993 by default",
+			"type": "string"
+		},
+		"username": {
+			"title": "User name",
+			"description": "User of the mailbox",
+			"type": "string"
+		},
+		"password": {
+			"title": "Password",
+			"description": "Password for authenticationType basic; env DIF_IMAPS_PASSWORD (or its _FILE companion). For Gmail an app password",
+			"type": "string"
+		},
+		"authenticationType": {
+			"title": "Authentication",
+			"description": "basic: username and password (LOGIN); oauth: username and accessToken (XOAUTH2)",
+			"type": "string",
+			"enum": [
+				"basic",
+				"oauth"
+			],
+			"default": "basic"
+		},
+		"accessToken": {
+			"title": "Access token",
+			"description": "OAuth2 access token for authenticationType oauth; @{name} is replaced by the tenant variable name (see oauth2token), for every poll",
+			"type": "string",
+			"default": ""
+		},
+		"tenantDbName": {
+			"title": "Tenant",
+			"description": "Tenant of the variables in accessToken",
+			"type": "string",
+			"default": "default"
+		},
+		"content": {
+			"title": "Content",
+			"description": "body: the text of the email; both: also its attachments, as headers",
+			"type": "string",
+			"enum": [
+				"body",
+				"both"
+			],
+			"default": "body"
+		},
+		"folderName": {
+			"title": "Folder",
+			"description": "Mailbox folder to read",
+			"type": "string",
+			"default": "INBOX"
+		},
+		"unseen": {
+			"title": "Unseen only",
+			"description": "Only emails that are not marked as seen",
+			"type": "boolean",
+			"default": true
+		},
+		"fetchSize": {
+			"title": "Emails per poll",
+			"description": "Most emails taken per poll; 0 or -1 for all",
+			"type": "integer",
+			"minimum": -1,
+			"default": 10
+		},
+		"searchSubject": {
+			"title": "Subject",
+			"description": "Only emails whose subject holds this text",
+			"type": "string",
+			"default": ""
+		},
+		"searchBody": {
+			"title": "Body",
+			"description": "Only emails whose body holds this text",
+			"type": "string",
+			"default": ""
+		},
+		"searchFrom": {
+			"title": "From",
+			"description": "Only emails whose From holds this text",
+			"type": "string",
+			"default": ""
+		},
+		"searchTo": {
+			"title": "To",
+			"description": "Only emails whose To holds this text",
+			"type": "string",
+			"default": ""
+		},
+		"delay": {
+			"title": "Delay",
+			"description": "Milliseconds between two polls",
+			"type": "integer",
+			"minimum": 1,
+			"default": 60000
+		},
+		"initialDelay": {
+			"title": "Initial delay",
+			"description": "Milliseconds before the first poll",
+			"type": "integer",
+			"minimum": 0,
+			"default": 1000
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to connect, log in and open the folder",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		}
+	},
+	"required": [
+		"path",
+		"username"
+	],
+	"additionalProperties": false
+}

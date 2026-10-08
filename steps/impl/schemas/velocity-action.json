@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:velocity-action",
+	"title": "velocity action",
+	"description": "Replaces the body with the result of a Velocity template: a DIL resource (velocity:ref:<name>) or a file. The template can use $body, $headers (also $headers.name), $in and $request (body and headers); the subset of Velocity that is supported is listed in the README, and a template that uses more does not compile.",
+	"type": "object",
+	"properties": {
+		"resource": {
+			"title": "Template",
+			"description": "The template: the content of the resource the URI refers to, from dil.core.resources",
+			"type": "string",
+			"default": ""
+		},
+		"path": {
+			"title": "Template file",
+			"description": "Path of a file holding the template, read when the flow is loaded; set it or the resource",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

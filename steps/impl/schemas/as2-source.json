@@ -1,0 +1,143 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:as2-source",
+	"title": "as2 source",
+	"description": "Receives documents by AS2 (RFC 4130): an HTTP server on serverPortNumber that decrypts, checks the signature, decompresses and makes a message of every document; the body is the document, with the headers AS2-From, AS2-To, AS2-Message-Id, Subject, file.name, AS2-Signed, AS2-Encrypted, AS2-Compressed and AS2-Signer. The receipt (MDN) answers in the same exchange after the flow has processed the message. Asynchronous receipts are not supported.",
+	"type": "object",
+	"properties": {
+		"serverPortNumber": {
+			"title": "Port",
+			"description": "Port to listen on",
+			"type": "integer",
+			"minimum": 1,
+			"default": 9002
+		},
+		"address": {
+			"title": "Address",
+			"description": "Local address to listen on; all if empty",
+			"type": "string",
+			"default": ""
+		},
+		"requestUriPattern": {
+			"title": "Request URI",
+			"description": "Path the endpoint serves, such as /AS2InboundSigned; a pattern that ends in * is a prefix, and * is every path",
+			"type": "string",
+			"default": "*"
+		},
+		"as2MessageStructure": {
+			"title": "Structure",
+			"description": "What a message must have: SIGNED, ENCRYPTED and the like (see the as2 action) require a valid signature or encryption; others accept everything and read compression when it is there",
+			"type": "string",
+			"default": ""
+		},
+		"messageStructure": {
+			"title": "Structure (alias)",
+			"description": "Used when as2MessageStructure is not set",
+			"type": "string",
+			"default": ""
+		},
+		"decryptingPrivateKey": {
+			"title": "Decrypting key",
+			"description": "The private key of the certificate partners encrypt for: PEM text, the address (http:// or https://) of PEM, or the path of a PEM file or PKCS#12 keystore (opened with password)",
+			"type": "string",
+			"default": ""
+		},
+		"signingPrivateKey": {
+			"title": "Signing key",
+			"description": "The private key (and certificate) that signs the receipts a sender asks to be signed: PEM text, the address (http:// or https://) of PEM, or the path of a PEM file or PKCS#12 keystore (opened with password)",
+			"type": "string",
+			"default": ""
+		},
+		"signingCertificateChain": {
+			"title": "Signing certificate",
+			"description": "The certificate chain of signingPrivateKey: PEM text, the address (http:// or https://) of PEM, or the path of a PEM file or PKCS#12 keystore (opened with password)",
+			"type": "string",
+			"default": ""
+		},
+		"validateSigningCertificateChain": {
+			"title": "Partner certificates",
+			"description": "The certificates a signer must be one of, or be issued by; without it any valid signature passes, which proves the message is whole but not who sent it: PEM text, the address (http:// or https://) of PEM, or the path of a PEM file or PKCS#12 keystore (opened with password)",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Keystore password",
+			"description": "Password of a PKCS#12 keystore in one of the key options",
+			"type": "string",
+			"default": ""
+		},
+		"serverFqdn": {
+			"title": "Server name",
+			"description": "Host name in the Message-ID of the receipts",
+			"type": "string",
+			"default": ""
+		},
+		"as2From": {
+			"title": "AS2-From",
+			"description": "Accepted for compatibility; the identifiers of the message are not checked",
+			"type": "string",
+			"default": ""
+		},
+		"as2To": {
+			"title": "AS2-To",
+			"description": "Accepted for compatibility; the identifiers of the message are not checked",
+			"type": "string",
+			"default": ""
+		},
+		"alias": {
+			"title": "Key alias",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		},
+		"keyAlias": {
+			"title": "Key alias",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		},
+		"flowNameAsEndpoint": {
+			"title": "Flow name as endpoint",
+			"description": "Accepted for compatibility; requestUriPattern is the path",
+			"type": "boolean",
+			"default": false
+		},
+		"serverIdentityFile": {
+			"title": "TLS identity",
+			"description": "PKCS#12 keystore with the server's key and certificate to listen over TLS; plain HTTP if empty",
+			"type": "string",
+			"default": ""
+		},
+		"serverIdentityPassword": {
+			"title": "TLS identity password",
+			"description": "Password of serverIdentityFile; env DIF_SERVER_IDENTITY_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds a call may take, and the fetch of a key from an address",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"connectTimeout": {
+			"title": "Connect timeout",
+			"description": "Milliseconds the connection may take to set up",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust for https calls (also to fetch keys); \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		}
+	},
+	"additionalProperties": false
+}

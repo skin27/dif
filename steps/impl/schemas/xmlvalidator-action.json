@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xmlvalidator-action",
+	"title": "xmlvalidator action",
+	"description": "Validates an XML body against an XML Schema (XSD 1.0 and 1.1), a DIL resource (xmlvalidator:ref:<name>) or a file. A valid message passes on unchanged. An invalid one carries on with the problems as its body, starting with org.apache.camel.processor.validation.SchemaValidationException, which a router after the step tests for. xs:import and xs:include are not available.",
+	"type": "object",
+	"properties": {
+		"resource": {
+			"title": "Schema",
+			"description": "The XML Schema: the content of the resource the URI refers to, from dil.core.resources",
+			"type": "string",
+			"default": ""
+		},
+		"path": {
+			"title": "Schema file",
+			"description": "Path of a file holding the XML Schema, read when the flow is loaded; set it or the resource",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

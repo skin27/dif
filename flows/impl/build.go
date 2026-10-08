@@ -31,12 +31,15 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		return nil, fmt.Errorf("expected exactly one flow, found %d", len(flows))
 	}
 
-	core := coreRefs{messages: map[string]dilMessage{}, resources: map[string]string{}}
+	core := coreRefs{messages: map[string]dilMessage{}, resources: map[string]string{}, connections: map[string]dilConnection{}}
 	for _, m := range doc.DIL.Core.Messages.Message {
 		core.messages[m.Name] = m
 	}
 	for _, r := range doc.DIL.Core.Resources.Resource {
 		core.resources[r.Name] = r.Content
+	}
+	for _, c := range doc.DIL.Core.Connections.Connection {
+		core.connections[c.ID] = c
 	}
 
 	f, err := build(flows[0], core, newProcessor)
@@ -56,10 +59,12 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 	return f, nil
 }
 
-// coreRefs are what steps can refer to in dil.core: messages and resources, by name.
+// coreRefs are what steps can refer to in dil.core: messages and resources, by
+// name, and connections, by id.
 type coreRefs struct {
-	messages  map[string]dilMessage
-	resources map[string]string
+	messages    map[string]dilMessage
+	resources   map[string]string
+	connections map[string]dilConnection
 }
 
 func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
@@ -91,6 +96,9 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		}
 
 		opts, uri, err := resolveRefs(s, core)
+		if err == nil {
+			opts, err = resolveDataSource(uri, opts, core)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
@@ -388,6 +396,30 @@ func nonNegativeInt(v any) (int, error) {
 		return 0, fmt.Errorf("want an integer of 0 or more, got %v", v)
 	}
 	return int(n), nil
+}
+
+// resolveDataSource adds to the options of a sql2 step the option "connection":
+// the keys of the connection in dil.core.connections that its option
+// dataSource names, as a JSON object, so the processor needs no knowledge of DIL.
+func resolveDataSource(uri string, opts map[string]any, core coreRefs) (map[string]any, error) {
+	if scheme, _, _ := strings.Cut(uri, ":"); scheme != "sql2" {
+		return opts, nil
+	}
+	id, _ := opts["dataSource"].(string)
+	if id == "" {
+		return opts, nil
+	}
+	c, ok := core.connections[id]
+	if !ok {
+		return nil, fmt.Errorf("connection %q not found in dil.core.connections", id)
+	}
+	data, err := json.Marshal(c.Keys)
+	if err != nil {
+		return nil, err
+	}
+	out := maps.Clone(opts)
+	out["connection"] = string(data)
+	return out, nil
 }
 
 // resolveRefs returns the step's options and URI, resolving what the URI refers

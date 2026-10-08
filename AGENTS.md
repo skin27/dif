@@ -52,8 +52,8 @@ Use the standard library first. These dependencies are approved; add one only wh
 - `github.com/knroy/go-xml`: the XPath 2.0 processor of the `xpath` language (in use), and the XSLT 2.0 processor of the `xslt` step. It is a young project (v1.6.0, October 2026) that needs Go 1.25; `steps/impl/xpath2.go` is the only file that imports it for XPath, so it can be replaced.
 - `github.com/itchyny/gojq`: the `jq` function of the simple language (in use).
 - `github.com/hirochachacha/go-smb2`: the `smb` and `smbenrich` steps.
-- `github.com/emersion/go-imap/v2`: the `imaps` source.
-- `database/sql` drivers for postgres, mysql, oracle and mssql: the `sql` and `sql2` steps. The drivers are chosen when the step is implemented.
+- `github.com/emersion/go-imap/v2`: the `imaps` source (its tests use its in-memory server and `github.com/emersion/go-sasl`).
+- `github.com/jackc/pgx/v5`, `github.com/go-sql-driver/mysql`, `github.com/microsoft/go-mssqldb` and `github.com/sijms/go-ora/v2`: the `database/sql` drivers of the `sql` and `sql2` steps (postgres, mysql, sql server, oracle), each in a file of its own, `steps/impl/sql_<database>.go`.
 
 ## Testing Guidelines
 

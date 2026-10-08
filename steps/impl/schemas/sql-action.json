@@ -1,0 +1,96 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:sql-action",
+	"title": "sql action",
+	"description": "Runs an SQL statement on a database. A statement that returns rows makes the body <ResultSet><ResultSize>n</ResultSize><Results><Result><column>value</column>...; any other leaves the body. The headers numberOfRecords and hasErrors are set. The connection options may use ${...}, such as ${header.DB_Host}; connections are kept for reuse and closed when idle.",
+	"type": "object",
+	"properties": {
+		"query": {
+			"title": "Query",
+			"description": "The statement, a simple template evaluated for each message, usually ${body}; a final ; is left out",
+			"type": "string"
+		},
+		"connectionType": {
+			"title": "Database",
+			"description": "postgres, mysql8 (also mysql, mysql5, mariadb), sql_server or oracle",
+			"type": "string"
+		},
+		"host": {
+			"title": "Host",
+			"description": "Host name or address of the database server",
+			"type": "string",
+			"default": ""
+		},
+		"port": {
+			"title": "Port",
+			"description": "Port; empty means the default of the database (5432, 3306, 1433, 1521)",
+			"type": "string",
+			"default": ""
+		},
+		"database": {
+			"title": "Database name",
+			"description": "Database, or for oracle the service name, such as xe",
+			"type": "string",
+			"default": ""
+		},
+		"username": {
+			"title": "Username",
+			"description": "User name",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Password",
+			"description": "Password; env DIF_SQL_PASSWORD (or its _FILE companion) when the option is not set",
+			"type": "string"
+		},
+		"escapeChars": {
+			"title": "Escape characters",
+			"description": "Accepted for compatibility and without effect: how the platform escapes the characters of the query is not known",
+			"type": "boolean",
+			"default": false
+		},
+		"useSSL": {
+			"title": "Use SSL",
+			"description": "Connect over TLS, checking the certificate of the server against the trust store",
+			"type": "boolean",
+			"default": false
+		},
+		"tlsVersion": {
+			"title": "TLS version",
+			"description": "With useSSL: the one version of TLS to use, TLSv1, TLSv1.1, TLSv1.2 or TLSv1.3; empty means 1.2 or later",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust with useSSL; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds a statement may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"connectTimeout": {
+			"title": "Connect timeout",
+			"description": "Milliseconds the connection may take to set up",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"required": [
+		"query",
+		"connectionType"
+	],
+	"additionalProperties": false
+}
