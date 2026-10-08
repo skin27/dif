@@ -20,6 +20,9 @@ type dilDoc struct {
 			Resources struct {
 				Resource oneOrMany[dilResource] `json:"resource"`
 			} `json:"resources"`
+			Connections struct {
+				Connection oneOrMany[dilConnection] `json:"connection"`
+			} `json:"connections"`
 		} `json:"core"`
 	} `json:"dil"`
 }
@@ -67,6 +70,15 @@ type dilMessage struct {
 	Headers struct {
 		Header oneOrMany[dilHeader] `json:"header"`
 	} `json:"headers"`
+}
+
+// dilConnection is a connection to a system outside the flow, such as a
+// database, that steps refer to by its id in the option dataSource.
+type dilConnection struct {
+	ID   string         `json:"id"`
+	Name string         `json:"name"`
+	Type string         `json:"type"` // such as jdbc
+	Keys map[string]any `json:"keys"` // dbtype, dbname, host, port, username, password
 }
 
 // dilResource is a named text, such as a JSON Schema or a template, that steps

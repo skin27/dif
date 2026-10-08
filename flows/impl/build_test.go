@@ -306,6 +306,44 @@ func TestParseResourceRef(t *testing.T) {
 	}
 }
 
+// A sql2 step gets the keys of the connection its dataSource names.
+func TestParseDataSource(t *testing.T) {
+	steps := `{"id":"a","type":"source","links":{"link":{"id":"b","bound":"out"}}},` +
+		`{"id":"b","type":"action","uri":"sql2","options":{"query":"select 1","dataSource":"c1_connection"},"links":{"link":[{"id":"b","bound":"in"},{"id":"c","bound":"out"}]}},` +
+		`{"id":"c","type":"sink","uri":"sql","options":{"dataSource":"c1_connection"},"links":{"link":{"id":"c","bound":"in"}}}`
+	doc := func(connections string) string {
+		return `{"dil":{"integrations":{"integration":{"flows":{"flow":{"id":"f","steps":{"step":[` + steps + `]}}}}},"core":{"connections":` + connections + `}}}`
+	}
+	nodes := map[string]*flowdef.Node{}
+	collect := func(n *flowdef.Node) (stepdef.Processor, error) {
+		nodes[n.ID] = n
+		return noop{}, nil
+	}
+	// A single connection is an object, several are an array.
+	for _, connections := range []string{
+		`{"connection":{"id":"c1_connection","type":"jdbc","keys":{"dbtype":"postgres","host":"h","port":"5432"}}}`,
+		`{"connection":[{"id":"other","keys":{}},{"id":"c1_connection","type":"jdbc","keys":{"dbtype":"postgres","host":"h","port":"5432"}}]}`,
+	} {
+		if _, err := Parse([]byte(doc(connections)), collect); err != nil {
+			t.Fatal(err)
+		}
+		var keys map[string]any
+		if err := json.Unmarshal([]byte(nodes["b"].Options["connection"].(string)), &keys); err != nil || keys["dbtype"] != "postgres" || keys["host"] != "h" || keys["port"] != "5432" {
+			t.Errorf("connection = %v (%v)", nodes["b"].Options["connection"], err)
+		}
+		if nodes["b"].Options["dataSource"] != "c1_connection" || nodes["b"].Options["query"] != "select 1" {
+			t.Errorf("options = %v, want the others kept", nodes["b"].Options)
+		}
+		// Only sql2 has data sources.
+		if _, has := nodes["c"].Options["connection"]; has {
+			t.Errorf("a step that is not sql2 got a connection: %v", nodes["c"].Options)
+		}
+	}
+	if _, err := Parse([]byte(doc(`{"connection":{"id":"other","keys":{}}}`)), collect); err == nil || !strings.Contains(err.Error(), `step b: connection "c1_connection" not found in dil.core.connections`) {
+		t.Errorf("err = %v", err)
+	}
+}
+
 // The steps DIL exports as "unknown" with a rules list are told apart by the
 // keys of their rules, and get the list as JSON text, which their schemas
 // (scalar options only) take.

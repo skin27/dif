@@ -53,7 +53,7 @@ Use the standard library first. These dependencies are approved; add one only wh
 - `github.com/itchyny/gojq`: the `jq` function of the simple language (in use).
 - `github.com/hirochachacha/go-smb2`: the `smb` and `smbenrich` steps.
 - `github.com/emersion/go-imap/v2`: the `imaps` source.
-- `database/sql` drivers for postgres, mysql, oracle and mssql: the `sql` and `sql2` steps. The drivers are chosen when the step is implemented.
+- `github.com/jackc/pgx/v5`, `github.com/go-sql-driver/mysql`, `github.com/microsoft/go-mssqldb` and `github.com/sijms/go-ora/v2`: the `database/sql` drivers of the `sql` and `sql2` steps (postgres, mysql, sql server, oracle), each in a file of its own, `steps/impl/sql_<database>.go`.
 
 ## Testing Guidelines
 

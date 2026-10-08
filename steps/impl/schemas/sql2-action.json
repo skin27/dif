@@ -1,0 +1,67 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:sql2-action",
+	"title": "sql2 action",
+	"description": "Runs an SQL statement with parameters on a database that dil.core.connections defines. :#name is the value of the header name (a header that is not there fails the message) and :#${expression} that of a simple expression; both are sent as parameters, never written in the statement. The body and the headers are as with the sql action.",
+	"type": "object",
+	"properties": {
+		"query": {
+			"title": "Query",
+			"description": "The statement, such as SELECT * FROM Employees WHERE EmployeeID = :#EmployeeID",
+			"type": "string"
+		},
+		"dataSource": {
+			"title": "Data source",
+			"description": "The id of a connection in dil.core.connections; the DIL parser turns it into the option connection",
+			"type": "string",
+			"default": ""
+		},
+		"connection": {
+			"title": "Connection",
+			"description": "JSON object with dbtype (postgres, mysql, sqlserver or oracle), dbname, host, port, username and password; from dataSource",
+			"type": "string",
+			"default": ""
+		},
+		"useSSL": {
+			"title": "Use SSL",
+			"description": "Connect over TLS, checking the certificate of the server against the trust store",
+			"type": "boolean",
+			"default": false
+		},
+		"tlsVersion": {
+			"title": "TLS version",
+			"description": "With useSSL: the one version of TLS to use, TLSv1, TLSv1.1, TLSv1.2 or TLSv1.3; empty means 1.2 or later",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust with useSSL; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds a statement may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"connectTimeout": {
+			"title": "Connect timeout",
+			"description": "Milliseconds the connection may take to set up",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"required": [
+		"query"
+	],
+	"additionalProperties": false
+}

@@ -346,7 +346,7 @@ func TestExamplesThatLoad(t *testing.T) {
 		"fileEnrich.json fileInbound.json fileOutbound.json filter.json flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json flv.json formToXml.json getTenantVariable.json " +
 		"googleDriveOutbound.json googledriveInbound.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json multipart.json pedroteste.json queueAsynchronousOutbound.json queueInbound.json queueOutbound.json recipient.json " +
 		"removeCookie.json removeHeaders.json removeTenantVariable.json repeater.json replace.json scheduler.json setBody.json setCookie.json setOneWay.json setRequestReply.json " +
-		"setTenantVariable.json sftpEnrich.json sftpInbound.json sftpOutbound.json simplereplace.json split.json splitAndAggregate.json test.json textToBase64.json throttle.json unzip.json velocity.json wiretap.json xmltocsv.json xmltoedi.json xmltoedifact.json xmltoexcel.json " +
+		"setTenantVariable.json sftpEnrich.json sftpInbound.json sftpOutbound.json simplereplace.json split.json splitAndAggregate.json sqlOutbound.json test.json textToBase64.json throttle.json unzip.json velocity.json wiretap.json xmltocsv.json xmltoedi.json xmltoedifact.json xmltoexcel.json " +
 		"xmltojson.json xmltojsonsimple.json zip.json"
 	if got := loading(examples); got != want {
 		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)
