@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xslt-action",
+	"title": "xslt action",
+	"description": "Transforms an XML body with an XSLT 2.0/3.0 stylesheet (XSLT 1.0 stylesheets run too). The stylesheet is a DIL resource (xslt:ref:<name>) or a file. The headers of the message that are text, numbers or booleans are the values of the stylesheet's top-level xsl:param of the same name. xsl:include, xsl:import, document() and unparsed-text() are not available.",
+	"type": "object",
+	"properties": {
+		"resource": {
+			"title": "Stylesheet",
+			"description": "The stylesheet: the content of the resource the URI refers to, from dil.core.resources",
+			"type": "string",
+			"default": ""
+		},
+		"path": {
+			"title": "Stylesheet file",
+			"description": "Path of a file holding the stylesheet, read when the flow is loaded; set it or the resource",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

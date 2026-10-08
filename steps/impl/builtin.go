@@ -91,6 +91,7 @@ func Register(r *registry.Registry) error {
 		{"xmltoedi", stepdef.Action, messageTranslator, newXMLToEDIAction, nil},
 		{"xmltoedifact", stepdef.Action, messageTranslator, newXMLToEDIFACTAction, nil},
 		{"docconverter", stepdef.Action, messageTranslator, newDocConverterAction, nil},
+		{"xslt", stepdef.Action, messageTranslator, newXSLTAction, nil},
 		{"formtoxml", stepdef.Action, messageTranslator, newFormToXMLAction, nil},
 		{"flv", stepdef.Action, messageTranslator, newFlvAction, nil},
 		{"exceltoxml", stepdef.Action, messageTranslator, newExcelToXMLAction, nil},
