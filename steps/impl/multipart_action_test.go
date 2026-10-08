@@ -44,7 +44,7 @@ func TestMultipart(t *testing.T) {
 		}
 	}
 
-	// A multipart Content-Type from before (as in examples/multipart.json) does not describe the body.
+	// A multipart Content-Type from before (as in testdata/examples/multipart.json) does not describe the body.
 	m = message.New("x")
 	m[message.ContentType] = "multipart/form-data"
 	m = process(t, "multipart", map[string]any{"fname": "SecondPart"}, m)

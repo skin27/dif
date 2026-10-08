@@ -12,7 +12,7 @@ import (
 	stepdef "dif/steps/definition"
 )
 
-var enrichLinks = []stepdef.Link{{}, {Rule: "enrich"}} // as in examples/enrich.json
+var enrichLinks = []stepdef.Link{{}, {Rule: "enrich"}} // as in testdata/examples/enrich.json
 
 // enrich runs the enrich router of enrichType on body, with the enrich route
 // turning its copy into the outcome, and returns the message it sends on.

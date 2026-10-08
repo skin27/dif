@@ -61,7 +61,7 @@ func TestRecipient(t *testing.T) {
 }
 
 func TestContentRouter(t *testing.T) {
-	links := []stepdef.Link{ // as in examples/contentrouter.json
+	links := []stepdef.Link{ // as in testdata/examples/contentrouter.json
 		{},
 		{Rule: "234", Language: "jsonpath", Expression: "$.store.book[*].author"},
 		{Rule: "123", Language: "simple", Expression: "${bodyAs(String)} == '123'"},
@@ -132,7 +132,7 @@ func TestFilter(t *testing.T) {
 func TestSplitXML(t *testing.T) {
 	m := message.New(persons)
 	m["h"] = "v"
-	links := []stepdef.Link{{}, {Rule: "split", Language: "xpath", Expression: "/persons/*[local-name() = 'person']"}} // as in examples/split.json
+	links := []stepdef.Link{{}, {Rule: "split", Language: "xpath", Expression: "/persons/*[local-name() = 'person']"}} // as in testdata/examples/split.json
 	routes := route(t, "split", map[string]any{"expression": "/persons/*[local-name() = 'person']", "exchangePattern": "InOnly"}, links, m)
 	if len(routes) != 3 {
 		t.Fatalf("routes = %s, want 2 parts and the message", summary(routes))

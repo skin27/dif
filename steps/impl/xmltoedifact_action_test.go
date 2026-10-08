@@ -10,10 +10,10 @@ import (
 	stepdef "dif/steps/definition"
 )
 
-// exampleEDIFACTXML returns the XML body that examples/xmltoedifact.json sets.
+// exampleEDIFACTXML returns the XML body that testdata/examples/xmltoedifact.json sets.
 func exampleEDIFACTXML(t *testing.T) string {
 	t.Helper()
-	data, err := os.ReadFile("../../examples/xmltoedifact.json")
+	data, err := os.ReadFile("../../testdata/examples/xmltoedifact.json")
 	if err != nil {
 		t.Fatal(err)
 	}

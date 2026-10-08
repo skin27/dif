@@ -54,7 +54,7 @@ func TestParseExamples(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.file, func(t *testing.T) {
-			data, err := os.ReadFile("../../examples/" + tt.file)
+			data, err := os.ReadFile("../../testdata/examples/" + tt.file)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -70,7 +70,7 @@ func TestParseExamples(t *testing.T) {
 }
 
 func TestParseRouter(t *testing.T) {
-	data, err := os.ReadFile("../../examples/contentrouter.json")
+	data, err := os.ReadFile("../../testdata/examples/contentrouter.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,11 +107,11 @@ func TestParseErrorHandler(t *testing.T) {
 		{"errorHandler.json", 0, time.Second, "action:de8503cb-b66a-4503-88fe-fb9edeaec662"}, // redeliveryDelay wins over redeliveryInterval
 		{"deadletter.json", 3, 10 * time.Second, "sink:68513f81-1b54-4b2b-ac98-50b65c979014"},
 		{"log.json", 0, 0, ""},
-		{"../testdata/hello.json", 0, time.Second, ""}, // no options: the defaults
+		{"../hello.json", 0, time.Second, ""}, // no options: the defaults
 	}
 	for _, tt := range tests {
 		t.Run(tt.file, func(t *testing.T) {
-			data, err := os.ReadFile("../../examples/" + tt.file)
+			data, err := os.ReadFile("../../testdata/examples/" + tt.file)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -138,7 +138,7 @@ func TestParseErrorHandler(t *testing.T) {
 }
 
 func TestParseUnknownURI(t *testing.T) {
-	data, err := os.ReadFile("../../examples/deadletter.json")
+	data, err := os.ReadFile("../../testdata/examples/deadletter.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -157,8 +157,8 @@ func TestParseUnknownURI(t *testing.T) {
 		nodes[n.Kind+":"+n.URI] = n
 		return noop{}, nil
 	}
-	for _, file := range []string{"flowLinkOutbound.json", "flowlinkAsynInbound.json", "xslt.json"} {
-		data, err := os.ReadFile("../../examples/" + file)
+	for _, file := range []string{"examples/flowLinkOutbound.json", "examples/flowlinkAsynInbound.json", "parse/xslt.json"} {
+		data, err := os.ReadFile("../../testdata/" + file)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -208,7 +208,7 @@ func TestParseErrorHandlerInvalid(t *testing.T) {
 }
 
 func TestParseInputMessage(t *testing.T) {
-	data, err := os.ReadFile("../../examples/log.json")
+	data, err := os.ReadFile("../../testdata/examples/log.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -257,7 +257,7 @@ func TestParseErrors(t *testing.T) {
 }
 
 func TestParseMessageReference(t *testing.T) {
-	data, err := os.ReadFile("../../examples/log.json")
+	data, err := os.ReadFile("../../testdata/examples/log.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -353,8 +353,8 @@ func TestParseUnknownRulesSteps(t *testing.T) {
 		nodes[n.Kind+":"+n.URI] = n
 		return noop{}, nil
 	}
-	for _, file := range []string{"flv.json", "exceltoxml.json", "formToXml.json", "headerstopdf.json", "experimental/openapiInbound.json", "experimental/openapiOutbound.json"} {
-		data, err := os.ReadFile("../../examples/" + file)
+	for _, file := range []string{"examples/flv.json", "examples/exceltoxml.json", "examples/formToXml.json", "parse/headerstopdf.json", "parse/openapiInbound.json", "parse/openapiOutbound.json"} {
+		data, err := os.ReadFile("../../testdata/" + file)
 		if err != nil {
 			t.Fatal(err)
 		}

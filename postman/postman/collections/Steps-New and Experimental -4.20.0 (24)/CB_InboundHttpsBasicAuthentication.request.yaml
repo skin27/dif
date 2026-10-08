@@ -1,9 +1,0 @@
-$kind: http-request
-description: ""
-url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_InboundHttpsBasicAuthentication"
-method: POST
-headers:
-  Authorization: Basic ZnJ1aXQ6ZHVtbXktcGFzc3dvcmQtMQ==
-auth:
-  type: noauth
-order: 4257170533340280

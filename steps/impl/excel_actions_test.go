@@ -22,7 +22,7 @@ func excelToXML(t *testing.T, rules string, workbook []byte) string {
 func TestExcelToXML(t *testing.T) {
 	book := menuWorkbook(t)
 	for name, tc := range map[string]struct{ rules, want string }{
-		// examples/exceltoxml.json
+		// testdata/examples/exceltoxml.json
 		"example rule": {
 			`[{"name":"node1","worksheet":"Sheet1","cellRange":"A2:C4","transpose":false,"headerRow":false,"discardEmpty":false,"_id":"c94df562"}]`,
 			`<node1><row><field1>Food</field1><field2>1.5</field2><field3>a&lt;b</field3></row>` +
@@ -114,7 +114,7 @@ func TestExcelToXMLEmptyWorksheet(t *testing.T) {
 	}
 }
 
-// examples/xmltoexcel.json: the worksheets option is RAW(base64) of a JSON list of JSON texts.
+// testdata/examples/xmltoexcel.json: the worksheets option is RAW(base64) of a JSON list of JSON texts.
 var exampleWorksheets = "RAW(" + base64.StdEncoding.EncodeToString([]byte(`["{\"name\":\"\",\"xPathExpression\":\"\"}"]`)) + ")"
 
 const menuXML = `<menu>
@@ -164,7 +164,7 @@ func TestXMLToExcel(t *testing.T) {
 			map[string]any{"includeHeader": true, "orderHeaders": "descending"},
 			"Sheet1!A1=price Sheet1!B1=name Sheet1!C1=code Sheet1!A2=1.5 Sheet1!B2=Food Sheet1!C2=007 Sheet1!A3=2 Sheet1!B3=Cake & tea",
 		},
-		// examples/xmltoexcel.json
+		// testdata/examples/xmltoexcel.json
 		"example options": {
 			map[string]any{"includeHeader": true, "includeIndexColumn": false, "indexColumnName": "line", "orderHeaders": "unordered", "excelFormat": "xlsx", "useCustomWorksheets": false, "worksheets": exampleWorksheets},
 			"Sheet1!A1=name Sheet1!B1=price Sheet1!C1=code Sheet1!A2=Food Sheet1!B2=1.5 Sheet1!C2=007 Sheet1!A3=Cake & tea Sheet1!B3=2",

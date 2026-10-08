@@ -1,0 +1,48 @@
+package api_test
+
+import (
+	"testing"
+
+	"dif/api"
+)
+
+// TestHello is the end-to-end test: JSON -> parse -> steps -> engine -> Message.
+func TestHello(t *testing.T) {
+	var results []*api.Result
+	f, err := api.Load("../../testdata/hello.json", func(res *api.Result, err error) {
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		results = append(results, res)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Start(); err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Send(f.NewMessage()); err != nil {
+		t.Fatal(err)
+	}
+	if f.State() != api.Started {
+		t.Errorf("state = %s, want %s: a flow runs until it is stopped", f.State(), api.Started)
+	}
+	if err := f.Stop(); err != nil {
+		t.Fatal(err)
+	}
+
+	if len(results) != 1 {
+		t.Fatalf("got %d results, want 1", len(results))
+	}
+	res := results[0]
+	if res.Message[api.Body] != "HELLO WORLD" {
+		t.Errorf("body = %v, want HELLO WORLD", res.Message[api.Body])
+	}
+	if got := res.Message["greeting"]; got != "hello" {
+		t.Errorf("header greeting = %v, want hello", got)
+	}
+	if len(res.Trail) != 3 {
+		t.Errorf("trail = %v, want 3 steps", res.Trail)
+	}
+}

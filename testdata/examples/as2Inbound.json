@@ -1,0 +1,79 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69385b46a2daf7000c000034",
+						"name": "as2Inbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "66e7c405-c301-4793-b6e2-a771fc8ac7ca",
+									"type": "source",
+									"uri": "as2",
+									"options": {
+										"flowNameAsEndpoint": true,
+										"as2From": "FLUXYGEN_OUTBOUND",
+										"as2To": "FLUXYGEN_INBOUND",
+										"messageStructure": "SIGNED_ENCRYPTED",
+										"keyAlias": "bruno",
+										"password": "dummy-password-14",
+										"as2MessageStructure": "SIGNED_ENCRYPTED",
+										"alias": "bruno",
+										"serverPortNumber": "9002",
+										"requestUriPattern": "/as2Inbound",
+										"serverFqdn": "dovetail.world",
+										"signingPrivateKey": "http://nginx:8080/private_keys/69385b46a2daf7000c000034?version=0&tenant=_new2&step=66e7c405-c301-4793-b6e2-a771fc8ac7ca&key=privateKey",
+										"signingCertificateChain": "http://nginx:8080/private_keys/69385b46a2daf7000c000034?version=0&tenant=_new2&step=66e7c405-c301-4793-b6e2-a771fc8ac7ca&key=privateKey",
+										"decryptingPrivateKey": "http://nginx:8080/private_keys/69385b46a2daf7000c000034?version=0&tenant=_new2&step=66e7c405-c301-4793-b6e2-a771fc8ac7ca&key=privateKey",
+										"validateSigningCertificateChain": "http://nginx:8080/private_keys/69385b46a2daf7000c000034?version=0&tenant=_new2&step=66e7c405-c301-4793-b6e2-a771fc8ac7ca&key=publicCertificate"
+									},
+									"links": {
+										"link": {
+											"id": "d8a06bcd-8a76-4b88-8d50-146cb3a9e3bb",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d8a06bcd-8a76-4b88-8d50-146cb3a9e3bb",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d8a06bcd-8a76-4b88-8d50-146cb3a9e3bb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69385b46a2daf7000c000036",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

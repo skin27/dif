@@ -373,7 +373,7 @@ func TestRemoteOptionValidation(t *testing.T) {
 	mustProcessor(t, stepdef.Source, "sftp://u@h:2222/d", with(map[string]any{"userName": nil, "strictHostKeyChecking": true}))
 }
 
-// The options of examples/sftpInbound.json, sftpOutbound.json and sftpEnrich.json.
+// The options of testdata/examples/sftpInbound.json, sftpOutbound.json and sftpEnrich.json.
 func TestRemoteExampleOptions(t *testing.T) {
 	const host = "api-testing.dovetail.world"
 	mustProcessor(t, stepdef.Source, "ftp:"+host+":2121/development/_New2/test/out/", map[string]any{

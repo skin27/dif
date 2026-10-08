@@ -1,5 +1,10 @@
 # Handover: Phase 3, the expression engines
 
+> **Historical.** The regression harness (`regression/`), `regressionTests/`,
+> `postman/`, `examples/` and `kamelets/` described below were removed when the
+> flows that build moved to `testdata/` (see `test/README.md`). The commands and
+> ratchet files below no longer exist; `9b0ec36` is the last commit that has them.
+
 For the session that implements Phase 3 of the DIL compatibility work. Read this
 first, then `AGENTS.md` and `regression/README.md`. Everything here was measured
 on `main` after pull request #2 (commit `50221bb`); numbers will move.

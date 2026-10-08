@@ -35,7 +35,7 @@ func body(expr string) map[string]any {
 }
 
 // TestControlFlow runs flows with if, loop, dowhile and wastebin steps, as the
-// examples in examples/experimental use them, and checks the reply.
+// examples in testdata/examples/experimental use them, and checks the reply.
 func TestControlFlow(t *testing.T) {
 	src := func(next string) map[string]any { return node("in", "source", "message:in", nil, out(next, "", "")) }
 	tests := []struct {

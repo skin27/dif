@@ -4,7 +4,7 @@
 
 DIF is a Go integration framework that stays close to the standard library (see [Dependencies](#dependencies)). `cmd/dif/` contains the executable; `cli/` implements interactive commands; `api/` exposes the public API. `engine/` runs flows and manages lifecycle, while `message/` defines messages. `flows/definition/` holds the internal flow model and `flows/impl/` parses and builds DIL JSON flows. Keep the engine independent of DIL.
 
-`steps/definition/` defines processor contracts, `steps/registry/` registers and validates steps, and `steps/impl/` contains built-in processors and embedded schemas. `keystore/` handles PKCS#12 files. Tests live beside source files as `*_test.go`; runnable fixtures live in `testdata/`, and broader flow examples in `examples/`. `regressionTests/` holds the DIL flows of real use cases, `postman/` the Postman requests that state what each flow must answer, and `regression/` the harness that runs them (see `regression/README.md`). `steps/` also contains legacy designer assets and documentation.
+`steps/definition/` defines processor contracts, `steps/registry/` registers and validates steps, and `steps/impl/` contains built-in processors and embedded schemas. `keystore/` handles PKCS#12 files. Unit tests live beside source files as `*_test.go`; tests that use only the exported API of a package live in `test/<package>/`, and `test/dil/` builds every DIL flow in `testdata/` (see `test/README.md`). Fixtures live in `testdata/`: `hello.json` and `timer.json`, `examples/` (example flows), `regression/` (flows of real use cases), `reliable/` (the reliable-channel service example), and `parse/` (flows that only the parser tests read). `internal/sanitize/` replaces credentials in the fixtures, and `cmd/sanitize/` runs it. `steps/` also contains legacy designer assets and documentation.
 
 ## Build, Test, and Development Commands
 
@@ -48,7 +48,7 @@ For new built-in steps, add a schema at `steps/impl/schemas/<name>-<kind>.json` 
 Use the standard library first. These dependencies are approved; add one only when the step or tool that needs it is implemented, and ask before adding any other:
 
 - `github.com/pkg/sftp` and `golang.org/x/crypto`: the SFTP client (in use).
-- `gopkg.in/yaml.v3`: reading the Postman collections in `regression/postman` (in use), and the `docconverter` step.
+- `gopkg.in/yaml.v3`: the `docconverter` step (in use).
 - `github.com/knroy/go-xml`: the XPath 2.0 processor of the `xpath` language (in use), and the XSLT 2.0 processor of the `xslt` step. It is a young project (v1.6.0, October 2026) that needs Go 1.25; `steps/impl/xpath2.go` is the only file that imports it for XPath, so it can be replaced.
 - `github.com/itchyny/gojq`: the `jq` function of the simple language (in use).
 - `github.com/hirochachacha/go-smb2`: the `smb` and `smbenrich` steps.
@@ -57,7 +57,7 @@ Use the standard library first. These dependencies are approved; add one only wh
 
 ## Testing Guidelines
 
-Use Go's `testing` package with `Test<Behavior>` functions. Cover successful processing, invalid options, and error paths; lifecycle changes should cover cancellation and concurrent operations. Prefer local fixtures and temporary files over external services; mock or fake the systems a step talks to (the repository has in-process FTP, SFTP and SMTP servers). `go test ./regression` builds every regression flow and checks the results against `regression/loadable.json`; `go test ./regression -postman` also runs the Postman requests. After you change a step, run them with `-update`, check that only tests that now pass were added, and commit the files with the change. No numeric coverage threshold is configured.
+Use Go's `testing` package with `Test<Behavior>` functions. Cover successful processing, invalid options, and error paths; lifecycle changes should cover cancellation and concurrent operations. Prefer local fixtures and temporary files over external services; mock or fake the systems a step talks to (the repository has in-process FTP, SFTP and SMTP servers). Put a test beside the code when it needs unexported identifiers or shares helpers with such tests, as most do; put it in `test/<package>/` (package `<name>_test`) when it needs only the exported API. `go test ./test/dil` builds every flow in `testdata/` (except `reliable/` and `parse/`) and fails on a credential in a fixture: a flow you add to `testdata/` must build. No numeric coverage threshold is configured.
 
 ## Commit & Pull Request Guidelines
 
@@ -65,4 +65,4 @@ Recent commits use short imperative subjects, such as “Add the flowlink source
 
 ## Security & Configuration
 
-Keep local keystores and credentials out of commits. Before committing new regression fixtures, run `go run ./regression/cmd/sanitize`, which replaces credentials with dummies (`go test ./regression` fails while a fixture holds one). `security/`, runtime `logs/`, and `dif.exe` are ignored. Use the documented `DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` environment variables for local secrets.
+Keep local keystores and credentials out of commits. Before committing new fixtures, run `go run ./cmd/sanitize`, which replaces credentials with dummies (`go test ./test/dil` fails while a fixture holds one). `security/`, runtime `logs/`, and `dif.exe` are ignored. Use the documented `DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` environment variables for local secrets.

@@ -42,7 +42,7 @@ func TestSetBody(t *testing.T) {
 	}
 }
 
-// ${bodyAs(<type>)} loads but fails the message, as in examples/deadletter.json.
+// ${bodyAs(<type>)} loads but fails the message, as in testdata/examples/deadletter.json.
 func TestSetBodyFailsAtRuntime(t *testing.T) {
 	p := mustProcessor(t, stepdef.Action, "setbody", map[string]any{"language": "simple", "expression": "Body: ${bodyAs(BlaBla)}"}).(stepdef.ActionProcessor)
 	m := message.New("x")

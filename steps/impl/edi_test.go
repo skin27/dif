@@ -8,7 +8,7 @@ import (
 )
 
 func TestEDIToXMLAndBack(t *testing.T) {
-	opts := map[string]any{"segment": "LB", "field": "~", "component": "^", "subComponent": "!"} // as in examples/editoxml.json
+	opts := map[string]any{"segment": "LB", "field": "~", "component": "^", "subComponent": "!"} // as in testdata/examples/editoxml.json
 	edi := "CUS~John^Doe~1901-01-07~john.doe@example.com\r\nADR~~Main St!12^Town~a<b&c\n"
 	m := process(t, "editoxml", opts, message.New(edi))
 	want := `<edi-message><delimiters segment="LB" field="~" component="^" sub-component="!"/>` +
@@ -24,7 +24,7 @@ func TestEDIToXMLAndBack(t *testing.T) {
 		t.Errorf("edi = %q", back[message.Body])
 	}
 
-	// examples/xmltoedi.json, indented; and EDIFACT-like delimiters that end every segment.
+	// testdata/examples/xmltoedi.json, indented; and EDIFACT-like delimiters that end every segment.
 	xml := "<edi-message>\n\t<delimiters segment=\"'\" field=\"+\" component=\":\" sub-component=\"!\"/>\n\t<CUS>\n\t\t<field.1>\n\t\t\t<component.1>John</component.1>\n\t\t\t<component.2>Doe</component.2>\n\t\t</field.1>\n\t\t<field.3>x</field.3>\n\t</CUS>\n\t<END/>\n</edi-message>"
 	if got := process(t, "xmltoedi", nil, message.New(xml))[message.Body]; got != "CUS+John:Doe++x'END'" {
 		t.Errorf("edi = %q", got)
