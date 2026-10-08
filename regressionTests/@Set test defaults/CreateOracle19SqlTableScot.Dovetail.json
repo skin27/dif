@@ -62,7 +62,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "1621",
 										"username": "system",
-										"password": "fluxygen"
+										"password": "dummy-password-3"
 									},
 									"links": {
 										"link": [

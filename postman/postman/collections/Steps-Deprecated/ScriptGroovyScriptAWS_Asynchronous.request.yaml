@@ -5,7 +5,7 @@ url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroov\
   25-09-01&End=2025-09-30"
 method: POST
 queryParams:
-  dovauth: 9332bbcc-96ea-405d-b1df-8bfcbfe018af
+  dovauth: "dummy-token-1"
   Start: 2025-09-01
   End: 2025-09-30
 body:

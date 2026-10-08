@@ -36,7 +36,7 @@ func newCSVToXMLAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if enc == "" || strings.Trim(enc, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-") != "" {
 		return nil, fmt.Errorf("option encoding: %q is not an encoding name", enc)
 	}
-	return csvToXMLAction{r, p["useHeader"].(bool), enc}, nil
+	return csvToXMLAction{r, p["useHeader"].(bool) || p["useHeaders"].(bool), enc}, nil
 }
 
 func (a csvToXMLAction) Process(_ context.Context, m message.Message) (message.Message, error) {

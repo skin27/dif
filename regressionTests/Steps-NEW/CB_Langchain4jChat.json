@@ -138,7 +138,7 @@
 				"connection": {
 					"type": "langchain4jchat",
 					"keys": {
-						"apikey": "ENC(HnbEXdSt7hkMENm4wlu9fA==|FoTv2v8PpKstmdR12/ge8Q==|NGysamaEk8XNSpyrylps1Z0aGegykHv0o9/qzjkbsLE0Kmwc3RO8+nr+8Ca7gnzRQCfrEUhhhTscD0e4SosgOA==)",
+						"apikey": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 						"modelname": "gemini-3-flash-preview",
 						"timeout": "10"
 					},

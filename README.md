@@ -511,6 +511,9 @@ checked:
   DIL converted from XML stores numbers and booleans as strings, `"5"` and
   `"true"` are accepted for integers and booleans. Unknown options are errors.
   All problems are reported at once: `step t1: timer: option period: want integer, got "x"; unknown option numbers`
+- an option with a fixed set of values (`enum`) accepts them in any case, as the
+  Java platform does: `original` is `ORIGINAL`. The step gets the spelling of
+  the schema.
 
 The schema validator supports a small JSON Schema subset (`type`, `properties`,
 `required`, `additionalProperties`, `enum`, `default`, `minimum`); a schema
@@ -528,17 +531,17 @@ using anything else fails registration.
 | `message:<name>` | source | – | Produces nothing; messages are sent to the flow (`send`) |
 | `queue[:<name>]` | source | `transport` (activemq, no effect) | Emits the messages of the in-memory queue `<name>`, by default the one named after its flow id, as they arrive (headers and trace id kept); see [Queues](#queues) |
 | `deadletter` | sink | `deadLetterQueue` (DLQ), `connectionFactory` (no effect) | Puts a copy of the message on the in-memory queue `deadLetterQueue`; for error routes |
-| `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow; see [Flow links](#flow-links) |
-| `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda (sync), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000) | Sends a copy of the message to the flow `targetFlowId`; see [Flow links](#flow-links) |
-| `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
+| `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow (also called `flowlink-async`); see [Flow links](#flow-links) |
+| `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda\|activemq (sync; the last two act as async), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000; also written `requestTimout`) | Sends a copy of the message to the flow `targetFlowId`; the step is also called `flowlink-async`, see [Flow links](#flow-links) |
+| `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000; the designer writes `requestTimout`, which wins), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
 | `topic:<name>` | source | — | Creates an independent subscription while running; paused subscriptions buffer messages; see [Topics](#topics) |
 | `topic:<name>` | action | — | Publishes a copy to every active subscription without waiting for processing; see [Topics](#topics) |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` or `matchOnUriPrefix` (false), `exchangePattern` InOut\|InOnly (InOut), `preserveHttpHeaders` (false), `authenticationPreemptive` (no effect), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
-| `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD (GET), `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (false) | Calls the endpoint; the response becomes the message, see [HTTPS](#https) |
+| `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|TRACE (GET), `authMethod` None\|Basic (None) with `authUsername` and `authPassword`, `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `connectTimeout` ms (30000), `socketTimeout` ms (30000), `retryRequests` (false) with `retryAttempts` (5) and `retryInterval` ms (30000), `excludeHeaders` (regular expression), `throwExceptionOnFailure` or `useErrorRoute` (false); no effect: `authenticationPreemptive`, `maxTotalConnections`, `connectionsPerRoute`, `useCustomDateHeader`, `sslContextParameters` | Calls the endpoint, written `https://host/path` or, as DIL has it, `https:https://host/path`; the address may hold `${…}` parts, which are evaluated for each message. The response becomes the message, see [HTTPS](#https) |
 | `rest` | action | `method` (post), `host` (`https://localhost:9002`), `path` (required), `produces` ("": Content-Type of the request when the message sets none), `consumes` ("": its Accept header), `trustStoreFile`, `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (true) | Calls `host`/`path` as the https action does |
 | `graphql` | action | `url` (or `graphql:<url>`), `query` ("": the body), `variables` (a JSON object), `accessToken` (bearer), `trustStoreFile` ("": the system's roots), `socketTimeout` ms (30000) | Posts the query as JSON and replaces the body with the response; an error status fails the message |
 | `smtp:<host>:<port>`, `smtps:<host>:<port>` | action | `to` (required; commas or semicolons), `from` (username), `replyTo`, `subject` (the header `subject` overrides it), `exchangeBodyAs` body or attachment (body), `emailBody`, `contentType`, `username`, `password` (else `DIF_SMTP_PASSWORD`), `accessToken`, `trustStoreFile` ("": the system's roots), `timeout` ms (30000) | Sends the message as an email and passes it on unchanged: the body is the text, or, with `emailBody` or `exchangeBodyAs` attachment, attached (named after `file.name`) to the text `emailBody`. smtp requires STARTTLS, smtps uses TLS from the start; it logs in with PLAIN (password) or XOAUTH2 (accessToken), else not at all |
-| `setheaders:message:<name>` | action | – | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
+| `setheaders:message:<name>` | action | `expression`, `writeAsString` (no effect) | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
 | `base64totext` | action | – | Decodes a base64 body to text (whitespace ignored, padding optional) |
 | `texttobase64` | action | – | Encodes the body as base64, without line breaks |
 | `repeater[:<name>]` | source | `period` ms (10000), `repeatCount` (0 or less = unlimited) | The timer source with Camel's repeater defaults |
@@ -554,7 +557,7 @@ using anything else fails registration.
 | `unzip` | action | – | Extracts the one file of a zip body; `file.name` becomes its name and `Content-Type` is set by its extension (as the file source does) or removed. An archive with several files fails the message (that needs a splitter) |
 | `validate` | action | `schema` (inline JSON Schema) or `schemaFile` (path) | Validates a JSON body against the schema; an invalid message fails with every problem, e.g. `body is not valid: /id: want integer, got string; /: missing required property lines`. Supports `type`, `properties`, `required`, `additionalProperties`, `items`, `enum`, `const`, `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`, `minLength`, `maxLength`, `pattern` and `minItems`/`maxItems`; a schema with any other keyword (`$ref`, `oneOf`, `format`, …) is rejected when the flow is loaded |
 | `throttle` | action | `maxRequests` (required), `timePeriod` ms (1000) | Lets at most `maxRequests` messages pass per `timePeriod` (sliding window); the others wait |
-| `encoder` | action | `originCharset` (UTF-8), `targetCharset` (UTF-8) | Converts the body between UTF-8, ISO-8859-1 and US-ASCII; characters the target cannot hold become `?` |
+| `encoder` | action | `originCharset` (UTF-8), `targetCharset` (UTF-8) | Converts the body between UTF-8, ISO-8859-1 (also `ISO8859_1`), US-ASCII and windows-1252 (`CP1252`); names are not case sensitive. Characters the target cannot hold become `?`; the five bytes windows-1252 leaves undefined (0x81, 0x8D, 0x8F, 0x90, 0x9D) decode to U+FFFD |
 | `setuuid` | action | `headerName` (UUID), `generator` (no effect) | Sets the header to a new random UUID (version 4) |
 | `setbodybyheader` | action | `headerName` (required) | Replaces the body with the header's value, as it is (empty if not set) |
 | `setheaderbybody` | action | `headerName` (required; not `body` or `metadata.*`) | Sets the header to the body, as it is |
@@ -583,10 +586,10 @@ using anything else fails registration.
 | `xmltoedi` | action | – | Converts that XML back into EDI, with its `<delimiters>` |
 | `wiretap` | router | – | Sends a copy to the link with rule `wiretap` (detached), then the message along the other link |
 | `recipient` | router | – | Sends a copy to every link, in order; the outcome is the last one's |
-| `content` | router | – (conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
+| `content` | router | `expression`, `namespace` (no effect; the conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
 | `split` | router or action | `language` xpath\|jsonpath (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. XML parts are the elements as written; JSON parts are JSON (strings as is) |
-| `enrich` | router | `enrichType` override\|xml\|json (xml), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
+| `enrich` | router | `enrichType` override\|xml\|json (xml; the designer also writes it as `enrichMethod` or `enrichFileType`, which win), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
 | `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0); `completionTimeout`, `completionInterval` (must be 0: not supported yet) | Collects messages and passes one on when the group is complete: the last part of a split (`split.complete`) or `completionSize` messages. That message goes on with the aggregate as body and without the split headers; the others stop here. One group at a time (the Kamelet correlates all messages); a new split (`split.index` 0) starts a new group |
 | `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split`, aggregates what comes out (a gatherer) and sends the message with the aggregate along the other link. A failed part fails the message |
 | `if` | router or action | – (the condition is on the link with rule `if`) | Sends the message along the `if` link when its condition holds, else along the link without a condition; as an action the message stops there |
@@ -926,23 +929,25 @@ libraries the DIL components were built on:
 
 | Step | Options (default) | Mapping |
 |---|---|---|
-| `xmltojson` | `forceTopLevelObject`, `skipWhitespace`, `trimSpaces`, `skipNamespaces`, `removeNamespacePrefixes`, `typeHints` (all false) | json-lib (Camel's xmljson): attributes as `"@name"`, text beside attributes or children as `"#text"`, repeated elements as an array, an element whose two or more children share one name as an array of their values, an empty element as `""`. The root is left out unless `forceTopLevelObject`. All values are strings; with `typeHints`, a `json_type` attribute (`number`, `boolean`, `string`, `null`, `array`, `object`) sets the type |
-| `jsontoxml` | `rootName` (o), `arrayName` (a), `elementName` (e), `typeHints` (false), `namespaceLenient` (no effect) | The reverse: members as elements, `"@name"` as attributes, `"#text"` as text, array items as `elementName` elements; starts with an XML declaration. `typeHints` adds `json_type` to every element, so `xmltojson` can restore the JSON exactly |
-| `xmltojsonsimple` | `keepStrings`, `removeNamespaces`, `removeRoot`, `hasTypes` (false), `typeValueMismatch` NULL\|ORIGINAL (ORIGINAL) | org.json: `{"root": …}` unless `removeRoot`, attributes and children by name, text beside them as `"content"`, repeated elements as an array, trimmed text. Numbers, `true`, `false` and `null` become JSON values unless `keepStrings`. With `hasTypes` a `type` attribute (`string`, `number`, `integer`, `double`, `boolean`, `null`) sets the type; text that does not fit becomes `null` or stays a string |
+| `xmltojson` | `forceTopLevelObject`, `skipWhitespace`, `trimSpaces`, `skipNamespaces`, `removeNamespacePrefixes`, `typeHints` (all false) | json-lib (Camel's xmljson, version 2.4): the root is left out unless `forceTopLevelObject`; attributes are `"@name"`, namespace declarations `"@xmlns:p"` (not with `skipNamespaces`), text beside attributes or children `"#text"`; repeated elements make an array, and so does an element that holds only elements with one name (and whitespace), as json-lib decides; an empty element is an empty array. Values stay strings. With `typeHints`, the attributes `type` (`number`, `integer`, `float`, `boolean`, `string`, `function`), `class` (`object`, `array`) and `null="true"` set the type and are left out; without it they are attributes like any other. Numbers are written as Java does (`1.0` is `1`); text that is no number, with a number `type`, is null. Text that looks like a JSON array or object is parsed as such, as json-lib does |
+| `jsontoxml` | `rootName` (o), `arrayName` (a), `elementName` (e), `typeHints` (false), `namespaceLenient` (no effect) | The reverse: members as elements, `"@name"` as attributes, `"#text"` as text, array items as `elementName` elements; starts with an XML declaration. `typeHints` adds `class="object"`, `class="array"`, `type="string"`, `type="number"` or `type="boolean"` to every element (null is `class="object" null="true"`), so `xmltojson` with `typeHints` can restore the JSON |
+| `xmltojsonsimple` | `keepStrings`, `removeNamespaces`, `removeRoot`, `hasTypes` (false), `typeValueMismatch` NULL\|ORIGINAL\|ERROR (ORIGINAL) | `{"root": …}` unless `removeRoot`; attributes as `"@name"`, children by name, text beside them as `"jsonContent"`, repeated elements as an array, trimmed text. Numbers, `true`, `false` and `null` become JSON values unless `keepStrings`. With `hasTypes` a `type` attribute (`string`, `number`, `integer`, `double`, `boolean`, `null`) sets the type; text that does not fit becomes `null`, stays a string or, with `ERROR`, fails the conversion |
 | `jsontoxmlsimple` | `addRoot` (false), `rootTag` (root), `changeArrayElements` (false), `arrayElementName` (element), `checkJsonKeys` (false) | The reverse: members as elements, `"content"` as text, an array as one element per item named after its key (with `changeArrayElements`: one element holding `arrayElementName` items), `null` as the text `null`, no declaration. A key that is not an XML name fails the message with `checkJsonKeys`, else its invalid characters become `_` |
-| `csvtoxml` | `delimiter` (,), `useHeader` (false), `encoding` (UTF-8) | `<rows><row><name>value</name>…</row>…</rows>`; with `useHeader` the first record names the fields (invalid characters become `_`), else `field1`, `field2`, … `encoding` only sets the XML declaration; the `encoder` step converts the bytes |
-| `xmltocsv` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `delimiter` (,), `lineSeparator` linefeed\|carriage_return\|carriage_return_linefeed, `orderHeaders` unordered\|ordered, `quoteFields` all_fields\|non_empty_fields\|no_fields (no_fields) | Every child of the root is a record, every child of a record a field (trimmed text); a record without children is one field. Columns in order of appearance or (`ordered`) alphabetical. A field holding the delimiter, a quote or a line break is always quoted |
+| `csvtoxml` | `delimiter` (,), `useHeader` or `useHeaders` (false), `encoding` (UTF-8) | `<rows><row><name>value</name>…</row>…</rows>`; with `useHeader` the first record names the fields (invalid characters become `_`), else `field1`, `field2`, … `encoding` only sets the XML declaration; the `encoder` step converts the bytes |
+| `xmltocsv` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `delimiter` (,), `lineSeparator` linefeed\|carriage_return\|carriage_return_linefeed\|endofline (the system's), `orderHeaders` unordered\|ordered\|ascending\|descending, `quoteFields` all_fields\|non_empty_fields\|non_integer_fields\|no_fields (no_fields), `xPathExpression` | Every child of the root, or every element `xPathExpression` selects, is a record, every child of a record a field (trimmed text); a record without children is one field. Columns in order of appearance, or alphabetical (`ordered` or `ascending`; `descending` from Z). `non_integer_fields` quotes all but whole numbers. A field holding the delimiter, a quote or a line break is always quoted |
 | `formtoxml` | – | `a=1&b=2` (form-urlencoded, percent-decoded) becomes `<form><a>1</a><b>2</b></form>`: an element per field in the order of the body, repeated fields repeated; characters a name cannot hold become `_` |
-| `flv` | `rules` (required; the DIL list is passed as JSON text) | Fixed-length values to XML. Every non-empty line is a record: the first rule whose `matchOn` the line starts with (any line if empty) cuts it into its `subcollection` fields, `{field, length}` in characters, trimmed. `<flv>` holds the records as elements named after the rule's `name`, else its `matchOn`; with `group`, consecutive records of the rule are collected in a `<group>`. A line no rule matches fails the message |
+| `flv` | `rules` (the DIL list, passed as JSON text), or an option per rule | Fixed-length values to XML, in the shape of the Java platform. Every non-empty line is matched with the rules: the first whose `matchOn` the line starts with cuts it into its fields, `name[length]` after each other from the start of the line (so `matchOn` is part of the first field), in characters, trimmed; a line no rule matches is left out. `<flv-message>` holds a `<rule matchOn="HDR" fields="header[3]body[5]" />` for each rule, then a `<segment>` for each line with an element per field. A line of a group rule (`group` true) opens a `<group>`, which holds its segment and those of the following lines of other rules, up to the next line of a group rule. Instead of `rules`, every other option is a rule: its name is `matchOn`, or `_group_` and `matchOn` for a group rule, its value the fields, such as `header[3]body[5]`. The rules of the list are tried in its order, the options after them with the longest `matchOn` first, then in reverse alphabetical order, as a flow cannot tell the order of its options |
 | `exceltoxml` | `rules` (required; as for `flv`) | xlsx (not xls) to XML: `<workbook>` holds an element per rule, named after its `name`, else its `worksheet`, with a `<row>` per row of the rule's cells and an element per cell (`field1`, `field2`, … or the header names). A rule has `worksheet` (the first if empty), `cellRange` (`A2:C4`; the whole used range if empty), `transpose`, `headerRow` (the first row names the fields) and `discardEmpty` (leave out empty cells and rows). Values only: strings and numbers; dates are Excel's serial numbers |
-| `xmltoexcel` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `orderHeaders` unordered\|ordered, `excelFormat` xlsx, `useCustomWorksheets` (false), `worksheets` | XML to xlsx with `xmltocsv`'s mapping: each child of the root is a row, each of its children a cell. Numbers are numeric cells, all else text. With `useCustomWorksheets`, `worksheets` (a JSON list of `{name, xPathExpression}`, also as `RAW(<base64>)`) makes a worksheet per entry whose rows are the elements the path selects (the root's children if it is empty) |
+| `xmltoexcel` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `orderHeaders` unordered\|ordered\|ascending\|descending, `excelFormat` xlsx, `useCustomWorksheets` (false), `worksheets` | XML to xlsx with `xmltocsv`'s mapping: each child of the root is a row, each of its children a cell. Numbers are numeric cells, all else text. With `useCustomWorksheets`, `worksheets` (a JSON list of `{name, xPathExpression}`, also as `RAW(<base64>)`) makes a worksheet per entry whose rows are the elements the path selects (the root's children if it is empty) |
 | `xmltoedifact` | `edifactType` (no effect) | The XML form of an EDIFACT interchange, as Smooks writes it (`env:UNB`, `iftmin:BGM`, composites such as `c:C002`), to EDIFACT with the default delimiters, one line without breaks. An element named by three upper-case characters is a segment, its children are its elements and a child with children a composite; the elements above (interchange, message, segment groups) are walked through. It is structural: DIF has no message definitions, so an element the XML omits is not restored as an empty position (`BGM+340+347605` where `BGM+340++347605` was meant). Keep a position by leaving the element in the XML, empty |
 
 The Kamelets only pass these options on to Assimbly's components, so where a
 detail is not defined by json-lib or org.json (the CSV element names, the
 `hasTypes` type names, `checkJsonKeys`), DIF's choice is the one above. That
-goes for the XML shapes of `formtoxml`, `flv`, `exceltoxml` and `xmltoedifact`
-too: their Java code is not in this repository.
+goes for the XML shapes of `formtoxml`, `exceltoxml` and `xmltoedifact`
+too: their Java code is not in this repository. The shapes of `flv`,
+`xmltojson` and `xmltojsonsimple` follow the answers of the platform in the
+regression tests.
 
 New steps plug in without touching the engine:
 
@@ -958,8 +963,10 @@ api.RegisterStep(api.StepDefinition{
 ### HTTPS
 
 The `https` source makes a flow an HTTPS endpoint, request-reply: a request
-becomes a message (body = request body; request headers = message headers, plus
-`http.method`, `http.path`, `http.query` and `http.uri` with
+becomes a message (body = request body; request headers = message headers; query
+parameters = message headers too, so `?config=A` sets the header `config`, unless a
+request header has that name, and `body` and `metadata.*` are never set from the
+query; plus `http.method`, `http.path`, `http.query` and `http.uri` with
 `preserveHttpHeaders`), and the caller gets the final message body back, with
 its `Content-Type` header (default `text/plain; charset=utf-8`).
 
@@ -976,11 +983,17 @@ share one listener, each on its own path (`matchPrefix` also serves the paths
 below it); a second flow on a path already served fails to start, and its log
 says why (`source stopped: path … is already served by another flow`).
 
-The `https` action calls an endpoint with the message: the body (not for GET and
-HEAD) and its string headers. It maps the trace ID to `DIF-Trace-Id` and never
+The `https` action calls an endpoint with the message: the body (with POST,
+PUT, PATCH and DELETE) and its string headers, except those that `excludeHeaders`
+matches. It maps the trace ID to `DIF-Trace-Id` and never
 sends other `metadata.*` or `http.*` headers. The response sets
 the body, `http.status` and `Content-Type`. An error status fails the message
-only with `throwExceptionOnFailure`.
+only with `throwExceptionOnFailure` (or `useErrorRoute`, the designer's name for
+it). With `authMethod` Basic the credentials go with every request. With
+`retryRequests` a call that cannot connect, or that the server answers with 503,
+is tried again `retryAttempts` times, `retryInterval` apart. Mutual TLS
+(`authMethod` MutualSSL, `mutualTls`) is not supported yet, and a flow that asks for it
+does not load.
 Cookies in the cookie store (see `setcookie`) for the host and path go along,
 and cookies the server sets are kept, for all flows of the process. An empty
 `trustStoreFile` trusts the system's root certificates instead of a trust store.
@@ -1009,6 +1022,36 @@ $ DIF_SERVER_IDENTITY_PASSWORD=… DIF_TRUSTSTORE_PASSWORD=… go run ./cmd/dif
 $ curl -k -d hello https://localhost:9001/_new2/httpsInbound
 12345
 ```
+
+### Encrypted values
+
+Any option can hold a password, token or API key as an encrypted value,
+`ENC(salt|iv|cipher)`, in the format of the Java `EncryptionUtil` of the
+platform: each part in base64, AES-256-CBC with PKCS#5 padding, and a key
+derived from the password and the salt with PBKDF2WithHmacSHA1 (10000
+iterations). Flows made for the Java platform work as they are.
+
+```json
+"options": { "password": "ENC(MUIgE3IHqgPmUQ9qyyOdtw==|3v7+OIgbaGdiodkVvrY4XQ==|jjpsKDsxY7aaQYFZU5yz8A==)" }
+```
+
+(That value is `hunter22`, encrypted with the password `vector-password-1`; the
+Java platform made it, and the tests decrypt it.)
+
+The password is `DIF_ENCRYPTION_PASSWORD`, or the file that
+`DIF_ENCRYPTION_PASSWORD_FILE` names (a mounted secret; one trailing line feed is
+removed). Values are decrypted when the flow is loaded, in the options that a
+step is built with; a value may also be part of a longer text, such as a URI
+(`...?password=ENC(...)`). Validation and `describe` do not decrypt, need no
+password, and show no option values. Text that only looks like `ENC(...)` is
+left as it is. A flow with an encrypted value is rejected when there is no
+password or when it is wrong (the error names the option and never shows the
+value). The format has no integrity check: about one wrong password in 256 does
+not fail but gives garbage, so a wrong password may only show when the remote
+system refuses the login.
+
+The value `ENC(...)` in `core.connections` is not read: DIF does not use connection
+blocks.
 
 ### FTP and SFTP
 
@@ -1127,6 +1170,16 @@ steps plug in through the registry without touching the engine.
   `worksheet` `exceltoxml`; both get the list as JSON text, since step options
   are scalar. An `unknown` action with no options at all is `formtoxml`. Other
   `unknown` steps stay unknown and are rejected.
+
+## Regression tests
+
+`regressionTests/` holds 672 flows of real use cases and `postman/` the Postman
+requests that state what each flow must answer. `go test ./regression` builds the
+flows and `go test ./regression -postman` also runs the requests against DIF; the
+results are recorded in `regression/loadable.json` and
+`regression/postman-passing.json`, so that a regression fails the test. Groovy
+flows, custom steps and broken fixtures are skipped. See
+[regression/README.md](regression/README.md).
 
 ## Future work
 

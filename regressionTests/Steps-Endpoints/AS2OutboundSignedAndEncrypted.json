@@ -63,7 +63,7 @@
 										"messageContentType": "application/edi-x12",
 										"signingAlgorithm": "SHA256WITHRSA",
 										"keyAlias": "bruno",
-										"password": "1234",
+										"password": "dummy-password-10",
 										"encryptingAlgorithm": "DES_EDE3_CBC",
 										"certificateForSigning": "http://nginx:8080/private_keys/694ac251da8dd500160001d5?version=0&tenant=regressiontests&step=0d70b4da-81fe-4265-9d4c-54f3c7bdde54&key=privateKey",
 										"certificateForEncrypt": "http://nginx:8080/private_keys/694ac251da8dd500160001d5?version=0&tenant=regressiontests&step=0d70b4da-81fe-4265-9d4c-54f3c7bdde54&key=publicCertificate",

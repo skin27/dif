@@ -104,7 +104,7 @@
 										"fromEmailPreference": "norman.hooghof@fluxygen.com",
 										"from": "norman.hooghof@fluxygen.com",
 										"authenticationType": "oauth2",
-										"accessToken": "ENC(JPZ7/BNZvWtDgUvfEhVlcg==|Ct7eokSDQtyXrdjthrQHGg==|1pt5+c8PMx56LKOpFpMYXA==)",
+										"accessToken": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"tenantDbName": "regressiontests"
 									},
 									"links": {

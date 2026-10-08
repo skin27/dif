@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -120,7 +121,55 @@ func TestFlowLinkTimeout(t *testing.T) {
 func TestFlowLinkInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "flowlink", nil, "missing required option targetFlowId")
 	wantInvalid(t, stepdef.Action, "flowlink", map[string]any{"targetFlowId": ""}, "option targetFlowId: empty flow id")
-	wantInvalid(t, stepdef.Action, "flowlink", map[string]any{"targetFlowId": "x", "transport": "activemq"}, `option transport: "activemq" is not one of`)
+	wantInvalid(t, stepdef.Action, "flowlink", map[string]any{"targetFlowId": "x", "transport": "jms"}, `option transport: "jms" is not one of`)
 	wantInvalid(t, stepdef.Source, "flowlink", nil, "missing required option flowId")
 	wantInvalid(t, stepdef.Source, "flowlink", map[string]any{"flowId": ""}, "option flowId: empty flow id")
+}
+
+// TestFlowLinkAsyncStepAndMisspelledTimeout checks the names the designer writes:
+// flowlink-async is a flowlink, and requestTimout is requestTimeout.
+func TestFlowLinkAsyncStepAndMisspelledTimeout(t *testing.T) {
+	id := t.Name()
+	a := mustProcessor(t, stepdef.Sink, "flowlink-async", map[string]any{
+		"targetFlowId": id, "transport": "async", "exchangePattern": "InOut", "requestTimout": "30",
+	}).(stepdef.ActionProcessor)
+	if _, err := a.Process(context.Background(), message.New("x")); err == nil || err.Error() != "flow "+id+" did not reply within 30ms" {
+		t.Errorf("err = %v, want the misspelled timeout of 30ms to apply", err)
+	}
+
+	// The misspelling wins when both are there; either alone is used.
+	for opts, want := range map[string]string{
+		`{"requestTimeout": 20000, "requestTimout": 25}`: "25ms",
+		`{"requestTimeout": 35}`:                         "35ms",
+	} {
+		var o map[string]any
+		if err := json.Unmarshal([]byte(opts), &o); err != nil {
+			t.Fatal(err)
+		}
+		o["targetFlowId"], o["exchangePattern"] = id, "InOut"
+		if _, err := link(t, o).Process(context.Background(), message.New("x")); err == nil || !strings.HasSuffix(err.Error(), "within "+want) {
+			t.Errorf("%s: err = %v, want a wait of %s", opts, err, want)
+		}
+	}
+
+	// A flowlink-async source listens like a flowlink source.
+	target(t, id+"-source", func(m message.Message) (message.Message, error) { return message.New("seen"), nil })
+	if _, err := newProcessor(stepdef.Source, "flowlink-async", map[string]any{"flowId": id, "transport": "async"}); err != nil {
+		t.Errorf("flowlink-async source: %v", err)
+	}
+}
+
+// TestFlowLinkActiveMQTransportIsAsync checks that the transport the designer
+// writes for queue-backed links does not wait for the target, like async.
+func TestFlowLinkActiveMQTransportIsAsync(t *testing.T) {
+	id := t.Name()
+	a := link(t, map[string]any{"targetFlowId": id, "transport": "activemq", "exchangePattern": "InOnly"})
+	out, err := a.Process(context.Background(), message.New("x"))
+	if err != nil || out[message.Body] != "x" {
+		t.Fatalf("Process = %v, %v; want the message back without waiting for a target", out, err)
+	}
+	e, err := linkEndpoint(id).take(context.Background())
+	if err != nil || e.m[message.Body] != "x" {
+		t.Errorf("target got %v, %v; want the message queued", e.m, err)
+	}
 }

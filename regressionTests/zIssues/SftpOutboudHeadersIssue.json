@@ -99,7 +99,7 @@
 										"autoCreate": true,
 										"fileExist": "Override",
 										"userName": "${header.FtpUsername}",
-										"password": "ENC(aNl4DEh2R65gVyXx9+RhzQ==|OpXHgAEvG38fynHp3jBn+Q==|Dm1YX5bZ1+X/vZa+yAoAm2AMXlJgDNk5gA6dI1uvAe8tcEBA6rJDl78yrBlGI2J6SKl5iccqbaYEerrf81xY2yVh1Nt3a83L/QWtIbUppwfRJOs9sihtBCHzWRO2t1O2WrXOVAPsv45jhGre04jmbw==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"disconnect": true,
 										"passiveMode": true
 									},

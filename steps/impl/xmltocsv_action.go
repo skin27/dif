@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -12,23 +13,32 @@ import (
 )
 
 // xmlToCSVAction converts an XML body to CSV: every child of the root
-// element is a record (see xmlRecords), and every child of a record a field.
-// The columns are ordered as orderHeaders says; a record without a column's
-// field has it empty.
+// element, or every element that xPathExpression selects, is a record (see
+// xmlRecords), and every child of a record a field. The columns are ordered as
+// orderHeaders says; a record without a column's field has it empty.
 //
-// quoteFields quotes all fields, only non-empty ones, or none; a field that
-// holds the delimiter, a quote or a line break is always quoted.
+// quoteFields quotes all fields, only non-empty ones, all but integers, or
+// none; a field that holds the delimiter, a quote or a line break is always
+// quoted.
 type xmlToCSVAction struct {
 	includeHeader, includeIndex bool
 	indexName, delimiter, eol   string
-	ordered                     bool
+	order                       string // orderHeaders
 	quote                       string
+	path                        xpath // nil: the root's children
 }
 
 func newXMLToCSVAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
-	eol := map[string]string{"linefeed": "\n", "carriage_return": "\r", "carriage_return_linefeed": "\r\n"}[p["lineSeparator"].(string)]
+	eol := map[string]string{"linefeed": "\n", "carriage_return": "\r", "carriage_return_linefeed": "\r\n", "endofline": systemEOL}[p["lineSeparator"].(string)]
 	if d := p["delimiter"].(string); d == "" || strings.ContainsAny(d, "\"\r\n") {
 		return nil, fmt.Errorf("option delimiter: %q is empty or holds a quote or line break", d)
+	}
+	var path xpath
+	if expr, _ := p["xPathExpression"].(string); strings.TrimSpace(expr) != "" {
+		var err error
+		if path, err = compileXPath(expr); err != nil {
+			return nil, fmt.Errorf("option xPathExpression: %w", err)
+		}
 	}
 	return xmlToCSVAction{
 		includeHeader: p["includeHeader"].(bool),
@@ -36,8 +46,9 @@ func newXMLToCSVAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		indexName:     p["indexColumnName"].(string),
 		delimiter:     p["delimiter"].(string),
 		eol:           eol,
-		ordered:       p["orderHeaders"] == "ordered",
+		order:         p["orderHeaders"].(string),
 		quote:         p["quoteFields"].(string),
+		path:          path,
 	}, nil
 }
 
@@ -47,7 +58,11 @@ func (a xmlToCSVAction) Process(_ context.Context, m message.Message) (message.M
 		return nil, err
 	}
 
-	columns, records := xmlRecords(root.children, a.ordered)
+	rows, err := xmlRows(root, a.path, bytesOf(m[message.Body]))
+	if err != nil {
+		return nil, err
+	}
+	columns, records := xmlRecords(rows, a.order)
 
 	var b strings.Builder
 	if a.includeHeader {
@@ -73,12 +88,42 @@ func (a xmlToCSVAction) Process(_ context.Context, m message.Message) (message.M
 	return m, nil
 }
 
+// systemEOL is the end of a line on the system DIF runs on.
+var systemEOL = func() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
+	}
+	return "\n"
+}()
+
+// xmlRows returns the rows of the document data, whose root is root: the
+// elements path selects, or the children of the root if path is nil.
+func xmlRows(root *xmlElem, path xpath, data []byte) ([]*xmlElem, error) {
+	if path == nil {
+		return root.children, nil
+	}
+	nodes, err := path.selectXML(data)
+	if err != nil {
+		return nil, err
+	}
+	rows := make([]*xmlElem, 0, len(nodes))
+	for _, n := range nodes {
+		e, err := parseXMLTree([]byte(n.raw))
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, e)
+	}
+	return rows, nil
+}
+
 // xmlRecords turns rows into records: every child of a row is a field, whose
 // name is its column and whose trimmed text is its value; a row without
 // children is one field named after itself. The columns are the field names
-// in the order they first appear, or alphabetically if ordered. A repeated
-// field keeps its last value.
-func xmlRecords(rows []*xmlElem, ordered bool) (columns []string, records []map[string]string) {
+// in the order they first appear (order unordered), or alphabetically, from A
+// (ordered or ascending) or from Z (descending). A repeated field keeps its
+// last value.
+func xmlRecords(rows []*xmlElem, order string) (columns []string, records []map[string]string) {
 	records = make([]map[string]string, 0, len(rows))
 	for _, row := range rows {
 		fields := row.children
@@ -94,8 +139,12 @@ func xmlRecords(rows []*xmlElem, ordered bool) (columns []string, records []map[
 		}
 		records = append(records, record)
 	}
-	if ordered {
+	switch order {
+	case "ordered", "ascending":
 		slices.Sort(columns)
+	case "descending":
+		slices.Sort(columns)
+		slices.Reverse(columns)
 	}
 	return columns, records
 }
@@ -106,11 +155,17 @@ func (a xmlToCSVAction) writeLine(b *strings.Builder, fields []string) {
 			b.WriteString(a.delimiter)
 		}
 		needed := strings.Contains(f, a.delimiter) || strings.ContainsAny(f, "\"\r\n")
-		if needed || a.quote == "all_fields" || a.quote == "non_empty_fields" && f != "" {
+		if needed || a.quote == "all_fields" || a.quote == "non_empty_fields" && f != "" || a.quote == "non_integer_fields" && !isInteger(f) {
 			b.WriteString(`"` + strings.ReplaceAll(f, `"`, `""`) + `"`)
 		} else {
 			b.WriteString(f)
 		}
 	}
 	b.WriteString(a.eol)
+}
+
+// isInteger reports whether s is a whole number: digits with an optional sign.
+func isInteger(s string) bool {
+	_, err := strconv.ParseInt(s, 10, 64)
+	return err == nil
 }

@@ -11,5 +11,5 @@ values:
   - key: PATH
     value: inbound_http/regressiontests
   - key: HC_token
-    value: i3DWepr4gM7EfH69tXRm1CYRQrNAYWsd
+    value: "dummy-token-6"
 color: 300

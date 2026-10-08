@@ -19,7 +19,7 @@
 										"as2To": "DOVETAIL_INBOUND",
 										"as2MessageStructure": "ENCRYPTED",
 										"alias": "Seacon Logistics 2030",
-										"password": "]z@4&w0\\2Sz6OL",
+										"password": "dummy-password-9",
 										"serverPortNumber": "9002",
 										"requestUriPattern": "/AS2InboundEncrypted",
 										"serverFqdn": "dovetail.world",

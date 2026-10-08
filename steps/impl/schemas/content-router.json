@@ -5,6 +5,16 @@
 	"description": "Sends the message along the first outbound link whose condition (the link's language and expression) holds, else along the link without a condition.",
 	"type": "object",
 	"properties": {
+		"expression": {
+			"title": "Expression",
+			"description": "Accepted for compatibility; has no effect. The conditions are the language and expression of the outbound links",
+			"type": "string"
+		},
+		"namespace": {
+			"title": "Namespace",
+			"description": "Accepted for compatibility; has no effect yet. The namespace of the ns prefix in xpath conditions, which are not supported with namespaces",
+			"type": "string"
+		},
 		"exchangePattern": {
 			"title": "Exchange pattern",
 			"description": "Accepted for compatibility; has no effect",

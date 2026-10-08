@@ -82,7 +82,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "1521",
 										"username": "system",
-										"password": "oracle"
+										"password": "dummy-password-4"
 									},
 									"links": {
 										"link": [
@@ -136,7 +136,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "1521",
 										"username": "system",
-										"password": "oracle"
+										"password": "dummy-password-4"
 									},
 									"links": {
 										"link": [

@@ -80,7 +80,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "5432",
 										"username": "postgres",
-										"password": "ENC(dX8e2g6MbllkHgTRN2t9tQ==|N7WspUb0Liz82mmq6Ao4Zg==|OpB4lgYZNRD4bQDAzR/QJUQFKwk16n+/aZFMBQbSxB7Zszn4mNbnrUNBQgEszyXL/gnJFN47X5EHWBRw6S9v1kYejXZY0MsTML2jn3Bi2/4=)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"useSSL": false,
 										"tlsVersion": "TLSv1"
 									},
@@ -152,7 +152,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "5432",
 										"username": "postgres",
-										"password": "ENC(nxZEeydVpK73QLHsv/L7Qw==|qfCRecfE0QMpYsipBbE7Yg==|lMEc76cYo6VgTjYmCJTsksk0wMxwbdn/MNpBA6Ik80G07aXKJDS2cYHeDwNDcwkE3iGhbKA16a8vHa7iZ9/9imvS7Q4iRA9wwc/hNhaVWbE=)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"useSSL": false,
 										"tlsVersion": "TLSv1"
 									},

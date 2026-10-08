@@ -46,6 +46,12 @@
       "minimum": 1,
       "default": 20000
     },
+    "requestTimout": {
+      "title": "Request timeout (misspelled)",
+      "description": "Same as requestTimeout, as the designer writes it; it wins when both are set",
+      "type": "integer",
+      "minimum": 1
+    },
     "overflow": {
       "description": "Admission policy when the channel is full",
       "default": "fail",

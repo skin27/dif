@@ -10,6 +10,17 @@
 			"description": "The core message whose headers are set, from the URI (setheaders:message:<name>)",
 			"type": "string"
 		},
+		"expression": {
+			"title": "Expression",
+			"description": "Accepted for compatibility; has no effect. The headers are those of the core message",
+			"type": "string"
+		},
+		"writeAsString": {
+			"title": "Write as string",
+			"description": "Accepted for compatibility; has no effect yet. For jsonpath headers: write a JSON result as text, not as a value",
+			"type": "boolean",
+			"default": false
+		},
 		"headers": {
 			"title": "Headers",
 			"description": "JSON array of {name, value, language}; language is constant or simple (default). Filled in from the core message by the DIL parser",

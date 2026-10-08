@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:xmltojson-action",
 	"title": "xmltojson action",
-	"description": "Converts an XML body to JSON as json-lib does: attributes as @name, text beside attributes or children as #text, repeated elements as arrays, the root element left out.",
+	"description": "Converts an XML body to JSON as json-lib (Camel's xmljson) does: attributes as @name, namespace declarations as @xmlns, text beside attributes or children as #text, elements with one name and elements that hold only such elements as arrays, the root element left out.",
 	"type": "object",
 	"properties": {
 		"forceTopLevelObject": {
@@ -13,19 +13,19 @@
 		},
 		"skipWhitespace": {
 			"title": "Skip whitespace",
-			"description": "Text that is only whitespace becomes empty",
+			"description": "Whitespace between elements does not make an element an array of its children, and an element with only text and attributes is null",
 			"type": "boolean",
 			"default": false
 		},
 		"trimSpaces": {
 			"title": "Trim spaces",
-			"description": "Trim the whitespace around text",
+			"description": "Trim the whitespace around text and attribute values",
 			"type": "boolean",
 			"default": false
 		},
 		"skipNamespaces": {
 			"title": "Skip namespaces",
-			"description": "Leave out namespace declarations (xmlns attributes)",
+			"description": "Leave out namespace declarations (@xmlns)",
 			"type": "boolean",
 			"default": false
 		},
@@ -37,7 +37,7 @@
 		},
 		"typeHints": {
 			"title": "Type hints",
-			"description": "A json_type attribute (number, boolean, string, null, array, object) sets the JSON type; otherwise all values are strings",
+			"description": "The attributes type (number, integer, float, boolean, string, function) and class (object, array) set the JSON type, and null=\"true\" makes it null; they are left out of the result. Without, they are attributes like any other (json_type and json_class are the hints) and all values are strings",
 			"type": "boolean",
 			"default": false
 		}

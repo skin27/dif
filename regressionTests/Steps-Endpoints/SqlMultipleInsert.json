@@ -109,7 +109,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "5432",
 										"username": "postgres",
-										"password": "ENC(JyaOObiX11mrmIzxLNqBFQ==|foOnEqtgdMpGFxR7X3yI5A==|MhXIgs9xlQLC82+JNFuKlGanWxyJ6FsPMg05wpCS3/bN5c5R7pO+HhGU7zFi0fuwIu+/oek3kGYiQBrrGPCBJPKz9rhsCOGlbHVEkzL+nWw=)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [

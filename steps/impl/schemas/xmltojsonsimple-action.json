@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:xmltojsonsimple-action",
 	"title": "xmltojsonsimple action",
-	"description": "Converts an XML body to JSON as org.json does: {\"root\": ...}, attributes and children by name, text beside them as content, repeated elements as arrays.",
+	"description": "Converts an XML body to JSON: {\"root\": ...}, attributes as @name, children by name, text beside them as jsonContent, repeated elements as arrays.",
 	"type": "object",
 	"properties": {
 		"keepStrings": {
@@ -31,9 +31,9 @@
 		},
 		"typeValueMismatch": {
 			"title": "Type value mismatch",
-			"description": "With hasTypes, text that does not fit its type becomes null (NULL) or stays a string (ORIGINAL)",
+			"description": "With hasTypes, text that does not fit its type becomes null (NULL), stays a string (ORIGINAL) or fails the conversion (ERROR); not case sensitive",
 			"type": "string",
-			"enum": ["NULL", "ORIGINAL"],
+			"enum": ["NULL", "ORIGINAL", "ERROR"],
 			"default": "ORIGINAL"
 		}
 	},

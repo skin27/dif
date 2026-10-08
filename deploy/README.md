@@ -68,10 +68,10 @@ across crashes are required.
 
 Keep credentials out of ConfigMaps and images. Mount keystore files from a
 Secret and supply passwords with Secret `secretKeyRef` entries using
-`DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, and `DIF_SMTP_PASSWORD`.
+`DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` (the password of the `ENC(...)` values in flows).
 Alternatively set their `_FILE` companions to mounted password-file paths.
 Precedence is explicit step option, direct environment variable, then mounted
-file. One trailing LF/CRLF is removed; files are limited to 64 KiB. An explicitly
+file (`DIF_ENCRYPTION_PASSWORD` has no step option). One trailing LF/CRLF is removed; files are limited to 64 KiB. An explicitly
 empty environment value overrides its file companion. SMTP retains its existing
 behavior of falling back to the environment when its password option is empty.
 Do not put credentials in command arguments or remote URLs. HTTPS URL query

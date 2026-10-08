@@ -199,3 +199,19 @@ func TestSplitInvalid(t *testing.T) {
 		}
 	}
 }
+
+// TestContentRouterAcceptsDesignerOptions checks the options that the designer
+// writes on a content router: the conditions are the ones on the links, so the
+// step's expression changes nothing.
+func TestContentRouterAcceptsDesignerOptions(t *testing.T) {
+	opts := map[string]any{"expression": "${header.config}", "namespace": "urn:x", "exchangePattern": "InOut"}
+	links := []stepdef.Link{{}, {Expression: "${header.config} == 'A'", Language: "simple"}}
+	for config, want := range map[string]int{"A": 1, "B": 0} {
+		m := message.New("x")
+		m["config"] = config
+		routes := route(t, "content", opts, links, m)
+		if len(routes) != 1 || routes[0].Next != want {
+			t.Errorf("config %s: routes = %v, want link %d", config, routes, want)
+		}
+	}
+}

@@ -2,12 +2,15 @@ package registry
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 
 	flowdef "dif/flows/definition"
+	"dif/internal/secret"
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
@@ -221,5 +224,107 @@ func TestSteps(t *testing.T) {
 	}
 	if got := r.Steps(); !reflect.DeepEqual(got, want) {
 		t.Errorf("Steps() = %+v\nwant %+v", got, want)
+	}
+}
+
+const secretSchema = `{"type": "object", "properties": {"path": {"type": "string"}, "password": {"type": "string"}, "headers": {"type": "string"}, "note": {"type": "string"}}, "additionalProperties": false}`
+
+func secretRegistry(t *testing.T) *Registry {
+	t.Helper()
+	r := New()
+	if err := r.Register(stepdef.Definition{Name: "sec", Kind: stepdef.Action, Schema: []byte(secretSchema), New: newRecorder}); err != nil {
+		t.Fatal(err)
+	}
+	return r
+}
+
+// encrypted returns an ENC(...) value for plain, made with the password.
+func encrypted(t *testing.T, password, plain string) string {
+	t.Helper()
+	v, err := secret.EncryptWith(password, []byte("0123456789abcdef"), []byte("fedcba9876543210"), plain)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return v
+}
+
+func TestProcessorDecryptsEncryptedOptions(t *testing.T) {
+	r := secretRegistry(t)
+	t.Setenv(secret.PasswordEnv, "test-password")
+	password := encrypted(t, "test-password", `p"w\d`)
+	headers := `[{"name":"Authorization","value":"` + encrypted(t, "test-password", `Basic "x"`) + `","language":"constant"}]`
+	n := &flowdef.Node{ID: "s1", Kind: flowdef.Action, URI: "sec:host/dir?key=" + password, Options: map[string]any{
+		"password": password,
+		"headers":  headers,
+		"note":     "ENC(this is not a value)",
+	}}
+
+	p, err := r.Processor(n)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := p.(recorder).params
+	if got["password"] != `p"w\d` {
+		t.Errorf("password = %q", got["password"])
+	}
+	if got["path"] != `host/dir?key=p"w\d` {
+		t.Errorf("an encrypted value in the URI path is not decrypted: path = %q", got["path"])
+	}
+	if got["note"] != "ENC(this is not a value)" {
+		t.Errorf("text that only looks like a value was changed: %q", got["note"])
+	}
+	var list []map[string]string
+	if err := json.Unmarshal([]byte(got["headers"].(string)), &list); err != nil || list[0]["value"] != `Basic "x"` {
+		t.Errorf("headers = %v, %v", got["headers"], err)
+	}
+	// The flow model keeps the encrypted values: nothing outside the processor sees the plain text.
+	if n.Options["password"] != password || n.Options["headers"] != headers || n.URI != "sec:host/dir?key="+password {
+		t.Error("the node was changed")
+	}
+}
+
+func TestValidateNeedsNoPassword(t *testing.T) {
+	r := secretRegistry(t)
+	t.Setenv(secret.PasswordEnv, "")
+	os.Unsetenv(secret.PasswordEnv)
+	n := &flowdef.Node{ID: "s1", Kind: flowdef.Action, URI: "sec", Options: map[string]any{"password": encrypted(t, "x", "y")}}
+	if err := r.Validate(n); err != nil {
+		t.Errorf("Validate: %v", err)
+	}
+}
+
+func TestProcessorExplainsMissingAndWrongPasswords(t *testing.T) {
+	r := secretRegistry(t)
+	value := encrypted(t, "right", "plain")
+	n := &flowdef.Node{ID: "s1", Kind: flowdef.Action, URI: "sec", Options: map[string]any{"password": value}}
+
+	t.Setenv(secret.PasswordEnv, "")
+	os.Unsetenv(secret.PasswordEnv)
+	_, err := r.Processor(n)
+	if !errors.Is(err, secret.ErrNoPassword) || !strings.Contains(err.Error(), "option password") || !strings.Contains(err.Error(), secret.PasswordEnv) {
+		t.Errorf("no password: %v", err)
+	}
+
+	t.Setenv(secret.PasswordEnv, "wrong")
+	_, err = r.Processor(n)
+	if !errors.Is(err, secret.ErrDecrypt) || !strings.HasPrefix(err.Error(), "sec: option password") {
+		t.Errorf("wrong password: %v", err)
+	}
+	if strings.Contains(err.Error(), value) || strings.Contains(err.Error(), "plain") {
+		t.Errorf("the error shows the value: %v", err)
+	}
+}
+
+func TestProcessorLeavesOptionsWithoutValuesAlone(t *testing.T) {
+	r := secretRegistry(t)
+	t.Setenv(secret.PasswordEnv, "")
+	os.Unsetenv(secret.PasswordEnv) // no password is needed when there is nothing to decrypt
+	n := &flowdef.Node{ID: "s1", Kind: flowdef.Action, URI: "sec:a", Options: map[string]any{"password": "plain", "note": "ENC(abc)"}}
+	p, err := r.Processor(n)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := p.(recorder).params; got["password"] != "plain" || got["note"] != "ENC(abc)" {
+		t.Errorf("params = %v", got)
 	}
 }

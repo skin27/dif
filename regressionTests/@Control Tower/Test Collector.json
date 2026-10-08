@@ -161,7 +161,7 @@
 										"autoCreate": true,
 										"fileExist": "Append",
 										"userName": "dovetail",
-										"password": "ENC(VgQ+4T90ZFaWAoSb0+xMrg==|MxocSUoFcAaKOmP906OCqQ==|K17K4mJlBTOZjdl10sw6d++CTt3XHKwmW43fQEkqNVWf5SLJ8bR5RoOkxhDZoq7wF2mrJz6nRncOmvrAIY1XgFZUyYOhY6JwgkqsjxbBV4UjsclU33tCQm+1fPDNZrjrKxFar+k8F/WXlcrq+130UA==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"disconnect": true,
 										"passiveMode": true
 									},
@@ -223,7 +223,7 @@
 										"autoCreate": true,
 										"fileExist": "Append",
 										"userName": "dovetail",
-										"password": "ENC(Vwz7rzqGJREVXtKWPggwow==|Hhqe5n9TCaRL1ggTQ2bXdA==|04rt427UG81GAS1LyrG3zO289B6P/bil4YJ1ETvqkbr0FEBwKvVtLODjN5vcaUVlcxwzUH5gIYKFlMQpd2GVABYaWGURulAKei/W9TwbqAWaV8+wSI2+OMnvrZxWutzRBl5A0L/g2naZCBZDGsHa4g==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"disconnect": true,
 										"passiveMode": true
 									},
@@ -255,7 +255,7 @@
 					"keys": {
 						"path": "/regressiontests/TestCollector",
 						"username": "tester",
-						"password": "ENC(qeOj/k46fdcqTL2d9SPv0Q==|sV4hsi7KxtOllrohl9SpZA==|vUAZfn+iIv+ZHSWdIfjbT9e1YYvczfsC73qVxGF1MKv2u/ylH+Zx64vXZquWz83y)"
+						"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 					}
 				}
 			}

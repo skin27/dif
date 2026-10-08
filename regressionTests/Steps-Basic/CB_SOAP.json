@@ -77,7 +77,7 @@
 										"extract": true,
 										"action": "FullCountryInfo",
 										"httpHeaders": "[{\"_id\":\"e88fe2b2-371f-4271-a30b-06353bd2e951\",\"name\":\"ApiToken\",\"value\":\"123\"}]",
-										"token": "123",
+										"token": "dummy-token-7",
 										"params": "WSDL"
 									},
 									"links": {

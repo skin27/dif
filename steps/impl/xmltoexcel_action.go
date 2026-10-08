@@ -25,7 +25,7 @@ import (
 type xmlToExcelAction struct {
 	includeHeader, includeIndex bool
 	indexName                   string
-	ordered                     bool
+	order                       string // orderHeaders
 	custom                      []excelWorksheet
 }
 
@@ -41,7 +41,7 @@ func newXMLToExcelAction(_ string, p stepdef.Params) (stepdef.Processor, error) 
 		includeHeader: p["includeHeader"].(bool),
 		includeIndex:  p["includeIndexColumn"].(bool),
 		indexName:     p["indexColumnName"].(string),
-		ordered:       p["orderHeaders"] == "ordered",
+		order:         p["orderHeaders"].(string),
 	}
 	if !p["useCustomWorksheets"].(bool) {
 		return a, nil
@@ -113,20 +113,9 @@ func (a xmlToExcelAction) Process(_ context.Context, m message.Message) (message
 	if a.custom != nil {
 		sheets = sheets[:0]
 		for _, w := range a.custom {
-			rows := root.children
-			if w.path != nil {
-				nodes, err := w.path.selectXML(body)
-				if err != nil {
-					return nil, err
-				}
-				rows = nil
-				for _, n := range nodes {
-					e, err := parseXMLTree([]byte(n.raw))
-					if err != nil {
-						return nil, err
-					}
-					rows = append(rows, e)
-				}
+			rows, err := xmlRows(root, w.path, body)
+			if err != nil {
+				return nil, err
 			}
 			sheets = append(sheets, outSheet{w.Name, a.table(rows)})
 		}
@@ -143,7 +132,7 @@ func (a xmlToExcelAction) Process(_ context.Context, m message.Message) (message
 
 // table returns the cells of a worksheet whose rows are the elements rows.
 func (a xmlToExcelAction) table(rows []*xmlElem) [][]string {
-	columns, records := xmlRecords(rows, a.ordered)
+	columns, records := xmlRecords(rows, a.order)
 	var table [][]string
 	if a.includeHeader {
 		line := columns

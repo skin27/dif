@@ -6,7 +6,6 @@ import (
 	"dif/message"
 	stepdef "dif/steps/definition"
 	"fmt"
-	"time"
 )
 
 // deadLetterSink puts a copy of the message on a configured queue, the dead
@@ -67,7 +66,7 @@ func newQueueAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		targetID: id,
 		wait:     wait,
 		inOut:    p["exchangePattern"] == message.InOut,
-		timeout:  time.Duration(p["requestTimeout"].(int)) * time.Millisecond,
+		timeout:  requestTimeout(p),
 	}, nil
 }
 

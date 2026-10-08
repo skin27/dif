@@ -40,7 +40,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "3306",
 										"username": "root",
-										"password": "ENC(K8Yqwk/jUrte7QbhXYHB1Q==|6LzFNsDWRg3yce9HSucbnw==|hiEzmKm9S0+U5sEiJxYs4JcZnEJT23fUml+2YEqH4/6gsBhlnuTz/985fpkNqOvp1xsfo3x4MbO2xuYcbdwhKsmkzp9e9/T+bVVTWlJikbU=)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [
@@ -90,7 +90,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "3306",
 										"username": "root",
-										"password": "ENC(C6SW4TO8HqO/tSkAwtQpyg==|jEy5TE1CA12mtUMLDZuHcA==|QcV8kWkVazri5I43/MV9oUgqmxhZt99pUfJgQfUlZIRHWXCehT4wJ18G8OyJ+rzM9Xx/PNHU1KbrmB9VR/7V6zpjJN+kCtI7wqtwlHVQny4=)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [

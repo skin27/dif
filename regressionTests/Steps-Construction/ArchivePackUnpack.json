@@ -148,7 +148,7 @@
 										"autoCreate": true,
 										"fileExist": "Override",
 										"userName": "dovetail",
-										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"password": "dummy-password-8",
 										"disconnect": true,
 										"passiveMode": true
 									},
@@ -281,7 +281,7 @@
 										"autoCreate": true,
 										"fileExist": "Override",
 										"userName": "dovetail",
-										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"password": "dummy-password-8",
 										"disconnect": true,
 										"passiveMode": true
 									},

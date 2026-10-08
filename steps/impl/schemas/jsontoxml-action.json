@@ -31,7 +31,7 @@
 		},
 		"typeHints": {
 			"title": "Type hints",
-			"description": "Give every element a json_type attribute with its JSON type",
+			"description": "Give every element the attributes class (object, array) or type (string, number, boolean) that say what it is",
 			"type": "boolean",
 			"default": false
 		}

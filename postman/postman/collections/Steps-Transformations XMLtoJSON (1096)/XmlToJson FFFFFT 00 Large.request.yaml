@@ -1,9 +1,8 @@
 $kind: http-request
-url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/production/{{PATH}}/XmlToJsonLarge?t\
-  oken=Hump2007"
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/production/{{PATH}}/XmlToJsonLarge?token=dummy-token-9"
 method: GET
 queryParams:
-  token: Hump2007
+  token: "dummy-token-9"
 body:
   type: file
   content: {}

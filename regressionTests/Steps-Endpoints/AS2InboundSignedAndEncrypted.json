@@ -19,7 +19,7 @@
 										"as2To": "DOVETAIL_INBOUND",
 										"as2MessageStructure": "SIGNED_ENCRYPTED",
 										"alias": "Key3",
-										"password": "test",
+										"password": "dummy-password-11",
 										"serverPortNumber": "9002",
 										"requestUriPattern": "/AS2InboundSignedAndEncrypted",
 										"serverFqdn": "dovetail.world",

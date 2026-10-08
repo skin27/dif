@@ -109,7 +109,7 @@
 										"fromEmailPreference": "norman.hooghof@fluxygen.com",
 										"from": "norman.hooghof@fluxygen.com",
 										"authenticationType": "oauth2",
-										"accessToken": "ENC(GncPKNUVggKJam6ikpIG0Q==|Ll4cEoF01zLNxVwcO1rGjg==|PBym1iQlpg0Ma5Glfa4IoQ==)",
+										"accessToken": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"tenantDbName": "regressiontests"
 									},
 									"links": {
@@ -169,7 +169,7 @@
 				"connection": {
 					"type": "springai",
 					"keys": {
-						"apikey": "ENC(PxKxsrcwJwzSKagwc+h9fg==|xPsENVVfgX8VKbxwoZxqEQ==|VcBIzljQ1PEmzi3q0R8/lVCTPrIz9u67KOcU5PPrZGysAtO5ed76gMlsHC3UbBuuitFS/U1SfBDmqRXDVPzo7A==)",
+						"apikey": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 						"modelname": "gemini-3-flash-preview",
 						"temperature": "0.7"
 					},

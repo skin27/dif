@@ -45,7 +45,13 @@ func newEnrichRouter(id string, p stepdef.Params) (stepdef.Processor, error) {
 	if r.enrich < 0 || r.main < 0 {
 		return nil, fmt.Errorf("needs one outbound link with rule enrich and one without")
 	}
-	switch p["enrichType"] {
+	kind := p["enrichType"]
+	for _, older := range []string{"enrichFileType", "enrichMethod"} { // the last one set wins
+		if v, ok := p[older]; ok {
+			kind = v
+		}
+	}
+	switch kind {
 	case "override":
 		r.merge = func(_, e message.Message) (message.Message, error) { return e, nil }
 	case "xml":

@@ -16,6 +16,11 @@ import (
 // enum, default and minimum, plus required and additionalProperties.
 // A schema using any other keyword is rejected when it is compiled, so it can
 // never silently rely on something that is not checked.
+//
+// A string option that has an enum matches its values regardless of case, as
+// the Java platform's enums do, and the step gets the spelling of the schema:
+// "original" for an option whose enum holds "ORIGINAL" is valid and arrives
+// as "ORIGINAL".
 type schema struct {
 	description string
 	props       map[string]*property
@@ -159,11 +164,16 @@ func (s *schema) validate(opts map[string]any) (stepdef.Params, error) {
 			continue
 		}
 		c, ok := coerce(v, p.typ)
+		if ok && p.enum != nil {
+			var inEnum bool
+			if c, inEnum = p.inEnum(c); !inEnum {
+				problems = append(problems, fmt.Sprintf("option %s: %s is not one of %s", name, show(c), showAll(p.enum)))
+				continue
+			}
+		}
 		switch {
 		case !ok:
 			problems = append(problems, fmt.Sprintf("option %s: want %s, got %s", name, p.typ, show(v)))
-		case p.enum != nil && !slices.Contains(p.enum, c):
-			problems = append(problems, fmt.Sprintf("option %s: %s is not one of %s", name, show(c), showAll(p.enum)))
 		case p.minimum != nil && toFloat(c) < *p.minimum:
 			problems = append(problems, fmt.Sprintf("option %s: %s is less than %v", name, show(c), *p.minimum))
 		default:
@@ -198,6 +208,22 @@ func (s *schema) validate(opts map[string]any) (stepdef.Params, error) {
 		return nil, fmt.Errorf("%s", strings.Join(problems, "; "))
 	}
 	return params, nil
+}
+
+// inEnum returns the enum value that v is: v itself, or for a string the value
+// of the enum that differs from it only in case.
+func (p *property) inEnum(v any) (any, bool) {
+	if slices.Contains(p.enum, v) {
+		return v, true
+	}
+	if s, ok := v.(string); ok {
+		for _, e := range p.enum {
+			if es, ok := e.(string); ok && strings.EqualFold(es, s) {
+				return e, true
+			}
+		}
+	}
+	return v, false
 }
 
 // coerce converts v to typ. DIL converted from XML often holds numbers and

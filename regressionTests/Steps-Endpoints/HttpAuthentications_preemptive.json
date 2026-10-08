@@ -98,7 +98,7 @@
 										"httpMethod": "POST",
 										"authMethod": "Basic",
 										"authUsername": "harry",
-										"authPassword": "potter",
+										"authPassword": "dummy-password-13",
 										"authenticationPreemptive": true,
 										"useErrorRoute": true,
 										"useCustomDateHeader": false,

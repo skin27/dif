@@ -80,7 +80,7 @@
 										"username": "norman.hooghof@fluxygen.com",
 										"from": "norman.hooghof@fluxygen.com",
 										"authenticationType": "basic",
-										"password": "qifpwjduigixoumq",
+										"password": "dummy-password-12",
 										"tenantDbName": "regressiontests"
 									},
 									"links": {

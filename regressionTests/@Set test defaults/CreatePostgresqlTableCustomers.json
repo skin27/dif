@@ -39,7 +39,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "5432",
 										"username": "postgres",
-										"password": "HD9z#cpt"
+										"password": "dummy-password-5"
 									},
 									"links": {
 										"link": [

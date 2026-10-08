@@ -82,7 +82,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "5432",
 										"username": "postgres",
-										"password": "ENC(X0sxSZmlKU/JZ3BS5Brmzg==|Dme0ICQaYvYPnrl03I/0VQ==|n2XScNlRiEgsgfRevFEL++p17WC/T74oaGExLJyoF6c8FLo/mrjyvC9NlYBEgUwhO84HOxDwcZ+KjAgd9xFM8Ite73vACqyedNR1iSwaNnA=)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [
@@ -155,7 +155,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "5432",
 										"username": "postgres",
-										"password": "ENC(SzfjvjzsVpALZlrJca8ybw==|MQBaHmVBuV9Q63Uyk+kz5Q==|i+I2OMRnSXQbF5lM9UX632uyeJnKFfUp88spX6aa5ZCJS5Yut+KIS9PnR0ncvzLEneMAHzNJ9z5cgSBCF/sIEerWvW7XuPE+ViBUhGc8nZ4=)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [

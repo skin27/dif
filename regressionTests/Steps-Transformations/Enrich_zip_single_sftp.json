@@ -167,7 +167,7 @@
 										"autoCreate": true,
 										"fileExist": "Override",
 										"userName": "dovetail",
-										"password": "ENC(WFX5s4IX7x1PlZhY+0LoxQ==|uc6rSvlQbPruTDKE+1uPuA==|JKv9eA7GWLjeqUf2pMTlJjPmwVw6DdbkzeD+JXuJpZoE5ukOcu/3CSyY6i39Rzyc6qkUoYVEM/m3TteB64n7PzljYHgdkJlBSZtO1FHaAHNDytGrRrY0ktSqb7GM7uow2BzZRVxXD1bQNcHQgz8BAA==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"disconnect": true,
 										"passiveMode": true
 									},
@@ -211,7 +211,7 @@
 										"fileName": "enrich3.txt",
 										"charset": "utf-8",
 										"userName": "dovetail",
-										"password": "ENC(9TqXLIOIU3Fh9Ubg3NZNHg==|LNEdNjJt/3S9iLRuvRpfsQ==|So66u49JWojvC4I7yDUrjG28zweLFm385sb/syWoVypBxc/ICZ1B2V9kQNadDuqtz/M4wiAzf0xCQ995iAk4KNfHErtgViD196JoWdPpZ7kTJwFmk0CUCBjT9nR2Gxv/Ggj8QqgPMFMTu/wqxyCWZA==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"disconnect": true,
 										"autoCreate": true,
 										"passiveMode": true,

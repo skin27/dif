@@ -91,7 +91,7 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
 		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts}
-		if n.Kind == flowdef.Source && n.URI == "flowlink" && opts["flowId"] == nil {
+		if n.Kind == flowdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") && opts["flowId"] == nil {
 			// A flow link source listens for its own flow, which DIL leaves out.
 			n.Options = maps.Clone(opts)
 			n.Options["flowId"] = df.ID
