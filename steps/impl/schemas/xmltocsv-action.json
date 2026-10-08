@@ -31,24 +31,29 @@
 		},
 		"lineSeparator": {
 			"title": "Line separator",
-			"description": "The end of every line: \\n, \\r or \\r\\n",
+			"description": "The end of every line: linefeed (\\n), carriage_return (\\r), carriage_return_linefeed (\\r\\n) or endofline (that of the system)",
 			"type": "string",
-			"enum": ["linefeed", "carriage_return", "carriage_return_linefeed"],
+			"enum": ["linefeed", "carriage_return", "carriage_return_linefeed", "endofline"],
 			"default": "linefeed"
 		},
 		"orderHeaders": {
 			"title": "Order headers",
-			"description": "Columns in the order they first appear (unordered) or alphabetically (ordered)",
+			"description": "Columns in the order they first appear (unordered) or alphabetically from A (ascending, or ordered) or from Z (descending)",
 			"type": "string",
-			"enum": ["unordered", "ordered"],
+			"enum": ["unordered", "ordered", "ascending", "descending"],
 			"default": "unordered"
 		},
 		"quoteFields": {
 			"title": "Quote fields",
-			"description": "Which fields to quote; a field holding the delimiter, a quote or a line break is always quoted",
+			"description": "Which fields to quote: all, the non-empty ones, all but whole numbers, or none; a field holding the delimiter, a quote or a line break is always quoted",
 			"type": "string",
-			"enum": ["all_fields", "non_empty_fields", "no_fields"],
+			"enum": ["all_fields", "non_empty_fields", "non_integer_fields", "no_fields"],
 			"default": "no_fields"
+		},
+		"xPathExpression": {
+			"title": "XPath expression",
+			"description": "The elements it selects are the records, such as /items/item; by default the children of the root",
+			"type": "string"
 		}
 	},
 	"additionalProperties": false

@@ -12,14 +12,15 @@
     },
     "transport": {
       "title": "Transport",
-      "description": "sync (also direct, vm): wait until the target flow has processed the message; async (also seda): do not wait, unless exchangePattern is InOut",
+      "description": "sync (also direct, vm): wait until the target flow has processed the message; async (also seda and activemq, which queue-backed links of the designer have): do not wait, unless exchangePattern is InOut",
       "type": "string",
       "enum": [
         "sync",
         "direct",
         "vm",
         "async",
-        "seda"
+        "seda",
+        "activemq"
       ],
       "default": "sync"
     },

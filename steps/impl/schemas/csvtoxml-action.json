@@ -17,6 +17,12 @@
 			"type": "boolean",
 			"default": false
 		},
+		"useHeaders": {
+			"title": "Use headers",
+			"description": "Same as useHeader (the newer name); either one turns it on",
+			"type": "boolean",
+			"default": false
+		},
 		"encoding": {
 			"title": "Encoding",
 			"description": "Encoding named in the XML declaration; the body itself stays text (use the encoder step to convert it)",

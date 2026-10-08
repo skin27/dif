@@ -25,9 +25,9 @@
 		},
 		"orderHeaders": {
 			"title": "Order headers",
-			"description": "Columns in the order they first appear (unordered) or alphabetically (ordered)",
+			"description": "Columns in the order they first appear (unordered) or alphabetically from A (ascending, or ordered) or from Z (descending)",
 			"type": "string",
-			"enum": ["unordered", "ordered"],
+			"enum": ["unordered", "ordered", "ascending", "descending"],
 			"default": "unordered"
 		},
 		"excelFormat": {

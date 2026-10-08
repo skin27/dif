@@ -156,6 +156,14 @@ func TestXMLToExcel(t *testing.T) {
 			map[string]any{"includeHeader": true, "orderHeaders": "ordered"},
 			"Sheet1!A1=code Sheet1!B1=name Sheet1!C1=price Sheet1!A2=007 Sheet1!B2=Food Sheet1!C2=1.5 Sheet1!B3=Cake & tea Sheet1!C3=2",
 		},
+		"ascending is ordered": {
+			map[string]any{"includeHeader": true, "orderHeaders": "ascending"},
+			"Sheet1!A1=code Sheet1!B1=name Sheet1!C1=price Sheet1!A2=007 Sheet1!B2=Food Sheet1!C2=1.5 Sheet1!B3=Cake & tea Sheet1!C3=2",
+		},
+		"descending": {
+			map[string]any{"includeHeader": true, "orderHeaders": "descending"},
+			"Sheet1!A1=price Sheet1!B1=name Sheet1!C1=code Sheet1!A2=1.5 Sheet1!B2=Food Sheet1!C2=007 Sheet1!A3=2 Sheet1!B3=Cake & tea",
+		},
 		// examples/xmltoexcel.json
 		"example options": {
 			map[string]any{"includeHeader": true, "includeIndexColumn": false, "indexColumnName": "line", "orderHeaders": "unordered", "excelFormat": "xlsx", "useCustomWorksheets": false, "worksheets": exampleWorksheets},

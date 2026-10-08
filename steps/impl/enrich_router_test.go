@@ -50,6 +50,31 @@ func TestEnrichOverride(t *testing.T) {
 	}
 }
 
+// TestEnrichOlderNames checks that enrichMethod and enrichFileType, which the
+// designer writes, choose the merge as enrichType does.
+func TestEnrichOlderNames(t *testing.T) {
+	for _, opts := range []map[string]any{
+		{"enrichMethod": "override"},
+		{"enrichFileType": "OVERRIDE"},
+		{"enrichType": "xml", "enrichMethod": "override"},
+		{"enrichType": "json", "enrichFileType": "xml", "enrichMethod": "override"},
+	} {
+		e := message.New("enriched")
+		out := enrich(t, opts, "<a/>", stepdef.Outcome{Message: e})
+		if out[message.Body] != "enriched" {
+			t.Errorf("%v: body = %v, want the enrichment to replace the message", opts, out[message.Body])
+		}
+	}
+	// Alone, or with the same value, they change nothing.
+	out := enrich(t, map[string]any{"enrichMethod": "xml"}, "<a/>", stepdef.Outcome{Message: message.New("<b/>")})
+	if out[message.Body] != "<a><b/></a>" {
+		t.Errorf("enrichMethod xml: body = %v", out[message.Body])
+	}
+	if _, err := newRouter(stepdef.Router, "enrich", map[string]any{"enrichMethod": "attachment"}, enrichLinks...); err == nil || !strings.Contains(err.Error(), `option enrichMethod: "attachment" is not one of`) {
+		t.Errorf("attachment: err = %v", err)
+	}
+}
+
 func TestEnrichXML(t *testing.T) {
 	tests := []struct{ body, enrichment, want string }{
 		{"<persons><person>A</person></persons>", `<?xml version="1.0"?>` + "\n<person>B</person>\n",

@@ -2,18 +2,18 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:encoder-action",
 	"title": "encoder action",
-	"description": "Converts the body from one charset to another: UTF-8, ISO-8859-1 or US-ASCII. Characters the target cannot hold become ?.",
+	"description": "Converts the body from one charset to another: UTF-8, ISO-8859-1, US-ASCII or windows-1252. Characters the target cannot hold become ?.",
 	"type": "object",
 	"properties": {
 		"originCharset": {
 			"title": "Origin charset",
-			"description": "Charset of the body: UTF-8, ISO-8859-1 or US-ASCII (case-insensitive)",
+			"description": "Charset of the body: UTF-8, ISO-8859-1 (ISO8859_1), US-ASCII or windows-1252 (CP1252); not case sensitive",
 			"type": "string",
 			"default": "UTF-8"
 		},
 		"targetCharset": {
 			"title": "Target charset",
-			"description": "Charset to convert the body to: UTF-8, ISO-8859-1 or US-ASCII (case-insensitive)",
+			"description": "Charset to convert the body to: UTF-8, ISO-8859-1 (ISO8859_1), US-ASCII or windows-1252 (CP1252); not case sensitive",
 			"type": "string",
 			"default": "UTF-8"
 		}

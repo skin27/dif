@@ -166,6 +166,10 @@ func TestXMLToCSV(t *testing.T) {
 			map[string]any{"includeHeader": true, "includeIndexColumn": true, "orderHeaders": "ordered", "quoteFields": "all_fields", "lineSeparator": "carriage_return_linefeed", "delimiter": ";"},
 			"\"line\";\"item\";\"name\";\"note\";\"price\"\r\n\"1\";\"\";\"a\";\"\";\"1\"\r\n\"2\";\"\";\"\";\"x, \"\"y\"\"\";\"2\"\r\n\"3\";\"solo\";\"\";\"\";\"\"\r\n"},
 		{"non-empty quoted", map[string]any{"quoteFields": "non_empty_fields", "includeHeader": true}, "\"name\",\"price\",\"note\",\"item\"\n\"a\",\"1\",,\n,\"2\",\"x, \"\"y\"\"\",\n,,,\"solo\"\n"},
+		{"all but integers quoted", map[string]any{"quoteFields": "non_integer_fields"}, "\"a\",1,\"\",\"\"\n\"\",2,\"x, \"\"y\"\"\",\"\"\n\"\",\"\",\"\",\"solo\"\n"},
+		{"descending", map[string]any{"orderHeaders": "descending", "includeHeader": true}, "price,note,name,item\n1,,a,\n2,\"x, \"\"y\"\"\",,\n,,,solo\n"},
+		{"ascending is ordered", map[string]any{"orderHeaders": "ascending", "includeHeader": true}, "item,name,note,price\n,a,,1\n,,\"x, \"\"y\"\"\",2\n" + "solo,,,\n"},
+		{"the system's end of line", map[string]any{"lineSeparator": "endofline", "orderHeaders": "ascending"}, ",a,,1" + systemEOL + ",,\"x, \"\"y\"\"\",2" + systemEOL + "solo,,," + systemEOL},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -173,6 +177,32 @@ func TestXMLToCSV(t *testing.T) {
 				t.Errorf("got  %q\nwant %q", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestXMLToCSVXPath(t *testing.T) {
+	const xml = `<items><list><item><ID>1</ID><Name>Pete</Name></item><item><ID>2</ID><Name>John</Name></item></list><item><ID>9</ID><Name>Not</Name></item></items>`
+	// The elements the expression selects are the records; by default the root's children are.
+	if got := convert(t, "xmltocsv", map[string]any{"xPathExpression": "/items/list/item", "quoteFields": "all_fields"}, xml); got != "\"1\",\"Pete\"\n\"2\",\"John\"\n" {
+		t.Errorf("xpath: got %q", got)
+	}
+	if got := convert(t, "xmltocsv", map[string]any{"xPathExpression": " "}, xml); got != "2John,,\n,9,Not\n" {
+		t.Errorf("blank xpath: got %q, want the root's children as records (list, then item)", got)
+	}
+	wantInvalid(t, stepdef.Action, "xmltocsv", map[string]any{"xPathExpression": "item["}, "option xPathExpression: unsupported xpath")
+}
+
+func TestCSVToXMLUseHeaders(t *testing.T) {
+	const csv = "a,b\n1,2\n"
+	want := convert(t, "csvtoxml", map[string]any{"useHeader": true}, csv)
+	if !strings.Contains(want, "<a>1</a>") {
+		t.Fatalf("useHeader: %s", want)
+	}
+	if got := convert(t, "csvtoxml", map[string]any{"useHeaders": "true"}, csv); got != want {
+		t.Errorf("useHeaders: got %s, want %s", got, want)
+	}
+	if got := convert(t, "csvtoxml", map[string]any{"useHeaders": false}, csv); !strings.Contains(got, "<field1>a</field1>") {
+		t.Errorf("useHeaders false: got %s", got)
 	}
 }
 

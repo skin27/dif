@@ -12,6 +12,18 @@
 			"enum": ["override", "xml", "json"],
 			"default": "xml"
 		},
+		"enrichMethod": {
+			"title": "Enrich method",
+			"description": "Same as enrichType (an older name); it wins when both are set",
+			"type": "string",
+			"enum": ["override", "xml", "json"]
+		},
+		"enrichFileType": {
+			"title": "Enrich file type",
+			"description": "Same as enrichType (an older name); it wins over enrichType, and enrichMethod wins over it",
+			"type": "string",
+			"enum": ["override", "xml", "json"]
+		},
 		"useErrorRoute": {
 			"title": "Use error route",
 			"description": "When the enrichment fails, fail the message (the flow's error route can take it); otherwise continue without the enrichment",
