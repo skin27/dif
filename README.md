@@ -1128,6 +1128,16 @@ steps plug in through the registry without touching the engine.
   are scalar. An `unknown` action with no options at all is `formtoxml`. Other
   `unknown` steps stay unknown and are rejected.
 
+## Regression tests
+
+`regressionTests/` holds 672 flows of real use cases and `postman/` the Postman
+requests that state what each flow must answer. `go test ./regression` builds the
+flows and `go test ./regression -postman` also runs the requests against DIF; the
+results are recorded in `regression/loadable.json` and
+`regression/postman-passing.json`, so that a regression fails the test. Groovy
+flows, custom steps and broken fixtures are skipped. See
+[regression/README.md](regression/README.md).
+
 ## Future work
 
 - More sources and steps (imaps, xslt, …); FTPS; multiple flows per file
