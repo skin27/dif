@@ -1,0 +1,59 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?c\
+  onfig=FFFFTT"
+method: POST
+queryParams:
+  config: FFFFTT
+body:
+  type: xml
+  content: |-
+    <SalesOrders processingCodes="">
+        <adminCode type="string">10</adminCode>
+        <customerCode type="string">5076</customerCode>
+        <orderTypeCode type="string">WEB</orderTypeCode>
+        <reference>FAKRO23007529 KOPPEJAN 23-013</reference>
+        <Messages>
+            <Message>
+                <MessageText type="INFO" report="NO" blockHTTPcall="NO" data="XML" datatype="SourceOrder">\n;;;;INFO;Oorsprong van order: Onbekend</MessageText>
+            </Message>
+            <Message>
+                <MessageText type="INFO" report="NO" blockHTTPcall="NO">\n;;;;INFO;Geen zoeksleutel voor contactpersoon opgegeven.</MessageText>
+            </Message>
+        </Messages>
+    </SalesOrders>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `{"@processingCodes":"","adminCode":"10","customerCode":"5076","orderTypeCode":"WEB","reference":"FAKRO23007529 KOPPEJAN 23-013","Messages":[[{"@report":"NO","@blockHTTPcall":"NO","@data":"XML","@datatype":"SourceOrder","#text":"\\\\n;;;;INFO;Oorsprong van order: Onbekend"}],[{"@report":"NO","@blockHTTPcall":"NO","#text":"\\\\n;;;;INFO;Geen zoeksleutel voor contactpersoon opgegeven."}]]}`;
+
+      const actual = pm.response.json();
+
+      function sortJSON(obj) {
+          if (typeof obj !== 'object' || obj === null) {
+              return obj;
+          }
+
+          if (Array.isArray(obj)) {
+              return obj.map(sortJSON);
+          }
+
+          if (obj instanceof Object) {
+              const sortedObject = {};
+              Object.keys(obj).sort().forEach(key => {
+                  sortedObject[key] = sortJSON(obj[key]);
+              });
+              return sortedObject;
+          }
+
+          return obj;
+      }
+
+      const sortedExpected = sortJSON(JSON.parse(expected));
+      const sortedActual = sortJSON(actual);
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(sortedActual).to.eql(sortedExpected);
+      });
+    language: text/javascript
+order: 1006000

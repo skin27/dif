@@ -1,0 +1,25 @@
+$kind: http-request
+name: Simple_sum
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Simple_sum"
+method: POST
+headers:
+  headerName1: "           1             "
+  headerName2: AB
+  Amount: "1"
+  lowerCase: qwerty
+  number: "1234567890"
+body:
+  type: xml
+  content: |-
+    <root>
+        <id>1</id>
+    </root>
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Resultheaders", () => {
+        pm.expect(pm.response.headers.get('Result')).to.eql('150');
+      });
+    language: text/javascript
+order: 1787992606903

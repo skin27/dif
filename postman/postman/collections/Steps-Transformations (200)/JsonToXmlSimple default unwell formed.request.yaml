@@ -1,0 +1,42 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/JsonToXmlSimple_default"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "111111111Formula1": {
+        "Dri      vers": {
+          "Driver": [
+            {
+              "Age": 19,
+              "Name": "Max Verstappen"
+            },
+            {
+              "Age": 30,
+              "Name": "Nico Hulkenberg"
+            }
+          ]
+        },
+        "Teams": {
+          "Team": [
+            {
+              "Principal": "Christian Horner",
+              "Name": "Redbull Racing"
+            },
+            {
+              "Principal": "Carlos Ghosn, Jérôme Stoll, Cyril Abiteboul",
+              "Name": "Renault"
+            }
+          ]
+        }
+      }
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches string 2", function () {
+          pm.expect(pm.response.text()).to.include('org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 2; The markup in the document preceding the root element must be well-formed.');
+      });
+    language: text/javascript
+order: 56000

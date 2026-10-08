@@ -1,0 +1,18 @@
+$kind: http-request
+name: CB_DocConverterYamlToJson
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_DocConverterYamlToJson"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |
+      const expected = `{"rows":{"row":[{"item":["id","name","description","category_id","category_name","currency","amount","vatIncluded","stock_amsterdam","stock_rotterdam","stock_eindhoven","width","height","depth","dimension_unit","weight","weight_unit","manufacturer","country","support_email","support_phone","tags","power","voltage","waterTank_capacity","waterTank_unit","programs","review_count","average_rating","online","stores","createdAt","updatedAt"]},{"item":["PRD-100245","UltraSmart Coffee Machine 5000","Fully automatic bean-to-cup coffee machine",12,"Kitchen Appliances","EUR",899.95,true,24,18,0,28.5,42.3,36.1,"cm",8.75,"kg","CoffeeTech Europe","Netherlands","support@coffeetech.example","+31-20-1234567","coffee|espresso|automatic|premium","1450W","230V",1.8,"L","Espresso|Cappuccino|Latte|Hot Water",2,4.5,true,"Amsterdam|Rotterdam|Utrecht","2026-07-17T10:15:30Z","2026-07-17T11:45:00Z"]}]}}
+      `;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 3648317934046736

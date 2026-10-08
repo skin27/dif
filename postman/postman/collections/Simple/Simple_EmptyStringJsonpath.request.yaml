@@ -1,0 +1,27 @@
+$kind: http-request
+name: Simple_EmptyStringJsonpath
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SimplEmptyS\
+  tringJsonpath"
+method: POST
+headers:
+  headerName1: "           1             "
+  headerName2: AB
+  Amount: "1"
+  lowerCase: qwerty
+  number: "1234567890"
+body:
+  type: xml
+  content: |-
+    <root>
+        <id>1</id>
+    </root>
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Resultheaders", () => {
+        pm.expect(pm.response.headers.get('EntryDescriptions_JP_result')).to.eql('result=[SW230, SW217, SW237, SW227, SW239, SW208]');
+        pm.expect(pm.response.headers.get('EntryGLAccountCodes_JP_empty_string')).to.eql('[801001, 122001, 130000, 122001, 122001, 122001, 122001, 122001]');
+      });
+    language: text/javascript
+order: 1391375653109

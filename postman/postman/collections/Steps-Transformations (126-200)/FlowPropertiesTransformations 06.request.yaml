@@ -1,0 +1,28 @@
+$kind: http-request
+name: FlowPropertiesTransformations 06
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FlowPropert\
+  iesTransformations_06"
+method: POST
+body:
+  type: json
+  content: Simple headers in components test
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("headerName1", () => {
+        pm.expect(pm.response.headers.get('headerName1')).to.eql('headerValue1');
+      });
+
+      pm.test("headerName2", () => {
+        pm.expect(pm.response.headers.get('headerName2')).to.eql('HeaderValue2');
+      });
+
+      pm.test("headerName3", () => {
+        pm.expect(pm.response.headers.get('headerName3')).to.eql('headerValue3');
+      });
+
+      pm.test("headerName4", () => {
+        pm.expect(pm.response.headers.get('Protected')).to.eql('ProtectedValue');
+      });
+    language: text/javascript
+order: 44000

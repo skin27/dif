@@ -1,0 +1,55 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SplitXml_xml_no_aggr_namespaces"
+method: POST
+headers:
+  BaseUrl: "{{BASE_URL}}"
+body:
+  type: xml
+  content: |-
+    <root>
+        <h:table xmlns:h="http://www.w3.org/TR/html4/">
+            <h:tr>
+                <h:td>Apples</h:td>
+                <h:td>Bananas</h:td>
+            </h:tr>
+        </h:table>
+        <h:table xmlns:h="http://www.w3.org/TR/html4/">
+            <h:tr>
+                <h:td>Oranges</h:td>
+                <h:td>Pears</h:td>
+            </h:tr>
+        </h:table>
+    </root>
+scripts:
+  - type: beforeRequest
+    code: pm.globals.set("FLOW_NAME", "RecipientSynchronousOneWay");
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      const expected = `<root>
+          <h:table xmlns:h="http://www.w3.org/TR/html4/">
+              <h:tr>
+                  <h:td>Apples</h:td>
+                  <h:td>Bananas</h:td>
+              </h:tr>
+          </h:table>
+          <h:table xmlns:h="http://www.w3.org/TR/html4/">
+              <h:tr>
+                  <h:td>Oranges</h:td>
+                  <h:td>Pears</h:td>
+              </h:tr>
+          </h:table>
+      </root>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 59000

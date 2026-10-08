@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?c\
+  onfig=FFFTTF"
+method: POST
+queryParams:
+  config: FFFTTF
+body:
+  type: xml
+  content: <splitDebtor>102173</splitDebtor>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`[
+          "102173"
+      ]`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 570000

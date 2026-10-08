@@ -1,0 +1,560 @@
+$kind: http-request
+name: FLV wetron_transmec-transmission_ord_imp
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FLV_wetron_\
+  transmec"
+method: POST
+body:
+  type: text
+  content: "TA00TGRSHIPCSDLND100TGR                                TRANSMEC
+    GROUP                     TRWEERT                            TRANSMISSION
+    WEERT
+    B.V.                                                                                  \
+    20231122164159                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TB000001NAT379256      TRK21        TRANSMISS.
+    22/11    202311221999999        *X*
+    CORRISP.DIVERSI                                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC0000010001CIF      0000000000000                                                                                                                        \
+    000017280MCEUR0000000000100                                                                                                                                                                                                                                                                                                                                                \
+    \ 
+
+    TC1000010001TGRSHIPTYPIT                                 202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010001TGRSHIPMEN00080067560                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010001RDTREF    00080067560                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010001TGRPOSITIO311NAT839560                       202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010001TGRCUSTREFB044050                            202311210000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC2000010001TSHDTRANSMEC shipment
+    date                                                              202311220\
+    00000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC2000010001CRFDCUSTOMER ref.
+    date                                                                  20231\
+    121000000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TD0000010001SNDGUESS EUROPE SAGL
+    (OUTBOUND)                                          STRADA REGINA,
+    44                                                     6934      BIOGGIO                  \
+    CH                       CH113255366           1484901                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010001CNENV HYPE
+    (TRENDWALK)                8-12H30-13-18                      SCHONEKEERSTR\
+    AAT 183
+    A                                                8930      LAUWE                    \
+    B                        BE*                   I168821                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010001L4DNV HYPE
+    (TRENDWALK)                8-12H30-13-18                      SCHONEKEERSTR\
+    AAT 183
+    A                                                8930      LAUWE                    \
+    B                        BE*                   I168821                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010001AGETRANSMISSION WEERT
+    B.V.                                               GRAAFSCHAP HORNELAAN
+    139A                                             6001
+    AC   WEERT                    NL                       NL853373322B02        \
+    B005960                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010001HUPTRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010001HUATRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TE00000100010001    B044050
+    21112023              ABBIGLIAMENTO                 0000200000CLLL   000001\
+    6300000016300000576000000000    0000000000000                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010001000000076185840006436282                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010001000000076185840006436299                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TG0000010001GNTTARGA :
+    18-BRD-5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    \ 
+
+    TC0000010002CIF      0000000000000                                                                                                                        \
+    000005400MCEUR0000000000100                                                                                                                                                                                                                                                                                                                                                \
+    \ 
+
+    TC1000010002TGRSHIPTYPIT                                 202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010002TGRSHIPMEN00080067570                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010002RDTREF    00080067570                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010002TGRPOSITIO311NNL325570                       202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010002TGRCUSTREFB044051                            202311210000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC2000010002TSHDTRANSMEC shipment
+    date                                                              202311220\
+    00000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC2000010002CRFDCUSTOMER ref.
+    date                                                                  20231\
+    121000000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TD0000010002SNDGUESS EUROPE SAGL
+    (OUTBOUND)                                          STRADA REGINA,
+    44                                                     6934      BIOGGIO                  \
+    CH                       CH113255366           1484901                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010002CNEA4
+    MODE                                                               MARKT
+    10A                                                             5981
+    AM   PANNINGEN                                         NL*                   \
+    B006393                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010002L4DA4
+    MODE                                                               MARKT
+    10A                                                             5981
+    AM   PANNINGEN                                         NL*                   \
+    B006393                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010002AGETRANSMISSION WEERT
+    B.V.                                               GRAAFSCHAP HORNELAAN
+    139A                                             6001
+    AC   WEERT                    NL                       NL853373322B02        \
+    B005960                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010002HUPTRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010002HUATRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TE00000100020001    B044051
+    21112023              ABBIGLIAMENTO                 0000200000CLLL   000000\
+    4800000004800000180000000000    0000000000000                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010002000000076133950026812564                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010002000000076185840006381926                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TG0000010002GNTTARGA :
+    18-BRD-5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    \ 
+
+    TC0000010003CIF      0000000000000                                                                                                                        \
+    000005640MCEUR0000000000100                                                                                                                                                                                                                                                                                                                                                \
+    \ 
+
+    TC1000010003TGRSHIPTYPIT                                 202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010003TGRSHIPMEN00080067580                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010003RDTREF    00080067580                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010003TGRPOSITIO311NNL325680                       202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010003TGRCUSTREFB044053                            202311210000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC2000010003TSHDTRANSMEC shipment
+    date                                                              202311220\
+    00000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC2000010003CRFDCUSTOMER ref.
+    date                                                                  20231\
+    121000000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TD0000010003SNDGUESS EUROPE SAGL
+    (OUTBOUND)                                          STRADA REGINA,
+    44                                                     6934      BIOGGIO                  \
+    CH                       CH113255366           1484901                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010003CNESPARKELIZED                                                           \
+    SCHOUTERSTRAAT 6                                                      1211
+    BM   HILVERSUM                                         NL*                   \
+    I139334                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010003L4DSPARKELIZED                                                           \
+    SCHOUTERSTRAAT 6                                                      1211
+    BM   HILVERSUM                                         NL*                   \
+    I139334                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010003AGETRANSMISSION WEERT
+    B.V.                                               GRAAFSCHAP HORNELAAN
+    139A                                             6001
+    AC   WEERT                    NL                       NL853373322B02        \
+    B005960                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010003HUPTRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010003HUATRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TE00000100030001    B044053
+    21112023              ABBIGLIAMENTO                 0000300000CLLL   000000\
+    4800000004800000188000000000    0000000000000                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010003000000076185840006455894                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010003000000076185840006479418                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010003000000076185840006479425                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TG0000010003GNTTARGA :
+    18-BRD-5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    \ 
+
+    TC0000010004CIF      0000000000000                                                                                                                        \
+    000004860MCEUR0000000000100                                                                                                                                                                                                                                                                                                                                                \
+    \ 
+
+    TC1000010004TGRSHIPTYPIT                                 202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010004TGRSHIPMEN00080067590                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010004RDTREF    00080067590                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010004TGRPOSITIO311NNL325790                       202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010004TGRCUSTREFB044052                            202311210000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC2000010004TSHDTRANSMEC shipment
+    date                                                              202311220\
+    00000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC2000010004CRFDCUSTOMER ref.
+    date                                                                  20231\
+    121000000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TD0000010004SNDGUESS EUROPE SAGL
+    (OUTBOUND)                                          STRADA REGINA,
+    44                                                     6934      BIOGGIO                  \
+    CH                       CH113255366           1484901                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010004CNESTEBA
+    MODE                                                            GENTSESTRAAT
+    25A                                                      4561
+    EH   HULST                                             NL*                   \
+    B010572                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010004L4DSTEBA
+    MODE                                                            GENTSESTRAAT
+    25A                                                      4561
+    EH   HULST                                             NL*                   \
+    B010572                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010004AGETRANSMISSION WEERT
+    B.V.                                               GRAAFSCHAP HORNELAAN
+    139A                                             6001
+    AC   WEERT                    NL                       NL853373322B02        \
+    B005960                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010004HUPTRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010004HUATRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TE00000100040001    B044052
+    21112023              ABBIGLIAMENTO                 0000200000CLLL   000000\
+    5700000005700000162000000000    0000000000000                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010004000000076133950026903125                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010004000000076185840006381896                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TG0000010004GNTTARGA :
+    18-BRD-5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    \ 
+
+    TC0000010005CIF      0000000000000                                                                                                                        \
+    000004740MCEUR0000000000100                                                                                                                                                                                                                                                                                                                                                \
+    \ 
+
+    TC1000010005TGRSHIPTYPIT                                 202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010005TGRSHIPMEN00080067600                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010005RDTREF    00080067600                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010005TGRPOSITIO311NNL325800                       202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010005TGRCUSTREFB044054                            202311210000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC2000010005TSHDTRANSMEC shipment
+    date                                                              202311220\
+    00000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC2000010005CRFDCUSTOMER ref.
+    date                                                                  20231\
+    121000000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TD0000010005SNDGUESS EUROPE SAGL
+    (OUTBOUND)                                          STRADA REGINA,
+    44                                                     6934      BIOGGIO                  \
+    CH                       CH113255366           1484901                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010005CNESUPERSTELLAR                                                          \
+    KAREL DOORMANSTRAAT 12                                                3012
+    GJ   ROTTERDAM                                         NL*                   \
+    B015037                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010005L4DSUPERSTELLAR                                                          \
+    KAREL DOORMANSTRAAT 12                                                3012
+    GJ   ROTTERDAM                                         NL*                   \
+    B015037                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010005AGETRANSMISSION WEERT
+    B.V.                                               GRAAFSCHAP HORNELAAN
+    139A                                             6001
+    AC   WEERT                    NL                       NL853373322B02        \
+    B005960                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010005HUPTRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010005HUATRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TE00000100050001    B044054
+    21112023              ABBIGLIAMENTO                 0000200000CLLL   000000\
+    8800000008800000158000000000    0000000000000                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010005000000076185840006432659                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010005000000076185840006480568                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TG0000010005GNTTARGA :
+    18-BRD-5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    \ 
+
+    TC0000010006CIF      0000000000000                                                                                                                        \
+    000000900MCEUR0000000000100                                                                                                                                                                                                                                                                                                                                                \
+    \ 
+
+    TC1000010006TGRSHIPTYPIT                                 202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010006TGRSHIPMEN00080067610                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010006RDTREF    00080067610                        202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010006TGRPOSITIO311NNL325910                       202311220000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC1000010006TGRCUSTREFB044055                            202311210000000000\
+    0000000000000000                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    TC2000010006TSHDTRANSMEC shipment
+    date                                                              202311220\
+    00000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TC2000010006CRFDCUSTOMER ref.
+    date                                                                  20231\
+    121000000                                                                                                                                                                                                                                                                                                                                                                                                                   \
+    \ 
+
+    TD0000010006SNDGUESS EUROPE SAGL
+    (OUTBOUND)                                          STRADA REGINA,
+    44                                                     6934      BIOGGIO                  \
+    CH                       CH113255366           1484901                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010006CNESUPERSTELLAR                                                          \
+    KAREL DOORMANSTRAAT 12                                                3012
+    GJ   ROTTERDAM                                         NL*                   \
+    B015037                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010006L4DSUPERSTELLAR                                                          \
+    KAREL DOORMANSTRAAT 12                                                3012
+    GJ   ROTTERDAM                                         NL*                   \
+    B015037                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010006AGETRANSMISSION WEERT
+    B.V.                                               GRAAFSCHAP HORNELAAN
+    139A                                             6001
+    AC   WEERT                    NL                       NL853373322B02        \
+    B005960                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010006HUPTRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TD0000010006HUATRANSMEC BELGIUM
+    SPRL                                                 4EME AVENUE
+    39                                                        4040      HERSTAL                  \
+    B                        BE2454566447          1308764                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TE00000100060001    B044055
+    21112023              ABBIGLIAMENTO                 0000100000CLLL   000000\
+    2500000002500000030000000000    0000000000000                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TF0000010006000000076185840006457034                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \
+    \ 
+
+    TG0000010006GNTTARGA :
+    18-BRD-5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    \ 
+
+    TZ0000000011120231122164201                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          \
+    \ 
+
+    \                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      \
+    "
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?><Aggregated><segment><RECORD_TYPE>TA00</RECORD_TYPE><DATAMSGQUALIFIER>TGRSHIPCSD</DATAMSGQUALIFIER><DATATYPEQUALIFIER>LND</DATATYPEQUALIFIER><RELEASEVERSION>100</RELEASEVERSION><MSG_SENDER_CODE>TGR</MSG_SENDER_CODE><MSG_SENDER_DESCRITION>TRANSMEC GROUP</MSG_SENDER_DESCRITION><MSG_DESTINATION_CODE>TRWEERT</MSG_DESTINATION_CODE><MSG_DESTINATION_DESCRITION>TRANSMISSION WEERT B.V.</MSG_DESTINATION_DESCRITION><MSG_CONVERSION/><DATE_OF_PREPARATION>20231122</DATE_OF_PREPARATION><TIME_OF_PREPARATION>164159</TIME_OF_PREPARATION><FILLER_TA00/></segment><segment><RECORD_TYPE>TB00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><MANIFEST_ID>NAT379256</MANIFEST_ID><VEHICLE_TYPE>TRK</VEHICLE_TYPE><VEHICLE_CODE>21</VEHICLE_CODE><VEHICLE_ID>TRANSMISS. 22/11</VEHICLE_ID><VEHICLE_DATE>20231122</VEHICLE_DATE><CARRIER_COMPANY_CODE>1999999</CARRIER_COMPANY_CODE><CARRIER_DESCRIPTION>*X* CORRISP.DIVERSI</CARRIER_DESCRIPTION><DRIVER_CODE/><DRIVER_DESCRIPTION/><CLAMP/><FILLER_TB00/></segment><segment><RECORD_TYPE>TC00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><DELIVERY_TERMS>CIF</DELIVERY_TERMS><DIRECT_PICKUP_DELIVERY/><COD_CODE/><COD_CURRENCY/><COD_AMMOUNT>0000000000000</COD_AMMOUNT><COD_NOTE/><CHARGEABLE_WEIGHT>000017280</CHARGEABLE_WEIGHT><UOM_VOLUME>MC</UOM_VOLUME><CURRENCY_OF_GOODS>EUR</CURRENCY_OF_GOODS><GOODS_VALUE>0000000000100</GOODS_VALUE><FILLER_TC00/></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPTYP</REFERENCE_TYPE><REFERENCE_ID>IT</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPMEN</REFERENCE_TYPE><REFERENCE_ID>00080067560</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>RDTREF</REFERENCE_TYPE><REFERENCE_ID>00080067560</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRPOSITIO</REFERENCE_TYPE><REFERENCE_ID>311NAT839560</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRCUSTREF</REFERENCE_TYPE><REFERENCE_ID>B044050</REFERENCE_ID><REFERENCE_DATE>20231121</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><DATETIME_CODE>TSHD</DATETIME_CODE><DATETIME_DESCRIPTION>TRANSMEC shipment date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231122</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><DATETIME_CODE>CRFD</DATETIME_CODE><DATETIME_DESCRIPTION>CUSTOMER ref. date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231121</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><QUALIFIER>SND</QUALIFIER><NAME1>GUESS EUROPE SAGL (OUTBOUND)</NAME1><NAME2/><ADDRESS>STRADA REGINA, 44</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6934</POSTALCODE><TOWN>BIOGGIO</TOWN><DISTRICT>CH</DISTRICT><ISO2_COUNTRY>CH</ISO2_COUNTRY><VATCODE>113255366</VATCODE><CODE_BY_SENDER>1484901</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><QUALIFIER>CNE</QUALIFIER><NAME1>NV HYPE (TRENDWALK)</NAME1><NAME2>8-12H30-13-18</NAME2><ADDRESS>SCHONEKEERSTRAAT 183 A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>8930</POSTALCODE><TOWN>LAUWE</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>I168821</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><QUALIFIER>L4D</QUALIFIER><NAME1>NV HYPE (TRENDWALK)</NAME1><NAME2>8-12H30-13-18</NAME2><ADDRESS>SCHONEKEERSTRAAT 183 A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>8930</POSTALCODE><TOWN>LAUWE</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>I168821</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><QUALIFIER>AGE</QUALIFIER><NAME1>TRANSMISSION WEERT B.V.</NAME1><NAME2/><ADDRESS>GRAAFSCHAP HORNELAAN 139A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6001 AC</POSTALCODE><TOWN>WEERT</TOWN><DISTRICT>NL</DISTRICT><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>853373322B02</VATCODE><CODE_BY_SENDER>B005960</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><QUALIFIER>HUP</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><QUALIFIER>HUA</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TE00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0001</PROGRESSIVE_GOODS><PRODUCT_TYPE/><PRODUCT_CODE>B044050 21112023</PRODUCT_CODE><GOODS_DESCRIPTION>ABBIGLIAMENTO</GOODS_DESCRIPTION><NUMBER_OF_PACKAGES>00002</NUMBER_OF_PACKAGES><NR_OF_PIECES_IN_PACKAGE>00000</NR_OF_PIECES_IN_PACKAGE><PACKAGING_TYPE>CLLL</PACKAGING_TYPE><GROSS_WEIGHT>000001630</GROSS_WEIGHT><NET_WEIGHT>000001630</NET_WEIGHT><VOLUME>0000576</VOLUME><LENGTH_CM>000</LENGTH_CM><WIDTH_CM>000</WIDTH_CM><HEIGHT_CM>000</HEIGHT_CM><STACKABLE/><CURRENCY_GOODS/><GOODS_VALUE>0000000000000</GOODS_VALUE><DAGEROUS_GOODS/><CUSTOME_CODE/><FILLER_TE00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006436282</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006436299</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TG00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0001</PROGRESSIVE_SHIPMENT><NOTE_TYPE>GNT</NOTE_TYPE><NOTE>TARGA : 18-BRD-5</NOTE><FILER_TG00/></segment><segment><RECORD_TYPE>TC00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><DELIVERY_TERMS>CIF</DELIVERY_TERMS><DIRECT_PICKUP_DELIVERY/><COD_CODE/><COD_CURRENCY/><COD_AMMOUNT>0000000000000</COD_AMMOUNT><COD_NOTE/><CHARGEABLE_WEIGHT>000005400</CHARGEABLE_WEIGHT><UOM_VOLUME>MC</UOM_VOLUME><CURRENCY_OF_GOODS>EUR</CURRENCY_OF_GOODS><GOODS_VALUE>0000000000100</GOODS_VALUE><FILLER_TC00/></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPTYP</REFERENCE_TYPE><REFERENCE_ID>IT</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPMEN</REFERENCE_TYPE><REFERENCE_ID>00080067570</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>RDTREF</REFERENCE_TYPE><REFERENCE_ID>00080067570</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRPOSITIO</REFERENCE_TYPE><REFERENCE_ID>311NNL325570</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRCUSTREF</REFERENCE_TYPE><REFERENCE_ID>B044051</REFERENCE_ID><REFERENCE_DATE>20231121</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><DATETIME_CODE>TSHD</DATETIME_CODE><DATETIME_DESCRIPTION>TRANSMEC shipment date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231122</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><DATETIME_CODE>CRFD</DATETIME_CODE><DATETIME_DESCRIPTION>CUSTOMER ref. date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231121</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><QUALIFIER>SND</QUALIFIER><NAME1>GUESS EUROPE SAGL (OUTBOUND)</NAME1><NAME2/><ADDRESS>STRADA REGINA, 44</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6934</POSTALCODE><TOWN>BIOGGIO</TOWN><DISTRICT>CH</DISTRICT><ISO2_COUNTRY>CH</ISO2_COUNTRY><VATCODE>113255366</VATCODE><CODE_BY_SENDER>1484901</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><QUALIFIER>CNE</QUALIFIER><NAME1>A4 MODE</NAME1><NAME2/><ADDRESS>MARKT 10A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>5981 AM</POSTALCODE><TOWN>PANNINGEN</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B006393</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><QUALIFIER>L4D</QUALIFIER><NAME1>A4 MODE</NAME1><NAME2/><ADDRESS>MARKT 10A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>5981 AM</POSTALCODE><TOWN>PANNINGEN</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B006393</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><QUALIFIER>AGE</QUALIFIER><NAME1>TRANSMISSION WEERT B.V.</NAME1><NAME2/><ADDRESS>GRAAFSCHAP HORNELAAN 139A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6001 AC</POSTALCODE><TOWN>WEERT</TOWN><DISTRICT>NL</DISTRICT><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>853373322B02</VATCODE><CODE_BY_SENDER>B005960</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><QUALIFIER>HUP</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><QUALIFIER>HUA</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TE00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0001</PROGRESSIVE_GOODS><PRODUCT_TYPE/><PRODUCT_CODE>B044051 21112023</PRODUCT_CODE><GOODS_DESCRIPTION>ABBIGLIAMENTO</GOODS_DESCRIPTION><NUMBER_OF_PACKAGES>00002</NUMBER_OF_PACKAGES><NR_OF_PIECES_IN_PACKAGE>00000</NR_OF_PIECES_IN_PACKAGE><PACKAGING_TYPE>CLLL</PACKAGING_TYPE><GROSS_WEIGHT>000000480</GROSS_WEIGHT><NET_WEIGHT>000000480</NET_WEIGHT><VOLUME>0000180</VOLUME><LENGTH_CM>000</LENGTH_CM><WIDTH_CM>000</WIDTH_CM><HEIGHT_CM>000</HEIGHT_CM><STACKABLE/><CURRENCY_GOODS/><GOODS_VALUE>0000000000000</GOODS_VALUE><DAGEROUS_GOODS/><CUSTOME_CODE/><FILLER_TE00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076133950026812564</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006381926</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TG00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0002</PROGRESSIVE_SHIPMENT><NOTE_TYPE>GNT</NOTE_TYPE><NOTE>TARGA : 18-BRD-5</NOTE><FILER_TG00/></segment><segment><RECORD_TYPE>TC00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><DELIVERY_TERMS>CIF</DELIVERY_TERMS><DIRECT_PICKUP_DELIVERY/><COD_CODE/><COD_CURRENCY/><COD_AMMOUNT>0000000000000</COD_AMMOUNT><COD_NOTE/><CHARGEABLE_WEIGHT>000005640</CHARGEABLE_WEIGHT><UOM_VOLUME>MC</UOM_VOLUME><CURRENCY_OF_GOODS>EUR</CURRENCY_OF_GOODS><GOODS_VALUE>0000000000100</GOODS_VALUE><FILLER_TC00/></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPTYP</REFERENCE_TYPE><REFERENCE_ID>IT</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPMEN</REFERENCE_TYPE><REFERENCE_ID>00080067580</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>RDTREF</REFERENCE_TYPE><REFERENCE_ID>00080067580</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRPOSITIO</REFERENCE_TYPE><REFERENCE_ID>311NNL325680</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRCUSTREF</REFERENCE_TYPE><REFERENCE_ID>B044053</REFERENCE_ID><REFERENCE_DATE>20231121</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><DATETIME_CODE>TSHD</DATETIME_CODE><DATETIME_DESCRIPTION>TRANSMEC shipment date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231122</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><DATETIME_CODE>CRFD</DATETIME_CODE><DATETIME_DESCRIPTION>CUSTOMER ref. date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231121</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><QUALIFIER>SND</QUALIFIER><NAME1>GUESS EUROPE SAGL (OUTBOUND)</NAME1><NAME2/><ADDRESS>STRADA REGINA, 44</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6934</POSTALCODE><TOWN>BIOGGIO</TOWN><DISTRICT>CH</DISTRICT><ISO2_COUNTRY>CH</ISO2_COUNTRY><VATCODE>113255366</VATCODE><CODE_BY_SENDER>1484901</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><QUALIFIER>CNE</QUALIFIER><NAME1>SPARKELIZED</NAME1><NAME2/><ADDRESS>SCHOUTERSTRAAT 6</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>1211 BM</POSTALCODE><TOWN>HILVERSUM</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>I139334</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><QUALIFIER>L4D</QUALIFIER><NAME1>SPARKELIZED</NAME1><NAME2/><ADDRESS>SCHOUTERSTRAAT 6</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>1211 BM</POSTALCODE><TOWN>HILVERSUM</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>I139334</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><QUALIFIER>AGE</QUALIFIER><NAME1>TRANSMISSION WEERT B.V.</NAME1><NAME2/><ADDRESS>GRAAFSCHAP HORNELAAN 139A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6001 AC</POSTALCODE><TOWN>WEERT</TOWN><DISTRICT>NL</DISTRICT><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>853373322B02</VATCODE><CODE_BY_SENDER>B005960</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><QUALIFIER>HUP</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><QUALIFIER>HUA</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TE00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0001</PROGRESSIVE_GOODS><PRODUCT_TYPE/><PRODUCT_CODE>B044053 21112023</PRODUCT_CODE><GOODS_DESCRIPTION>ABBIGLIAMENTO</GOODS_DESCRIPTION><NUMBER_OF_PACKAGES>00003</NUMBER_OF_PACKAGES><NR_OF_PIECES_IN_PACKAGE>00000</NR_OF_PIECES_IN_PACKAGE><PACKAGING_TYPE>CLLL</PACKAGING_TYPE><GROSS_WEIGHT>000000480</GROSS_WEIGHT><NET_WEIGHT>000000480</NET_WEIGHT><VOLUME>0000188</VOLUME><LENGTH_CM>000</LENGTH_CM><WIDTH_CM>000</WIDTH_CM><HEIGHT_CM>000</HEIGHT_CM><STACKABLE/><CURRENCY_GOODS/><GOODS_VALUE>0000000000000</GOODS_VALUE><DAGEROUS_GOODS/><CUSTOME_CODE/><FILLER_TE00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006455894</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006479418</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006479425</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TG00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0003</PROGRESSIVE_SHIPMENT><NOTE_TYPE>GNT</NOTE_TYPE><NOTE>TARGA : 18-BRD-5</NOTE><FILER_TG00/></segment><segment><RECORD_TYPE>TC00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><DELIVERY_TERMS>CIF</DELIVERY_TERMS><DIRECT_PICKUP_DELIVERY/><COD_CODE/><COD_CURRENCY/><COD_AMMOUNT>0000000000000</COD_AMMOUNT><COD_NOTE/><CHARGEABLE_WEIGHT>000004860</CHARGEABLE_WEIGHT><UOM_VOLUME>MC</UOM_VOLUME><CURRENCY_OF_GOODS>EUR</CURRENCY_OF_GOODS><GOODS_VALUE>0000000000100</GOODS_VALUE><FILLER_TC00/></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPTYP</REFERENCE_TYPE><REFERENCE_ID>IT</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPMEN</REFERENCE_TYPE><REFERENCE_ID>00080067590</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>RDTREF</REFERENCE_TYPE><REFERENCE_ID>00080067590</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRPOSITIO</REFERENCE_TYPE><REFERENCE_ID>311NNL325790</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRCUSTREF</REFERENCE_TYPE><REFERENCE_ID>B044052</REFERENCE_ID><REFERENCE_DATE>20231121</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><DATETIME_CODE>TSHD</DATETIME_CODE><DATETIME_DESCRIPTION>TRANSMEC shipment date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231122</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><DATETIME_CODE>CRFD</DATETIME_CODE><DATETIME_DESCRIPTION>CUSTOMER ref. date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231121</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><QUALIFIER>SND</QUALIFIER><NAME1>GUESS EUROPE SAGL (OUTBOUND)</NAME1><NAME2/><ADDRESS>STRADA REGINA, 44</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6934</POSTALCODE><TOWN>BIOGGIO</TOWN><DISTRICT>CH</DISTRICT><ISO2_COUNTRY>CH</ISO2_COUNTRY><VATCODE>113255366</VATCODE><CODE_BY_SENDER>1484901</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><QUALIFIER>CNE</QUALIFIER><NAME1>STEBA MODE</NAME1><NAME2/><ADDRESS>GENTSESTRAAT 25A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4561 EH</POSTALCODE><TOWN>HULST</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B010572</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><QUALIFIER>L4D</QUALIFIER><NAME1>STEBA MODE</NAME1><NAME2/><ADDRESS>GENTSESTRAAT 25A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4561 EH</POSTALCODE><TOWN>HULST</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B010572</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><QUALIFIER>AGE</QUALIFIER><NAME1>TRANSMISSION WEERT B.V.</NAME1><NAME2/><ADDRESS>GRAAFSCHAP HORNELAAN 139A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6001 AC</POSTALCODE><TOWN>WEERT</TOWN><DISTRICT>NL</DISTRICT><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>853373322B02</VATCODE><CODE_BY_SENDER>B005960</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><QUALIFIER>HUP</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><QUALIFIER>HUA</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TE00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0001</PROGRESSIVE_GOODS><PRODUCT_TYPE/><PRODUCT_CODE>B044052 21112023</PRODUCT_CODE><GOODS_DESCRIPTION>ABBIGLIAMENTO</GOODS_DESCRIPTION><NUMBER_OF_PACKAGES>00002</NUMBER_OF_PACKAGES><NR_OF_PIECES_IN_PACKAGE>00000</NR_OF_PIECES_IN_PACKAGE><PACKAGING_TYPE>CLLL</PACKAGING_TYPE><GROSS_WEIGHT>000000570</GROSS_WEIGHT><NET_WEIGHT>000000570</NET_WEIGHT><VOLUME>0000162</VOLUME><LENGTH_CM>000</LENGTH_CM><WIDTH_CM>000</WIDTH_CM><HEIGHT_CM>000</HEIGHT_CM><STACKABLE/><CURRENCY_GOODS/><GOODS_VALUE>0000000000000</GOODS_VALUE><DAGEROUS_GOODS/><CUSTOME_CODE/><FILLER_TE00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076133950026903125</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006381896</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TG00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0004</PROGRESSIVE_SHIPMENT><NOTE_TYPE>GNT</NOTE_TYPE><NOTE>TARGA : 18-BRD-5</NOTE><FILER_TG00/></segment><segment><RECORD_TYPE>TC00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><DELIVERY_TERMS>CIF</DELIVERY_TERMS><DIRECT_PICKUP_DELIVERY/><COD_CODE/><COD_CURRENCY/><COD_AMMOUNT>0000000000000</COD_AMMOUNT><COD_NOTE/><CHARGEABLE_WEIGHT>000004740</CHARGEABLE_WEIGHT><UOM_VOLUME>MC</UOM_VOLUME><CURRENCY_OF_GOODS>EUR</CURRENCY_OF_GOODS><GOODS_VALUE>0000000000100</GOODS_VALUE><FILLER_TC00/></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPTYP</REFERENCE_TYPE><REFERENCE_ID>IT</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPMEN</REFERENCE_TYPE><REFERENCE_ID>00080067600</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>RDTREF</REFERENCE_TYPE><REFERENCE_ID>00080067600</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRPOSITIO</REFERENCE_TYPE><REFERENCE_ID>311NNL325800</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRCUSTREF</REFERENCE_TYPE><REFERENCE_ID>B044054</REFERENCE_ID><REFERENCE_DATE>20231121</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><DATETIME_CODE>TSHD</DATETIME_CODE><DATETIME_DESCRIPTION>TRANSMEC shipment date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231122</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><DATETIME_CODE>CRFD</DATETIME_CODE><DATETIME_DESCRIPTION>CUSTOMER ref. date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231121</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><QUALIFIER>SND</QUALIFIER><NAME1>GUESS EUROPE SAGL (OUTBOUND)</NAME1><NAME2/><ADDRESS>STRADA REGINA, 44</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6934</POSTALCODE><TOWN>BIOGGIO</TOWN><DISTRICT>CH</DISTRICT><ISO2_COUNTRY>CH</ISO2_COUNTRY><VATCODE>113255366</VATCODE><CODE_BY_SENDER>1484901</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><QUALIFIER>CNE</QUALIFIER><NAME1>SUPERSTELLAR</NAME1><NAME2/><ADDRESS>KAREL DOORMANSTRAAT 12</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>3012 GJ</POSTALCODE><TOWN>ROTTERDAM</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B015037</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><QUALIFIER>L4D</QUALIFIER><NAME1>SUPERSTELLAR</NAME1><NAME2/><ADDRESS>KAREL DOORMANSTRAAT 12</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>3012 GJ</POSTALCODE><TOWN>ROTTERDAM</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B015037</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><QUALIFIER>AGE</QUALIFIER><NAME1>TRANSMISSION WEERT B.V.</NAME1><NAME2/><ADDRESS>GRAAFSCHAP HORNELAAN 139A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6001 AC</POSTALCODE><TOWN>WEERT</TOWN><DISTRICT>NL</DISTRICT><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>853373322B02</VATCODE><CODE_BY_SENDER>B005960</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><QUALIFIER>HUP</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><QUALIFIER>HUA</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TE00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0001</PROGRESSIVE_GOODS><PRODUCT_TYPE/><PRODUCT_CODE>B044054 21112023</PRODUCT_CODE><GOODS_DESCRIPTION>ABBIGLIAMENTO</GOODS_DESCRIPTION><NUMBER_OF_PACKAGES>00002</NUMBER_OF_PACKAGES><NR_OF_PIECES_IN_PACKAGE>00000</NR_OF_PIECES_IN_PACKAGE><PACKAGING_TYPE>CLLL</PACKAGING_TYPE><GROSS_WEIGHT>000000880</GROSS_WEIGHT><NET_WEIGHT>000000880</NET_WEIGHT><VOLUME>0000158</VOLUME><LENGTH_CM>000</LENGTH_CM><WIDTH_CM>000</WIDTH_CM><HEIGHT_CM>000</HEIGHT_CM><STACKABLE/><CURRENCY_GOODS/><GOODS_VALUE>0000000000000</GOODS_VALUE><DAGEROUS_GOODS/><CUSTOME_CODE/><FILLER_TE00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006432659</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006480568</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TG00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0005</PROGRESSIVE_SHIPMENT><NOTE_TYPE>GNT</NOTE_TYPE><NOTE>TARGA : 18-BRD-5</NOTE><FILER_TG00/></segment><segment><RECORD_TYPE>TC00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><DELIVERY_TERMS>CIF</DELIVERY_TERMS><DIRECT_PICKUP_DELIVERY/><COD_CODE/><COD_CURRENCY/><COD_AMMOUNT>0000000000000</COD_AMMOUNT><COD_NOTE/><CHARGEABLE_WEIGHT>000000900</CHARGEABLE_WEIGHT><UOM_VOLUME>MC</UOM_VOLUME><CURRENCY_OF_GOODS>EUR</CURRENCY_OF_GOODS><GOODS_VALUE>0000000000100</GOODS_VALUE><FILLER_TC00/></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPTYP</REFERENCE_TYPE><REFERENCE_ID>IT</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRSHIPMEN</REFERENCE_TYPE><REFERENCE_ID>00080067610</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>RDTREF</REFERENCE_TYPE><REFERENCE_ID>00080067610</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRPOSITIO</REFERENCE_TYPE><REFERENCE_ID>311NNL325910</REFERENCE_ID><REFERENCE_DATE>20231122</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC10</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><REFERENCE_TYPE>TGRCUSTREF</REFERENCE_TYPE><REFERENCE_ID>B044055</REFERENCE_ID><REFERENCE_DATE>20231121</REFERENCE_DATE><FILLER_TC10>00000000</FILLER_TC10></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><DATETIME_CODE>TSHD</DATETIME_CODE><DATETIME_DESCRIPTION>TRANSMEC shipment date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231122</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TC20</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><DATETIME_CODE>CRFD</DATETIME_CODE><DATETIME_DESCRIPTION>CUSTOMER ref. date</DATETIME_DESCRIPTION><REASONCODE/><REASON_DESCRIPTION/><DATE>20231121</DATE><TIME>000000</TIME><FILLER_TC20/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><QUALIFIER>SND</QUALIFIER><NAME1>GUESS EUROPE SAGL (OUTBOUND)</NAME1><NAME2/><ADDRESS>STRADA REGINA, 44</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6934</POSTALCODE><TOWN>BIOGGIO</TOWN><DISTRICT>CH</DISTRICT><ISO2_COUNTRY>CH</ISO2_COUNTRY><VATCODE>113255366</VATCODE><CODE_BY_SENDER>1484901</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><QUALIFIER>CNE</QUALIFIER><NAME1>SUPERSTELLAR</NAME1><NAME2/><ADDRESS>KAREL DOORMANSTRAAT 12</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>3012 GJ</POSTALCODE><TOWN>ROTTERDAM</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B015037</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><QUALIFIER>L4D</QUALIFIER><NAME1>SUPERSTELLAR</NAME1><NAME2/><ADDRESS>KAREL DOORMANSTRAAT 12</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>3012 GJ</POSTALCODE><TOWN>ROTTERDAM</TOWN><DISTRICT/><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>*</VATCODE><CODE_BY_SENDER>B015037</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><QUALIFIER>AGE</QUALIFIER><NAME1>TRANSMISSION WEERT B.V.</NAME1><NAME2/><ADDRESS>GRAAFSCHAP HORNELAAN 139A</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>6001 AC</POSTALCODE><TOWN>WEERT</TOWN><DISTRICT>NL</DISTRICT><ISO2_COUNTRY>NL</ISO2_COUNTRY><VATCODE>853373322B02</VATCODE><CODE_BY_SENDER>B005960</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><QUALIFIER>HUP</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TD00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><QUALIFIER>HUA</QUALIFIER><NAME1>TRANSMEC BELGIUM SPRL</NAME1><NAME2/><ADDRESS>4EME AVENUE 39</ADDRESS><ADDRESS_AIR_ONLY/><POSTALCODE>4040</POSTALCODE><TOWN>HERSTAL</TOWN><DISTRICT>B</DISTRICT><ISO2_COUNTRY>BE</ISO2_COUNTRY><VATCODE>2454566447</VATCODE><CODE_BY_SENDER>1308764</CODE_BY_SENDER><CODE_INTO_DESTINATION/><FILLER_TD00/></segment><segment><RECORD_TYPE>TE00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0001</PROGRESSIVE_GOODS><PRODUCT_TYPE/><PRODUCT_CODE>B044055 21112023</PRODUCT_CODE><GOODS_DESCRIPTION>ABBIGLIAMENTO</GOODS_DESCRIPTION><NUMBER_OF_PACKAGES>00001</NUMBER_OF_PACKAGES><NR_OF_PIECES_IN_PACKAGE>00000</NR_OF_PIECES_IN_PACKAGE><PACKAGING_TYPE>CLLL</PACKAGING_TYPE><GROSS_WEIGHT>000000250</GROSS_WEIGHT><NET_WEIGHT>000000250</NET_WEIGHT><VOLUME>0000030</VOLUME><LENGTH_CM>000</LENGTH_CM><WIDTH_CM>000</WIDTH_CM><HEIGHT_CM>000</HEIGHT_CM><STACKABLE/><CURRENCY_GOODS/><GOODS_VALUE>0000000000000</GOODS_VALUE><DAGEROUS_GOODS/><CUSTOME_CODE/><FILLER_TE00/></segment><segment><RECORD_TYPE>TF00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><PROGRESSIVE_GOODS>0000</PROGRESSIVE_GOODS><BARCODE>00076185840006457034</BARCODE><PRODUCT_CODE/><PRODUCT_DESCRITPION/><FILER_TF00/></segment><segment><RECORD_TYPE>TG00</RECORD_TYPE><PROGRESSIVE_MANIFEST>0001</PROGRESSIVE_MANIFEST><PROGRESSIVE_SHIPMENT>0006</PROGRESSIVE_SHIPMENT><NOTE_TYPE>GNT</NOTE_TYPE><NOTE>TARGA : 18-BRD-5</NOTE><FILER_TG00/></segment><segment><RECORD_TYPE>TZ00</RECORD_TYPE><TOTAL_NUMBER_REC>000000111</TOTAL_NUMBER_REC><DATE_OF_PREPARATION>20231122</DATE_OF_PREPARATION><TIME_OF_PREPARATION>164201</TIME_OF_PREPARATION><FILER_TZ00/></segment></Aggregated>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));   
+      });
+    language: text/javascript
+order: 1698767578735127

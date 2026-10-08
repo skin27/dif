@@ -1,0 +1,26 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScript_uuid"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `36`;
+      const actual = pm.response.text();
+
+      pm.test("number of characters", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);   
+      });
+
+      pm.test("uuid present?", function () {
+          pm.response.to.have.header("uuid");
+      });
+
+      pm.test("uuid2", () => {
+        pm.expect(pm.response.headers.get('uuid2')).to.eql('12345');
+      });
+    language: text/javascript
+order: 25000

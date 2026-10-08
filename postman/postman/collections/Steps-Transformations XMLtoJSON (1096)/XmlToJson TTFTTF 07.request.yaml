@@ -1,0 +1,45 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?c\
+  onfig=TTFTTF"
+method: POST
+queryParams:
+  config: TTFTTF
+body:
+  type: text
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <root>
+        <products>
+            <product>
+                <id>1</id>
+            </product>
+            <product>
+                <id>2</id>
+            </product>
+        </products>
+    </root>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`{
+          "root": [
+              [
+                  [
+                      "1"
+                  ],
+                  [
+                      "2"
+                  ]
+              ]
+          ]
+      }`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 580000

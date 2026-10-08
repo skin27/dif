@@ -1,0 +1,46 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToCsv_default"
+method: POST
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <items>
+      <item>
+        <ID>1</ID>
+        <Name>Pete</Name>
+        <Number>1001</Number>
+      </item>
+      <item>
+        <ID>2</ID>
+        <Name>John</Name>
+        <Number>1002</Number>
+      </item>
+      <item>
+        <ID>3</ID>
+        <Name>Frank</Name>
+        <Number>1003</Number>
+      </item>
+      <item>
+        <ID>4</ID>
+        <Name>Max</Name>
+        <Number>1004</Number>
+      </item>
+    </items>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `"ID","Name","Number"
+      "1","Pete","1001"
+      "2","John","1002"
+      "3","Frank","1003"
+      "4","Max","1004"`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));    
+      });
+    language: text/javascript
+order: 117000

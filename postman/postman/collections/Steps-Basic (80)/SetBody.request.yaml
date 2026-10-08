@@ -1,0 +1,34 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_SetBody"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `Message Body:\r
+
+      \r
+
+      Dear Doe, Jane\r
+
+      \r
+
+      Thanks for the order of Dovetail Hoodie.\r
+
+      \r
+
+      Regards Dovetail`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 30000

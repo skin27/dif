@@ -1,0 +1,56 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?c\
+  onfig=FFFTFF"
+method: POST
+queryParams:
+  config: FFFTFF
+body:
+  type: xml
+  content: |-
+    <rmessage RESTgroupId="70003" action="POST" additionalInfo="Uitvoering_presentatie_92" applicationId="CLOUDSUITE" comment="Vertalen attribuutwaardes (translations)" id="translations_003" message="origin/bijou/attributelist" messageId="7000301010" parameters="/Uitvoering_presentatie_92/translations" step="01">
+        <list_value>
+            <e>
+                <lang>nl_NL</lang>
+                <value>TZ 541</value>
+            </e>
+            <e>
+                <lang>fr_FR</lang>
+                <value>TZ 541</value>
+            </e>
+        </list_value>
+    </rmessage>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`{
+          "@RESTgroupId": "70003",
+          "@action": "POST",
+          "@additionalInfo": "Uitvoering_presentatie_92",
+          "@applicationId": "CLOUDSUITE",
+          "@comment": "Vertalen attribuutwaardes (translations)",
+          "@id": "translations_003",
+          "@message": "origin/bijou/attributelist",
+          "@messageId": "7000301010",
+          "@parameters": "/Uitvoering_presentatie_92/translations",
+          "@step": "01",
+          "list_value": [
+              {
+                  "lang": "nl_NL",
+                  "value": "TZ 541"
+              },
+              {
+                  "lang": "fr_FR",
+                  "value": "TZ 541"
+              }
+          ]
+      }`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 345000

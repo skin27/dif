@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SimpleHeade\
+  rsTransformations_01?encodingType=UTF-8"
+method: POST
+queryParams:
+  encodingType: UTF-8
+body:
+  type: text
+  content: Simple headers in components test
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <items>
+          <item>
+              <nr>1</nr>
+              <name>calvin klein</name>
+          </item>
+      </items>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));    
+      });
+    language: text/javascript
+order: 83000

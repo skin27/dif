@@ -1,0 +1,34 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?c\
+  onfig=TFTTTF"
+method: POST
+queryParams:
+  config: TFTTTF
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <rmessage RESTgroupId="40000">
+        <level2>
+            <orderStatus>O</orderStatus>
+        </level2>
+    </rmessage>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`{
+          "@RESTgroupId": "40000",
+          "level2": [
+              "O"
+          ]
+      }`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 211000

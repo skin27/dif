@@ -1,0 +1,228 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/EdifactStandardsToXml?config=DESADVD96A"
+method: POST
+queryParams:
+  config: DESADVD96A
+body:
+  type: text
+  content: |-
+    UNB+UNOA:2+SENDERUNB:1:2+094200005560840976PU0002:OD+200930:1337+13239'
+    UNH+7654+DESADV:D:96A:UN:A01051'
+    BGM+351+12345678987654321'
+    DTM+137:202009301337:203'
+    MEA+AAX+AAD+KGM:550'
+    NAD+CN+CHA::92'
+    NAD+CZ+1234::92'
+    NAD+MF+2345::92'
+    NAD+SE+3312::92'
+    CPS+1++1'
+    PAC+1'
+    QTY+52:250'
+    PCI+17+++G::10'
+    RFF+AAT:123456789'
+    GIR+3+987654321:ML+++32 123456:BX'
+    GIN+BN+23345566'
+    LIN+++2535115:IN++0'
+    QTY+12:250'
+    RFF+ON:0345601'
+    UNT+19+7654'
+    UNZ+1+13239'
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <Envelope xmlns="http://www.blujaysolutions.com/2018/DESADV"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.blujaysolutions.com/2018/DESADV file:///C:/Users/jss/Documents/seacon/germany_interfaces/develop/desadv_D96A/DESADV_D96A.xsd">
+      	  <Interchange>
+      		    <UNB>
+      			      <F0020>13239</F0020>
+      			      <S001>
+      				        <F0001>UNOA</F0001>
+      				        <F0002>2</F0002>
+      			      </S001>
+      			      <S002>
+      				        <F0004>SENDERUNB</F0004>
+      				        <F0007>1</F0007>
+      				        <F0008>2</F0008>
+      			      </S002>
+      			      <S003>
+      				        <F0010>094200005560840976PU0002</F0010>
+      				        <F0007>OD</F0007>
+      			      </S003>
+      			      <S004>
+      				        <F0017>200930</F0017>
+      				        <F0019>1337</F0019>
+      			      </S004>
+      		    </UNB>
+      		    <UNZ>
+      			      <F0036>1</F0036>
+      			      <F0020>13239</F0020>
+      		    </UNZ>
+      		    <Group>
+      			      <Message_DESADV>
+      				        <UNH>
+      					          <F0062>7654</F0062>
+      					          <S009>
+      						            <F0065>DESADV</F0065>
+      						            <F0052>D</F0052>
+      						            <F0054>96A</F0054>
+      						            <F0051>UN</F0051>
+      						            <F0057>A01051</F0057>
+      					          </S009>
+      				        </UNH>
+      				        <BGM>
+      					          <F1004>12345678987654321</F1004>
+      					          <C002>
+      						            <F1001>351</F1001>
+      					          </C002>
+      				        </BGM>
+      				        <DTM>
+      					          <C507>
+      						            <F2005>137</F2005>
+      						            <F2380>202009301337</F2380>
+      						            <F2379>203</F2379>
+      					          </C507>
+      				        </DTM>
+      				        <MEA>
+      					          <F6311>AAX</F6311>
+      					          <C502>
+      						            <F6313>AAD</F6313>
+      					          </C502>
+      					          <C174>
+      						            <F6411>KGM</F6411>
+      						            <F6314>550</F6314>
+      					          </C174>
+      				        </MEA>
+      				        <UNT>
+      					          <F0074>19</F0074>
+      					          <F0062>7654</F0062>
+      				        </UNT>
+      				        <SG2>
+      					          <NAD>
+      						            <F3035>CN</F3035>
+      						            <C082>
+      							              <F3039>CHA</F3039>
+      							              <F3055>92</F3055>
+      						            </C082>
+      					          </NAD>
+      				        </SG2>
+      				        <SG2>
+      					          <NAD>
+      						            <F3035>CZ</F3035>
+      						            <C082>
+      							              <F3039>1234</F3039>
+      							              <F3055>92</F3055>
+      						            </C082>
+      					          </NAD>
+      				        </SG2>
+      				        <SG2>
+      					          <NAD>
+      						            <F3035>MF</F3035>
+      						            <C082>
+      							              <F3039>2345</F3039>
+      							              <F3055>92</F3055>
+      						            </C082>
+      					          </NAD>
+      				        </SG2>
+      				        <SG2>
+      					          <NAD>
+      						            <F3035>SE</F3035>
+      						            <C082>
+      							              <F3039>3312</F3039>
+      							              <F3055>92</F3055>
+      						            </C082>
+      					          </NAD>
+      				        </SG2>
+      				        <SG10>
+      					          <CPS>
+      						            <F7164>1</F7164>
+      						            <F7075>1</F7075>
+      					          </CPS>
+      					          <SG11>
+      						            <PAC>
+      							              <F7224>1</F7224>
+      						            </PAC>
+      						            <QTY>
+      							              <C186>
+      								                <F6063>52</F6063>
+      								                <F6060>250</F6060>
+      							              </C186>
+      						            </QTY>
+      						            <SG13>
+      							              <PCI>
+      								                <F4233>17</F4233>
+      								                <C827>
+      									                  <F7511>G</F7511>
+      									                  <F3055>10</F3055>
+      								                </C827>
+      							              </PCI>
+      							              <RFF>
+      								                <C506>
+      									                  <F1153>AAT</F1153>
+      									                  <F1154>123456789</F1154>
+      								                </C506>
+      							              </RFF>
+      							              <GIR>
+      								                <F7297>3</F7297>
+      								                <C206>
+      									                  <F7402>987654321</F7402>
+      									                  <F7405>ML</F7405>
+      								                </C206>
+      								                <C206>
+      									                  <F7402>32 123456</F7402>
+      									                  <F7405>BX</F7405>
+      								                </C206>
+      							              </GIR>
+      							              <SG14>
+      								                <GIN>
+      									                  <F7405>BN</F7405>
+      									                  <C208>
+      										                    <F7402>23345566</F7402>
+      									                  </C208>
+      								                </GIN>
+      							              </SG14>
+      						            </SG13>
+      					          </SG11>
+      					          <SG15>
+      						            <LIN>
+      							              <F1222>0</F1222>
+      							              <C212>
+      								                <F7140>2535115</F7140>
+      								                <F7143>IN</F7143>
+      							              </C212>
+      						            </LIN>
+      						            <QTY>
+      							              <C186>
+      								                <F6063>12</F6063>
+      								                <F6060>250</F6060>
+      							              </C186>
+      						            </QTY>
+      						            <SG16>
+      							              <RFF>
+      								                <C506>
+      									                  <F1153>ON</F1153>
+      									                  <F1154>0345601</F1154>
+      								                </C506>
+      							              </RFF>
+      						            </SG16>
+      					          </SG15>
+      				        </SG10>
+      			      </Message_DESADV>
+      		    </Group>
+      	  </Interchange>
+      </Envelope>
+      `;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 16000

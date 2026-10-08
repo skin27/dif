@@ -1,0 +1,20 @@
+$kind: http-request
+name: ArchivePackUnpack
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ArchivePackUnpack"
+method: POST
+body:
+  type: text
+  content: |-
+    ID,Name,Number
+    1,Pete,1001
+    2,John,1002
+    3,Frank,1003
+    4,Max,1004
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+          });
+    language: text/javascript
+order: 1000

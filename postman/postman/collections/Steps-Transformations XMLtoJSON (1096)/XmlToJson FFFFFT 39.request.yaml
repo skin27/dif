@@ -1,0 +1,46 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?config=FFFFFT"
+method: POST
+queryParams:
+  config: FFFFFT
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <values>
+        <att_omschr-35 class="object">
+            <value class="object">
+                <value>Harbers Schilderwerken</value>
+            </value>
+        </att_omschr-35>
+        <att_cdrefjp class="object">
+            <value class="object">
+                <valueId>AR2</valueId>
+            </value>
+        </att_cdrefjp>
+    </values>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`{
+          "att_omschr-35": {
+              "value": {
+                  "value": "Harbers Schilderwerken"
+              }
+          },
+          "att_cdrefjp": {
+              "value": {
+                  "valueId": "AR2"
+              }
+          }
+      }`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 264655

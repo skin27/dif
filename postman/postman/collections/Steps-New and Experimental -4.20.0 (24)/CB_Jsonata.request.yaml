@@ -1,0 +1,16 @@
+$kind: http-request
+name: CB_Jsonata
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_Jsonata"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      const body = pm.response.text();
+
+      const idRegex = /[0-9A-F]{15}-[0-9A-F]{16}/i;
+
+      pm.test("Body contains a valid ID", function () {
+          pm.expect(body).to.match(idRegex);
+      });
+    language: text/javascript
+order: 4371153628967255

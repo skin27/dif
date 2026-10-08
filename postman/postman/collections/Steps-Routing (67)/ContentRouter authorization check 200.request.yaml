@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ContentRouterAuthorizationCheck"
+method: POST
+headers:
+  Authorization: f2843f7c-33b2-425a-b8e4-025b56e4116a
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code", function () {
+          pm.response.to.have.status(200);
+          });
+    language: text/javascript
+order: 13000

@@ -1,0 +1,29 @@
+$kind: http-request
+name: FLV wcg7_steinhauer_edi_o_ordrsp_10
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FLV_wcg7_st\
+  einhauer"
+method: POST
+body:
+  type: text
+  content: |
+    KOP231   4903753362                      920231123    VOW0046320231127    20231123                                          00000000000       00000 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ADSSU 8712746130416   Aleinhauer BV                                                    Baan van de Lam 10            7324BV   PEELDOORN                     NL XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ADSBY 4260266310008   Dome14 AA - Kentrale Persil                                      Kees-Bokrowski-Str. 4         10249    Persil                        DE DE266182271   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    BESBY 4260266310008   Dome14 AA - Kentrale Persil                                      Kees-Bokrowski-Str. 4         10249    Persil                        DE DE266182271   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ADSDP                 Dome14 AA - Kentrale Persil        Mirjana Detri-Funkel          Trompeterstrasse 31           65207    Wiesbaden                     DE DE266182271   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    RGL08184                   087127461043497731W           W     000000001000 20231127    20231127    NUL0000003500 00500                                                                                                                                                        Hangl 1L Bjorr E27 �45cm white     1000169293                        0000                                                       000100000100020231127    W     W                                                                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    AFL20231127    20231127    000000001000                        12      20231127    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?><Aggregated><segment><Record>KOP</Record><OrderSoort>231</OrderSoort><OrderSoortAgresso/><OrdernummerBuyer>4903753362</OrdernummerBuyer><OrderStatus>9</OrderStatus><BerichtDatum>20231123</BerichtDatum><OrderNummer>VOW00463</OrderNummer><LeverdatumPromised>20231127</LeverdatumPromised><OrderDatum>20231123</OrderDatum><Testindicator/></segment><segment><Record>ADS</Record><AdresType>SU</AdresType><EANadresCode>8712746130416</EANadresCode><AdresCode/><Naam>Aleinhauer BV</Naam><NaamStraat/><StraatHuisnummer>Baan van de Lam 10</StraatHuisnummer><Postcode>7324BV</Postcode><Woonplaats>PEELDOORN</Woonplaats><ISOlandcode>NL</ISOlandcode></segment><segment><Record>ADS</Record><AdresType>BY</AdresType><EANadresCode>4260266310008</EANadresCode><AdresCode/><Naam>Dome14 AA - Kentrale Persil</Naam><NaamStraat/><StraatHuisnummer>Kees-Bokrowski-Str. 4</StraatHuisnummer><Postcode>10249</Postcode><Woonplaats>Persil</Woonplaats><ISOlandcode>DE</ISOlandcode></segment><segment><Record>ADS</Record><AdresType>DP</AdresType><EANadresCode/><AdresCode/><Naam>Dome14 AA - Kentrale Persil</Naam><NaamStraat>Mirjana Detri-Funkel</NaamStraat><StraatHuisnummer>Trompeterstrasse 31</StraatHuisnummer><Postcode>65207</Postcode><Woonplaats>Wiesbaden</Woonplaats><ISOlandcode>DE</ISOlandcode></segment><segment><Record>RGL</Record><OrganisatieCode>08184</OrganisatieCode><AfleveradresEAN/><AfleveradresCode/><ArtikelEAN>08712746104349</ArtikelEAN><ProduktNummer>7731W</ProduktNummer><Eenheid>W</Eenheid><AantalBesteld>000000001000</AantalBesteld><LeverenVoorRGL>20231127</LeverenVoorRGL><LeverenNaRGL>20231127</LeverenNaRGL><BTWgroepRGL>NUL</BTWgroepRGL><Prijs>0000003500</Prijs><Korting>00500</Korting><maatwerkVelden_RGL/><OmschrijvingProduct>Hangl 1L Bjorr E27 �45cm white</OmschrijvingProduct><DebiteurProductCode>1000169293</DebiteurProductCode><InkooporderRglNrKlant>0000</InkooporderRglNrKlant><Filler1_RGL/><VerkooporderRglNr>0001</VerkooporderRglNr></segment><segment><Record>AFL</Record><LeverenVoorAFL>20231127</LeverenVoorAFL><LeverenNaAFL>20231127</LeverenNaAFL><AantalTeLeveren>000000001000</AantalTeLeveren><Magazijn/><Lokatie/><Partij/><maatwerkVelden_AFL>12</maatwerkVelden_AFL></segment></Aggregated>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));   
+      });
+    language: text/javascript
+order: 1520994637772553

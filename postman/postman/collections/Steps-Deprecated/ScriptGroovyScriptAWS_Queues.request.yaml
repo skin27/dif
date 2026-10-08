@@ -1,0 +1,25 @@
+$kind: http-request
+name: ScriptGroovyScriptAWS_Queues
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroov\
+  yScriptAWS_Queues?dovauth=9332bbcc-96ea-405d-b1df-8bfcbfe018af&Start=2023-09-\
+  01&End=2023-09-30"
+method: POST
+queryParams:
+  dovauth: 9332bbcc-96ea-405d-b1df-8bfcbfe018af
+  Start: 2023-09-01
+  End: 2023-09-30
+body:
+  type: xml
+  content: |-
+    <names>
+        <name>Johnny Cash</name>
+    </names>
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches strings", function () {
+          pm.expect(pm.response.text()).to.include('DimensionValueAttributes');
+          pm.expect(pm.response.text()).to.include('TimePeriod');
+      });
+    language: text/javascript
+order: 4497910669387955

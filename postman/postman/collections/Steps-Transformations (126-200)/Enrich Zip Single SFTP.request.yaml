@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Enrich_zip_single_sftp"
+method: POST
+headers:
+  bodyType: zip
+body:
+  type: xml
+  content: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <bicycle_brands>
+        <brand>
+            <name>Batavus</name>
+            <country>The Netherlands</country>
+            <founded>1888</founded>
+            <website>www.batavus.nl</website>
+        </brand>
+    </bicycle_brands>
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("body contains", function () {
+          pm.expect(pm.response.text()).to.include('enrich1.txt');
+          pm.expect(pm.response.text()).to.include('enrich3.txt');
+          pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/zip');
+          pm.expect(pm.response.headers.get('Position')).to.eql('After 1st enrich');
+      });
+    language: text/javascript
+order: 36000

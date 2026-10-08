@@ -1,0 +1,42 @@
+$kind: http-request
+name: SetHeader Simple
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SetHeader?config=simple"
+method: POST
+headers:
+  headerName1: "           1             "
+  headerName2: AB
+  Amount: "1"
+  lowerCase: qwerty
+queryParams:
+  config: simple
+body:
+  type: xml
+  content: |-
+    <root>
+        <id>1</id>
+    </root>
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Filename", () => {
+        pm.expect(pm.response.headers.get('SH06_Name')).to.eql('image.jpg');
+      });
+
+      pm.test("Body Length", () => {
+        pm.expect(pm.response.headers.get('bodyLength')).to.eql('29');
+      });
+
+      pm.test("NameExtSingle", () => {
+        pm.expect(pm.response.headers.get('SH08_NameExtSingle')).to.eql('jpg');
+      });
+
+      pm.test("headerName2", () => {
+        pm.expect(pm.response.headers.get('headerName2')).to.eql('BB');
+      });
+
+      pm.test("bodyUpperCase", () => {
+        pm.expect(pm.response.headers.get('bodyUpperCase')).to.eql('QWERTY');
+      });
+    language: text/javascript
+order: 4502847914349566

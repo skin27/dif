@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpsOutboundHttpStatusCodes?StatusCode=204"
+method: POST
+headers:
+  url: https://httpbin.org:81/delay/1
+queryParams:
+  StatusCode: "204"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code", function () {
+          pm.response.to.have.status(204);
+          });
+
+      pm.test("Body is empty", function () {
+          pm.expect(pm.response.text()).to.equal("");
+      });
+    language: text/javascript
+order: 34000

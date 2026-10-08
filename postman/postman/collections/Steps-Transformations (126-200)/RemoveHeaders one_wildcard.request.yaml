@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/RemoveHeade\
+  rs_one_wildcard"
+method: POST
+body:
+  type: file
+  content: {}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("cs_headers_before", () => {
+        pm.expect(pm.response.headers.get('cs_headers_before')).to.eql('123,456');
+      });
+
+      pm.test("cs_headers_after", () => {
+        pm.expect(pm.response.headers.get('cs_headers_after')).to.eql(',');
+      });
+    language: text/javascript
+order: 69000

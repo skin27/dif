@@ -1,0 +1,38 @@
+$kind: http-request
+name: TracingQueues1week
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/TracingQueues1week"
+method: POST
+body:
+  type: json
+  content: TracingQueues1week
+scripts:
+  - type: afterResponse
+    code: |-
+      // const expected = '<?xml version="1.0" encoding="UTF-8"?><Enriched><employees><employee><element><job/></element><element><name>John</name><id>2</id><job>carpenter</job></element><element><name>Frank</name><id>3</id><job>mason</job></element><element><name>Max</name><id>4</id><job>painter</job></element></employee></employees></Enriched>';
+
+      // const actual = pm.response.text();
+
+      // pm.test("happyflow", function () {
+      //     pm.response.to.not.be.error;
+      //     pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      // });
+
+      var instance = pm.environment.name;
+      var output = "";
+
+      switch (instance) {
+          case "next":
+              output = 'TracingQueues1week has been removed';
+              break;
+          default:
+              output = '<?xml version="1.0" encoding="UTF-8"?><Enriched><employees><employee><element><job/></element><element><name>John</name><id>2</id><job>carpenter</job></element><element><name>Frank</name><id>3</id><job>mason</job></element><element><name>Max</name><id>4</id><job>painter</job></element></employee></employees></Enriched>';
+              break;
+      }
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(output.replace(/[\r\n\t\s]/g, ""));  
+      });
+    language: text/javascript
+order: 57000

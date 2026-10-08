@@ -1,0 +1,75 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Enrich_body\
+  Type_overrideErrorRoute"
+method: POST
+body:
+  type: xml
+  content: |-
+    {
+        "products": [
+            {
+                "id": "1",
+                "name": "spoon"
+            },
+            {
+                "id": "2",
+                "name": "knife"
+            }
+        ],
+        "images": [
+            {
+                "id": "1",
+                "name": "spoon"
+            },
+            {
+                "id": "2",
+                "name": "knife"
+            }
+        ]
+    }
+scripts:
+  - type: afterResponse
+    code: |+
+      var instance = pm.collectionVariables.get("INSTANCE");
+
+      var output = "";
+
+      switch (instance) {
+          case "acceptance":
+              output1 = '{  "code": 500,  "error": "org.apache.camel.ExchangeTimedOutException: The OUT message was not received within: 10000 millis due reply message with correlationID: ';
+              output2 = '"info": "Something went wrong calling the Dovetail service. Please refer to the Dovetail logs for more information."';
+              break;
+          case "development":
+              output1 = '{"code": 500, "error": "org.apache.camel.ExchangeTimedOutException: The OUT message was not received within: 10000 millis due reply message with correlationID';
+              output2 = '"info": "Something went wrong calling the HTTP service. Please refer to the logs for more information."}';
+              break;
+          case "next":
+              output1 = '{"code": 500,"error": "org.apache.camel.CamelExchangeException: Error occurred during aggregation. Exchange[11C5603B263E8C0-000000000000D30F]. Caused by: [org.assimbly.util.exception.EnrichException - Can\'t override body]","info": "Error processing request. Details available in the log/trace viewer."}';
+              break;
+          default:
+              pm.test("Invalid environment specified");
+              break;
+      }
+
+      //Check values in the console
+      //console.log(instance);
+      //console.log(output);
+
+      const actual = pm.response.text();
+
+      //pm.test("happyflow", function () {
+      //    pm.expect(actual.replace(/[\s]/g, "")).to.include(output1.replace(/[\s]/g, ""));
+      //    pm.expect(actual.replace(/[\s]/g, "")).to.include(output2.replace(/[\s]/g, ""));       
+      //});
+
+
+      pm.test("Status code is 500", function () {
+          pm.response.to.have.status(500);
+          });
+
+      pm.test("Response time is less than 11000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(12000);
+          });
+
+    language: text/javascript
+order: 33000

@@ -1,0 +1,15 @@
+$kind: http-request
+url: https://development.dovetail.world/test/inbound_http/regressiontests/WCG_Script_20d_1a
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("orderCode=PN068073", () => {
+        pm.expect(pm.response.headers.get('orderCode')).to.eql('PN068073');
+      });
+
+      pm.test("deliveryDate_new_2=2023-03-31", () => {
+        pm.expect(pm.response.headers.get('deliveryDate_new_2')).to.eql('2023-03-31');
+      });
+    language: text/javascript
+order: 6000

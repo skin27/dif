@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/production/{{PATH}}/EmailNoOauth"
+method: POST
+body:
+  type: text
+  content: Hello people!
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `Hello people!`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));    
+      });
+
+      pm.test("mail message id", () => {
+        pm.expect(pm.response.headers.get('mailMessage')).to.eql('mail.antagonist.nl');
+      });
+    language: text/javascript
+order: 5000

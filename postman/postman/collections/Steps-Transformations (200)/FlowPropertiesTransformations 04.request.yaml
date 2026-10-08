@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FlowPropertiesTransformations_04"
+method: POST
+body:
+  type: file
+  content:
+    src: ipaas.jpg
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches string", function () {
+          pm.expect(pm.response.text()).to.include('name="dovetail_multipart"');
+      });
+    language: text/javascript
+order: 37000

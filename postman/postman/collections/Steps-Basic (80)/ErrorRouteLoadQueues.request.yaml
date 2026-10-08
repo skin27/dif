@@ -1,0 +1,53 @@
+$kind: http-request
+name: ErrorRouteLoadQueues
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ErrorRouteLoadQueues"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |+
+      var instance = pm.environment.name;
+
+      var output = "";
+
+      switch (instance) {
+          case "acceptance":
+              output = '{"code": 500,"error": "org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.","info": "Something went wrong calling the Dovetail service. Please refer to the Dovetail logs for more information."}';
+              break;
+          case "development":
+              output = '{  "code": 500,  "error": "org.apache.camel.ExchangeTimedOutException: The OUT message was not received within: 5000 millis due reply message with correlationID: Camel-0A77E7BF0C0D1CC-00000000000041A9 not received on destination: temp-queue://ID:assimbly-test-38253-1785302595737-1:13:2. Exchange[0A77E7BF0C0D1CC-000000000000419F]","info": "Something went wrong calling the HTTP service. Please refer to the logs for more information."}';
+              break;
+          case "demo":
+              output = '{"code": 500,"error": "org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.","info": "Something went wrong calling the HTTP service. Please refer to the logs for more information."}';
+              break;
+          case "next":
+              output = 'ErrorRouteLoadQueues has been removed';
+              break;
+          case "development-ecs":
+              output = '{"code": 500,"error": "org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.","info": "Something went wrong calling the HTTP service. Please refer to the logs for more information."}';
+              break;
+          default:
+              output = '{"code": 500,"error": "org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.","info": "Something went wrong calling the HTTP service. Please refer to the logs for more information."}';
+              break;
+      }
+
+      //Check values in the console
+      //console.log(instance);
+      //console.log(output);
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.expect(actual.replace(/[\s]/g, "")).to.eql(output.replace(/[\s]/g, ""));     
+      });
+
+
+      pm.test("Status code is 500", function () {
+          pm.response.to.have.status(500);
+          });
+
+      pm.test("Response time is less than 6500ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(6500);
+          });
+
+    language: text/javascript
+order: 49000

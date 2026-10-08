@@ -1,0 +1,253 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/JsonToXmlDeprecated?config=EARTT"
+method: POST
+queryParams:
+  config: EARTT
+body:
+  type: json
+  content: |-
+    {
+        "products": [
+            {
+                "id": "1",
+                "name": "spoon",
+                "prices": [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                ]
+            },
+            {
+                "id": "2",
+                "name": "knife",
+                "prices": [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                ]
+            }
+        ],
+        "images": [
+            {
+                "id": "1",
+                "name": "spoon",
+                "image": [
+                    {
+                        "id": "1",
+                        "name": "top",
+                        "size": [
+                            {
+                                "id": "1",
+                                "name": "400"
+                            },
+                            {
+                                "id": "2",
+                                "name": "1024"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "2",
+                        "name": "bottom",
+                        "size": [
+                            {
+                                "id": "1",
+                                "name": "400"
+                            },
+                            {
+                                "id": "2",
+                                "name": "1024"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "2",
+                "name": "knife",
+                "image": [
+                    {
+                        "id": "1",
+                        "name": "top",
+                        "size": [
+                            {
+                                "id": "1",
+                                "name": "400"
+                            },
+                            {
+                                "id": "2",
+                                "name": "1024"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "2",
+                        "name": "bottom",
+                        "size": [
+                            {
+                                "id": "1",
+                                "name": "400"
+                            },
+                            {
+                                "id": "2",
+                                "name": "1024"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      // Import the xml2js library
+      const xml2js = require('xml2js');
+
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <root>
+          <products class="array">
+              <element class="object">
+                  <id type="string">1</id>
+                  <name type="string">spoon</name>
+                  <prices class="array">
+                      <element type="string">1</element>
+                      <element type="string">2</element>
+                      <element type="string">3</element>
+                      <element type="string">4</element>
+                      <element type="string">5</element>
+                  </prices>
+              </element>
+              <element class="object">
+                  <id type="string">2</id>
+                  <name type="string">knife</name>
+                  <prices class="array">
+                      <element type="string">1</element>
+                      <element type="string">2</element>
+                      <element type="string">3</element>
+                      <element type="string">4</element>
+                      <element type="string">5</element>
+                  </prices>
+              </element>
+          </products>
+          <images class="array">
+              <element class="object">
+                  <id type="string">1</id>
+                  <name type="string">spoon</name>
+                  <image class="array">
+                      <element class="object">
+                          <id type="string">1</id>
+                          <name type="string">top</name>
+                          <size class="array">
+                              <element class="object">
+                                  <id type="string">1</id>
+                                  <name type="string">400</name>
+                              </element>
+                              <element class="object">
+                                  <id type="string">2</id>
+                                  <name type="string">1024</name>
+                              </element>
+                          </size>
+                      </element>
+                      <element class="object">
+                          <id type="string">2</id>
+                          <name type="string">bottom</name>
+                          <size class="array">
+                              <element class="object">
+                                  <id type="string">1</id>
+                                  <name type="string">400</name>
+                              </element>
+                              <element class="object">
+                                  <id type="string">2</id>
+                                  <name type="string">1024</name>
+                              </element>
+                          </size>
+                      </element>
+                  </image>
+              </element>
+              <element class="object">
+                  <id type="string">2</id>
+                  <name type="string">knife</name>
+                  <image class="array">
+                      <element class="object">
+                          <id type="string">1</id>
+                          <name type="string">top</name>
+                          <size class="array">
+                              <element class="object">
+                                  <id type="string">1</id>
+                                  <name type="string">400</name>
+                              </element>
+                              <element class="object">
+                                  <id type="string">2</id>
+                                  <name type="string">1024</name>
+                              </element>
+                          </size>
+                      </element>
+                      <element class="object">
+                          <id type="string">2</id>
+                          <name type="string">bottom</name>
+                          <size class="array">
+                              <element class="object">
+                                  <id type="string">1</id>
+                                  <name type="string">400</name>
+                              </element>
+                              <element class="object">
+                                  <id type="string">2</id>
+                                  <name type="string">1024</name>
+                              </element>
+                          </size>
+                      </element>
+                  </image>
+              </element>
+          </images>
+      </root>`;
+
+      const actual = pm.response.text();
+
+      // Function to sort the elements in a JavaScript object
+      function sortObject(obj) {
+          if (typeof obj !== 'object' || obj === null) {
+              return obj;
+          }
+
+          if (Array.isArray(obj)) {
+              return obj.map(sortObject);
+          }
+
+          return Object.keys(obj).sort().reduce((acc, key) => {
+              acc[key] = sortObject(obj[key]);
+              return acc;
+          }, {});
+      }
+
+      // Parse XML strings into JavaScript objects
+      xml2js.parseString(expected, (err, result1) => {
+          if (err) {
+              pm.test('XML parsing error for expected xml', () => {
+                  pm.expect(err).to.be.null;
+              });
+          } else {
+              xml2js.parseString(actual, (err, result2) => {
+                  if (err) {
+                      pm.test('XML parsing error for actual xml', () => {
+                          pm.expect(err).to.be.null;
+                      });
+                  } else {
+                      // Sort the objects
+                      const sortedObject1 = sortObject(result1);
+                      const sortedObject2 = sortObject(result2);
+
+                      // Compare the sorted objects
+                      pm.test('XML strings are equivalent, ignoring element order', () => {
+                          pm.expect(sortedObject1).to.eql(sortedObject2);
+                      });
+                  }
+              });
+          }
+      });
+    language: text/javascript
+order: 32000

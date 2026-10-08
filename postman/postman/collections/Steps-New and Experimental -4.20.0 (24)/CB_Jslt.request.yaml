@@ -1,0 +1,18 @@
+$kind: http-request
+name: CB_Jslt
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_Jslt"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |
+      const expected = `{"gebruiker_id":"USR-9823","volledige_naam":"Alex De Vries","is_volwassen":true,"rechten":["user","moderator"]}
+      `;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 3649057291945328

@@ -1,0 +1,43 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SetBody_headers"
+method: POST
+headers:
+  value: "123"
+body:
+  type: xml
+  content: |-
+    <element>
+        <id>abc</id>
+    </element>
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Body matches string 1a", function () {
+          pm.expect(pm.response.text()).to.include('Content-Length');
+      });
+
+      pm.test("Body matches string 1b", function () {
+          pm.expect(pm.response.text()).to.include('37');
+      });
+
+      pm.test("Body matches string 2a", function () {
+          pm.expect(pm.response.text()).to.include('Content-Type');
+      });
+
+      pm.test("Body matches string 2b", function () {
+          pm.expect(pm.response.text()).to.include('application/xml');
+      });
+
+      pm.test("Body matches string 3", function () {
+          pm.expect(pm.response.text()).to.include('9001');
+      });
+
+      pm.test("Body matches string 4a", function () {
+          pm.expect(pm.response.text()).to.include('Accept');
+      });
+
+      pm.test("Body matches string 4b", function () {
+          pm.expect(pm.response.text()).to.include('Accept-Encoding');
+      });
+    language: text/javascript
+order: 108000

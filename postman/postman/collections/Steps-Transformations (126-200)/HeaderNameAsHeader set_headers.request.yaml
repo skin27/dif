@@ -1,0 +1,17 @@
+$kind: http-request
+url: https://development.dovetail.world/test/inbound_http/regressiontests/HeaderNameAsHeader_set_headers
+method: POST
+headers:
+  config: set_header
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body set_header", function () {
+          pm.expect(pm.response.text()).to.include('Body set_header');
+      });
+
+      pm.test("New_headerName", () => {
+        pm.expect(pm.response.headers.get('New_headerName')).to.eql('Test');
+      });
+    language: text/javascript
+order: 58000

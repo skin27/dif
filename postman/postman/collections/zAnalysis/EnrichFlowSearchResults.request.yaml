@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/EnrichFlowSearchResults"
+method: POST
+body:
+  type: text
+  content: |-
+    ==== demo.dovetail.world - test ====
+    /etc/kabisadata/flux-test/deploy/ID_6458c0b51801d1000c00173b.xml /etc/kabisadata/flux-test/deploy/ID_646f0ec4fdc39e001300009b.xml /etc/kabisadata/flux-test/deploy/ID_64f98e5c09971300f30001b4.xml /etc/kabisadata/flux-test/deploy/ID_64facee5099713000c0004e0.xml /etc/kabisadata/flux-test/deploy/ID_653baa710997130015001a96.xml /etc/kabisadata/flux-test/deploy/ID_65eb1a80109ca1000f004e3f.xml /etc/kabisadata/flux-test/deploy/ID_65fada31109ca1000f005b7d.xml /etc/kabisadata/flux-test/deploy/ID_660fcb17109ca1000f007287.xml /etc/kabisadata/flux-test/deploy/ID_66194267109ca1000f008505.xml /etc/kabisadata/flux-test/deploy/ID_665065ad109ca1002e014c32.xml /etc/kabisadata/flux-test/deploy/ID_66911073109ca1e24f007ce4.xml /etc/kabisadata/flux-test/deploy/ID_6697703c109ca10035028e09.xml
+    ==== acceptance.dovetail.world - test ====
+    /etc/kabisadata/flux-test/deploy/ID_66193934a2f8f60022000001.xml
+    ==== dwe-ict.dovetail.world - test ====
+    /etc/kabisadata/flux-test/deploy/ID_6632591a5d31e30018004fdd.xml /etc/kabisadata/flux-test/deploy/ID_664ef29d5d31e38488000955.xml /etc/kabisadata/flux-test/deploy/ID_666802175d31e3a278002031.xml
+    ==== dwe-ict.dovetail.world - production ====
+    /etc/kabisadata/flux-production/deploy/ID_655e1af9d1e398000f000afd.xml /etc/kabisadata/flux-production/deploy/ID_657b0f7fd1e398001e001272.xml /etc/kabisadata/flux-production/deploy/ID_65b0cf02d1e398002d001a92.xml /etc/kabisadata/flux-production/deploy/ID_65c4dddc3e5ebe0015000b8b.xml /etc/kabisadata/flux-production/deploy/ID_65d5edc93e5ebe023c002333.xml /etc/kabisadata/flux-production/deploy/ID_65e5e903c89ebd000c001138.xml /etc/kabisadata/flux-production/deploy/ID_66014a06c89ebd000c0000a0.xml /etc/kabisadata/flux-production/deploy/ID_660c01855d31e3010f00042b.xml /etc/kabisadata/flux-production/deploy/ID_6632591a5d31e30018004fdd.xml /etc/kabisadata/flux-production/deploy/ID_663a0aa95d31e30018005cd9.xml /etc/kabisadata/flux-production/deploy/ID_664ef29d5d31e38488000955.xml /etc/kabisadata/flux-production/deploy/ID_6655d6635d31e3a278000158.xml /etc/kabisadata/flux-production/deploy/ID_66606c6d5d31e3a278001b72.xml /etc/kabisadata/flux-production/deploy/ID_66616a3a5d31e3a275001c02.xml /etc/kabisadata/flux-production/deploy/ID_666802175d31e3a278002031.xml /etc/kabisadata/flux-production/deploy/ID_666feea35d31e3848800440e.xml /etc/kabisadata/flux-production/deploy/ID_669f7df05d31e384880091e4.xml /etc/kabisadata/flux-production/deploy/ID_66c4408e5d31e30083002a31.xml
+    ==== eu01.dovetail.world - test ====
+    /etc/kabisadata/flux-test/deploy/ID_6465e19a90ad4a0012005fba.xml /etc/kabisadata/flux-test/deploy/ID_646db46790ad4a0196000007.xml /etc/kabisadata/flux-test/deploy/ID_6470e73290ad4a0c5f002af1.xml /etc/kabisadata/flux-test/deploy/ID_6470f33790ad4a0c5f002e2b.xml /etc/kabisadata/flux-test/deploy/ID_6489fc64df7042000c00072c.xml /etc/kabisadata/flux-test/deploy/ID_66598da856d329c747000d83.xml /etc/kabisadata/flux-test/deploy/ID_66598ef156d329bb1100195c.xml /etc/kabisadata/flux-test/deploy/ID_66b09425c2a894016400041e.xml
+    ==== eu01.dovetail.world - production ====
+    /etc/kabisadata/flux-production/deploy/ID_6465e19a90ad4a0012005fba.xml /etc/kabisadata/flux-production/deploy/ID_646db46790ad4a0196000007.xml /etc/kabisadata/flux-production/deploy/ID_6470e73290ad4a0c5f002af1.xml /etc/kabisadata/flux-production/deploy/ID_6489fc64df7042000c00072c.xml /etc/kabisadata/flux-production/deploy/ID_6489fc85df7042000f000e42.xml /etc/kabisadata/flux-production/deploy/ID_66598da856d329c747000d83.xml /etc/kabisadata/flux-production/deploy/ID_66598ef156d329bb1100195c.xml /etc/kabisadata/flux-production/deploy/ID_66b09425c2a894016400041e.xml
+    ==== wcg4.dovetail.world - test ====
+    /etc/kabisadata/flux-test/deploy/ID_620a0cc60a535000140036fc.xml /etc/kabisadata/flux-test/deploy/ID_6452676ed03c78afd4002668.xml
+    ==== wcg4.dovetail.world - production ====
+    /etc/kabisadata/flux-production/deploy/ID_620a0cc60a535000140036fc.xml /etc/kabisadata/flux-production/deploy/ID_6452676ed03c78afd4002668.xml
+    ==== wetron.dovetail.world - test ====
+    /etc/kabisadata/flux-test/deploy/ID_624170c2d9df4a34f60007d7.xml /etc/kabisadata/flux-test/deploy/ID_62541857d9df4a34ff0008a1.xml
+    ==== wetron.dovetail.world - production ====
+    /etc/kabisadata/flux-production/deploy/ID_624170c2d9df4a34f60007d7.xml /etc/kabisadata/flux-production/deploy/ID_62541857d9df4a34ff0008a1.xml
+examples: ./.resources/EnrichFlowSearchResults.resources/examples
+order: 3000

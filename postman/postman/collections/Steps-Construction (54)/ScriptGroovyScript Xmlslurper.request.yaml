@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScript_xmlslurper"
+method: POST
+body:
+  type: xml
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("CreatorFullName", () => {
+        pm.expect(pm.response.headers.get('CreatorFullName')).to.eql('Norman Hooghof');
+      });
+
+      pm.test("OrderedByContactPersonFullName", () => {
+        pm.expect(pm.response.headers.get('OrderedByContactPersonFullName')).to.eql('Peppie en Kokkie');
+      });
+    language: text/javascript
+order: 27000

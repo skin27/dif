@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/EdiToXml_va\
+  riated"
+method: POST
+body:
+  type: text
+  content: |-
+    CUS~John#Doe~1901-01-07=john.doe@example.com@abc
+    CUS~John#Doe~1902-01-07=john.doe@example.com@abc
+    CUS~John#Doe~1903-01-07=john.doe@example.com@abc
+    CUS~John#Doe~1904-01-07=john.doe@example.com@abc
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<edi-message><delimiters segment="LB" field="=~" component="#" sub-component="@" /><CUS~John#Doe~1901-01-07=john.doe@example.com@abc /><CUS~John#Doe~1902-01-07=john.doe@example.com@abc /><CUS~John#Doe~1903-01-07=john.doe@example.com@abc /><CUS~John#Doe~1904-01-07=john.doe@example.com@abc /></edi-message>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 17000

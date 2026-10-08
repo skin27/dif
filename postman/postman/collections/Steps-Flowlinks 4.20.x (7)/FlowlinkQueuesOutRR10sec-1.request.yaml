@@ -1,0 +1,25 @@
+$kind: http-request
+name: FlowlinkQueuesOutRR10sec
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FlowlinkQue\
+  uesOutRR10sec"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `FlowlinkQueuesOutRR10sec -> FlowlinkQueuesIn`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);\r
+
+      });"
+    language: text/javascript
+order: 3564174444922551

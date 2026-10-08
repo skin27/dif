@@ -1,0 +1,17 @@
+$kind: http-request
+name: CB_DocConverterJsonToXml
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_DocConverterJsonToXml"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |
+      const expected = `<product><id>PRD-100245</id><name>UltraSmart Coffee Machine 5000</name><description>Fully automatic bean-to-cup coffee machine</description><category><id>12</id><name>Kitchen Appliances</name></category><price><currency>EUR</currency><amount>899.95</amount><vatIncluded>true</vatIncluded></price><stock><warehouse><location>Amsterdam</location><quantity>24</quantity></warehouse><warehouse><location>Rotterdam</location><quantity>18</quantity></warehouse><warehouse><location>Eindhoven</location><quantity>0</quantity></warehouse></stock><dimensions><width>28.5</width><height>42.3</height><depth>36.1</depth><unit>cm</unit></dimensions><weight><value>8.75</value><unit>kg</unit></weight><manufacturer><name>CoffeeTech Europe</name><country>Netherlands</country><support><email>support@coffeetech.example</email><phone>+31-20-1234567</phone></support></manufacturer><tags>coffee</tags><tags>espresso</tags><tags>automatic</tags><tags>premium</tags><specifications><power>1450W</power><voltage>230V</voltage><waterTank><capacity>1.8</capacity><unit>L</unit></waterTank><programs>Espresso</programs><programs>Cappuccino</programs><programs>Latte</programs><programs>Hot Water</programs></specifications><reviews><user>john.doe</user><rating>5</rating><comment>Excellent coffee!</comment></reviews><reviews><user>jane.smith</user><rating>4</rating><comment>Very good, but a bit noisy.</comment></reviews><availability><online>true</online><stores>Amsterdam</stores><stores>Rotterdam</stores><stores>Utrecht</stores></availability><createdAt>2026-07-17T10:15:30Z</createdAt><updatedAt>2026-07-17T11:45:00Z</updatedAt></product>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 3625028428649738

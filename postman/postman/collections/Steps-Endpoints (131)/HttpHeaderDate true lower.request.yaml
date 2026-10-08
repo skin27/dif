@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpHeaderDate_true_case_lower"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Received_date", () => {
+        pm.expect(pm.response.headers.get('Received_date')).to.eql('01-01-1970');
+      });
+    language: text/javascript
+order: 28000

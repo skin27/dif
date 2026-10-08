@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScript_replace_header"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("phone", () => {
+        pm.expect(pm.response.headers.get('phone')).to.eql('06');
+      });
+    language: text/javascript
+order: 22000

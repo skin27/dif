@@ -1,0 +1,51 @@
+$kind: http-request
+name: archive only
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_ArchiveOnly"
+method: POST
+headers:
+  Content-Type: ""
+scripts:
+  - type: afterResponse
+    code: "// var instance = pm.environment.name;\r
+
+      // var output = \"\";\r
+
+      \r
+
+      // switch (instance) {\r
+
+      //     case \"next\":\r
+
+      //         output = '[{name=content.txt, content=Hello}]';\r
+
+      //         break;\r
+
+      //     default:\r
+
+      //         output = '[Hello]';\r
+
+      //         break;\r
+
+      // }\r
+
+      \r
+
+      // const actual = pm.response.text();\r
+
+      \r
+
+      // pm.test(\"happyflow\", function () {\r
+
+      //     pm.expect(actual.replace(/[\\s]/g, \"\")).to.eql(output.replace(/[\\s]/g, \"\"));     \r
+
+      // });\r
+
+      \r
+
+      pm.test(\"Content-Type is application/zip\", () => {\r
+
+      \  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/zip');\r
+
+      });"
+    language: text/javascript
+order: 2256

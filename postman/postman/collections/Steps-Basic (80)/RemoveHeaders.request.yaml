@@ -1,0 +1,37 @@
+$kind: http-request
+name: RemoveHeaders
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_RemoveHeaders"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `Headers:\r
+
+      \r
+
+      Lastname: \r
+
+      Firstname:  John\r
+
+      \r
+
+      Message Body:\r
+
+      \r
+
+      Hello`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 27000

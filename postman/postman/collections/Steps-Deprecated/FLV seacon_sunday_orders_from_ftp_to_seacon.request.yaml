@@ -1,0 +1,53 @@
+$kind: http-request
+name: FLV seacon_sunday_orders_from_ftp_to_seacon
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FLV_seacon_\
+  sunday"
+method: POST
+body:
+  type: text
+  content: |
+    HDR2S2340021P23400221                             20231123          Serneels                                                    Louizalaan 69                 0                             1050     Brussel                       BE0032-25383066       0 0                                               info@serneels.be                                  DDP                                                                                                                                            
+    ART     126304                    14040491263047                      1.00                               
+    ART     246803                    14040491468039                      1.00                               
+    ART     346804                    14040491468046                      1.00                               
+    ART     446454                    14040491464543                      1.00                               
+    ART     546352                    14040491463522                      1.00                               
+    ART     646468                    14040491464680                      1.00                               
+    ART     746799                    14040491467995                      1.00                               
+    ART     846800                    14040491468008                      1.00                               
+    ART     946484                    14040491464840                      1.00                               
+    ART    1046495                    14040491464956                      1.00                               
+    ART    1146486                    14040491464864                      1.00                               
+    ART    1246160                    24040491461603                      2.00                               
+    ART    1347904                    24040491479042                      2.00                               
+    ART    1446368                    14040491463683                      1.00                               
+    ART    1547721                    14040491477215                      1.00                               
+    ART    1647720                    14040491477208                      1.00                               
+    ART    1747844                    14040491478441                      1.00                               
+    ART    1847811                    14040491478113                      1.00                               
+    ART    1947826                    14040491478267                      1.00                               
+    ART    2047733                    14040491477338                      1.00                               
+    ART    2147879                    14040491478793                      1.00                               
+    ART    2247763                    14040491477635                      1.00                               
+    ART    2347905                    14040491479059                      1.00                               
+    ART    2447876                    14040491478762                      1.00                               
+    ART    2547350                    14040491473507                      1.00                               
+    ART    2647471                    14040491474719                      1.00                               
+    ART    2747382                    14040491473828                      1.00                               
+    ART    2847501                    14040491475013                      1.00                               
+    ART    2946605                    14040491466059                      1.00                               
+    ART    3047781                    14040491477819                      1.00                               
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<flv-message><rule matchOn="HDR" fields="header[3]functiecode[1]refopd[8]fire1[8]fire2[30]delivery[8]searchname[10]name1[30]name2[30]adres1[30]adres2[30]zipcode[9]town[30]country[2]phone[20]instructions[50]mail[50]terms[3]special[70]extra2[70]" /><rule matchOn="ART" fields="art[3]line[6]article[16]quantity[10]ean[35]extra[35]" /><segment><header>HDR</header><functiecode>2</functiecode><refopd>S2340021</refopd><fire1>P2340022</fire1><fire2>1</fire2><delivery>20231123</delivery><searchname></searchname><name1>Serneels</name1><name2></name2><adres1>Louizalaan 69</adres1><adres2>0</adres2><zipcode>1050</zipcode><town>Brussel</town><country>BE</country><phone>0032-25383066</phone><instructions>0 0</instructions><mail>info@serneels.be</mail><terms>DDP</terms><special></special><extra2></extra2></segment><group><segment><art>ART</art><line>1</line><article>26304</article><quantity>1</quantity><ean>4040491263047</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>2</line><article>46803</article><quantity>1</quantity><ean>4040491468039</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>3</line><article>46804</article><quantity>1</quantity><ean>4040491468046</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>4</line><article>46454</article><quantity>1</quantity><ean>4040491464543</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>5</line><article>46352</article><quantity>1</quantity><ean>4040491463522</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>6</line><article>46468</article><quantity>1</quantity><ean>4040491464680</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>7</line><article>46799</article><quantity>1</quantity><ean>4040491467995</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>8</line><article>46800</article><quantity>1</quantity><ean>4040491468008</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>9</line><article>46484</article><quantity>1</quantity><ean>4040491464840</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>10</line><article>46495</article><quantity>1</quantity><ean>4040491464956</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>11</line><article>46486</article><quantity>1</quantity><ean>4040491464864</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>12</line><article>46160</article><quantity>2</quantity><ean>4040491461603</ean><extra>2.00</extra></segment></group><group><segment><art>ART</art><line>13</line><article>47904</article><quantity>2</quantity><ean>4040491479042</ean><extra>2.00</extra></segment></group><group><segment><art>ART</art><line>14</line><article>46368</article><quantity>1</quantity><ean>4040491463683</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>15</line><article>47721</article><quantity>1</quantity><ean>4040491477215</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>16</line><article>47720</article><quantity>1</quantity><ean>4040491477208</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>17</line><article>47844</article><quantity>1</quantity><ean>4040491478441</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>18</line><article>47811</article><quantity>1</quantity><ean>4040491478113</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>19</line><article>47826</article><quantity>1</quantity><ean>4040491478267</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>20</line><article>47733</article><quantity>1</quantity><ean>4040491477338</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>21</line><article>47879</article><quantity>1</quantity><ean>4040491478793</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>22</line><article>47763</article><quantity>1</quantity><ean>4040491477635</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>23</line><article>47905</article><quantity>1</quantity><ean>4040491479059</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>24</line><article>47876</article><quantity>1</quantity><ean>4040491478762</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>25</line><article>47350</article><quantity>1</quantity><ean>4040491473507</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>26</line><article>47471</article><quantity>1</quantity><ean>4040491474719</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>27</line><article>47382</article><quantity>1</quantity><ean>4040491473828</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>28</line><article>47501</article><quantity>1</quantity><ean>4040491475013</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>29</line><article>46605</article><quantity>1</quantity><ean>4040491466059</ean><extra>1.00</extra></segment></group><group><segment><art>ART</art><line>30</line><article>47781</article><quantity>1</quantity><ean>4040491477819</ean><extra>1.00</extra></segment></group></flv-message>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));   
+      });
+    language: text/javascript
+order: 367797041345342

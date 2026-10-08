@@ -1,0 +1,41 @@
+$kind: http-request
+name: XmlToEdifactStandards
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_XmlToEdifactStandards"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "var instance = pm.environment.name;\r
+
+      var output = \"\";\r
+
+      \r
+
+      switch (instance) {\r
+
+      \    case \"next\":\r
+
+      \        output = 'CB_EdifactStandards2Xml has been removed.';\r
+
+      \        break;\r
+
+      \    default:\r
+
+      \        output = 'UNA:+.? ';\r
+
+      \        break;\r
+
+      }\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.expect(actual.replace(/[\\r\\n\\t\\s]/g, \"\")).to.eql(output.replace(/[\\r\\n\\t\\s]/g, \"\"));     \r
+
+      });"
+    language: text/javascript
+order: 44000

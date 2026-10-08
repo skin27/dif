@@ -1,0 +1,61 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SplitXml_json_aggr_rr"
+method: POST
+headers:
+  Test: "123"
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="iso-8859-1"?>
+    <filmsoptv datum="18-10-2023">
+        <film>
+            <titel>Jack Reacher</titel>
+        </film>
+        <film>
+            <titel>Spider-Man: Homecoming</titel>
+        </film>
+        <film>
+            <titel>Clash of the Titans</titel>
+        </film>
+        <film>
+            <titel>Good Time</titel>
+        </film>
+        <film>
+            <titel>21 Bridges</titel>
+        </film>
+        <film>
+            <titel>Total Recall</titel>
+        </film>
+        <film>
+            <titel>Halloween</titel>
+        </film>
+    </filmsoptv>
+scripts:
+  - type: beforeRequest
+    code: pm.globals.set("FLOW_NAME", "RecipientSynchronousOneWay");
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      const expected = `[
+        {"title": "Jack Reacher"},
+        {"title": "Spider-Man: Homecoming"},
+        {"title": "Clash of the Titans"},
+        {"title": "Good Time"},
+        {"title": "21 Bridges"},
+        {"title": "Total Recall"},
+        {"title": "Halloween"}
+      ]
+      `;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 50000

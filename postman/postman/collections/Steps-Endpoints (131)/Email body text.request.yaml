@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Email_body_text"
+method: POST
+body:
+  type: text
+  content: Hello people!
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `Hello people!`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));    
+      });
+
+      pm.test("gmail mail message id", () => {
+        pm.expect(pm.response.headers.get('mailMessage')).to.eql('smtp-relay.gmail.com');
+      });
+    language: text/javascript
+order: 3000

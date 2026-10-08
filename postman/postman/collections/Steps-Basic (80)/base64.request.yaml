@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_Base64"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `PHBlcnNvbnM+CgkgIDxwZXJzb24+CiAJIDxuYW1lPkpvaG4gRG9lPC9uYW1lPgoJICA8L3BlcnNvbj4KCSAgPHBlcnNvbj4KCTxuYW1lPkphbmUgRG9lPC9uYW1lPgogIDwvcGVyc29uPgo8L3BlcnNvbnM+`;\r
+
+      \r
+
+      const actual = pm.response.text().replace(/[\\r\\n\\t]/g, \"\");\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });\r\n"
+    language: text/javascript
+order: 3000

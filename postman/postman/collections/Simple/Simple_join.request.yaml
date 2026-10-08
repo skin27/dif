@@ -1,0 +1,26 @@
+$kind: http-request
+name: Simple_join
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Simple_join"
+method: POST
+headers:
+  headerName1: "           1             "
+  headerName2: AB
+  Amount: "1"
+  lowerCase: qwerty
+  number: "1234567890"
+body:
+  type: xml
+  content: |-
+    <root>
+        <id>1</id>
+    </root>
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Resultheaders", () => {
+        pm.expect(pm.response.headers.get('Resultheader1')).to.eql('id=A&id=B&id=C');
+        pm.expect(pm.response.headers.get('Resultheader2')).to.eql('word=you&word=nique&word=it');
+      });
+    language: text/javascript
+order: 1738740591523

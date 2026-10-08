@@ -1,0 +1,41 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SimpleHeade\
+  rsTransformations_07?worksheet=breakfast_menu&XPathExpression=//breakfast_men\
+  u/food"
+method: POST
+queryParams:
+  worksheet: breakfast_menu
+  XPathExpression: //breakfast_menu/food
+body:
+  type: json
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <breakfast_menu>
+        <food>
+            <name>food1</name>
+            <price>1</price>
+            <description>desc1</description>
+        </food>
+        <food>
+            <name>food2</name>
+            <price>2</price>
+            <description>desc2</description>
+        </food>
+        <food>
+            <name>food3</name>
+            <price>3</price>
+            <description>desc3</description>
+        </food>
+    </breakfast_menu>
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches string 1", function () {
+          pm.expect(pm.response.text()).to.include('workbook');
+      });
+
+      pm.test("Body matches string 2", function () {
+          pm.expect(pm.response.text()).to.include('worksheets/sheet1');
+      });
+    language: text/javascript
+order: 95000

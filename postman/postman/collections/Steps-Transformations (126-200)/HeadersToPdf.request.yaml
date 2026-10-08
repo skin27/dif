@@ -1,0 +1,893 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HeadersToPdf"
+method: GET
+body:
+  type: json
+  content: |-
+    <Artikel>
+          <NL-Prijslijst>NL</NL-Prijslijst>
+          <DE-Prijslijst/>
+          <FR-Prijslijst>FR</FR-Prijslijst>
+          <ES-Prijslijst/>
+          <Ex-Prijslijst>Ex</Ex-Prijslijst>
+          <Bl-Prijslijst/>
+          <Prijslijst>Ex NL FR EN</Prijslijst>
+          <Status>A</Status>
+          <Uitloop> </Uitloop>
+          <PMDR_email>norman@dovetail.world</PMDR_email>
+          <PMDR_Data>TPS</PMDR_Data>
+          <PMDR_Taal>NL</PMDR_Taal>
+          <NL>
+             <Artikelnummer>235.4070</Artikelnummer>
+             <Merk>TerraSana</Merk>
+             <ProductLijn>Basisingrediënten</ProductLijn>
+             <Producgroep>Zaden &amp; pitten</Producgroep>
+             <Productomschrijving>Pompoenpitten</Productomschrijving>
+             <Product_description_NL/>
+             <NL_Korte_Comm_tekst> Deze Nederlandsebiologische pompoenpitten zijn ongeroosterd en dus lekker  puur. Je kunt ermee bakken, garneren en vermalen tot meel. Pompoenpitten zijn  rijk aan eiwit, vezels en goede vetten. </NL_Korte_Comm_tekst>
+             <NL_Gebruikstips>Voor extra smaak rooster je pompoenpitten kort in een hete, droge koekenpan.</NL_Gebruikstips>
+             <NL_Product_USPs>
+     * Eiwitrijk (30%) 
+     * Vezelrijk (6,5%) 
+     * Superfood 
+     * Lekker als snack of garnering</NL_Product_USPs>
+             <Product_Verpak_Toel>Pompoenpitten - voordeelzak</Product_Verpak_Toel>
+             <CE_Verpak_Toelichting>voordeelzak</CE_Verpak_Toelichting>
+             <Producttoelichting>raw</Producttoelichting>
+             <Kwaliteit>BIO</Kwaliteit>
+             <Aantal>6</Aantal>
+             <Netto_Gewicht>750</Netto_Gewicht>
+             <Inhoud>750</Inhoud>
+             <inhoudsmaat>g</inhoudsmaat>
+             <Inhoud_inhoudsmaat>750g</Inhoud_inhoudsmaat>
+             <SVE_Inhoud>6 x 750g</SVE_Inhoud>
+             <BTW>BTW 9% excl.</BTW>
+             <EAN_per_VPE>8713576507874</EAN_per_VPE>
+             <EAN_per_CE>8713576007879</EAN_per_CE>
+             <Vegetarisch>Ja</Vegetarisch>
+             <Veganistisch>Van nature vegan</Veganistisch>
+             <Glutenvrij>Van nature glutenvrij</Glutenvrij>
+             <Allerg_kan-sporen-bevatten>Pinda's (aardnoten), Noten, Sesam, Pistaches, Hazelnoten, Macadamianoten, Amandelen, Pecannoten, Paranoten, Cashewnoten</Allerg_kan-sporen-bevatten>
+             <Allerg_aanwezig>N.v.t.</Allerg_aanwezig>
+             <Allerg_NL>&gt; Pinda's (aardnoten)&#xD;
+    &gt; Noten&#xD;
+    &gt; Sesam&#xD;
+    &gt; Pistaches&#xD;
+    &gt; Hazelnoten&#xD;
+    &gt; Macadamianoten&#xD;
+    &gt; Amandelen&#xD;
+    &gt; Pecannoten&#xD;
+    &gt; Paranoten&#xD;
+    &gt; Cashewnoten&#xD;
+    &gt; Zwaveldioxide en sulfieten&#xD;
+    &gt; Weekdieren&#xD;
+    &gt; Selderij&#xD;
+    &gt; Mosterd&#xD;
+    &gt; Gluten&#xD;
+    &gt; Schaaldieren&#xD;
+    &gt; Vis&#xD;
+    &gt; Lupine&#xD;
+    &gt; Ei&#xD;
+    &gt; Melk&#xD;
+    &gt; Soja</Allerg_NL>
+             <Allerg_waarde_NL>Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Kan sporen bevatten&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig&#xD;
+    Niet aanwezig</Allerg_waarde_NL>
+             <Allergenen_NL>&gt; Pinda's (aardnoten), Kan sporen bevatten&#xD;
+    &gt; Noten, Kan sporen bevatten&#xD;
+    &gt; Sesam, Kan sporen bevatten&#xD;
+    &gt; Pistaches, Kan sporen bevatten&#xD;
+    &gt; Hazelnoten, Kan sporen bevatten&#xD;
+    &gt; Macadamianoten, Kan sporen bevatten&#xD;
+    &gt; Amandelen, Kan sporen bevatten&#xD;
+    &gt; Pecannoten, Kan sporen bevatten&#xD;
+    &gt; Paranoten, Kan sporen bevatten&#xD;
+    &gt; Cashewnoten, Kan sporen bevatten&#xD;
+    &gt; Zwaveldioxide en sulfieten, Niet aanwezig&#xD;
+    &gt; Weekdieren, Niet aanwezig&#xD;
+    &gt; Selderij, Niet aanwezig&#xD;
+    &gt; Mosterd, Niet aanwezig&#xD;
+    &gt; Gluten, Niet aanwezig&#xD;
+    &gt; Schaaldieren, Niet aanwezig&#xD;
+    &gt; Vis, Niet aanwezig&#xD;
+    &gt; Lupine, Niet aanwezig&#xD;
+    &gt; Ei, Niet aanwezig&#xD;
+    &gt; Melk, Niet aanwezig&#xD;
+    &gt; Soja, Niet aanwezig</Allergenen_NL>
+             <Ingredienten>pompoenpitten*</Ingredienten>
+             <Voedingswaarde>&gt; Energie (kJ) : 2515 kJ&#xD;
+    &gt; Energie(kcal) : 607 kcal&#xD;
+    &gt; Vet totaal : 49.1 g&#xD;
+    &gt; Vet verzadigd : 8.5 g&#xD;
+    &gt; Koolhydraten totaal : 8.2 g&#xD;
+    &gt; Suikers : 1.3 g&#xD;
+    &gt; Voedingsvezel : 6.5 g&#xD;
+    &gt; Eiwit totaal : 29.8 g&#xD;
+    &gt; Zout : 0.1 g</Voedingswaarde>
+             <NL_Voedingsw>&gt; Energie (kJ)&#xD;
+    &gt; Energie(kcal)&#xD;
+    &gt; Vet totaal&#xD;
+    &gt; Vet verzadigd&#xD;
+    &gt; Koolhydraten totaal&#xD;
+    &gt; Suikers&#xD;
+    &gt; Voedingsvezel&#xD;
+    &gt; Eiwit totaal&#xD;
+    &gt; Zout</NL_Voedingsw>
+             <Voedingsw_Waarde>2515 kJ&#xD;
+    607 kcal&#xD;
+    49.1 g&#xD;
+    8.5 g&#xD;
+    8.2 g&#xD;
+    1.3 g&#xD;
+    6.5 g&#xD;
+    29.8 g&#xD;
+    0.1 g</Voedingsw_Waarde>
+             <Geproduceerd_in>NL</Geproduceerd_in>
+             <Etiket_talen>NL FR EN</Etiket_talen>
+             <Etiket_Bewaarconditie>Droog en donker bewaren.</Etiket_Bewaarconditie>
+             <Bew_cond_vr_openen>Bewaar op een droge, donkere plek op kamertemperatuur (max 20 °C).</Bew_cond_vr_openen>
+             <Bew_cond_na_openen>Bewaar na openen luchtdicht op een droge, donkere plek op kamertemperatuur (max 20 °C). </Bew_cond_na_openen>
+             <Dozen_per_slag>16</Dozen_per_slag>
+             <Pallet_Lagen>4</Pallet_Lagen>
+             <CE_Verp_Gew_gr>2.0</CE_Verp_Gew_gr>
+             <Inci/>
+             <THT>6</THT>
+             <Intrastat_code>12079996</Intrastat_code>
+             <CE_Barcode128>Ì8713576007879%Î</CE_Barcode128>
+             <CE_Verpakking>Stazak</CE_Verpakking>
+             <CE_Verpakking_materiaal>Stazak | plastic</CE_Verpakking_materiaal>
+             <CE_Breedte_cm>10</CE_Breedte_cm>
+             <CE_Diepte_cm>6</CE_Diepte_cm>
+             <CE_Hoogte_cm>16</CE_Hoogte_cm>
+             <CE_Verpak_maten_cm>10cm X 6cm X 16cm</CE_Verpak_maten_cm>
+             <CE_Bruto_gew_gr>752</CE_Bruto_gew_gr>
+             <CE_Pallet_aantal>384</CE_Pallet_aantal>
+             <SVE_Barcode128>Ì8713576507874sÎ</SVE_Barcode128>
+             <SVE_Verpakking>doos</SVE_Verpakking>
+             <SVE_Verpakking_materiaal>doos | papier en karton</SVE_Verpakking_materiaal>
+             <SVE_Breedte-cm>19</SVE_Breedte-cm>
+             <SVE_Diepte_cm>29</SVE_Diepte_cm>
+             <SVE_Hoogte_cm>20</SVE_Hoogte_cm>
+             <SVE_Verpak_maten_cm>19cm X 29cm X 20cm</SVE_Verpak_maten_cm>
+             <SVE_Netto_gew_gr>4512</SVE_Netto_gew_gr>
+             <SVE_Bruto_gew_gr>4710</SVE_Bruto_gew_gr>
+             <SVE_Pallet_aantal>64</SVE_Pallet_aantal>
+             <Omd_verpakking/>
+             <Controlerende_instantie>NL-BIO-01</Controlerende_instantie>
+             <BPA_vrij>Ja</BPA_vrij>
+             <GMO_vrij>Ja</GMO_vrij>
+             <Bevat_doorstr_ingr>Nee</Bevat_doorstr_ingr>
+             <Zonder_palm_olie>Ja</Zonder_palm_olie>
+             <RAWFood>Ja</RAWFood>
+             <SuperFood>Nee</SuperFood>
+             <Gistvrij>Ja</Gistvrij>
+             <Lactosevrij>Ja</Lactosevrij>
+             <Zonder_toev_zout>Ja</Zonder_toev_zout>
+             <Zonder_toev_suiker>Ja</Zonder_toev_suiker>
+             <Kosher>Van nature</Kosher>
+             <KeurmerkBio>EU</KeurmerkBio>
+             <EU_Non-EU>Non-EU Agriculture</EU_Non-EU>
+             <IK_Kurzel>EG</IK_Kurzel>
+             <Alkohol_Percentage>0.0</Alkohol_Percentage>
+             <verp_materiaal>
+                <CE_verp_samenvatting>plastic</CE_verp_samenvatting>
+                <CE1_verp>plastic</CE1_verp>
+                <CE2_verp/>
+                <CE3_verp/>
+                <SVE_verp_samenvatting>papier en karton</SVE_verp_samenvatting>
+                <SVE1_verp>papier en karton</SVE1_verp>
+                <SVE2_verp/>
+                <Omd_verp/>
+             </verp_materiaal>
+             <QA>
+                <sens_eig>
+                   <Geur_Smaak>Product Specifiek</Geur_Smaak>
+                   <Kleur>Groen</Kleur>
+                   <Uiterlijk>Ovaal en plat</Uiterlijk>
+                </sens_eig>
+                <Chem_crit>
+                   <Cadmium>Binnen EU wetgeving</Cadmium>
+                   <Arseen>Niet gedefinieerd</Arseen>
+                   <Ochratoxine>Niet gedefinieerd</Ochratoxine>
+                   <Aflatoxine>Binnen EU wetgeving</Aflatoxine>
+                </Chem_crit>
+                <micrb_crit>
+                   <Salmonella>Niet detecteerbaar</Salmonella>
+                   <Ecoli>&lt;10</Ecoli>
+                   <Listeria>Niet gedefinieerd</Listeria>
+                </micrb_crit>
+                <QA_Opmerkingen/>
+                <Disclaimer>* Teelt, verwerking, reiniging, verpakking en transport volgens de biologische EG-verordeningen EU834/2007 en 889/2008.&#xD;
+    * Onbedoelde residuen van pesticiden, insecticiden, fungiciden, antibiotica zijn per onderdeel volgens de EU biologische wetgeving en het residubeleid van onze Nederlandse certificeerder SKAL en de BNN-richtlijn.&#xD;
+    * De verpakking die voor dit product wordt gebruikt, is food grade volgens de eisen van EC1935/2004 en daarom geschikt voor direct contact met product voor menselijke consumptie.&#xD;
+    * Dit product voldoet aan de EU wetgeving EU1829/2003 en EU1830/2003 wat betreft GMO. &#xD;
+    * Zware metalen volgens de EU-verordening 1881/2006&#xD;
+    * Wijzigingen die niet direct invloed hebben op de voedselveiligheid van het product kunnen gewijzigd worden zonder verdere notificatie.  </Disclaimer>
+             </QA>
+          </NL>
+          <DE>
+             <Artnr>235.4070</Artnr>
+             <Marke>TerraSana</Marke>
+             <Produktlinie>Basiszutaten</Produktlinie>
+             <Produktgruppe>Saaten &amp; Kerne</Produktgruppe>
+             <Produktname>Kürbiskerne</Produktname>
+             <Product_description_DE/>
+             <Produkt_Verpak_Erkl>Kürbiskerne - Familiengröße</Produkt_Verpak_Erkl>
+             <CE_Verpak_Erkl>Familiengröße</CE_Verpak_Erkl>
+             <Product_Erklärung/>
+             <Produziert_in>NL</Produziert_in>
+             <Qualität>BIO</Qualität>
+             <Anzahl>6</Anzahl>
+             <Inhalt>750</Inhalt>
+             <Mass>g</Mass>
+             <Inhalt_Mass>750g</Inhalt_Mass>
+             <MwSt/>
+             <VPE_EAN13_GTIN>8713576507874</VPE_EAN13_GTIN>
+             <Stück_EAN13_GTIN>8713576007879</Stück_EAN13_GTIN>
+             <Anzahl_Lagen>4</Anzahl_Lagen>
+             <VPE_pro_Lage>16</VPE_pro_Lage>
+             <IK_Kurzel>EG</IK_Kurzel>
+             <Vegetarisch>Ja</Vegetarisch>
+             <Vegan>Natürlich vegan</Vegan>
+             <Glutenfrei>Von Natur aus glutenfrei</Glutenfrei>
+             <Zutaten>Kürbiskerne*</Zutaten>
+             <Nährwertangaben>&gt; Energie (kJ) : 2515 kJ&#xD;
+    &gt; Energie (kcal) : 607 kcal&#xD;
+    &gt; Gesamtfett : 49.1 g&#xD;
+    &gt; Davon gesättigte Fettsäuren : 8.5 g&#xD;
+    &gt; Kohlenhydrate : 8.2 g&#xD;
+    &gt; Davon zucker : 1.3 g&#xD;
+    &gt; Ballaststoffe : 6.5 g&#xD;
+    &gt; Gesamt Eiweiß : 29.8 g&#xD;
+    &gt; Salz : 0.1 g</Nährwertangaben>
+             <DE_Voedingsw>&gt; Energie (kJ)&#xD;
+    &gt; Energie (kcal)&#xD;
+    &gt; Gesamtfett&#xD;
+    &gt; Davon gesättigte Fettsäuren&#xD;
+    &gt; Kohlenhydrate&#xD;
+    &gt; Davon zucker&#xD;
+    &gt; Ballaststoffe&#xD;
+    &gt; Gesamt Eiweiß&#xD;
+    &gt; Salz</DE_Voedingsw>
+             <Lagerbedingung>Trocken und dunkel lagern.</Lagerbedingung>
+             <Inci/>
+             <THT>6</THT>
+             <Intrastat_code>12079996</Intrastat_code>
+             <CE_Breite_cm>10</CE_Breite_cm>
+             <CE_Tiefe_cm>6</CE_Tiefe_cm>
+             <CE_Hohe_cm>16</CE_Hohe_cm>
+             <CE_Paletten_Anzahl>384</CE_Paletten_Anzahl>
+             <SVE_Breite_cm>19</SVE_Breite_cm>
+             <SVE_Tiefe_cm>29</SVE_Tiefe_cm>
+             <SVE_Hohe_cm>20</SVE_Hohe_cm>
+             <SVE_Neto_weight_gr>4512</SVE_Neto_weight_gr>
+             <SVE_Bruto_weight_gr>4710</SVE_Bruto_weight_gr>
+             <DE_Allerg_kan-sporen-bevatten>Erdnüsse, Nüsse, Sesam, Pistazien, Haselnüsse, Macadamianüsse, Mandeln, Pekannüsse, Paranüsse, Cashewnüsse</DE_Allerg_kan-sporen-bevatten>
+             <DE_Allerg_aanwezig>n/A</DE_Allerg_aanwezig>
+             <DE_Allerg>&gt; Erdnüsse&#xD;
+    &gt; Nüsse&#xD;
+    &gt; Sesam&#xD;
+    &gt; Pistazien&#xD;
+    &gt; Haselnüsse&#xD;
+    &gt; Macadamianüsse&#xD;
+    &gt; Mandeln&#xD;
+    &gt; Pekannüsse&#xD;
+    &gt; Paranüsse&#xD;
+    &gt; Cashewnüsse&#xD;
+    &gt; Schwefeldioxid und Sulfite&#xD;
+    &gt; Weichtiere&#xD;
+    &gt; Sellerie&#xD;
+    &gt; Senf&#xD;
+    &gt; Gluten&#xD;
+    &gt; Krebstiere&#xD;
+    &gt; Fisch&#xD;
+    &gt; Lupinen&#xD;
+    &gt; Ei&#xD;
+    &gt; Milch&#xD;
+    &gt; Soja</DE_Allerg>
+             <DE_Allerg_waarde>Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Spuren möglich&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion&#xD;
+    Nicht in Produktion</DE_Allerg_waarde>
+             <DE_Korte_Comm_tekst> Diese Bio-Kürbiskerne sind ungeröstet und ungesalzen. Perfekt als Topping,  Snack, zum Backen und um Mehl daraus zu mahlen. Kürbiskerne sind reich an  Proteinen, Ballaststoffen und guten Fetten. Aus niederländischem Anbau. </DE_Korte_Comm_tekst>
+             <DE_Gebruikstips> Für zusätzlichen Geschmack die Kürbiskerne kurz in einer heißen, trockenen  Pfanne rösten. </DE_Gebruikstips>
+             <DE_CE_verpakking>Pouch (Standbeutel)</DE_CE_verpakking>
+             <DE_CE_verpakking_materiaal>Pouch (Standbeutel) | Kunststoffe</DE_CE_verpakking_materiaal>
+             <DE_SVE_verpakking>Box</DE_SVE_verpakking>
+             <DE_SVE_verpakking_materiaal>Box | Papier</DE_SVE_verpakking_materiaal>
+             <BPA_vrij>Ja</BPA_vrij>
+             <GMO_vrij>Ja</GMO_vrij>
+             <Bevat_doorstr_ingr>Nein</Bevat_doorstr_ingr>
+             <Zonder_palm_olie>Ja</Zonder_palm_olie>
+             <RAWFood>Ja</RAWFood>
+             <SuperFood>Nein</SuperFood>
+             <Gistvrij>Ja</Gistvrij>
+             <Lactosevrij>Ja</Lactosevrij>
+             <Zonder_toev_suiker>Ja</Zonder_toev_suiker>
+             <Zonder_toev_zout>Ja</Zonder_toev_zout>
+             <Kosher>von Natur aus</Kosher>
+             <Bew_cond_vr_openen>Trocken und dunkel bei Raumtemperatur (max. 20 °C) lagern.</Bew_cond_vr_openen>
+             <Bew_cond_na_openen>Nach dem Öffnen luftdicht an einem trockenen, dunklen Ort bei Raumtemperatur (max. 20 ° C) lagern.</Bew_cond_na_openen>
+             <verp_materiaal>
+                <CE_verp_samenvatting>Kunststoffe</CE_verp_samenvatting>
+                <CE1_verp>Kunststoffe</CE1_verp>
+                <CE2_verp/>
+                <CE3_verp/>
+                <SVE_verp_samenvatting>Papier</SVE_verp_samenvatting>
+                <SVE1_verp>Papier</SVE1_verp>
+                <SVE2_verp/>
+                <Omd_verp/>
+             </verp_materiaal>
+             <QA>
+                <sens_eig>
+                   <Geur_Smaak>Produktspezifisch</Geur_Smaak>
+                   <Kleur>Grün</Kleur>
+                   <Uiterlijk/>
+                </sens_eig>
+                <Chem_crit>
+                   <Cadmium>Gemäß der EU-Verordnungen</Cadmium>
+                   <Arseen>Nicht definiert</Arseen>
+                   <Ochratoxine>Nicht definiert</Ochratoxine>
+                   <Aflatoxine>Gemäß der EU-Verordnungen</Aflatoxine>
+                </Chem_crit>
+                <micrb_crit>
+                   <Salmonella>Nicht erkannt</Salmonella>
+                   <Ecoli>&lt;10</Ecoli>
+                   <Listeria>Nicht definiert</Listeria>
+                </micrb_crit>
+                <Disclaimer>* Anbau, Verarbeitung, Reinigung, Verpackung, Transport und Charakterisierung gemäß den EG-Verordnungen EU834/2007 und 889/2008.&#xD;
+    * Unbeabsichtigte Rückstände von Pestiziden, Insektiziden, Fungiziden, Antibiotika jeweils gemäß EU-Bio-Verordnung und der Rückstandspolitik unseres niederländischen Zertifizierers SKAL und BNN-Richtlinie.&#xD;
+    * Die für dieses Produkt verwendete Verpackung ist lebensmittelecht gemäß den Anforderungen der EC1935/2004 und daher für den direkten Kontakt mit dem Produkt für den menschlichen Verzehr geeignet.&#xD;
+    * Dieses Produkt entspricht EC1829/2003 und EC1830/2003 für die Verwendung von GVO-Material.&#xD;
+    * Schwermetalle gemäß EU-Verordnung 1881/2006&#xD;
+    * Spezifikationen können ohne vorherige Ankündigung geändert werden, wenn sie keinen direkten Einfluss auf die Lebensmittelsicherheitskriterien haben, wie z.B. Allergene.</Disclaimer>
+             </QA>
+          </DE>
+          <EN>
+             <Art_Nr>235.4070</Art_Nr>
+             <Brand>TerraSana</Brand>
+             <Product_Line>Basic ingredients</Product_Line>
+             <Product_Group>Seeds &amp; kernels</Product_Group>
+             <Product_Title>Pumpkin Seeds</Product_Title>
+             <Product_description_EN/>
+             <Product_Pack_Expl>Pumpkin Seeds - family bag</Product_Pack_Expl>
+             <CE_Packaging_Expl>family bag</CE_Packaging_Expl>
+             <Product_description>raw</Product_description>
+             <Quality>BIO</Quality>
+             <Number>6</Number>
+             <Netto_weight>750</Netto_weight>
+             <Size>g</Size>
+             <Netto_Size>750g</Netto_Size>
+             <EAN_per_Box>8713576507874</EAN_per_Box>
+             <EAN_per_Piece>8713576007879</EAN_per_Piece>
+             <Vegetarisch>Yes</Vegetarisch>
+             <Vegan>Naturally vegan</Vegan>
+             <Gluten_free>Naturally glutenfree</Gluten_free>
+             <Ingredients>pumpkin seeds*</Ingredients>
+             <Nutritional_values>&gt; Energy (kJ) : 2515 kJ&#xD;
+    &gt; Energy (kcal) : 607 kcal&#xD;
+    &gt; Total fat : 49.1 g&#xD;
+    &gt; saturates : 8.5 g&#xD;
+    &gt; Carbohydrate : 8.2 g&#xD;
+    &gt; Sugars : 1.3 g&#xD;
+    &gt; fibre : 6.5 g&#xD;
+    &gt; total protein : 29.8 g&#xD;
+    &gt; Salt : 0.1 g</Nutritional_values>
+             <EN_Voedingsw>&gt; Energy (kJ)&#xD;
+    &gt; Energy (kcal)&#xD;
+    &gt; Total fat&#xD;
+    &gt; saturates&#xD;
+    &gt; Carbohydrate&#xD;
+    &gt; Sugars&#xD;
+    &gt; fibre&#xD;
+    &gt; total protein&#xD;
+    &gt; Salt</EN_Voedingsw>
+             <Label_Storage_Condition>Store in a dry and dark place.</Label_Storage_Condition>
+             <Label_languages>NL FR EN</Label_languages>
+             <Boxes_per_layer>16</Boxes_per_layer>
+             <Layers_per_Pallet>4</Layers_per_Pallet>
+             <Produced_in>NL</Produced_in>
+             <Inci/>
+             <THT>6</THT>
+             <Intrastat_code>12079996</Intrastat_code>
+             <CE_Width_cm>10</CE_Width_cm>
+             <CE_Depth_cm>6</CE_Depth_cm>
+             <CE_Height_cm>16</CE_Height_cm>
+             <CE_Pallet_numbers>384</CE_Pallet_numbers>
+             <SVE_Width_cm>19</SVE_Width_cm>
+             <SVE_Depth_cm>29</SVE_Depth_cm>
+             <SVE_Height_cm>20</SVE_Height_cm>
+             <SVE_Netto_weight_gr>4512</SVE_Netto_weight_gr>
+             <SVE_Bruto_weight_gr>4710</SVE_Bruto_weight_gr>
+             <EN_Allerg_kan-sporen-bevatten>Peanut, Nuts, Sesame, Pistachios, Hazelnuts, Macadamia nuts, Almonds, Pecannuts, Brazil nuts, Cashewnuts</EN_Allerg_kan-sporen-bevatten>
+             <EN_Allerg_aanwezig>n/a</EN_Allerg_aanwezig>
+             <EN_Allerg>&gt; Peanut&#xD;
+    &gt; Nuts&#xD;
+    &gt; Sesame&#xD;
+    &gt; Pistachios&#xD;
+    &gt; Hazelnuts&#xD;
+    &gt; Macadamia nuts&#xD;
+    &gt; Almonds&#xD;
+    &gt; Pecannuts&#xD;
+    &gt; Brazil nuts&#xD;
+    &gt; Cashewnuts&#xD;
+    &gt; Sulfur dioxide and sulphites&#xD;
+    &gt; Molluscs&#xD;
+    &gt; Celery&#xD;
+    &gt; Mustard&#xD;
+    &gt; Gluten&#xD;
+    &gt; Crustaceans&#xD;
+    &gt; Fish&#xD;
+    &gt; Lupine&#xD;
+    &gt; Egg&#xD;
+    &gt; Milk&#xD;
+    &gt; Soya</EN_Allerg>
+             <EN_Allerg_waarde>Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Can contain traces&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present&#xD;
+    Not present</EN_Allerg_waarde>
+             <EN_Korte_Comm_tekst> These Dutch organic pumpkin seeds are unroasted and therefore deliciously  pure. You can use them as a garnish or bake with them and grind them into  flour. Pumpkin seeds are rich in protein, fibre and good fats. </EN_Korte_Comm_tekst>
+             <EN_Gebruikstips>For extra flavour, roast pumpkin seeds briefly in a hot, dry frying pan.</EN_Gebruikstips>
+             <EN_CE_verpakking>Pouch</EN_CE_verpakking>
+             <EN_CE_verpakking_materiaal>Pouch | plastic</EN_CE_verpakking_materiaal>
+             <EN_SVE_verpakking>Box</EN_SVE_verpakking>
+             <EN_SVE_verpakking_materiaal>Box | paper and paperboard</EN_SVE_verpakking_materiaal>
+             <BPA_vrij>Yes</BPA_vrij>
+             <GMO_vrij>Yes</GMO_vrij>
+             <Bevat_doorstr_ingr>No</Bevat_doorstr_ingr>
+             <Zonder_palm_olie>Yes</Zonder_palm_olie>
+             <RAWFood>Yes</RAWFood>
+             <SuperFood>No</SuperFood>
+             <Gistvrij>Yes</Gistvrij>
+             <Lactosevrij>Yes</Lactosevrij>
+             <Zonder_toev_zout>Yes</Zonder_toev_zout>
+             <Zonder_toev_suiker>Yes</Zonder_toev_suiker>
+             <Kosher>naturally</Kosher>
+             <IK_Kurzel>EG</IK_Kurzel>
+             <Bew_cond_vr_openen>Store in a dry, dark place at room temperature (max 20 °C).</Bew_cond_vr_openen>
+             <Bew_cond_na_openen>After opening, store airtight in a dry, dark place at room temperature (max 20 ° C).</Bew_cond_na_openen>
+             <verp_materiaal>
+                <CE_verp_samenvatting>plastic</CE_verp_samenvatting>
+                <CE1_verp>plastic</CE1_verp>
+                <CE2_verp/>
+                <CE3_verp/>
+                <SVE_verp_samenvatting>paper and paperboard</SVE_verp_samenvatting>
+                <SVE1_verp>paper and paperboard</SVE1_verp>
+                <SVE2_verp/>
+                <Omd_verp/>
+             </verp_materiaal>
+             <QA>
+                <sens_eig>
+                   <Geur_Smaak>Product Specific</Geur_Smaak>
+                   <Kleur>Green</Kleur>
+                   <Uiterlijk>Oval and flat</Uiterlijk>
+                </sens_eig>
+                <Chem_crit>
+                   <Cadmium>Within EU regulations</Cadmium>
+                   <Arseen>Not defined</Arseen>
+                   <Ochratoxine>Not defined</Ochratoxine>
+                   <Aflatoxine>Within EU regulations</Aflatoxine>
+                </Chem_crit>
+                <micrb_crit>
+                   <Salmonella>Not detected</Salmonella>
+                   <Ecoli>&lt;10</Ecoli>
+                   <Listeria>Not defined</Listeria>
+                </micrb_crit>
+                <Disclaimer>* Cultivation, processing, cleaning, packing, transport and characterization in accordance with the organic EC regulations EU834/2007 and 889/2008.&#xD;
+    * Unintentional residues of pesticides, insecticides, fungicides, antibiotics are per component according to the EU organic law and the residue policy of our Dutch certifier SKAL and BNN guideline.&#xD;
+    * The packaging used for this product, is food grade according to the requirements of EC1935/2004 and therefor suitable for direct contact with product for human consumption.&#xD;
+    * This product is conform EC1829/2003 and EC1830/2003 for not using GMO material.&#xD;
+    * Heavy Metals according to EU regulation 1881/2006 &#xD;
+    * Specifications might be subject to change without notice, when it does not have direct influence on food safety criteria like e.g. allergens.</Disclaimer>
+             </QA>
+          </EN>
+          <FR>
+             <Ref_Art>235.4070</Ref_Art>
+             <Marque>TerraSana</Marque>
+             <Désignation_Produit>Graines de courge</Désignation_Produit>
+             <Product_description_FR/>
+             <Produit_Embal_Expl>Graines de courge - format familial</Produit_Embal_Expl>
+             <CE_Embal_Expl>format familial</CE_Embal_Expl>
+             <Commentaire_Produit>Graines </Commentaire_Produit>
+             <Qualité>BIO</Qualité>
+             <Contenu>6</Contenu>
+             <Unité>750</Unité>
+             <PCB>6</PCB>
+             <Unite_PCB>750g</Unite_PCB>
+             <EAN_Code>8713576007879</EAN_Code>
+             <Ingrédients>graines de courge*</Ingrédients>
+             <Vegan>Naturellement végétalien</Vegan>
+             <Sans_Gluten>Naturellement sans gluten</Sans_Gluten>
+             <Autres_allergenes>NC</Autres_allergenes>
+             <Possible_traces_de>Arachide, Fruits secs, Sésame, Pistaches, Noisettes, Noix de Macadamia, Amandes, Noix de pécan, Noix du Brésil, Noix de  cajou</Possible_traces_de>
+             <FR_Allerg>&gt; Arachide&#xD;
+    &gt; Fruits secs&#xD;
+    &gt; Sésame&#xD;
+    &gt; Pistaches&#xD;
+    &gt; Noisettes&#xD;
+    &gt; Noix de Macadamia&#xD;
+    &gt; Amandes&#xD;
+    &gt; Noix de pécan&#xD;
+    &gt; Noix du Brésil&#xD;
+    &gt; Noix de  cajou&#xD;
+    &gt; Dioxyde de soufre et sulfites&#xD;
+    &gt; Mollusques&#xD;
+    &gt; Céleri&#xD;
+    &gt; Moutarde&#xD;
+    &gt; Gluten&#xD;
+    &gt; Crustacés&#xD;
+    &gt; Poisson&#xD;
+    &gt; Lupin&#xD;
+    &gt; Oeuf&#xD;
+    &gt; Lait&#xD;
+    &gt; Soya</FR_Allerg>
+             <FR_Allerg_waarde>Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Peut contenir des traces&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent&#xD;
+    Absent</FR_Allerg_waarde>
+             <ProduktLijn_FR>Les basiques</ProduktLijn_FR>
+             <ProduktGroep_FR>Graines </ProduktGroep_FR>
+             <Vegetarisch_FR>Oui</Vegetarisch_FR>
+             <Voedingswaarde_FR>&gt; énergie (kJ) : 2515 kJ&#xD;
+    &gt; énergie (kcal) : 607 kcal&#xD;
+    &gt; graisses totales : 49.1 g&#xD;
+    &gt; Acides gras saturés : 8.5 g&#xD;
+    &gt; Glucides : 8.2 g&#xD;
+    &gt; Sucres : 1.3 g&#xD;
+    &gt; fibres alimentaires : 6.5 g&#xD;
+    &gt; protéine totale : 29.8 g&#xD;
+    &gt; Sel : 0.1 g</Voedingswaarde_FR>
+             <FR_Voedingsw>&gt; énergie (kJ)&#xD;
+    &gt; énergie (kcal)&#xD;
+    &gt; graisses totales&#xD;
+    &gt; Acides gras saturés&#xD;
+    &gt; Glucides&#xD;
+    &gt; Sucres&#xD;
+    &gt; fibres alimentaires&#xD;
+    &gt; protéine totale&#xD;
+    &gt; Sel</FR_Voedingsw>
+             <Bewaar_cond_Etkt_FR>Conserver dans un endroit sec et sombre.</Bewaar_cond_Etkt_FR>
+             <Inci/>
+             <THT>6</THT>
+             <Intrastat_code>12079996</Intrastat_code>
+             <CE_Emballage>Sac</CE_Emballage>
+             <FR_CE_verpakking_materiaal>Sac | plastique</FR_CE_verpakking_materiaal>
+             <CE_Largeur_cm>10</CE_Largeur_cm>
+             <CE_Profondeur_cm>6</CE_Profondeur_cm>
+             <CE_Hauteur_cm>16</CE_Hauteur_cm>
+             <CE_Numero_de_Pallet>384</CE_Numero_de_Pallet>
+             <SVE_Emballage>Carton</SVE_Emballage>
+             <FR_SVE_verpakking_materiaal>Carton | papier et carton</FR_SVE_verpakking_materiaal>
+             <SVE_Largeur_cm>19</SVE_Largeur_cm>
+             <SVE_Profondeur_cm>29</SVE_Profondeur_cm>
+             <SVE_Hauteur_cm>20</SVE_Hauteur_cm>
+             <SVE_Masse_nette>4512</SVE_Masse_nette>
+             <SVE_Masse_brute>4710</SVE_Masse_brute>
+             <FR_Korte_Comm_tekst>Ces graines de courge biologiques sont non grillées et délicieusement nature.  Vous pouvez les utiliser comme garniture ou les faire cuire au four et les  moudre pour en faire de la farine. Les graines de courge sont riches en  protéines, en fibres et en bonnes graisses.</FR_Korte_Comm_tekst>
+             <FR_Gebruikstips>Pour plus de saveur, faites brièvement rôtir les graines de courge dans une  poêle chaude et sèche.</FR_Gebruikstips>
+             <BPA_vrij>Oui</BPA_vrij>
+             <GMO_vrij>Oui</GMO_vrij>
+             <Bevat_doorstr_ingr>Non</Bevat_doorstr_ingr>
+             <Zonder_palm_olie>Oui</Zonder_palm_olie>
+             <RAWFood>Oui</RAWFood>
+             <SuperFood>Non</SuperFood>
+             <Gistvrij>Oui</Gistvrij>
+             <Lactosevrij>Oui</Lactosevrij>
+             <Zonder_toev_zout>Oui</Zonder_toev_zout>
+             <Zonder_toev_suiker>Oui</Zonder_toev_suiker>
+             <Kosher>Naturellement</Kosher>
+             <IK_Kurzel>EG</IK_Kurzel>
+             <Bew_cond_vr_openen>Conserver dans un endroit sec et sombre à température ambiante (max. 20 °C).</Bew_cond_vr_openen>
+             <Bew_cond_na_openen>Conserver après ouverture hermétique dans un endroit sec et sombre à température ambiante (max 20 ° C).</Bew_cond_na_openen>
+             <verp_materiaal>
+                <CE_verp_samenvatting>plastique</CE_verp_samenvatting>
+                <CE1_verp>plastique</CE1_verp>
+                <CE2_verp/>
+                <CE3_verp/>
+                <SVE_verp_samenvatting>papier et carton</SVE_verp_samenvatting>
+                <SVE1_verp>papier et carton</SVE1_verp>
+                <SVE2_verp/>
+                <Omd_verp/>
+             </verp_materiaal>
+             <QA>
+                <sens_eig>
+                   <Geur_Smaak>Spécifique au produit</Geur_Smaak>
+                   <Kleur>Vert</Kleur>
+                   <Uiterlijk/>
+                </sens_eig>
+                <Chem_crit>
+                   <Cadmium>Dans les règlements de l'UE</Cadmium>
+                   <Arseen>Non défini</Arseen>
+                   <Ochratoxine>Non défini</Ochratoxine>
+                   <Aflatoxine>Dans les règlements de l'UE</Aflatoxine>
+                </Chem_crit>
+                <micrb_crit>
+                   <Salmonella>Non-détecté</Salmonella>
+                   <Ecoli>&lt;10</Ecoli>
+                   <Listeria>Non défini</Listeria>
+                </micrb_crit>
+                <Disclaimer>* Culture, transformation, nettoyage, emballage, transport et caractérisation conformément aux règlements biologiques CE EU834/2007 et 889/2008.&#xD;
+    * Les résidus non intentionnels de pesticides, d'insecticides, de fongicides et d'antibiotiques sont par composant conformément à la loi organique de l'UE et à la politique de résidus de notre certificateur néerlandais SKAL et de la directive BNN.&#xD;
+    * L'emballage utilisé pour ce produit est de qualité alimentaire selon les exigences de la CE1935/2004 et donc adapté au contact direct avec le produit destiné à la consommation humaine.&#xD;
+    * Ce produit est conforme EC1829/2003 et EC1830/2003 pour ne pas utiliser de matériel OGM.&#xD;
+    * Métaux lourds selon le règlement UE 1881/2006&#xD;
+    * Les spécifications peuvent être sujettes à modification sans préavis, lorsqu'elles n'ont pas d'influence directe sur les critères de sécurité alimentaire, comme par ex. allergènes.</Disclaimer>
+             </QA>
+          </FR>
+          <ES>
+             <Número_del_articulo>235.4070</Número_del_articulo>
+             <Marca>TerraSana</Marca>
+             <LInea_de_productos>Ingredientes básicos</LInea_de_productos>
+             <Grupo_de_productos>Semillas</Grupo_de_productos>
+             <Desripción_del_producto>Semillas de calabaza</Desripción_del_producto>
+             <Product_description_ES/>
+             <Product_Embal_Expl>Semillas de calabaza - bolsa familiar</Product_Embal_Expl>
+             <CE_Embal_Expl>bolsa familiar</CE_Embal_Expl>
+             <Comentario_del_producto>Crudas</Comentario_del_producto>
+             <Calidad>BIO</Calidad>
+             <Número_de_Ventas_de_SVE>6</Número_de_Ventas_de_SVE>
+             <Peso_neto_CE>750</Peso_neto_CE>
+             <Unidad>g</Unidad>
+             <Neto_Unidad>750g</Neto_Unidad>
+             <EAN_de_carton>8713576507874</EAN_de_carton>
+             <EAN_Unidades>8713576007879</EAN_Unidades>
+             <Vegetariano>Si</Vegetariano>
+             <Vegan>Nature vegana</Vegan>
+             <Sin_Gluten>Naturalmente sin gluten</Sin_Gluten>
+             <cajas_por_golpe>16</cajas_por_golpe>
+             <capas_de_paletas>4</capas_de_paletas>
+             <Ingredient_ES>semillas de calabaza*</Ingredient_ES>
+             <Voedingswaarde_ES>&gt; Valor energético (kJ) : 2515 kJ&#xD;
+    &gt; Valor energético (kcal) : 607 kcal&#xD;
+    &gt; Grasa total : 49.1 g&#xD;
+    &gt; ácidos grasos saturados : 8.5 g&#xD;
+    &gt; Hidratos de carbono : 8.2 g&#xD;
+    &gt; Azúcares : 1.3 g&#xD;
+    &gt; fibra alimentaria : 6.5 g&#xD;
+    &gt; proteína total : 29.8 g&#xD;
+    &gt; Sal : 0.1 g</Voedingswaarde_ES>
+             <ES_Voedingsw>&gt; Valor energético (kJ)&#xD;
+    &gt; Valor energético (kcal)&#xD;
+    &gt; Grasa total&#xD;
+    &gt; ácidos grasos saturados&#xD;
+    &gt; Hidratos de carbono&#xD;
+    &gt; Azúcares&#xD;
+    &gt; fibra alimentaria&#xD;
+    &gt; proteína total&#xD;
+    &gt; Sal</ES_Voedingsw>
+             <Bewaar_cond_Etkt_ES>Almacenar en un lugar seco y oscuro.</Bewaar_cond_Etkt_ES>
+             <Inci/>
+             <THT>6</THT>
+             <Intrastat_code>12079996</Intrastat_code>
+             <CE_Anchura_cm>10</CE_Anchura_cm>
+             <CE_Profundidad_cm>6</CE_Profundidad_cm>
+             <CE_Altura_cm>16</CE_Altura_cm>
+             <CE_Numero_de_Paleta>384</CE_Numero_de_Paleta>
+             <SVE_Anchura_cm>19</SVE_Anchura_cm>
+             <SVE_Profundidad_cm>29</SVE_Profundidad_cm>
+             <SVE_Altura_cm>20</SVE_Altura_cm>
+             <SVE_Peso_neto_gr>4512</SVE_Peso_neto_gr>
+             <SVE_Peso_bruto_gr>4710</SVE_Peso_bruto_gr>
+             <ES_Allerg_kan-sporen-bevatten>Cacahuete, Frutos secos, Sésamo, Pistachos, Avellanas, Nueces de macadamia, Almendras, Nueces de pecán, Nueces de Brasil, Anacardos</ES_Allerg_kan-sporen-bevatten>
+             <ES_Allerg_aanwezig>n/a</ES_Allerg_aanwezig>
+             <ES_Allerg>&gt; Cacahuete&#xD;
+    &gt; Frutos secos&#xD;
+    &gt; Sésamo&#xD;
+    &gt; Pistachos&#xD;
+    &gt; Avellanas&#xD;
+    &gt; Nueces de macadamia&#xD;
+    &gt; Almendras&#xD;
+    &gt; Nueces de pecán&#xD;
+    &gt; Nueces de Brasil&#xD;
+    &gt; Anacardos&#xD;
+    &gt; Dióxido de azufre y sulfitos&#xD;
+    &gt; Moluscos&#xD;
+    &gt; Apio&#xD;
+    &gt; Mostaza&#xD;
+    &gt; Gluten&#xD;
+    &gt; Crustáceos&#xD;
+    &gt; Pez&#xD;
+    &gt; Lupino&#xD;
+    &gt; Huevo&#xD;
+    &gt; Leche&#xD;
+    &gt; Soja</ES_Allerg>
+             <ES_Allerg_waarde>Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Puede contener trazas&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente&#xD;
+    Ausente</ES_Allerg_waarde>
+             <ES_Korte_Comm_tekst>Estas semillas de calabaza biológicas están sin tostar y, por tanto, son  deliciosamente puras. Puedes hornearlas, utilizarlas como guarnición o molerlas  en harina. Las semillas de calabaza son ricas en proteínas, fibra y grasas  buenas.</ES_Korte_Comm_tekst>
+             <ES_Gebruikstips>Para darle más sabor, tueste brevemente las semillas de calabaza en una sartén  caliente y seca.</ES_Gebruikstips>
+             <ES_CE_verpakking>Bolso De Pie</ES_CE_verpakking>
+             <ES_SVE_verpakking>Caja</ES_SVE_verpakking>
+             <BPA_vrij>Si</BPA_vrij>
+             <GMO_vrij>Si</GMO_vrij>
+             <Bevat_doorstr_ingr>No</Bevat_doorstr_ingr>
+             <Zonder_palm_olie>Si</Zonder_palm_olie>
+             <RAWFood>Si</RAWFood>
+             <SuperFood>No</SuperFood>
+             <Gistvrij>Si</Gistvrij>
+             <Lactosevrij>Sí</Lactosevrij>
+             <Zonder_toev_zout>Si</Zonder_toev_zout>
+             <Zonder_toev_suiker>Si</Zonder_toev_suiker>
+             <Kosher>naturalmente</Kosher>
+             <IK_Kurzel>EG</IK_Kurzel>
+             <Bew_cond_vr_openen>Conservar en un lugar seco y oscuro a temperatura ambiente (máximo 20 °C).</Bew_cond_vr_openen>
+             <Bew_cond_na_openen>Almacenar después de abrir herméticamente en un lugar seco y oscuro a temperatura ambiente (máximo 20 ° C).</Bew_cond_na_openen>
+             <verp_materiaal>
+                <CE_verp_samenvatting>plastico</CE_verp_samenvatting>
+                <CE1_verp>plastico</CE1_verp>
+                <CE2_verp/>
+                <CE3_verp/>
+                <SVE_verp_samenvatting>papel y carton</SVE_verp_samenvatting>
+                <SVE1_verp>papel y carton</SVE1_verp>
+                <SVE2_verp/>
+                <Omd_verp/>
+             </verp_materiaal>
+             <QA>
+                <sens_eig>
+                   <Geur_Smaak>Producto específico</Geur_Smaak>
+                   <Kleur>Verde</Kleur>
+                   <Uiterlijk/>
+                </sens_eig>
+                <Chem_crit>
+                   <Cadmium>Dentro de las regulaciones de la UE</Cadmium>
+                   <Arseen>No definida</Arseen>
+                   <Ochratoxine>No definida</Ochratoxine>
+                   <Aflatoxine>Dentro de las regulaciones de la UE</Aflatoxine>
+                </Chem_crit>
+                <micrb_crit>
+                   <Salmonella>No detectado</Salmonella>
+                   <Ecoli>&lt;10</Ecoli>
+                   <Listeria>No definida</Listeria>
+                </micrb_crit>
+                <Disclaimer>* Cultivo, procesamiento, limpieza, envasado, transporte y caracterización de acuerdo con la normativa ecológica CE EU834 / 2007 y 889/2008.&#xD;
+    * Los residuos no intencionales de pesticidas, insecticidas, fungicidas, antibióticos son por componente de acuerdo con la ley orgánica de la UE y la política de residuos de nuestra guía certificadora holandesa SKAL y BNN.&#xD;
+    * El embalaje utilizado para este producto es de grado alimenticio de acuerdo con los requisitos de EC1935 / 2004 y por lo tanto apto para el contacto directo con el producto para consumo humano.&#xD;
+    * Este producto cumple con EC1829 / 2003 y EC1830 / 2003 para no usar material OGM.&#xD;
+    * Metales pesados según el reglamento de la UE 1881/2006&#xD;
+    * Las especificaciones pueden estar sujetas a cambios sin previo aviso, cuando no tienen una influencia directa en los criterios de seguridad alimentaria, como p. Ej. Alérgenos.</Disclaimer>
+             </QA>
+          </ES>
+          <verp_gewicht>
+             <CE_verp-gew_totaal_gr>2</CE_verp-gew_totaal_gr>
+             <CE1_verp-gew_gr>2</CE1_verp-gew_gr>
+             <CE2_verp-gew_gr>0</CE2_verp-gew_gr>
+             <CE3_verp-gew_gr>0</CE3_verp-gew_gr>
+             <SVE_verp-gew_totaal_gr>198</SVE_verp-gew_totaal_gr>
+             <SVE1_verp-gew_gr>198</SVE1_verp-gew_gr>
+             <SVE2_verp-gew_gr>0</SVE2_verp-gew_gr>
+             <Omd_verp-gew_gr>0.0</Omd_verp-gew_gr>
+          </verp_gewicht>
+          <QA>
+             <micrb_crit>
+                <Aeroob_kiemgetal>1000000</Aeroob_kiemgetal>
+                <Gisten_Schimmels>10000</Gisten_Schimmels>
+                <Enterobacteriaceae>1000</Enterobacteriaceae>
+                <Coliformen/>
+             </micrb_crit>
+          </QA>
+       </Artikel>
+scripts:
+  - type: afterResponse
+    code: |-
+      var instance = pm.collectionVariables.get("INSTANCE");
+
+      var output = "";
+
+      switch (instance) {
+          case "acceptance":
+              pm.test("bodyLength", () => {
+        pm.expect(pm.response.headers.get('bodyLength')).to.eql('998868');
+      });
+              break;
+          case "development":
+              pm.test("bodyLength", () => {
+        pm.expect(pm.response.headers.get('bodyLength')).to.eql('998868');
+      });
+              break;
+                  case "next":
+              pm.test("bodyLength", () => {
+        pm.expect(pm.response.headers.get('bodyLength')).to.eql('960987');
+      });
+              break;
+          default:
+              pm.test("Invalid environment specified");
+              break;
+      }
+
+
+      pm.test("Content-Type", () => {
+        pm.expect(pm.response.headers.get('PdfContent-Type')).to.eql('application/pdf');
+      });
+
+      pm.test("Technische product specificatie", function () {
+          pm.expect(pm.response.text()).to.include('Technische product specificatie');
+      });
+    language: text/javascript
+order: 60000

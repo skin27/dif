@@ -1,0 +1,58 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_XmlToCsv"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `\"id\",\"name\",\"price\",\"description\",\"calories\"\r
+
+      \"1\",\"Belgian Waffles\",\"$5.95\",\"\r
+
+      \   Two of our famous Belgian Waffles with plenty of real maple syrup\r
+
+      \   \",\"650\"\r
+
+      \"2\",\"Strawberry Belgian Waffles\",\"$7.95\",\"\r
+
+      \    Light Belgian waffles covered with strawberries and whipped cream\r
+
+      \    \",\"900\"\r
+
+      \"3\",\"Berry-Berry Belgian Waffles\",\"$8.95\",\"\r
+
+      \    Belgian waffles covered with assorted fresh berries and whipped cream\r
+
+      \    \",\"900\"\r
+
+      \"4\",\"French Toast\",\"$4.50\",\"\r
+
+      \    Thick slices made from our homemade sourdough bread\r
+
+      \    \",\"600\"\r
+
+      \"5\",\"Homestyle Breakfast\",\"$6.95\",\"\r
+
+      \    Two eggs, bacon or sausage, toast, and our ever-popular hash browns\r
+
+      \    \",\"950\"\r
+
+      \"6\",\"Homestyle Breakfast\",\"$6.95\",\"\r
+
+      \    Two eggs, bacon or sausage, toast, and our ever-popular hash browns\r
+
+      \    \",\"950\"`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 41000

@@ -1,0 +1,76 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/JsonToXmlDeprecated?config=EARTF"
+method: POST
+queryParams:
+  config: EARTF
+body:
+  type: text
+  content: |-
+    {
+      "@context": {
+        "name": "http://schema.org/name",
+        "uri": {
+          "@id": "http://xmlns.com/foaf/0.1/homepage",
+          "@type": "@id"
+        }
+      },
+      "name": "Norman Walsh",
+      "uri": "https://nwalsh.com/"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      // Import the xml2js library
+      const xml2js = require('xml2js');
+
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <root context="{&quot;name&quot;:&quot;http://schema.org/name&quot;,&quot;uri&quot;:{&quot;@id&quot;:&quot;http://xmlns.com/foaf/0.1/homepage&quot;,&quot;@type&quot;:&quot;@id&quot;}}">
+          <name>Norman Walsh</name>
+          <uri>https://nwalsh.com/</uri>
+      </root>`;
+
+      const actual = pm.response.text();
+
+      // Function to sort the elements in a JavaScript object
+      function sortObject(obj) {
+          if (typeof obj !== 'object' || obj === null) {
+              return obj;
+          }
+
+          if (Array.isArray(obj)) {
+              return obj.map(sortObject);
+          }
+
+          return Object.keys(obj).sort().reduce((acc, key) => {
+              acc[key] = sortObject(obj[key]);
+              return acc;
+          }, {});
+      }
+
+      // Parse XML strings into JavaScript objects
+      xml2js.parseString(expected, (err, result1) => {
+          if (err) {
+              pm.test('XML parsing error for expected xml', () => {
+                  pm.expect(err).to.be.null;
+              });
+          } else {
+              xml2js.parseString(actual, (err, result2) => {
+                  if (err) {
+                      pm.test('XML parsing error for actual xml', () => {
+                          pm.expect(err).to.be.null;
+                      });
+                  } else {
+                      // Sort the objects
+                      const sortedObject1 = sortObject(result1);
+                      const sortedObject2 = sortObject(result2);
+
+                      // Compare the sorted objects
+                      pm.test('XML strings are equivalent, ignoring element order', () => {
+                          pm.expect(sortedObject1).to.eql(sortedObject2);
+                      });
+                  }
+              });
+          }
+      });
+    language: text/javascript
+order: 41000

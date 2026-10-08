@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScript_counter"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("counter is 1", () => {
+        pm.expect(pm.response.headers.get('counter')).to.eql('1');
+      });
+    language: text/javascript
+order: 16000

@@ -1,0 +1,340 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SplitJson_xml_aggr_rr"
+method: POST
+headers:
+  BaseUrl: "{{BASE_URL}}"
+body:
+  type: json
+  content: |-
+    {
+        "@datum": "18-10-2023",
+        "film": [
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/19182",
+                "titel": "Jack Reacher",
+                "jaar": "2012",
+                "regisseur": "Christopher McQuarrie",
+                "cast": "Tom Cruise:Rosamund Pike:Richard Jenkins:David Oyelowo:Werner Herzog:Jai Courtney",
+                "genre": "Actie:Misdaad:Mystery:Thriller",
+                "land": "Verenigde Staten",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/r77iz4hxkx.jpg",
+                "tagline": "The law has limits. He does not.",
+                "duur": "130",
+                "synopsis": "'Jack Reacher' onder regie van Christopher McQuarrie (The Way of the Gun, 2000) gaat over de ex-militair Jack Reacher die de moord op vijf onschuldige mensen onderzoekt. Hoewel er een verdachte is, twijfelt hij aan de schuld van deze persoon en diept hij de zaak verder uit.",
+                "ft_rating": "6.9",
+                "ft_votes": "54",
+                "imdb_id": "0790724",
+                "imdb_rating": "7",
+                "imdb_votes": "230503",
+                "starttijd": "1697653500",
+                "eindtijd": "1697663100",
+                "zender": "Veronica",
+                "filmtip": "1"
+            },
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/23843",
+                "titel": "Spider-Man: Homecoming",
+                "jaar": "2017",
+                "regisseur": "Jon Watts",
+                "cast": "Tom Holland:Michael Keaton:Robert Downey Jr.:Marisa Tomei:Jon Favreau:Gwyneth Paltrow",
+                "genre": "Actie:Avontuur:Sci-Fi",
+                "land": "Verenigde Staten",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/q1xxwax9p9.jpg",
+                "tagline": [],
+                "duur": "133",
+                "synopsis": "Geen synopsis beschikbaar.Een jonge Peter Parker/Spider-Man (Holland), die zijn sensationele debuut beleefde in Captain America: Civil War leert in Spider-Man: Homecoming om te gaan met zijn nieuwgevonden identiteit als webslingende superheld. Enthousiast door zijn ervaring met de Avengers, keert Peter terug naar huis, waar hij met zijn tante May (Marisa Tomei) woont, en onder het waakzame oog van zijn nieuwe mentor Tony Stark (Downey Jr.) door het leven gaat. Peter probeert weer in zijn normale dagelijkse routine terug te komen, maar wordt afgeleid van de gedachte dat hij zichzelf moet bewijzen als meer dan alleen de vriendelijke Spider-Man. Als de nieuwe superschurk Vulture (Keaton) zijn opwachting maakt, komt alles waar Peter aan hecht in gevaar.",
+                "ft_rating": "0",
+                "ft_votes": "0",
+                "imdb_id": "2250912",
+                "imdb_rating": "0",
+                "imdb_votes": "0",
+                "starttijd": "1697653500",
+                "eindtijd": "1697664000",
+                "zender": "RTL7",
+                "filmtip": "1"
+            },
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/15557",
+                "titel": "Clash of the Titans",
+                "jaar": "2010",
+                "regisseur": "Louis Leterrier",
+                "cast": "Sam Worthington:Liam Neeson:Ralph Fiennes:Jason Flemyng:Gemma Arterton:Alexa Davalos",
+                "genre": "Actie:Avontuur:Fantasy",
+                "land": "Verenigde Staten",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/162vbhwx2n.jpg",
+                "tagline": "The Clash Begins 2.4.2010",
+                "duur": "106",
+                "synopsis": "Geboren als een god, maar opgevoed als een mens probeert Perseus (Sam Worthington) hulpeloos zijn familie te redden van Hades (Ralph Fiennes), de wraakzuchtige god van de onderwereld. Perseus biedt zich vrijwillig aan om deel te nemen aan een levensgevaarlijke missie om Hades te vermoorden, voordat die de macht van Zeus (Liam Neeson) kan grijpen, om zo de aarde in een hel te laten veranderen en prinses Andromeda (Alexa Davalos) van haar leven te beroven. Bijgestaan door Io (Gemma Arterton), een mysterieuze spirituele gids leidt de missie Perseus en zijn groep strijders op een gevaarlijke reis diep de verboden wereld in. Daar moeten ze vechten tegen heidense demonen en andere beesten die geen gevaar vrezen. Perseus zal zijn bestaan en zijn macht als die van een god moeten accepteren en zijn eigen lot moeten creëren, wil hij het uiteindelijk gaan redden...",
+                "ft_rating": "5.8",
+                "ft_votes": "117",
+                "imdb_id": "0800320",
+                "imdb_rating": "5.8",
+                "imdb_votes": "231195",
+                "starttijd": "1697653800",
+                "eindtijd": "1697661000",
+                "zender": "Paramount Network",
+                "filmtip": "1"
+            },
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/31409",
+                "titel": "Good Time",
+                "jaar": "2017",
+                "regisseur": "Ben Safdie:Joshua Safdie",
+                "cast": "Jennifer Jason Leigh:Robert Pattinson:Barkhad Abdi:Ben Safdie:Luke Eberl:Buddy Duress",
+                "genre": "Misdaad:Drama",
+                "land": "Verenigde Staten",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/z9wg6d8y50.jpg",
+                "tagline": [],
+                "duur": "100",
+                "synopsis": "Nadat een bankoverval mislukt en zijn jongere broer in de bak terecht komt, vertrekt Constantine Nikas op een reis door de onderwereld van New York in een gevaarlijke poging zijn broertje vrij te krijgen. Gedurende één nacht, vervalt Constantine in geweld en chaso in een race tegen de klok om zijn broer en ook zichzelf te redden.",
+                "ft_rating": "0",
+                "ft_votes": "0",
+                "imdb_id": "4846232",
+                "imdb_rating": "7.8",
+                "imdb_votes": "494",
+                "starttijd": "1697662500",
+                "eindtijd": "1697668500",
+                "zender": "Canvas",
+                "filmtip": "1"
+            },
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/32800",
+                "titel": "21 Bridges",
+                "jaar": "2019",
+                "regisseur": "Brian Kirk",
+                "cast": "Chadwick Boseman:Sienna Miller:J.K. Simmons:Stephan James:Taylor Kitsch:Keith David",
+                "genre": "Actie:Misdaad:Drama:Thriller",
+                "land": "China:Verenigde Staten",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/vcp0auqght.jpg",
+                "tagline": "The Ultimate Heist. Everyone Is a Suspect.",
+                "duur": "99",
+                "synopsis": "Als NYPD rechercheur Simpson (Chadwick Boseman) een operatie verknalt, krijgt hij nog één laatste kans om zijn baan te redden. Samen met zijn collega's moet hij op Manhattan een voortvluchtige 'cop killer' zien in te rekenen. Naarmate de nacht vordert, moeten er steeds extremere maatregelen worden genomen. Voor het eerst in de geschiedenis van New York worden alle 21 bruggen gesloten, zodat de moordenaar geen kant meer op kan. Zo wordt Manhattan voor één nacht een afgesloten eiland en is de jacht op de moordenaar geopend.",
+                "ft_rating": "0",
+                "ft_votes": "0",
+                "imdb_id": "8688634",
+                "imdb_rating": "6.6",
+                "imdb_votes": "21927",
+                "starttijd": "1697663100",
+                "eindtijd": "1697669700",
+                "zender": "Veronica",
+                "filmtip": "1"
+            },
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/19227",
+                "titel": "Total Recall",
+                "jaar": "2012",
+                "regisseur": "Len Wiseman",
+                "cast": "Colin Farrell:Kate Beckinsale:Jessica Biel:Bryan Cranston:Bokeem Woodbine:Bill Nighy",
+                "genre": "Actie:Avontuur:Mystery:Sci-Fi:Thriller",
+                "land": "Verenigde Staten:Canada",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/hy6ypcemo9.jpg",
+                "tagline": "What is real?",
+                "duur": "118",
+                "synopsis": "Welkom bij Rekall, het bedrijf dat dromen tot werkelijkheid kan brengen. Voor de fabrieksmedewerker Douglas Quaid (Colin Farrell) klinkt deze trip als de perfecte vakantie om aan zijn frustrerende leven te ontkomen, ook al heeft hij een prachtige vrouw (Kate Beckinsale). Echte herinneringen van het leven als een super spion is net wat hij nodig heeft. Maar als de procedure goed fout gaat, wordt Quaid een opgejaagd man. Hij wordt achtervolgd door de politie, geleid door Chancellor Cohaagen (Bryan Cranston) en besluit samen te werken met een vrouwelijke rebel vechter (Jessica Biel) om Cohaagen te stoppen. Het is niet meer duidelijk wat fantasie en werkelijkheid is en Quaid ontdekt zijn echte identiteit, liefde en lot.",
+                "ft_rating": "6.2",
+                "ft_votes": "61",
+                "imdb_id": "1386703",
+                "imdb_rating": "6.3",
+                "imdb_votes": "222883",
+                "starttijd": "1697664000",
+                "eindtijd": "1697672700",
+                "zender": "RTL7",
+                "filmtip": "1"
+            },
+            {
+                "ft_link": "https://www.filmtotaal.nl/film/18314",
+                "titel": "Halloween",
+                "jaar": "2018",
+                "regisseur": "David Gordon Green",
+                "cast": "Jamie Lee Curtis:Judy Greer:Andi Matichak:James Jude Courtney:Nick Castle:Haluk Bilginer",
+                "genre": "Misdaad:Horror:Thriller",
+                "land": "Verenigde Staten",
+                "cover": "https://cdn.filmtotaal.nl/images/covers/oqzkvcnhbv.jpg",
+                "tagline": [],
+                "duur": "106",
+                "synopsis": "Laurie Strode keert terug om het nog eenmaal op te nemen tegen Michael Myers, de gemaskerde figuur die haar vier decennia geleden bijna vermoordde. Maar wat ze niet weet, is dat Michael er ook helemaal klaar voor is.",
+                "ft_rating": "0",
+                "ft_votes": "0",
+                "imdb_id": "1502407",
+                "imdb_rating": "6.5",
+                "imdb_votes": "157309",
+                "starttijd": "1697665200",
+                "eindtijd": "1697671200",
+                "zender": "BBC1",
+                "filmtip": "1"
+            }
+        ]
+    }
+scripts:
+  - type: beforeRequest
+    code: pm.globals.set("FLOW_NAME", "RecipientSynchronousOneWay");
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <Aggregated>
+          <root>
+              <duur>130</duur>
+              <ft_votes>54</ft_votes>
+              <regisseur>Christopher McQuarrie</regisseur>
+              <imdb_id>0790724</imdb_id>
+              <imdb_votes>230503</imdb_votes>
+              <synopsis>'Jack Reacher' onder regie van Christopher McQuarrie (The Way of the Gun, 2000) gaat over de ex-militair Jack Reacher die de moord op vijf onschuldige mensen onderzoekt. Hoewel er een verdachte is, twijfelt hij aan de schuld van deze persoon en diept hij de zaak verder uit.</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/19182</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/r77iz4hxkx.jpg</cover>
+              <cast>Tom Cruise:Rosamund Pike:Richard Jenkins:David Oyelowo:Werner Herzog:Jai Courtney</cast>
+              <titel>Jack Reacher</titel>
+              <starttijd>1697653500</starttijd>
+              <genre>Actie:Misdaad:Mystery:Thriller</genre>
+              <eindtijd>1697663100</eindtijd>
+              <jaar>2012</jaar>
+              <land>Verenigde Staten</land>
+              <tagline>The law has limits. He does not.</tagline>
+              <filmtip>1</filmtip>
+              <ft_rating>6.9</ft_rating>
+              <imdb_rating>7</imdb_rating>
+              <zender>Veronica</zender>
+          </root>
+          <root>
+              <duur>133</duur>
+              <ft_votes>0</ft_votes>
+              <regisseur>Jon Watts</regisseur>
+              <imdb_id>2250912</imdb_id>
+              <imdb_votes>0</imdb_votes>
+              <synopsis>Geen synopsis beschikbaar.Een jonge Peter Parker/Spider-Man (Holland), die zijn sensationele debuut beleefde in Captain America: Civil War leert in Spider-Man: Homecoming om te gaan met zijn nieuwgevonden identiteit als webslingende superheld. Enthousiast door zijn ervaring met de Avengers, keert Peter terug naar huis, waar hij met zijn tante May (Marisa Tomei) woont, en onder het waakzame oog van zijn nieuwe mentor Tony Stark (Downey Jr.) door het leven gaat. Peter probeert weer in zijn normale dagelijkse routine terug te komen, maar wordt afgeleid van de gedachte dat hij zichzelf moet bewijzen als meer dan alleen de vriendelijke Spider-Man. Als de nieuwe superschurk Vulture (Keaton) zijn opwachting maakt, komt alles waar Peter aan hecht in gevaar.</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/23843</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/q1xxwax9p9.jpg</cover>
+              <cast>Tom Holland:Michael Keaton:Robert Downey Jr.:Marisa Tomei:Jon Favreau:Gwyneth Paltrow</cast>
+              <titel>Spider-Man: Homecoming</titel>
+              <starttijd>1697653500</starttijd>
+              <genre>Actie:Avontuur:Sci-Fi</genre>
+              <eindtijd>1697664000</eindtijd>
+              <jaar>2017</jaar>
+              <land>Verenigde Staten</land>
+              <filmtip>1</filmtip>
+              <ft_rating>0</ft_rating>
+              <imdb_rating>0</imdb_rating>
+              <zender>RTL7</zender>
+          </root>
+          <root>
+              <duur>106</duur>
+              <ft_votes>117</ft_votes>
+              <regisseur>Louis Leterrier</regisseur>
+              <imdb_id>0800320</imdb_id>
+              <imdb_votes>231195</imdb_votes>
+              <synopsis>Geboren als een god, maar opgevoed als een mens probeert Perseus (Sam Worthington) hulpeloos zijn familie te redden van Hades (Ralph Fiennes), de wraakzuchtige god van de onderwereld. Perseus biedt zich vrijwillig aan om deel te nemen aan een levensgevaarlijke missie om Hades te vermoorden, voordat die de macht van Zeus (Liam Neeson) kan grijpen, om zo de aarde in een hel te laten veranderen en prinses Andromeda (Alexa Davalos) van haar leven te beroven. Bijgestaan door Io (Gemma Arterton), een mysterieuze spirituele gids leidt de missie Perseus en zijn groep strijders op een gevaarlijke reis diep de verboden wereld in. Daar moeten ze vechten tegen heidense demonen en andere beesten die geen gevaar vrezen. Perseus zal zijn bestaan en zijn macht als die van een god moeten accepteren en zijn eigen lot moeten creëren, wil hij het uiteindelijk gaan redden...</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/15557</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/162vbhwx2n.jpg</cover>
+              <cast>Sam Worthington:Liam Neeson:Ralph Fiennes:Jason Flemyng:Gemma Arterton:Alexa Davalos</cast>
+              <titel>Clash of the Titans</titel>
+              <starttijd>1697653800</starttijd>
+              <genre>Actie:Avontuur:Fantasy</genre>
+              <eindtijd>1697661000</eindtijd>
+              <jaar>2010</jaar>
+              <land>Verenigde Staten</land>
+              <tagline>The Clash Begins 2.4.2010</tagline>
+              <filmtip>1</filmtip>
+              <ft_rating>5.8</ft_rating>
+              <imdb_rating>5.8</imdb_rating>
+              <zender>Paramount Network</zender>
+          </root>
+          <root>
+              <duur>100</duur>
+              <ft_votes>0</ft_votes>
+              <regisseur>Ben Safdie:Joshua Safdie</regisseur>
+              <imdb_id>4846232</imdb_id>
+              <imdb_votes>494</imdb_votes>
+              <synopsis>Nadat een bankoverval mislukt en zijn jongere broer in de bak terecht komt, vertrekt Constantine Nikas op een reis door de onderwereld van New York in een gevaarlijke poging zijn broertje vrij te krijgen. Gedurende één nacht, vervalt Constantine in geweld en chaso in een race tegen de klok om zijn broer en ook zichzelf te redden.</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/31409</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/z9wg6d8y50.jpg</cover>
+              <cast>Jennifer Jason Leigh:Robert Pattinson:Barkhad Abdi:Ben Safdie:Luke Eberl:Buddy Duress</cast>
+              <titel>Good Time</titel>
+              <starttijd>1697662500</starttijd>
+              <genre>Misdaad:Drama</genre>
+              <eindtijd>1697668500</eindtijd>
+              <jaar>2017</jaar>
+              <land>Verenigde Staten</land>
+              <filmtip>1</filmtip>
+              <ft_rating>0</ft_rating>
+              <imdb_rating>7.8</imdb_rating>
+              <zender>Canvas</zender>
+          </root>
+          <root>
+              <duur>99</duur>
+              <ft_votes>0</ft_votes>
+              <regisseur>Brian Kirk</regisseur>
+              <imdb_id>8688634</imdb_id>
+              <imdb_votes>21927</imdb_votes>
+              <synopsis>Als NYPD rechercheur Simpson (Chadwick Boseman) een operatie verknalt, krijgt hij nog één laatste kans om zijn baan te redden. Samen met zijn collega's moet hij op Manhattan een voortvluchtige 'cop killer' zien in te rekenen. Naarmate de nacht vordert, moeten er steeds extremere maatregelen worden genomen. Voor het eerst in de geschiedenis van New York worden alle 21 bruggen gesloten, zodat de moordenaar geen kant meer op kan. Zo wordt Manhattan voor één nacht een afgesloten eiland en is de jacht op de moordenaar geopend.</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/32800</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/vcp0auqght.jpg</cover>
+              <cast>Chadwick Boseman:Sienna Miller:J.K. Simmons:Stephan James:Taylor Kitsch:Keith David</cast>
+              <titel>21 Bridges</titel>
+              <starttijd>1697663100</starttijd>
+              <genre>Actie:Misdaad:Drama:Thriller</genre>
+              <eindtijd>1697669700</eindtijd>
+              <jaar>2019</jaar>
+              <land>China:Verenigde Staten</land>
+              <tagline>The Ultimate Heist. Everyone Is a Suspect.</tagline>
+              <filmtip>1</filmtip>
+              <ft_rating>0</ft_rating>
+              <imdb_rating>6.6</imdb_rating>
+              <zender>Veronica</zender>
+          </root>
+          <root>
+              <duur>118</duur>
+              <ft_votes>61</ft_votes>
+              <regisseur>Len Wiseman</regisseur>
+              <imdb_id>1386703</imdb_id>
+              <imdb_votes>222883</imdb_votes>
+              <synopsis>Welkom bij Rekall, het bedrijf dat dromen tot werkelijkheid kan brengen. Voor de fabrieksmedewerker Douglas Quaid (Colin Farrell) klinkt deze trip als de perfecte vakantie om aan zijn frustrerende leven te ontkomen, ook al heeft hij een prachtige vrouw (Kate Beckinsale). Echte herinneringen van het leven als een super spion is net wat hij nodig heeft. Maar als de procedure goed fout gaat, wordt Quaid een opgejaagd man. Hij wordt achtervolgd door de politie, geleid door Chancellor Cohaagen (Bryan Cranston) en besluit samen te werken met een vrouwelijke rebel vechter (Jessica Biel) om Cohaagen te stoppen. Het is niet meer duidelijk wat fantasie en werkelijkheid is en Quaid ontdekt zijn echte identiteit, liefde en lot.</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/19227</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/hy6ypcemo9.jpg</cover>
+              <cast>Colin Farrell:Kate Beckinsale:Jessica Biel:Bryan Cranston:Bokeem Woodbine:Bill Nighy</cast>
+              <titel>Total Recall</titel>
+              <starttijd>1697664000</starttijd>
+              <genre>Actie:Avontuur:Mystery:Sci-Fi:Thriller</genre>
+              <eindtijd>1697672700</eindtijd>
+              <jaar>2012</jaar>
+              <land>Verenigde Staten:Canada</land>
+              <tagline>What is real?</tagline>
+              <filmtip>1</filmtip>
+              <ft_rating>6.2</ft_rating>
+              <imdb_rating>6.3</imdb_rating>
+              <zender>RTL7</zender>
+          </root>
+          <root>
+              <duur>106</duur>
+              <ft_votes>0</ft_votes>
+              <regisseur>David Gordon Green</regisseur>
+              <imdb_id>1502407</imdb_id>
+              <imdb_votes>157309</imdb_votes>
+              <synopsis>Laurie Strode keert terug om het nog eenmaal op te nemen tegen Michael Myers, de gemaskerde figuur die haar vier decennia geleden bijna vermoordde. Maar wat ze niet weet, is dat Michael er ook helemaal klaar voor is.</synopsis>
+              <ft_link>https://www.filmtotaal.nl/film/18314</ft_link>
+              <cover>https://cdn.filmtotaal.nl/images/covers/oqzkvcnhbv.jpg</cover>
+              <cast>Jamie Lee Curtis:Judy Greer:Andi Matichak:James Jude Courtney:Nick Castle:Haluk Bilginer</cast>
+              <titel>Halloween</titel>
+              <starttijd>1697665200</starttijd>
+              <genre>Misdaad:Horror:Thriller</genre>
+              <eindtijd>1697671200</eindtijd>
+              <jaar>2018</jaar>
+              <land>Verenigde Staten</land>
+              <filmtip>1</filmtip>
+              <ft_rating>0</ft_rating>
+              <imdb_rating>6.5</imdb_rating>
+              <zender>BBC1</zender>
+          </root>
+      </Aggregated>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 47000

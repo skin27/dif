@@ -1,0 +1,87 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Enrich_bodyType_json"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "products": [
+            {
+                "id": "1",
+                "name": "spoon"
+            },
+            {
+                "id": "2",
+                "name": "knife"
+            }
+        ],
+        "images": [
+            {
+                "id": "1",
+                "name": "spoon"
+            },
+            {
+                "id": "2",
+                "name": "knife"
+            }
+        ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`[
+          {
+              "images": [
+                  {
+                      "name": "spoon",
+                      "id": "1"
+                  },
+                  {
+                      "name": "knife",
+                      "id": "2"
+                  }
+              ],
+              "products": [
+                  {
+                      "name": "spoon",
+                      "id": "1"
+                  },
+                  {
+                      "name": "knife",
+                      "id": "2"
+                  }
+              ]
+          },
+          {
+              "images": [
+                  {
+                      "name": "spoon",
+                      "id": "1"
+                  },
+                  {
+                      "name": "knife",
+                      "id": "2"
+                  }
+              ],
+              "products": [
+                  {
+                      "name": "spoon",
+                      "id": "1"
+                  },
+                  {
+                      "name": "knife",
+                      "id": "2"
+                  }
+              ]
+          }
+      ]`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 25000

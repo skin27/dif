@@ -1,0 +1,15 @@
+name: next
+values:
+  - key: HOST
+    value: https
+  - key: INSTANCE
+    value: next
+  - key: BASE_URI
+    value: dovetail.world
+  - key: ENVIRONMENT
+    value: test
+  - key: PATH
+    value: inbound_http/regressiontests
+  - key: HC_token
+    value: i3DWepr4gM7EfH69tXRm1CYRQrNAYWsd
+color: 300

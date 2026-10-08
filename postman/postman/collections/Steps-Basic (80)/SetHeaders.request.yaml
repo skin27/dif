@@ -1,0 +1,50 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_SetHeaders"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `Headers:\r
+
+      \r
+
+      Lastname: Doe\r
+
+      Firtname:  \r
+
+      \r
+
+      Message Body:\r
+
+      \r
+
+      <persons>\r
+
+      \t<person>\r
+
+      \t\t<name>John Doe</name>\r
+
+      \t</person>\r
+
+      \t<person>\r
+
+      \t\t<name>Jane Doe</name>\r
+
+      \t</person>\r
+
+      </persons>`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 32000

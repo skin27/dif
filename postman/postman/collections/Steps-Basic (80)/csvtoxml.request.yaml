@@ -1,0 +1,46 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_Csv2Xml"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r
+
+      <items>\r
+
+      \  <item>\r
+
+      \    <firstname>Joe</firstname>\r
+
+      \    <lastname>Foo</lastname>\r
+
+      \    <age>21</age>\r
+
+      \  </item>\r
+
+      \  <item>\r
+
+      \    <firstname>John</firstname>\r
+
+      \    <lastname>Doe</lastname>\r
+
+      \    <age>30</age>\r
+
+      \  </item>\r
+
+      </items>`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 6000

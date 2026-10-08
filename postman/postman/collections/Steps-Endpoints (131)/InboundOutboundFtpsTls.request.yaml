@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/InboundOutboundFtpsTls"
+method: POST
+headers:
+  Name: Value
+body:
+  type: xml
+  content: Original body
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches string 1", function () {
+          pm.expect(pm.response.text()).to.include('Message out');
+      });
+
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+          });
+    language: text/javascript
+order: 48000

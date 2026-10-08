@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/production/{{PATH}}/XmlToJsonLarge?t\
+  oken=Hump2007"
+method: GET
+queryParams:
+  token: Hump2007
+body:
+  type: file
+  content: {}
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+          });
+
+      pm.test("Response time is less than 120000ms", function () {
+      pm.expect(pm.response.responseTime).to.be.below(120000);
+      });
+    language: text/javascript
+order: 1000

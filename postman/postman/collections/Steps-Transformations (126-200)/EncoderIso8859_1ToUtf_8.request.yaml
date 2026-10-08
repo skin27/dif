@@ -1,0 +1,43 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/EncoderIso8\
+  859_1ToUtf_8"
+method: POST
+headers:
+  Content-Type: text/plain; charset=iso-8859-1
+body:
+  type: file
+  content:
+    src: iso88591.txt
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `	0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
+      															
+      															
+       SP 	!		#	$	%	&		(	)	*	+	,	-	.	
+      0	1	2	3	4	5	6	7	8	9	:	;	<	=	>	?
+      @	A	B	C	D	E	F	G	H	I	J	K	L	M	N	O
+      P	Q	R	S	T	U	V	W	X	Y	Z	[		]	^	_
+      	a	b	c	d	e	f	g	h	i	j	k	l	m	n	o
+      p	q	r	s	t	u	v	w	x	y	z	{	|	}	~	
+      															
+      															
+      NBSP	¡	¢	£	¤	¥	¦	§	¨	©	ª	«	¬	SHY	®	¯
+      °	±	²	³		µ	¶		¸	¹	º	»	¼	½	¾	¿
+      À	Á	Â	Ã	Ä	Å	Æ	Ç	È	É	Ê	Ë	Ì	Í	Î	Ï
+      Ð	Ñ	Ò	Ó	Ô	Õ	Ö	×	Ø	Ù	Ú	Û	Ü	Ý	Þ	ß
+      à	á	â	ã	ä	å	æ	ç	è	é	ê	ë	ì	í	î	ï
+      ð	ñ	ò	ó	ô	õ	ö	÷	ø	ù	ú	û	ü	ý	þ	ÿ`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          console.log('actual');
+          console.log(actual.replace(/[\r\n\t]/g, ""));
+          console.log('expected');
+          console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 22000

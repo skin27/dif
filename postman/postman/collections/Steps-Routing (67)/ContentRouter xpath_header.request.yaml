@@ -1,0 +1,22 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ContentRouter"
+method: POST
+body:
+  type: xml
+  content: |-
+    <lines>
+        <line>1</line>
+    </lines>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `//line/number() = 1`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));    
+      });
+    language: text/javascript
+order: 17000

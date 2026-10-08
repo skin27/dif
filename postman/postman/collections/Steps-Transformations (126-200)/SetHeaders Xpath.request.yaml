@@ -1,0 +1,54 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SetHeaders_\
+  xpath"
+method: POST
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="utf-8"?>
+    <orders>
+        <order>
+            <header orderid="123">
+                <ordernr>12345</ordernr>
+                <datetime>2019-04-27T08:58:40.375Z</datetime>
+            </header>
+            <orderlines>
+                <orderline>
+                    <item>1</item>
+                    <value>50</value>
+                </orderline>
+                <orderline>
+                    <item>2</item>
+                    <value>100</value>
+                </orderline>
+                <orderline>
+                    <item>3</item>
+                    <value>150</value>
+                </orderline>
+            </orderlines>
+        </order>
+    </orders>
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("max", () => {
+        pm.expect(pm.response.headers.get('max')).to.eql('3');
+      });
+
+      pm.test("value", () => {
+        pm.expect(pm.response.headers.get('value')).to.eql('50');
+      });
+
+      pm.test("distinctValues", () => {
+        pm.expect(pm.response.headers.get('distinctValues')).to.eql('1--2--3');
+      });
+
+      pm.test("datetime", () => {
+        pm.expect(pm.response.headers.get('datetime')).to.eql('2019');
+      });
+
+      pm.test("avg", () => {
+        pm.expect(pm.response.headers.get('avg')).to.eql('100');
+      });
+    language: text/javascript
+order: 80000

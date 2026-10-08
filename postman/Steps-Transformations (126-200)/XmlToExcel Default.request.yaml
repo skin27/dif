@@ -1,0 +1,103 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToExcel_default?type=XmlToExcel_default"
+method: POST
+queryParams:
+  type: XmlToExcel_default
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <breakfast_menu>
+      <foods>
+        <food>
+          <name>food1</name>
+          <price>$1</price>
+          <description>desc1</description>
+        </food>
+        <food>
+          <name>food2</name>
+          <price>$2</price>
+          <description>desc2</description>
+          <calories></calories>
+        </food>
+        <food>
+          <name>food3</name>
+          <price>$3</price>
+          <description>desc3</description>
+          <calories>300</calories>
+        </food>
+        <food>
+          <name>food4</name>
+          <price>$4</price>
+          <description>desc4</description>
+          <calories>400</calories>
+        </food>
+        <food>
+          <name>food5</name>
+          <price>$5</price>
+          <description>desc5</description>
+          <calories>-500</calories>
+        </food>
+      </foods>
+      <drinks>
+        <drink>
+          <name>drink1</name>
+          <description>desc1</description>
+        </drink>
+        <drink>
+          <name>drink2</name>
+          <description>desc2</description>
+        </drink>
+        <drink>
+          <name>drink3</name>
+          <description>desc3</description>
+          <price>$3</price>
+        </drink>
+      </drinks>
+      <named>
+        <excelRow>
+          <Month>January</Month>
+          <Articles>12</Articles>
+          <Sales>4530</Sales>
+        </excelRow>
+        <excelRow>
+          <Month>February</Month>
+          <Articles>14</Articles>
+          <Sales>6210</Sales>
+        </excelRow>
+        <excelRow>
+          <Month>March</Month>
+          <Sales>3450</Sales>
+        </excelRow>
+      </named>
+    </breakfast_menu>
+scripts:
+  - type: afterResponse
+    code: |-
+      //const expected = ``;
+
+      //const actual = pm.response.text();
+
+      //pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+      //    pm.response.to.not.be.error;
+      //    pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      //});
+
+      //pm.test("Content-Type header is image/jpg", () => {
+      //  pm.expect(pm.response.headers.get('Content-Type')).to.eql('image/jpg');
+      //});
+
+      let responseSize=pm.response.size();
+      pm.test("Verify response sizes",()=>{
+          pm.expect(Number(responseSize.total)).to.below(5200);
+          pm.expect(Number(responseSize.body)).to.above(4540);
+          pm.expect(Number(responseSize.body)).to.below(5100);
+      //    pm.expect(Number(responseSize.header)).to.be.below(500);
+          }
+      );
+    language: text/javascript
+order: 125000

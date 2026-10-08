@@ -1,0 +1,15 @@
+name: acceptance fx
+values:
+  - key: HOST
+    value: https
+  - key: INSTANCE
+    value: ''
+  - key: BASE_URI
+    value: ''
+  - key: ENVIRONMENT
+    value: ''
+  - key: PATH
+    value: ''
+  - key: HC_token
+    value: sXQtsVHuEocu4qWcl6n1SFcj9P0bKYm4
+color: 180

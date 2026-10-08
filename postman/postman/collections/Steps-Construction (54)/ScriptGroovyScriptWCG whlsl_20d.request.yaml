@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScriptWCG_whlsl_20d"
+method: POST
+body:
+  type: xml
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("headersFound", () => {
+        pm.expect(pm.response.headers.get('headersFound')).to.eql('false');
+      });
+    language: text/javascript
+order: 34000

@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_SQL"
+method: POST
+headers:
+  name: name
+  value: value
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Body matches string 1\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.include('<ResultSize>1</ResultSize>');\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Body matches string 2\", function () {\r
+
+      \    pm.expect(pm.response.text()).to.include('<tenant>Regression Tests</tenant>');\r
+
+      });"
+    language: text/javascript
+order: 37000

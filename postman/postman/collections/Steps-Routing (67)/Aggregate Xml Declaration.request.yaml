@@ -1,0 +1,41 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Aggregate_XmlDeclaration"
+method: GET
+headers:
+  - key: value
+    value: aaaaaaaaaa
+    disabled: true
+  - key: value
+    value: bbbbbbbbbb
+    disabled: true
+  - key: value
+    value: ccccccccccc
+    disabled: true
+  - key: value
+    value: dddddddddd
+    disabled: true
+  - key: value
+    value: eeeeeeeeee
+    disabled: true
+  - key: value
+    value: ffffffffff
+body:
+  type: json
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<DLL><veld>Line1</veld><veld><![CDATA[<?xml version="1.0" encoding="UTF-8"?><line>Line2</line>]]></veld><veld><![CDATA[Line3]]></veld></DLL>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 4000

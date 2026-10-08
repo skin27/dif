@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpAuthentications_preemptive"
+method: POST
+headers:
+  BaseUrl: "{{BASE_URL}}"
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Body matches string 1", function () {
+      pm.expect(pm.response.text()).to.include('BASIC AUTH PREEMPTIVE');
+      });
+    language: text/javascript
+order: 16000

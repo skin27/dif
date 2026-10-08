@@ -1,0 +1,31 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScriptAWS_Synchronous?dovauth=9332bbcc-96ea-405d-b1df-8bfcbfe018af&Start=2026-08-01&end=2026-09-01"
+method: POST
+queryParams:
+  - key: dovauth
+    value: 9332bbcc-96ea-405d-b1df-8bfcbfe018af
+    disabled: false
+    description: ""
+  - key: Start
+    value: 2026-08-01
+    disabled: false
+    description: ""
+  - key: end
+    value: 2026-09-01
+    disabled: false
+    description: ""
+body:
+  type: xml
+  content: |-
+    <names>
+        <name>Johnny Cash</name>
+    </names>
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches strings", function () {
+          pm.expect(pm.response.text()).to.include('DimensionValueAttributes');
+          pm.expect(pm.response.text()).to.include('TimePeriod');
+      });
+    language: text/javascript
+order: 30000

@@ -1,0 +1,24 @@
+$kind: http-request
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/EnrichWithA\
+  ttachmentEmailPdf"
+method: POST
+body:
+  type: file
+  content:
+    src: /Users/normanhooghof/Library/CloudStorage/GoogleDrive-norman.hooghof@fluxygen.com/Gedeelde
+      drives/Fluxygen all/90. Tools/Postman Working Directory/Fluxygen.pdf
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("body contains Content-Type: application/pdf", function () {
+          pm.expect(pm.response.text()).to.include('Content-Type: application/pdf');
+      });
+      pm.test("body contains Content-Disposition: attachment; filename=attachment.pdf", function () {
+          pm.expect(pm.response.text()).to.include('Content-Disposition: attachment; filename=attachment.pdf');
+      });
+      pm.test("To", () => {
+        pm.expect(pm.response.headers.get('To')).to.eql('norman@fluxygen.com');
+      });
+    language: text/javascript
+order: 28000

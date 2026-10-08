@@ -1,0 +1,32 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SplitTokenizeAggregate"
+method: POST
+headers:
+  BaseUrl: "{{BASE_URL}}"
+body:
+  type: xml
+  content: TextBeforeTOKENTextAfter
+scripts:
+  - type: beforeRequest
+    code: pm.globals.set("FLOW_NAME", "RecipientSynchronousOneWay");
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <Aggregated>
+          <root>TextBefore</root>
+          <root>TextAfter</root>
+      </Aggregated>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 49000

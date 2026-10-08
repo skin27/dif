@@ -1,0 +1,26 @@
+$kind: http-request
+name: SetHeader Groovy
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SetHeader?config=groovy"
+method: POST
+queryParams:
+  config: groovy
+body:
+  type: json
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("pages", () => {
+        pm.expect(pm.response.headers.get('pages')).to.eql('1');
+      });
+
+      pm.test("shopPrefix", () => {
+        pm.expect(pm.response.headers.get('shopPrefix')).to.eql('LENCODE');
+      });
+
+      pm.test("runId", () => {
+        pm.expect(pm.response.headers.get('runId')).to.eql('36');
+      });
+    language: text/javascript
+order: 4502776175281369

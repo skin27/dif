@@ -1,0 +1,69 @@
+$kind: http-request
+name: JsonToXmlSimple
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_JsonToXmlSimple"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r
+
+      <Formula1>\r
+
+      \   <Drivers>\r
+
+      \      <Driver>\r
+
+      \         <Age>19</Age>\r
+
+      \         <Name>Max Verstappen</Name>\r
+
+      \      </Driver>\r
+
+      \      <Driver>\r
+
+      \         <Age>30</Age>\r
+
+      \         <Name>Nico Hulkenberg</Name>\r
+
+      \      </Driver>\r
+
+      \   </Drivers>\r
+
+      \   <Teams>\r
+
+      \      <Team>\r
+
+      \         <Principal>Christian Horner</Principal>\r
+
+      \         <Name>Redbull Racing</Name>\r
+
+      \      </Team>\r
+
+      \      <Team>\r
+
+      \         <Principal>Carlos Ghosn</Principal>\r
+
+      \         <Name>Renault</Name>\r
+
+      \      </Team>\r
+
+      \   </Teams>\r
+
+      </Formula1>\r
+
+      `;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual.replace(/[\\r\\n\\t\\s]/g, \"\")).to.eql(expected.replace(/[\\r\\n\\t\\s]/g, \"\"));     \r
+
+      });"
+    language: text/javascript
+order: 23000

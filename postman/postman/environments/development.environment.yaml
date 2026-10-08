@@ -1,0 +1,15 @@
+name: development
+values:
+  - key: HOST
+    value: https
+  - key: INSTANCE
+    value: development
+  - key: BASE_URI
+    value: dovetail.world
+  - key: ENVIRONMENT
+    value: test
+  - key: PATH
+    value: inbound_http/regressiontests
+  - key: HC_token
+    value: sXQtsVHuEocu4qWcl6n1SFcj9P0bKYm4
+color: 240

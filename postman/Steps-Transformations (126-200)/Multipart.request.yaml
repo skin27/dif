@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Multipart"
+method: POST
+body:
+  type: file
+  content:
+    src: ipaas.jpg
+scripts:
+  - type: afterResponse
+    code: |-
+      let responseSize=pm.response.size();
+      pm.test("Verify response sizes",()=>{
+          pm.expect(Number(responseSize.total)).to.above(251000);
+          pm.expect(Number(responseSize.total)).to.above(252000);
+          //pm.expect(Number(responseSize.body)).to.eql(257543);
+          //pm.expect(Number(responseSize.header)).to.be.below(500);
+          }
+      );
+
+      pm.test("Content-Type is multipart", () => {
+        pm.expect(pm.response.headers.get('Content-Type')).to.eql('multipart/form-data; boundary=--------------------------Assimbly');
+      });
+    language: text/javascript
+order: 61000

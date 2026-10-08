@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ContentRouter"
+method: POST
+body:
+  type: xml
+  content: |-
+    <INBOUND_ORDER xmlns="urn:ifsworld-com:schemas:handle_inbound_order">
+            <DELIVERY_LEADTIME>1.0</DELIVERY_LEADTIME>
+            <DELNOTE_DATE>2013-05-17T09:07:58</DELNOTE_DATE>
+    </INBOUND_ORDER>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `//*:DELIVERY_LEADTIME[text() = 1.0]`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));    
+      });
+    language: text/javascript
+order: 18000

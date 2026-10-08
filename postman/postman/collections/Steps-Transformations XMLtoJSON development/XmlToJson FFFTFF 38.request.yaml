@@ -1,0 +1,48 @@
+$kind: http-request
+name: XmlToJson FFFTFF 38
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?c\
+  onfig=FFFTFF"
+method: POST
+queryParams:
+  config: FFFTFF
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <AssemblyRecord>
+    	<organisation_id>02_13440</organisation_id>
+    	<company null="false">Melkveebedrijf van Vugt</company>
+    	<firstname null="true"/>
+    	<lastname null="true"/>
+    	<street null="false">Liesdaalweg</street>
+    </AssemblyRecord>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`{
+          "organisation_id": "02_13440",
+          "company": {
+              "@null": "false",
+              "#text": "Melkveebedrijf van Vugt"
+          },
+          "firstname": {
+              "@null": "true"
+          },
+          "lastname": {
+              "@null": "true"
+          },
+          "street": {
+              "@null": "false",
+              "#text": "Liesdaalweg"
+          }
+      }`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 138000

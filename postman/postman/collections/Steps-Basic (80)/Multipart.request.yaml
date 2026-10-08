@@ -1,0 +1,41 @@
+$kind: http-request
+name: Multipart
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_Multipart"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `Message Body:\r
+
+      \r
+
+      ----------------------------Assimbly\r
+
+      Content-Disposition: form-data; name=\"SecondPart\"; filename=\"UndefinedFileName\"\r
+
+      Content-Type: multipart/form-data\r
+
+      Content-Transfer-Encoding: binary\r
+
+      \r
+
+      Message Body:\r
+
+      ----------------------------Assimbly--\r
+
+      `;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual.replace(/[\\r\\n\\t\\s]/g, \"\")).to.eql(expected.replace(/[\\r\\n\\t\\s]/g, \"\"));     \r
+
+      });\r\n"
+    language: text/javascript
+order: 22556

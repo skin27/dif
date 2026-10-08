@@ -1,0 +1,42 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FlowPropert\
+  iesTransformations_11"
+method: POST
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <breakfast_menu>
+        <food>
+            <name>food1</name>
+            <price>1</price>
+            <description>desc1</description>
+        </food>
+        <food>
+            <name>food2</name>
+            <price>2</price>
+            <description>desc2</description>
+        </food>
+        <food>
+            <name>food3</name>
+            <price>3</price>
+            <description>desc3</description>
+        </food>
+    </breakfast_menu>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `"line","ID","Name","Number"
+      1,"1","Pete","1001"
+      2,"2","John","1002"
+      3,"3","Frank","1003"
+      4,"4","Max","1004"`;
+
+      const actual = pm.response.text();
+
+      pm.test("expected body", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 49000

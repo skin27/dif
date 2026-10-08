@@ -1,0 +1,59 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToExcel_\
+  index_asc?type=XmlToExcel_index_asc"
+method: POST
+queryParams:
+  type: XmlToExcel_index_asc
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <breakfast_menu>
+        <foods>
+            <food>
+                <name>food3</name>
+                <price>3</price>
+                <description>desc3</description>
+            </food>
+            <food>
+                <name>food1</name>
+                <price>1</price>
+                <description>desc1</description>
+            </food>
+            <food>
+                <name>food2</name>
+                <price>2</price>
+                <description>desc2</description>
+            </food>
+        </foods>
+    </breakfast_menu>
+scripts:
+  - type: afterResponse
+    code: |-
+      //const expected = ``;
+
+      //const actual = pm.response.text();
+
+      //pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+      //    pm.response.to.not.be.error;
+      //    pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      //});
+
+      //pm.test("Content-Type header is image/jpg", () => {
+      //  pm.expect(pm.response.headers.get('Content-Type')).to.eql('image/jpg');
+      //});
+
+      let responseSize=pm.response.size();
+      pm.test("Verify response sizes",()=>{
+          pm.expect(Number(responseSize.total)).to.below(4100);
+          pm.expect(Number(responseSize.body)).to.above(3370);
+          pm.expect(Number(responseSize.body)).to.below(4000);
+      //    pm.expect(Number(responseSize.header)).to.be.below(500);
+          }
+      );
+    language: text/javascript
+order: 124000

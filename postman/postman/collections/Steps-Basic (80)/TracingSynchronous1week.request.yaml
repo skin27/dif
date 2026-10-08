@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/TracingSynchronous1week"
+method: POST
+headers:
+  environment: "{{ENVIRONMENT}}"
+body:
+  type: json
+  content: TracingSynchronous1week
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = '<?xml version="1.0" encoding="UTF-8"?><Enriched><employees><employee><element><job/></element><element><name>John</name><id>2</id><job>carpenter</job></element><element><name>Frank</name><id>3</id><job>mason</job></element><element><name>Max</name><id>4</id><job>painter</job></element></employee></employees></Enriched>';
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 59000

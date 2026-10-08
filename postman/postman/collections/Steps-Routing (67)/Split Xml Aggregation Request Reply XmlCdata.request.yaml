@@ -1,0 +1,41 @@
+$kind: http-request
+name: Split Xml Aggregation Request Reply XmlCdata
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SplitXml_xml_aggr_rr_cdata"
+method: POST
+body:
+  type: xml
+  content: ""
+scripts:
+  - type: beforeRequest
+    code: pm.globals.set("FLOW_NAME", "RecipientSynchronousOneWay");
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <Aggregated>
+          <veld>
+      		Text
+      	</veld>
+          <veld>
+              <![CDATA[
+              <?xml version="1.0" encoding="UTF-8"?><veld2a>2a</veld2a>]]>
+      	
+          </veld>
+          <veld>
+              <![CDATA[Text]]>
+      	
+          </veld>
+      </Aggregated>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 53000

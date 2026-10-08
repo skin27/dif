@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpsOutboundHttpStatusCodes?StatusCode=201"
+method: POST
+headers:
+  url: https://httpbin.org:81/delay/1
+queryParams:
+  StatusCode: "201"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code", function () {
+          pm.response.to.have.status(201);
+          });
+
+      pm.test("Body matches string", function () {
+          pm.expect(pm.response.text()).to.include('201 Created');
+          });
+    language: text/javascript
+order: 31000

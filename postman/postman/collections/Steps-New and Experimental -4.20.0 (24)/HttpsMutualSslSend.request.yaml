@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpsMutualSslSend"
+method: POST
+auth:
+  type: noauth
+order: 4307768747521981

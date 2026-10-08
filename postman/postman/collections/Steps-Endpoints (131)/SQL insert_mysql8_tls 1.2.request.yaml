@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SQL_insert_mysql8_tls1_2"
+method: POST
+headers:
+  name: body
+  value: '{"body":"abc\ndef"}'
+body:
+  type: json
+  content: ""
+order: 89000

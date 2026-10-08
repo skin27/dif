@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Velocity_flow_property"
+method: POST
+headers:
+  YourHeaderName: B
+body:
+  type: xml
+  content: |-
+    <element>
+        <id>abc</id>
+    </element>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `Regression Tests`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));    
+      });
+    language: text/javascript
+order: 116000

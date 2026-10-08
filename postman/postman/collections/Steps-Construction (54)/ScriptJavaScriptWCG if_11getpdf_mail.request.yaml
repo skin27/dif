@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptJavaScriptWCG_if_11getpdf_mai"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Source-Email", () => {
+        pm.expect(pm.response.headers.get('Source-Email')).to.eql('mi.gan@abc.com');
+      });
+    language: text/javascript
+order: 41000

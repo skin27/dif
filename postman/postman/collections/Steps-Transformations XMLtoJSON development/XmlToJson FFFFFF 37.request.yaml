@@ -1,0 +1,18 @@
+$kind: http-request
+name: XmlToJson FFFFFF 37
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?config=FFFFFF"
+method: POST
+queryParams:
+  config: FFFFFF
+body:
+  type: xml
+  content: |-
+    <e>
+    	<CustomerPartRef>Seagate ST4000VX016</CustomerPartRef>
+    	<Quantity type="integer">abc</Quantity>
+    </e>
+scripts:
+  - type: afterResponse
+    code: ""
+    language: text/javascript
+order: 135000

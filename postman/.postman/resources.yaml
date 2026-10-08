@@ -1,0 +1,44 @@
+workspace:
+  id: 4aa75975-9248-45b5-8d47-c9a36154d96e
+
+localResources:
+  collections:
+    - ../postman/collections/Steps-Construction (54)
+    - ../postman/collections/Steps-Basic (80)
+    - ../postman/collections/Steps-Transformations JSONtoXML (64)
+    - ../postman/collections/zAnalysis
+    - ../postman/collections/Customer Cases (9)
+    - ../postman/collections/Steps-Routing (67)
+    - ../postman/collections/Zissues
+    - ../postman/collections/Steps-Flowlinks 4.17.x (16)
+    - ../postman/collections/Steps-Endpoints (131)
+    - ../postman/collections/Comp-Transformations XMLtoJSON (1600)
+    - ../postman/collections/Steps-Transformations (200)
+  environments:
+    - ../postman/environments/next.environment.yaml
+    - ../postman/environments/acceptance fx.environment.yaml
+    - ../postman/environments/acceptance dt.environment.yaml
+    - ../postman/environments/demo.environment.yaml
+    - ../postman/environments/development.environment.yaml
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/zAnalysis: 1272338-4169c094-01a2-4143-b70f-41d5ed112b9b
+    ../postman/collections/Customer Cases (9): 1272338-4c534e21-c629-4a5c-8e69-cb3e097dda41
+    ../postman/collections/Zissues: 1272338-96feb4b4-fcd8-4f16-89ea-1a0cb808995a
+    ../postman/collections/Comp-Transformations XMLtoJSON (1600): 1272338-d3dc24c2-0328-4086-b3eb-bd7f27846283
+    ../postman/collections/Steps-Basic (80): 1272338-21d36de6-5c59-45cc-bb3c-74dfafb4cc48
+    ../postman/collections/Steps-Transformations JSONtoXML (64): 1272338-3989f786-aecf-47ea-a19f-0c2c9fa2bedf
+    ../postman/collections/Steps-Flowlinks 4.17.x (16): 1272338-9a0a1d5b-8f02-41ec-a7ce-ceced8ed0281
+    ../postman/collections/Steps-Construction (54): 1272338-1656ea89-3903-4fcf-aa5a-d8f27d9bdfff
+    ../postman/collections/Steps-Endpoints (131): 1272338-9b1048b1-e3ae-4a74-aa17-3fd3086f6eb9
+    ../postman/collections/Steps-Routing (67): 1272338-60aeae1d-f251-4aa6-b62d-24a6ebf96217
+    ../postman/collections/Steps-Transformations (200): 1272338-e91208db-5812-4bd6-a44f-8fd0b42dc577
+  environments:
+    ../postman/environments/next.environment.yaml: 1272338-2faead15-4137-4215-97d1-2d08956dc032
+    ../postman/environments/acceptance fx.environment.yaml: 1272338-3e871de7-709d-4af2-bb32-7625b65968ec
+    ../postman/environments/acceptance dt.environment.yaml: 1272338-a4652f05-d59e-47c7-a102-44d2f064dfed
+    ../postman/environments/demo.environment.yaml: 1272338-a50e582a-dc2d-4786-a6b2-736dc3d7a67e
+    ../postman/environments/development.environment.yaml: 1272338-b17bf564-5b09-40aa-8e74-81f9da845b4f

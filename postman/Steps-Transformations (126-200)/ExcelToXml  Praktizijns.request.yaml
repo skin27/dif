@@ -1,0 +1,2127 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ExcelToXml_praktizijns"
+method: POST
+body:
+  type: file
+  content:
+    src: praktizijns.xlsx
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<?xml version="1.0" encoding="UTF-8"?>
+      <Excel>
+          <item>
+              <excelRow>
+                  <documentsoort>AB</documentsoort>
+                  <omschr.docsoort>Artikel in bundel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Bijdrage in bundel</omschr.rubriek>
+                  <volgnr>23541</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AB/15/23541</bibiscode>
+                  <exemplaarcode>AB/15/23541 : 2022//01</exemplaarcode>
+                  <titel>De afstandelijke rechter</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>Bijzonderheden in het strafrecht        </brongegevens>
+                  <titelrelatie>Bijzonderheden in het strafrecht : Liber Amicorum Henny Sackers</titelrelatie>
+                  <auteurs>Corstens, G.J.M. [Geert]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9.78901E+12</ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>208 BIJZ                        </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/9942/9789013169942_20230120_154352.jpg</coverlink>
+                  <samenvatting>Betoog van de auteur over een kernwaarde van de rechtsstaat: de rechterlijke onpartijdigheid. Hierbij doet hij een beroep op een literair werk: De kinderwet van Ian McEwan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </samenvatting>
+                  <Creatie>20230202</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AB</documentsoort>
+                  <omschr.docsoort>Artikel in bundel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Bijdrage in bundel</omschr.rubriek>
+                  <volgnr>23730</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AB/23/23730</bibiscode>
+                  <exemplaarcode>AB/23/23730 : 2022//01</exemplaarcode>
+                  <titel>De grondslag van de boete bij omkering van de bewijslast: nog steeds een steen des aanstoots?</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Rara avis</titelrelatie>
+                  <auteurs>Okhuizen, E.C.G. [Elise]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord>Bewijslast , Bestuurlijke boete , Belastingrecht</trefwoord>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9.78901E+12</ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>208 RARA                        </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/2210/9789013170221.jpg</coverlink>
+                  <samenvatting/>
+                  <Creatie>20230216</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AB</documentsoort>
+                  <omschr.docsoort>Artikel in bundel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Bijdrage in bundel</omschr.rubriek>
+                  <volgnr>23363</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AB/28/23363</bibiscode>
+                  <exemplaarcode>AB/28/23363 : 2022//01</exemplaarcode>
+                  <titel>Geschilbeslechting en tuchtrecht in de sport</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Capita sportrecht</titelrelatie>
+                  <auteurs>Koolaard, D.M. [Dennis]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>                                                                        </plaatsvanuitgave>
+                  <uitgever>Gompel en Svacina</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord>Tuchtrecht , Geschilbeslechting , Sportrecht</trefwoord>
+                  <geogr.trefwoord/>
+                  <extrarubriek>13</extrarubriek>
+                  <omsch.extrarubriek>Burgerlijke rechtsvordering / Rechterlijke organisatie</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9.78946E+12</ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/9789463712767_front.jpg</coverlink>
+                  <samenvatting/>
+                  <Creatie>20230110</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72558</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/28/72558</bibiscode>
+                  <exemplaarcode>AV/28/72558 : 2023//01</exemplaarcode>
+                  <titel>Op zoek naar procedurele rechtvaardigheid in de stadionverbodenprocedure van de KNVB</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Nederlands Juristenblad NJB 2023, afl. 4</titelrelatie>
+                  <auteurs>Brekel, M.C.J. [Marion] van den | Zwart-Hink, A.M. [Andrea ook: A.M. Zwart] | Zebel, S. [Sven]</auteurs>
+                  <aut.functie>AU | AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>https://research.vu.nl/files/211302307/Op_zoek_naar_procedurele_rechtvaardigheid_in_de_stadionverbodenprocedure_van_de_KNVB.pdf                                                                                                                                                                                                                                                                                 </webadres>
+                  <webadresomsch.>Volledige tekst publicatie                                                                                              </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/NJB.jpg</coverlink>
+                  <samenvatting>In Nederland kennen we met het civielrechtelijk stadionverbod een uniek instrument om voetbalsupporters die zich misdragen aan te pakken. Supporters kunnen in beroep gaan bij de Commissie stadionverboden tegen de oplegging van het stadionverbod. Deze procedure blijkt door hen echter als niet-transparant te worden ervaren. Nu het resultaat haast zelden bevredigend is in beroepszaken én het aantal stadionverboden toeneemt, is het van belang te kijken naar de door voetbalsupporters ervaren procedurele rechtvaardigheid in deze beroepsprocedure.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         </samenvatting>
+                  <Creatie>20230127</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72630</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72630</bibiscode>
+                  <exemplaarcode>AV/13/72630 : 2023//01</exemplaarcode>
+                  <titel>Rechtsbijstand zonder vrees voor sancties: Contant geld en de rechtsstatelijke rol van de advocaat</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Ars Aequi 2023, afl. 2</titelrelatie>
+                  <auteurs>Pulles, G.J.W. [Gerrit Jan]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Nijmegen                                                                </plaatsvanuitgave>
+                  <uitgever>Ars Aequi Libri</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/aa kwartaalsignaal.jpg</coverlink>
+                  <samenvatting>Volgens in juli 2022 gepubliceerde uitkomsten van een onderzoek onder strafrechtkantoren neemt een groot deel van de Nederlandse (straf)advocaten contant geld aan. Sommige commentatoren verbonden daaraan de conclusie dat deze advocaten daardoor mee zouden hebben gewerkt aan heling en witwassen.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </samenvatting>
+                  <Creatie>20230214</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72634</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72634</bibiscode>
+                  <exemplaarcode>AV/13/72634 : 2023//01</exemplaarcode>
+                  <titel>De strafjury en haar taak</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Ars Aequi 2023, afl. 2</titelrelatie>
+                  <auteurs>Koppen, P.J. [Peter] van </auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Nijmegen                                                                </plaatsvanuitgave>
+                  <uitgever>Ars Aequi Libri</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/aa kwartaalsignaal.jpg</coverlink>
+                  <samenvatting>In dit artikel bespreekt de auteur juryrechtspraak, vooral die in België en in de Verenigde Staten. Juryrechtspraak is een stuk ingewikkelder dan men vaak denkt en juryrechtspraak heeft voor menigeen onvermoede neveneffecten.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </samenvatting>
+                  <Creatie>20230214</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72676</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72676</bibiscode>
+                  <exemplaarcode>AV/13/72676 : 2023//01</exemplaarcode>
+                  <titel>Recht, plicht, remedie: Bespreking van het proefschrift van ¡mr. W. Th. Nuninga</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Maandblad voor Vermogensrecht 2023, afl. 1</titelrelatie>
+                  <auteurs>Castermans, A.G. [Alex ook: Alex Geert] | Haentjens, M.H. [Matthias] | Jansen, K.J.O. [Kasper] | Keirse, A.L.M. [Anne] | Krans, H.B. [Bart] | Mak, V. [Vanessa] | Verheij, A.J. [Albert] </auteurs>
+                  <aut.functie>AU | AU | AU | AU | AU | AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Den Haag                                                                </plaatsvanuitgave>
+                  <uitgever>Boom Juridische Uitgevers</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/Maandblad voor vermogensrecht.jpg</coverlink>
+                  <samenvatting>Deze bijdrage is een verslag van de discussie die de leden van de lees- en oppositiecommissie hebben gevoerd over het proefschrift Recht, plicht, remedie.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 </samenvatting>
+                  <Creatie>20230223</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72696</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72696</bibiscode>
+                  <exemplaarcode>AV/13/72696 : 2023//01</exemplaarcode>
+                  <titel>Serie: De procespraktijk en het wapen van cassatie, deel 3: Valkuilen in hoger beroep en de procedure na vernietiging en verwijzing</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>TvPP : Tijdschrift voor de procespraktijk 2023, afl. 1</titelrelatie>
+                  <auteurs>Steenhoven, M. [Maartje] van den | Janssens, C. [Caspar]</auteurs>
+                  <aut.functie>AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Zutphen                                                                 </plaatsvanuitgave>
+                  <uitgever>Paris</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/TvPP_Tijdschrift voor de ProcesPraktijk.jpg</coverlink>
+                  <samenvatting>Het cassatieberoep is een van onze drie gewone rechtsmiddelen. De procedure is echter verre van 'gewoon' en kent veel bijzondere aspecten die zich in feitelijke instanties niet voordoen. Advocaten in feitelijke instanties zijn niet altijd op deze aspecten bedacht, waardoor een cassatieprocedure minder kansrijk is of zelfs niet mogelijk is met enige kans op succes.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </samenvatting>
+                  <Creatie>20230223</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72697</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72697</bibiscode>
+                  <exemplaarcode>AV/13/72697 : 2023//01</exemplaarcode>
+                  <titel>Wie vraagt, die draagt: over de kosten van het voorlopig getuigenverhoor</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>TvPP : Tijdschrift voor de procespraktijk 2023, afl. 1</titelrelatie>
+                  <auteurs>Andes, R.M. [Robert] | Malssen, T. [Tom] van</auteurs>
+                  <aut.functie>AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Zutphen                                                                 </plaatsvanuitgave>
+                  <uitgever>Paris</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/TvPP_Tijdschrift voor de ProcesPraktijk.jpg</coverlink>
+                  <samenvatting>In deze bijdrage staan de kosten van het voorlopig getuigenverhoor centraal.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </samenvatting>
+                  <Creatie>20230223</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72698</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72698</bibiscode>
+                  <exemplaarcode>AV/13/72698 : 2023//01</exemplaarcode>
+                  <titel>Corona blijft invloed houden op de rechtspraak (XI)</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>TvPP : Tijdschrift voor de procespraktijk 2023, afl. 1</titelrelatie>
+                  <auteurs>Jongbloed, A.W. [Ton]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Zutphen                                                                 </plaatsvanuitgave>
+                  <uitgever>Paris</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/TvPP_Tijdschrift voor de ProcesPraktijk.jpg</coverlink>
+                  <samenvatting>De uitspraak HR 24 december 2021, ECLI:NL:HR:2021:1974, is al diverse malen in deze rubriek ter sprake gekomen. De Hoge Raad oordeelde in die uitspraak dat de coronapandemie een onvoorziene omstandigheid in de zin van artikel 6:258 Burgerlijk Wetboek kan zijn. In zaken die al aanhangig waren voor deze uitspraak volgt de rechter vaak dit oordeel zonder partijen zich daarover expliciet te laten uitlaten, omdat dit punt vaak al in de stellingen van partijen aan bod is gekomen.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </samenvatting>
+                  <Creatie>20230223</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72280</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72280</bibiscode>
+                  <exemplaarcode>AV/13/72280 : 2022//01</exemplaarcode>
+                  <titel>Een eerlijk proces in het punitive damages-debat</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel>Aansprakelijkheid, Verzekering &amp; Schade [AV&amp;S]. ISSN 1567-7761 .</brontitel>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Aansprakelijkheid Verzekering en Schade AV&amp;S 2022, afl. 6</titelrelatie>
+                  <auteurs>Meurkens, R.C. [Lotte]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord>Nederland , Europa , Verenigde Staten VS / USA</geogr.trefwoord>
+                  <extrarubriek>4</extrarubriek>
+                  <omsch.extrarubriek>Verbintenissenrecht / Bijzondere overeenkomsten</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/Aansprakelijkheid Verzekering Schade.jpg</coverlink>
+                  <samenvatting>Deze bijdrage betreft de vraag of oplegging door de civiele rechter van de sanctie punitive damages moet worden aangemerkt als criminal charge in de zin van artikel 6 EVRM. In dat geval zijn niet alleen de algemene waarborgen van lid 1, maar ook de strafrechtelijke waarborgen van lid 2 en 3 van toepassing. Dit heeft gevolgen voor het civiele proces en voor de toekomst van punitive damages in continentaal Europa. Ter beantwoording van deze vraag zal relevante rechtspraak van het EHRM aan bod komen, alsmede de wijze waarop het recht op een eerlijk proces in het Amerikaanse punitive damages recht wordt ingevuld.                                                                                                                                                                                                                                                                                                                                                                                                                        </samenvatting>
+                  <Creatie>20221229</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72327</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72327</bibiscode>
+                  <exemplaarcode>AV/13/72327 : 2022//01</exemplaarcode>
+                  <titel>Stop, verboden te procederen</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Vastgoedrecht 2022, afl. 6</titelrelatie>
+                  <auteurs>Wind-Middel, I.J. [Ingeborg] | Lozeman, J. [Joel]</auteurs>
+                  <aut.functie>AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Zutphen                                                                 </plaatsvanuitgave>
+                  <uitgever>Paris</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek>16</extrarubriek>
+                  <omsch.extrarubriek>Bouwrecht</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/Vastgoedrecht.jpg</coverlink>
+                  <samenvatting>In het vonnis van 8 april 2022 gebood de voorzieningenrechter van de rechtbank Noord-Holland een belangenorganisatie om haar beroep tegen de voor de realisatie van een woonwijk benodigde omgevingsvergunningen bouwen in te trekken op laste van een dwangsom.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </samenvatting>
+                  <Creatie>20221230</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72446</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72446</bibiscode>
+                  <exemplaarcode>AV/13/72446 : 2023//01</exemplaarcode>
+                  <titel>Weerbare rechtspraak | : Over het recht en soms de plicht van rechters om zich publiekelijk uit te spreken</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Nederlands Juristenblad NJB 2023, afl. 1</titelrelatie>
+                  <auteurs>Werd, M.F.J.M. [Marc] de</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/NJB.jpg</coverlink>
+                  <samenvatting>Opinie nr. 25 van de Conseil Consultatif de Juges Européens (CCJE), een adviesraad van Europese rechters bij de Raad van Europa, verlangt weerbaarheid van rechters inzake de bescherming van de rechtsstaat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   </samenvatting>
+                  <Creatie>20230109</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72472</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72472</bibiscode>
+                  <exemplaarcode>AV/13/72472 : 2023//01</exemplaarcode>
+                  <titel>Belofte maakt schuld?</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Nederlands Juristenblad NJB 2023, afl. 2</titelrelatie>
+                  <auteurs>Drion, C.E. [Coen]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/NJB.jpg</coverlink>
+                  <samenvatting>'Eens, mijn zoon, zal dit alles van jou zijn.' Die belofte in deze welgemeende woorden, of bewoordingen van gelijke strekking, deed een vader aan zijn oudste zoon op een goede dag aan het begin van de jaren tachtig van de vorige eeuw. 'Dit alles' was daarbij een aanzienlijk deel van het boerenbedrijf dat de vader en moeder uitoefenden, een deel dat in ieder geval groot genoeg zou zijn voor de zoon om daar met de zijnen van te kunnen leven, en 'eens' zou het moment zijn dat de ouders zouden overlijden of dat bedrijf niet meer konden runnen. De zoon had het goed gehoord en begon niet lang daarna (na het eerst nog voltooien van zijn middelbare school) te werken op dat gedeelte van de boerderij dat later het zijne zou zijn, tegen een bedrag dat, na een iets hoger begin, vanaf 1996 veel lager lag dan het gebruikelijke loon.&lt;BR/&gt;                                                                                                                                                                                             </samenvatting>
+                  <Creatie>20230117</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72475</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/13/72475</bibiscode>
+                  <exemplaarcode>AV/13/72475 : 2023//01</exemplaarcode>
+                  <titel>Maatschappelijk effectieve rechtspraak bij de Centrale Raad van Beroep: Ervaringen met probleemoplossende bestuursrechtspraak in hoger beroep</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Nederlands Juristenblad NJB 2023, afl. 2</titelrelatie>
+                  <auteurs>Stoepker, G.J. [Giel] | Schulmer, F.M.E.</auteurs>
+                  <aut.functie>AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/NJB.jpg</coverlink>
+                  <samenvatting>Binnen de Centrale Raad van Beroep wordt geëxperimenteerd met een nieuwe oplossingsgerichte afdoeningsmodaliteit, vooralsnog alleen in bijstandszaken. Een eerste onderzoek naar de resultaten van dit project genaamd 'Gericht Op Oplossing' (GOO) is bemoedigend. Uit het onderzoek blijkt dat de respondenten - zowel burgers als gemachtigden - over de hele linie zeer tevreden zijn over de GOO-behandeling.&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         </samenvatting>
+                  <Creatie>20230117</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72453</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/12/72453</bibiscode>
+                  <exemplaarcode>AV/12/72453 : 2022//01</exemplaarcode>
+                  <titel>Economen in de getuigenbank | : rechters, stel uw vraag!</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel>Markt en Mededinging [M&amp;M]  ISSN 1387-6236 .</brontitel>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>Markt en Mededinging 2022, afl. 5 &amp; 6</titelrelatie>
+                  <auteurs>Niels, G.T. [Gunnar]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Den Haag                                                                </plaatsvanuitgave>
+                  <uitgever>Boom Juridische Uitgevers</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek>13</extrarubriek>
+                  <omsch.extrarubriek>Burgerlijke rechtsvordering / Rechterlijke organisatie</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>https://www.bjutijdschriften.nl/tijdschrift/marktenmededinging/2022/4/MenM_1387-6236_2022_025_004_002                                                                                                                                                                                                                                                                                                           </webadres>
+                  <webadresomsch.>Volledige tekst publicatie                                                                                              </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/M_en_M_omslag_large.jpg</coverlink>
+                  <samenvatting>Rechters zijn (op een aantal uitzonderingen na) geen specialisten in economie. Hoe kunnen zij het beste omgaan met de vaak complexe economische materie die wordt ingebracht door partijen?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </samenvatting>
+                  <Creatie>20230113</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72420</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/4/72420</bibiscode>
+                  <exemplaarcode>AV/4/72420 : 2022//01</exemplaarcode>
+                  <titel>Beroepsaansprakelijkheid van de gerechtsdeskundige; aansprakelijk voor gebrekkige opdrachtvervulling?</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>VAST: Verzekering, aansprakelijkheid, schade en toezicht 2022, afl. 4</titelrelatie>
+                  <auteurs>Vorst, P.R. [Patrick] van der</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>                                                                        </plaatsvanuitgave>
+                  <uitgever/>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek>13</extrarubriek>
+                  <omsch.extrarubriek>Burgerlijke rechtsvordering / Rechterlijke organisatie</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/VAST.png</coverlink>
+                  <samenvatting>Kan een gerechtsdeskundige worden aangesproken op een gebrekkige vervulling van zijn opdracht nadat deze in een procedure een deskundigenbericht heeft afgeleverd en partijen daarover zijn uitgeprocedeerd? Of dat kan, welke maatstaf daarvoor geldt en welke perikelen daarbij kunnen komen kijken, zal ik in dit artikel bespreken.&lt;BR/&gt;&lt;BR/&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </samenvatting>
+                  <Creatie>20230106</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>AV</documentsoort>
+                  <omschr.docsoort>Tijdschriftartikel</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Artikel in tijdschrift</omschr.rubriek>
+                  <volgnr>72433</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>AV/6/72433</bibiscode>
+                  <exemplaarcode>AV/6/72433 : 2022//01</exemplaarcode>
+                  <titel>Zes vragen bij het selecteren van complexe verzekeringsgeschillen voor mediation</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie>VAST: Verzekering, aansprakelijkheid, schade en toezicht 2022, afl. 4</titelrelatie>
+                  <auteurs>Kamminga, Y.P. [Peter]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>                                                                        </plaatsvanuitgave>
+                  <uitgever/>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek>13</extrarubriek>
+                  <omsch.extrarubriek>Burgerlijke rechtsvordering / Rechterlijke organisatie</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>                 </ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>                                </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/0000/VAST.png</coverlink>
+                  <samenvatting>Mediation in verzekeringsgerelateerde zaken is in de Verenigde Staten na ruim veertig jaar mainstream. Honderden grote verzekeringszaken per jaar worden via mediation opgelost. Bij ons in Nederland is het nog niet zover, maar het lijkt inmiddels wel uit de kinderschoenen. Er is een aantal voorbeelden van zaken waar met mediation in relatief korte tijd grote schikkingen werden bereikt en jaren procederen is voorkomen. Ook zijn er de laatste jaren meer complexe zaken zoals de massaschadeclaims in het kader van de Wet Afwikkeling Massaschade in Collectieve Actie (WAMCA) die zich wellicht goed voor mediation lenen. Vaak zijn de resultaten van een mediationproces goed, maar het gaat ook wel eens mis. Hoe bepaal je als partij nu vooraf of in een individueel geschil een mediationaanpak een goede kans van slagen heeft of niet?&lt;BR/&gt;&lt;BR/&gt;                                                                                                                                                                                        </samenvatting>
+                  <Creatie>20230106</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>2312</volgnr>
+                  <jaar>2023</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>BK/13/2312</bibiscode>
+                  <exemplaarcode>BK/13/2312 : 2023//01</exemplaarcode>
+                  <titel>Procesrecht | : Bewijs</titel>
+                  <serietitel>Asser-serie Procesrecht</serietitel>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie/>
+                  <auteurs>Asser, W.D.H. [Daan] </auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2023</jaarvanuitgave>
+                  <annotatie>in bibliotheekkast: 1e dr. (2013), 2e dr. (2017)|</annotatie>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie>3e dr.</editie>
+                  <ISBN>9789013164053</ISBN>
+                  <collatie>XLVI, 486 p.                                                </collatie>
+                  <vindplaats>501.3 ASSE IIII                 </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/4053/9789013164053_20230123_115834.jpg</coverlink>
+                  <samenvatting>Dit Asser-deel verschaft inzicht in de verschillende kernthema's rondom bewijsvoering in het civiele proces. De praktijkgeoriënteerde lezer krijgt inzicht in verschillende aspecten van het civiele bewijs, waaronder de vertrouwelijkheid van de informatie, de betrouwbaarheid van informatiebronnen en de preprocessuele verzameling van informatie.&lt;BR/&gt;&lt;BR/&gt;Feitelijke informatie staat aan de basis van elke rechterlijke uitspraak. Asser-deel Procesrecht 3 Bewijs behandelt de gehele range aan thema?s rondom de vergaring, beoordeling en toepassing van informatie in de rechtspraak. De uitgave kenmerkt zich door een thematische opzet, die de verbanden tussen alle aspecten van het burgerlijk bewijs voor de lezer inzichtelijk maakt.&lt;BR/&gt;&lt;BR/&gt;De auteur neemt de waarheidsvinding in het civiele proces als uitgangspunt. Een gezond proces vereist immers voldoende informatie om de partijen in staat te stellen tot een behoorlijk debat en de rechter tot een feitelijk solide uitspraak. Deze uitgave verheldert de actuele regels vanhet civiele bewijsrecht en de manier waarop zij in de rechtspraktijk worden toegepast.&lt;BR/&gt;&lt;BR/&gt;Thema's civiele proces&lt;BR/&gt;Asser-deel Procesrecht 3 Bewijs belicht enerzijds de fundamentele uitgangspunten van het bewijsrecht, zoals de rol van het feit in de rechtstoepassing, de waarheidsvinding en de grenzen daaraan. Daarnaast komen uiteenlopende thema's aan bod met betrekking tot de informatie die in het civiele proces wordt gegeven, gevraagd, verkregen en soms afgedwongen. Dit zijn onder meer de vertrouwelijkheid van de informatie, betrouwbaarheid van de informatiebronnen en preprocessuele verzameling van informatie.&lt;BR/&gt;&lt;BR/&gt;Bewijsrecht actueel&lt;BR/&gt;De actuele ontwikkelingen in het civiele bewijsrecht vragen om de nodige verdieping, met name het wetsvoorstel Vereenvoudiging en modernisering burgerlijk bewijsrecht. Deze uitgave belicht de verschillende aspecten van de in het wetsvoorstel voorgestelde vernieuwingen van het bewijsrecht.&lt;BR/&gt;&lt;BR/&gt;Bewijsmiddelen&lt;BR/&gt;De auteur staat niet alleen stil bij de        algemene voorschriften van bewijsrecht, maar tevens bij de concrete bewijsmiddelen, zoals geschriften, getuigen en deskundigen. Deze elementen komen terugkerend per thema aan bod. De uitgave sluit af met een beschouwing op de bewijslastverdeling, die ook in de werkelijkheid van het proces het sluitstuk vormt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </samenvatting>
+                  <Creatie>20230123</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>5064</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>BK/13/5064</bibiscode>
+                  <exemplaarcode>BK/13/5064 : 2022//01</exemplaarcode>
+                  <titel>De integere rechter | : Ethiek en praktijk van het rechterlijk beroep</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie/>
+                  <auteurs>Kwak, A.J. [Arie-Jan] | Venema, D. [Derk]</auteurs>
+                  <aut.functie>AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Den Haag                                                                </plaatsvanuitgave>
+                  <uitgever>Boom Juridische Uitgevers</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9789462127401</ISBN>
+                  <collatie>212 p.                                                      </collatie>
+                  <vindplaats>302 KWAK                        </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/7401/9789462127401_20230123_131848.jpg</coverlink>
+                  <samenvatting>De integriteit van de rechter is, net als die van andere publieke functionarissen, steeds vaker onderwerp van discussie en kritiek. Maar wat houdt integriteit precies in? De integere rechter gaat uit van het idee dat integriteit bestaat uit trouw van de rechterlijk ambtenaar aan de eigen institutionele waarden en normen. Integriteit is dus een overkoepelende norm die voor de rechter voorschrijft dat hij zich consequent onpartijdig, onafhankelijk, autonoom en professioneel gedraagt.&lt;BR/&gt;&lt;BR/&gt;De integere rechter biedt zowel een theoretische bespreking van rechterlijke beroepsethiek als een meer praktische reflectie op de concrete dilemma?s waarmee de rechter in zijn werk en privéleven geconfronteerd kan worden. Het biedt verder een bespreking van de rechterlijke onpartijdigheid en onafhankelijkheid in de context van de democratische rechtsstaat en van autonomie en professionaliteit in de context van de moderne rechterlijke organisatie.                                                                             </samenvatting>
+                  <Creatie>20230123</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>1356</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>BR/13/1356</bibiscode>
+                  <exemplaarcode>BR/13/1356 : 2022//01</exemplaarcode>
+                  <titel>Rechtsmiddelen | : Enkele gedachten over de rechtspraak in drie instanties</titel>
+                  <serietitel>Montaigne Centrum</serietitel>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie/>
+                  <auteurs>Verkerk, R.R. [Remme]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Den Haag                                                                </plaatsvanuitgave>
+                  <uitgever>Boom Juridische Uitgevers</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie>Rede, uitgesproken 8 december 2022, Universiteit Utrecht</annotatie>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9789462127579</ISBN>
+                  <collatie>45 p.                                                       </collatie>
+                  <vindplaats>Broch. 3291                     </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/7579/9789462127579_20230214_155422.jpg</coverlink>
+                  <samenvatting>Het burgerlijk procesrecht gaat in zekere zin om het vinden van het juiste evenwicht tussen procedurele waarborgen aan de ene kant en doelmatigheid aan de andere kant.&lt;BR/&gt;&lt;BR/&gt;Deze rede gaat over rechtsregels die het mogelijk maken eenmaal gewezen rechterlijke uitspraken aan te vechten bij een hogere rechter. De kernboodschap is dat op dit punt het evenwicht zoek is. De bestaande regels over rechtsmiddelen maken ons rechtssysteem te duur, te traag en daardoor voor de meeste burgers en ondernemers onbruikbaar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </samenvatting>
+                  <Creatie>20230214</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>3505</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>PS/19/3505</bibiscode>
+                  <exemplaarcode>PS/19/3505 : 2022//01</exemplaarcode>
+                  <titel>Minderheden in het recht | : Rechtsbescherming van culturele en religieuze minderheden</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie/>
+                  <auteurs>Maduro, G.A.S. [Gerard]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Weert                                                                   </plaatsvanuitgave>
+                  <uitgever>Celsus juridische uitgeverij</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie>Proefschrift, verdedigd 18 november 2021, Vrije Universiteit Amsterdam</annotatie>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9789088633324</ISBN>
+                  <collatie>X, 298 p.                                                   </collatie>
+                  <vindplaats>1102.2 MADU                     </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/3324/9789088633324_20230214_141155.jpg</coverlink>
+                  <samenvatting>Nederland heeft in de loop der jaren allerlei minderheden mogen verwelkomen. Sommige minderheden deden in de rechtszaal een beroep op hun cultuur of religie. Dit leidde soms tot spannende vraagstukken over de factoren die door de rechter werden meegewogen.&lt;BR/&gt;&lt;BR/&gt;In dit boek gaat Gerard Maduro in op de wijzen waarop de Nederlandse rechtspraak voorziet in een beroep op cultuur of religie door minderheden. Allereerst behandelt hij de bescherming van minderheden in het recht. Hierbij komen onder meer aan bod de vrijheid van cultuur (artikel 27 Internationaal Verdrag inzake burgerrechten en politieke rechten), de vrijheid van godsdienst (artikel 9 Europees Verdrag tot bescherming van de rechten van de mens en de fundamentele vrijheden (EVRM) en artikel 6 Grondwet), en juridische beginselen, zoals de scheiding van kerk en staat en de interpretatieve terughoudendheid. Ook van belang is de Nederlandse benadering van gelijke behandeling van godsdiensten in gelijke gevallen.&lt;BR/&gt;&lt;BR/&gt;Vervolgens gaat de auteur in op de reikwijdte van artikel 9 EVRM. In religiegerelateerde zaken wordt namelijk vaak een beroep gedaan op dit artikel omdat deze bepaling rechtstreeks doorwerkt in onze nationale rechtsorde. Niet alleen de reikwijdte van deze verdragsbepaling wordt nader besproken maar ook de toepassing ervan door het Europees Hof voor de Rechten van de Mens.&lt;BR/&gt;&lt;BR/&gt;Tot slot beschrijft de auteur, aan de hand van een bespreking van civiele, bestuursrechtelijke en strafzaken, op welke wijzen rechters in Nederland al dan niet rekening houden met het beroep op cultuur of religie. In het slothoofdstuk worden enkele aanbevelingen gedaan.                                                                                                                                                                                                                                                                                                                                                                                                                  </samenvatting>
+                  <Creatie>20230214</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>10601</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>BK/13/10601</bibiscode>
+                  <exemplaarcode>BK/13/10601 : 2022//01</exemplaarcode>
+                  <titel>Rechter, rechterlijke organisatie en rechtspraak in de democratische rechtsstaat</titel>
+                  <serietitel>Staats- en Bestuursrecht Wetenschap</serietitel>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>                                        </brongegevens>
+                  <titelrelatie/>
+                  <auteurs>Bovend'Eert, P.P.T. [Paul]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Deventer                                                                </plaatsvanuitgave>
+                  <uitgever>Wolters Kluwer</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie>Oorspr. titel: Rechterlijke organisatie, rechters en rechtspraak | | In Archief onder BOVE: 2e dr. (2013)</annotatie>
+                  <trefwoord/>
+                  <geogr.trefwoord/>
+                  <extrarubriek>18</extrarubriek>
+                  <omsch.extrarubriek>Staatsrecht / Bestuursrecht</omsch.extrarubriek>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie>3e dr.</editie>
+                  <ISBN>9789013153088</ISBN>
+                  <collatie>XVII, 599 p.                                                </collatie>
+                  <vindplaats>302 BOVE                        </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/3088/9789013153088_20230119_170956.jpg</coverlink>
+                  <samenvatting>Is de rechterlijke macht een zelfstandige en gelijkwaardige staatsmacht naast de machten regering en parlement? Deze titel geeft inzicht in de inrichting van de rechterlijke organisatie, het ambt van rechter en de uitoefening van de functie van de rechtspraak. Diverse actuele vraagstukken komen aan de orde, net als een analyse van de (grond) wettelijke regelingen. &lt;BR/&gt;&lt;BR/&gt;Zelden is in een overheidsorganisatie zoveel veranderd als de laatste twee decennia in de rechterlijke macht. Niet alleen de inrichting van de rechterlijke organisatie is ingrijpend gewijzigd, maar ook het bestuur en beheer van de gerechten. Dit gebeurde bij de herziening van de Wet RO in 2002 en opnieuw bij de Wet herziening gerechtelijke kaart in 2012. Ook de positie van de rechter in de samenleving is sterk veranderd. Was de rechtspraak vroeger een rustig bezit, dat voornamelijk in juridische kringen besproken werd, tegenwoordig staat Vrouwe Justitia volop ter discussie in de politiek en de maatschappij. &lt;BR/&gt;&lt;BR/&gt;Het gezag van de      rechter is bovendien minder vanzelfsprekend. Het vertrouwen van de burger in de rechtspraak staat niet meer bij voorbaat vast en politiek Den Haag heeft een bijzondere interesse ontwikkeld voor het functioneren van de rechterlijke macht. De onafhankelijkheid van de rechter staat daardoor vandaag de dag onder druk. &lt;BR/&gt;&lt;BR/&gt;Rechter, rechterlijke organisatie en rechtspraak in de democratische rechtsstaat beoogt uit een constitutioneel gezichtspunt inzicht te geven in de inrichting van de rechterlijke organisatie, het ambt van rechter en de uitoefening van de functie van de rechtspraak. Centraal staat de vraag of de rechterlijke macht een zelfstandige en gelijkwaardige staatsmacht is naast en tegenover de beide andere machten, namelijk regering en parlement. &lt;BR/&gt;&lt;BR/&gt;De huidige organisatiestructuur van de rechterlijke macht geeft wat dat betreft reden tot zorg. Recente ontwikkelingen maken duidelijk dat vanuit een oogpunt van rechterlijke onafhankelijkheid en machtenscheiding de positie van de rechter in het  staatsbestel onvoldoende gewaarborgd is. In deze titel wordt de beschrijving en analyse aan de hand van de (grond)wettelijke regelingen gecombineerd met de behandeling van diverse actuele vraagstukken.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       </samenvatting>
+                  <Creatie>20230119</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>1260</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>PA/13/1260</bibiscode>
+                  <exemplaarcode>PA/13/1260 : 2022//01</exemplaarcode>
+                  <titel>De spankracht van de civiele rechter in het publieke domein | : Een beschouwing van de spankracht van de civiele rechter aan de hand van vijf elasticiteitsgraadmeters</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>De spankracht van de civiele rechter    </brongegevens>
+                  <titelrelatie>De spankracht van de civiele rechter</titelrelatie>
+                  <auteurs>Jong, E.R. [Elbert] de | Giesen, I. [Ivo] </auteurs>
+                  <aut.functie>AU | AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Zutphen                                                                 </plaatsvanuitgave>
+                  <uitgever>Paris</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord>Burgerlijk procesrecht , Civiele rechtspraak , Rechtsbescherming , Rechtsvorming</trefwoord>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9789462513082</ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>NASLAG                          </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/3082/9789462513082_20221222_151137.jpg</coverlink>
+                  <samenvatting/>
+                  <Creatie>20230116</Creatie>
+              </excelRow>
+              <excelRow>
+                  <documentsoort>BK</documentsoort>
+                  <omschr.docsoort>Boek</omschr.docsoort>
+                  <rubriek>13</rubriek>
+                  <omschr.rubriek>Boek</omschr.rubriek>
+                  <volgnr>2157</volgnr>
+                  <jaar>2022</jaar>
+                  <deel>    </deel>
+                  <ex>1</ex>
+                  <bibiscode>PA/13/2157</bibiscode>
+                  <exemplaarcode>PA/13/2157 : 2022//01</exemplaarcode>
+                  <titel>Afhandeling van schade via schaderegelingen</titel>
+                  <serietitel/>
+                  <serienummer>                        </serienummer>
+                  <brontitel/>
+                  <brongegevens>De spankracht van de civiele rechter    </brongegevens>
+                  <titelrelatie>De spankracht van de civiele rechter</titelrelatie>
+                  <auteurs>Schutgens, R.J.B. [Roel]</auteurs>
+                  <aut.functie>AU</aut.functie>
+                  <corp.auteur/>
+                  <corp.aut.functie>         </corp.aut.functie>
+                  <plaatsvanuitgave>Zutphen                                                                 </plaatsvanuitgave>
+                  <uitgever>Paris</uitgever>
+                  <jaarvanuitgave>2022</jaarvanuitgave>
+                  <annotatie/>
+                  <trefwoord>Burgerlijk procesrecht , Aansprakelijkheid , Schaderegeling , Onrechtmatige overheidsdaad</trefwoord>
+                  <geogr.trefwoord/>
+                  <extrarubriek/>
+                  <omsch.extrarubriek/>
+                  <classificatie/>
+                  <taal/>
+                  <signatuur>                        </signatuur>
+                  <document>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </document>
+                  <webadres>                                                                                                                                                                                                                                                                                                                                                                                                                </webadres>
+                  <webadresomsch.>                                                                                                                        </webadresomsch.>
+                  <editie/>
+                  <ISBN>9789462513082</ISBN>
+                  <collatie>                                                            </collatie>
+                  <vindplaats>NASLAG                          </vindplaats>
+                  <deelbibliotheek>1</deelbibliotheek>
+                  <naamdeelbieb>Bibliotheek</naamdeelbieb>
+                  <coverlink>https://lms1.bibis.nl/praktizijn/covers/3082/9789462513082_20221222_151137.jpg</coverlink>
+                  <samenvatting>Over de verhouding van het groeiend aantal (quasi) publiekrechtelijke schaderegelingen tot het traditionele domein van het (overheids)-aansprakelijkheidsrecht.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 </samenvatting>
+                  <Creatie>20230116</Creatie>
+              </excelRow>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+              <excelRow/>
+          </item>
+      </Excel>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 33000

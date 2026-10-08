@@ -1,0 +1,28 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_XmlToJson"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `{\"persons\": {\"person\": [\r
+
+      \  {\"name\": \"John Doe\"},\r
+
+      \  {\"name\": \"Jane Doe\"}\r
+
+      ]}}`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 45000

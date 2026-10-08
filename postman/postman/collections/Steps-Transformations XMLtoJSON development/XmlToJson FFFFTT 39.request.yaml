@@ -1,0 +1,97 @@
+$kind: http-request
+name: XmlToJson FFFFTT 39
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?config=FFFFTT"
+method: POST
+queryParams:
+  config: FFFFTT
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <BarneyProductExport>
+    	<Product>
+    		<eanCode>8719426210406</eanCode>
+    		<productCode>PL06-02/NSF61</productCode>
+    		<unitCode>ST</unitCode>
+    		<searchName>NSF61</searchName>
+    		<debtorProducts class="array">
+    			<debtorProduct>
+    				<organisationGroupCode>ABC</organisationGroupCode>
+    				<debtorProductCode>ProdY</debtorProductCode>
+    			</debtorProduct>
+    			<debtorProduct>
+    				<organisationGroupCode>DEF</organisationGroupCode>
+    				<debtorProductCode>ProdZ</debtorProductCode>
+    			</debtorProduct>
+    		</debtorProducts>
+    		<productReplacements>
+    			<replacementProductCode>RepProdY</replacementProductCode>
+    			<replacementProductCode>RepProdY</replacementProductCode>
+    		</productReplacements>
+    	</Product>
+    	<Product>
+    		<eanCode>8719426210406</eanCode>
+    		<productCode>PL06-02/NSF61</productCode>
+    		<unitCode>ST</unitCode>
+    		<searchName>NSF61</searchName>
+    		<debtorProducts>
+    			<debtorProduct>
+    				<organisationGroupCode>ABC</organisationGroupCode>
+    				<debtorProductCode>ProdY</debtorProductCode>
+    			</debtorProduct>
+    		</debtorProducts>
+    		<productReplacements>
+    			<replacementProductCode>RepProdY</replacementProductCode>
+    		</productReplacements>
+    	</Product>
+    </BarneyProductExport>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`[
+          {
+              "eanCode": "8719426210406",
+              "productCode": "PL06-02/NSF61",
+              "unitCode": "ST",
+              "searchName": "NSF61",
+              "debtorProducts": [
+                  {
+                      "organisationGroupCode": "ABC",
+                      "debtorProductCode": "ProdY"
+                  },
+                  {
+                      "organisationGroupCode": "DEF",
+                      "debtorProductCode": "ProdZ"
+                  }
+              ],
+              "productReplacements": [
+                  "RepProdY",
+                  "RepProdY"
+              ]
+          },
+          {
+              "eanCode": "8719426210406",
+              "productCode": "PL06-02/NSF61",
+              "unitCode": "ST",
+              "searchName": "NSF61",
+              "debtorProducts": [
+                  {
+                      "organisationGroupCode": "ABC",
+                      "debtorProductCode": "ProdY"
+                  }
+              ],
+              "productReplacements": [
+                  "RepProdY"
+              ]
+          }
+      ]`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 134368

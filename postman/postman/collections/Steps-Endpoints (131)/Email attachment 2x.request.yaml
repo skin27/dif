@@ -1,0 +1,25 @@
+$kind: http-request
+name: Email attachment 2x
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Email_body_attachment"
+method: POST
+body:
+  type: file
+  content:
+    src: Enrich3.zip
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `Body`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t]/g, "")).to.eql(expected.replace(/[\r\n\t]/g, ""));    
+      });
+
+      pm.test("gmail mail message id", () => {
+        pm.expect(pm.response.headers.get('mailMessage')).to.eql('smtp-relay.gmail.com');
+      });
+    language: text/javascript
+order: 1000

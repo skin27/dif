@@ -1,0 +1,494 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_EdifactToXml"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `<env:unEdifact xmlns:env=\"urn:org.milyn.edi.unedifact.v41\">\r
+
+      \t<env:UNB>\r
+
+      \t\t<env:syntaxIdentifier>\r
+
+      \t\t\t<env:id>UNOA</env:id>\r
+
+      \t\t\t<env:versionNum>2</env:versionNum>\r
+
+      \t\t</env:syntaxIdentifier>\r
+
+      \t\t<env:sender>\r
+
+      \t\t\t<env:id>8714252014808</env:id>\r
+
+      \t\t\t<env:internalId>14</env:internalId>\r
+
+      \t\t</env:sender>\r
+
+      \t\t<env:recipient>\r
+
+      \t\t\t<env:id>8714252011517</env:id>\r
+
+      \t\t\t<env:internalId>14</env:internalId>\r
+
+      \t\t</env:recipient>\r
+
+      \t\t<env:dateTime>\r
+
+      \t\t\t<env:date>130402</env:date>\r
+
+      \t\t\t<env:time>1219</env:time>\r
+
+      \t\t</env:dateTime>\r
+
+      \t\t<env:controlRef>24535</env:controlRef>\r
+
+      \t</env:UNB>\r
+
+      \t<env:interchangeMessage xmlns:c=\"urn:org.milyn.edi.unedifact:un:d96a:common\" xmlns:iftmin=\"urn:org.milyn.edi.unedifact:un:d96a:iftmin\">\r
+
+      \t\t<env:UNH>\r
+
+      \t\t\t<env:messageRefNum>24546</env:messageRefNum>\r
+
+      \t\t\t<env:messageIdentifier>\r
+
+      \t\t\t\t<env:id>IFTMIN</env:id>\r
+
+      \t\t\t\t<env:versionNum>D</env:versionNum>\r
+
+      \t\t\t\t<env:releaseNum>96A</env:releaseNum>\r
+
+      \t\t\t\t<env:controllingAgencyCode>UN</env:controllingAgencyCode>\r
+
+      \t\t\t</env:messageIdentifier>\r
+
+      \t\t</env:UNH>\r
+
+      \t\t<iftmin:IFTMIN>\r
+
+      \t\t\t<iftmin:BGM>\r
+
+      \t\t\t\t<c:C002>\r
+
+      \t\t\t\t\t<c:e1001>340</c:e1001>\r
+
+      \t\t\t\t</c:C002>\r
+
+      \t\t\t\t<c:e1004>347605</c:e1004>\r
+
+      \t\t\t\t<c:e1225>9</c:e1225>\r
+
+      \t\t\t</iftmin:BGM>\r
+
+      \t\t\t<iftmin:DTM>\r
+
+      \t\t\t\t<c:C507>\r
+
+      \t\t\t\t\t<c:e2005>137</c:e2005>\r
+
+      \t\t\t\t\t<c:e2380>20130402</c:e2380>\r
+
+      \t\t\t\t\t<c:e2379>102</c:e2379>\r
+
+      \t\t\t\t</c:C507>\r
+
+      \t\t\t</iftmin:DTM>\r
+
+      \t\t\t<iftmin:DTM>\r
+
+      \t\t\t\t<c:C507>\r
+
+      \t\t\t\t\t<c:e2005>2</c:e2005>\r
+
+      \t\t\t\t\t<c:e2380>20130404</c:e2380>\r
+
+      \t\t\t\t\t<c:e2379>102</c:e2379>\r
+
+      \t\t\t\t</c:C507>\r
+
+      \t\t\t</iftmin:DTM>\r
+
+      \t\t\t<iftmin:DTM>\r
+
+      \t\t\t\t<c:C507>\r
+
+      \t\t\t\t\t<c:e2005>200</c:e2005>\r
+
+      \t\t\t\t\t<c:e2380>20130403</c:e2380>\r
+
+      \t\t\t\t\t<c:e2379>102</c:e2379>\r
+
+      \t\t\t\t</c:C507>\r
+
+      \t\t\t</iftmin:DTM>\r
+
+      \t\t\t<iftmin:TSR>\r
+
+      \t\t\t\t<c:C536>\r
+
+      \t\t\t\t\t<c:e4065>11</c:e4065>\r
+
+      \t\t\t\t</c:C536>\r
+
+      \t\t\t\t<c:C537>\r
+
+      \t\t\t\t\t<c:e4219>N</c:e4219>\r
+
+      \t\t\t\t</c:C537>\r
+
+      \t\t\t</iftmin:TSR>\r
+
+      \t\t\t<iftmin:FTX>\r
+
+      \t\t\t\t<c:e4451>DEL</c:e4451>\r
+
+      \t\t\t\t<c:C108>\r
+
+      \t\t\t\t\t<c:e4440_-_-1>EXACT DONDERDAG 4.4 TUSSEN 8.15-12.00 UUR</c:e4440_-_-1>\r
+
+      \t\t\t\t\t<c:e4440_-_-2>AFLEVEREN</c:e4440_-_-2>\r
+
+      \t\t\t\t</c:C108>\r
+
+      \t\t\t</iftmin:FTX>\r
+
+      \t\t\t<iftmin:Segment_group_2>\r
+
+      \t\t\t\t<iftmin:TOD>\r
+
+      \t\t\t\t\t<c:e4055>6</c:e4055>\r
+
+      \t\t\t\t\t<c:C100>\r
+
+      \t\t\t\t\t\t<c:e4053>CIP</c:e4053>\r
+
+      \t\t\t\t\t</c:C100>\r
+
+      \t\t\t\t</iftmin:TOD>\r
+
+      \t\t\t</iftmin:Segment_group_2>\r
+
+      \t\t\t<iftmin:Segment_group_11>\r
+
+      \t\t\t\t<iftmin:NAD>\r
+
+      \t\t\t\t\t<c:e3035>DP</c:e3035>\r
+
+      \t\t\t\t\t<c:C080>\r
+
+      \t\t\t\t\t\t<c:e3036_-_-1>DUMMY B.V.</c:e3036_-_-1>\r
+
+      \t\t\t\t\t</c:C080>\r
+
+      \t\t\t\t\t<c:C059>\r
+
+      \t\t\t\t\t\t<c:e3042_-_-1>VERLENGDE VOORBEELDWEG 123</c:e3042_-_-1>\r
+
+      \t\t\t\t\t</c:C059>\r
+
+      \t\t\t\t\t<c:e3164>AMSTERDAM</c:e3164>\r
+
+      \t\t\t\t\t<c:e3251>1234AB</c:e3251>\r
+
+      \t\t\t\t\t<c:e3207>670</c:e3207>\r
+
+      \t\t\t\t</iftmin:NAD>\r
+
+      \t\t\t</iftmin:Segment_group_11>\r
+
+      \t\t\t<iftmin:Segment_group_11>\r
+
+      \t\t\t\t<iftmin:NAD>\r
+
+      \t\t\t\t\t<c:e3035>CZ</c:e3035>\r
+
+      \t\t\t\t\t<c:C080>\r
+
+      \t\t\t\t\t\t<c:e3036_-_-1>DUMMY WIRE &amp; CABLE B.V.</c:e3036_-_-1>\r
+
+      \t\t\t\t\t</c:C080>\r
+
+      \t\t\t\t\t<c:C059>\r
+
+      \t\t\t\t\t\t<c:e3042_-_-1>INDUSTRIEGEBIED: 1234</c:e3042_-_-1>\r
+
+      \t\t\t\t\t\t<c:e3042_-_-2>VOORBEELDWEG 10</c:e3042_-_-2>\r
+
+      \t\t\t\t\t</c:C059>\r
+
+      \t\t\t\t\t<c:e3164>AMSTERDAM</c:e3164>\r
+
+      \t\t\t\t\t<c:e3251>1234 AB</c:e3251>\r
+
+      \t\t\t\t\t<c:e3207>670</c:e3207>\r
+
+      \t\t\t\t</iftmin:NAD>\r
+
+      \t\t\t\t<iftmin:Segment_group_12>\r
+
+      \t\t\t\t\t<iftmin:CTA>\r
+
+      \t\t\t\t\t\t<c:e3139>IC</c:e3139>\r
+
+      \t\t\t\t\t\t<c:C056>\r
+
+      \t\t\t\t\t\t\t<c:e3412>JANE DOE</c:e3412>\r
+
+      \t\t\t\t\t\t</c:C056>\r
+
+      \t\t\t\t\t</iftmin:CTA>\r
+
+      \t\t\t\t\t<iftmin:COM>\r
+
+      \t\t\t\t\t\t<c:C076>\r
+
+      \t\t\t\t\t\t\t<c:e3148>+31(0)12 3456789</c:e3148>\r
+
+      \t\t\t\t\t\t\t<c:e3155>TE</c:e3155>\r
+
+      \t\t\t\t\t\t</c:C076>\r
+
+      \t\t\t\t\t</iftmin:COM>\r
+
+      \t\t\t\t</iftmin:Segment_group_12>\r
+
+      \t\t\t</iftmin:Segment_group_11>\r
+
+      \t\t\t<iftmin:Segment_group_11>\r
+
+      \t\t\t\t<iftmin:NAD>\r
+
+      \t\t\t\t\t<c:e3035>SF</c:e3035>\r
+
+      \t\t\t\t\t<c:C080>\r
+
+      \t\t\t\t\t\t<c:e3036_-_-1>DUMMY WIRE &amp; CABLE B.V.</c:e3036_-_-1>\r
+
+      \t\t\t\t\t</c:C080>\r
+
+      \t\t\t\t\t<c:C059>\r
+
+      \t\t\t\t\t\t<c:e3042_-_-1>INDUSTRIEGEBIED: 1234</c:e3042_-_-1>\r
+
+      \t\t\t\t\t\t<c:e3042_-_-2>VOORBEELDWEG 10</c:e3042_-_-2>\r
+
+      \t\t\t\t\t</c:C059>\r
+
+      \t\t\t\t\t<c:e3164>AMSTERDAM</c:e3164>\r
+
+      \t\t\t\t\t<c:e3251>1234 AB</c:e3251>\r
+
+      \t\t\t\t\t<c:e3207>670</c:e3207>\r
+
+      \t\t\t\t</iftmin:NAD>\r
+
+      \t\t\t\t<iftmin:Segment_group_12>\r
+
+      \t\t\t\t\t<iftmin:CTA>\r
+
+      \t\t\t\t\t\t<c:e3139>IC</c:e3139>\r
+
+      \t\t\t\t\t\t<c:C056>\r
+
+      \t\t\t\t\t\t\t<c:e3412>JANE DOE</c:e3412>\r
+
+      \t\t\t\t\t\t</c:C056>\r
+
+      \t\t\t\t\t</iftmin:CTA>\r
+
+      \t\t\t\t\t<iftmin:COM>\r
+
+      \t\t\t\t\t\t<c:C076>\r
+
+      \t\t\t\t\t\t\t<c:e3148>+31(0)12 3456789</c:e3148>\r
+
+      \t\t\t\t\t\t\t<c:e3155>TE</c:e3155>\r
+
+      \t\t\t\t\t\t</c:C076>\r
+
+      \t\t\t\t\t</iftmin:COM>\r
+
+      \t\t\t\t</iftmin:Segment_group_12>\r
+
+      \t\t\t</iftmin:Segment_group_11>\r
+
+      \t\t\t<iftmin:Segment_group_11>\r
+
+      \t\t\t\t<iftmin:NAD>\r
+
+      \t\t\t\t\t<c:e3035>FW</c:e3035>\r
+
+      \t\t\t\t\t<c:C080>\r
+
+      \t\t\t\t\t\t<c:e3036_-_-1>LOGISTICS B.V.</c:e3036_-_-1>\r
+
+      \t\t\t\t\t</c:C080>\r
+
+      \t\t\t\t\t<c:e3251>1234 AB</c:e3251>\r
+
+      \t\t\t\t\t<c:e3207>670</c:e3207>\r
+
+      \t\t\t\t</iftmin:NAD>\r
+
+      \t\t\t</iftmin:Segment_group_11>\r
+
+      \t\t\t<iftmin:Segment_group_18>\r
+
+      \t\t\t\t<iftmin:GID>\r
+
+      \t\t\t\t\t<c:e1496>1.0</c:e1496>\r
+
+      \t\t\t\t\t<c:C213_-_-1>\r
+
+      \t\t\t\t\t\t<c:e7224>1.0</c:e7224>\r
+
+      \t\t\t\t\t\t<c:e7065>E827</c:e7065>\r
+
+      \t\t\t\t\t\t<c:e3055>9</c:e3055>\r
+
+      \t\t\t\t\t</c:C213_-_-1>\r
+
+      \t\t\t\t</iftmin:GID>\r
+
+      \t\t\t\t<iftmin:HAN>\r
+
+      \t\t\t\t\t<c:C524>\r
+
+      \t\t\t\t\t\t<c:e4079>UST</c:e4079>\r
+
+      \t\t\t\t\t\t<c:e3055>9</c:e3055>\r
+
+      \t\t\t\t\t</c:C524>\r
+
+      \t\t\t\t</iftmin:HAN>\r
+
+      \t\t\t\t<iftmin:Segment_group_20>\r
+
+      \t\t\t\t\t<iftmin:MEA>\r
+
+      \t\t\t\t\t\t<c:e6311>AAE</c:e6311>\r
+
+      \t\t\t\t\t\t<c:C502>\r
+
+      \t\t\t\t\t\t\t<c:e6313>G</c:e6313>\r
+
+      \t\t\t\t\t\t</c:C502>\r
+
+      \t\t\t\t\t\t<c:C174>\r
+
+      \t\t\t\t\t\t\t<c:e6411>KGM</c:e6411>\r
+
+      \t\t\t\t\t\t\t<c:e6314>24.0</c:e6314>\r
+
+      \t\t\t\t\t\t</c:C174>\r
+
+      \t\t\t\t\t</iftmin:MEA>\r
+
+      \t\t\t\t</iftmin:Segment_group_20>\r
+
+      \t\t\t\t<iftmin:Segment_group_20>\r
+
+      \t\t\t\t\t<iftmin:MEA>\r
+
+      \t\t\t\t\t\t<c:e6311>AAE</c:e6311>\r
+
+      \t\t\t\t\t\t<c:C502>\r
+
+      \t\t\t\t\t\t\t<c:e6313>GMC</c:e6313>\r
+
+      \t\t\t\t\t\t</c:C502>\r
+
+      \t\t\t\t\t\t<c:C174>\r
+
+      \t\t\t\t\t\t\t<c:e6411>MTQ</c:e6411>\r
+
+      \t\t\t\t\t\t\t<c:e6314>80.0</c:e6314>\r
+
+      \t\t\t\t\t\t</c:C174>\r
+
+      \t\t\t\t\t</iftmin:MEA>\r
+
+      \t\t\t\t</iftmin:Segment_group_20>\r
+
+      \t\t\t\t<iftmin:Segment_group_21>\r
+
+      \t\t\t\t\t<iftmin:DIM>\r
+
+      \t\t\t\t\t\t<c:e6145>1</c:e6145>\r
+
+      \t\t\t\t\t\t<c:C211>\r
+
+      \t\t\t\t\t\t\t<c:e6411>MTR</c:e6411>\r
+
+      \t\t\t\t\t\t\t<c:e6168>41.0</c:e6168>\r
+
+      \t\t\t\t\t\t\t<c:e6140>41.0</c:e6140>\r
+
+      \t\t\t\t\t\t\t<c:e6008>48.0</c:e6008>\r
+
+      \t\t\t\t\t\t</c:C211>\r
+
+      \t\t\t\t\t</iftmin:DIM>\r
+
+      \t\t\t\t</iftmin:Segment_group_21>\r
+
+      \t\t\t\t<iftmin:Segment_group_23>\r
+
+      \t\t\t\t\t<iftmin:PCI>\r
+
+      \t\t\t\t\t\t<c:e4233>33E</c:e4233>\r
+
+      \t\t\t\t\t</iftmin:PCI>\r
+
+      \t\t\t\t\t<iftmin:GIN>\r
+
+      \t\t\t\t\t\t<c:e7405>BJ</c:e7405>\r
+
+      \t\t\t\t\t\t<c:C208_-_-1>\r
+
+      \t\t\t\t\t\t\t<c:e7402_-_-1>00387142520086154710</c:e7402_-_-1>\r
+
+      \t\t\t\t\t\t</c:C208_-_-1>\r
+
+      \t\t\t\t\t</iftmin:GIN>\r
+
+      \t\t\t\t</iftmin:Segment_group_23>\r
+
+      \t\t\t</iftmin:Segment_group_18>\r
+
+      \t\t</iftmin:IFTMIN>\r
+
+      \t\t<env:UNT>\r
+
+      \t\t\t<env:segmentCount>98126</env:segmentCount>\r
+
+      \t\t\t<env:messageRefNum>24546</env:messageRefNum>\r
+
+      \t\t</env:UNT>\r
+
+      \t</env:interchangeMessage>\r
+
+      \t<env:UNZ>\r
+
+      \t\t<env:controlCount>1</env:controlCount>\r
+
+      \t\t<env:controlRef>24535</env:controlRef>\r
+
+      \t</env:UNZ>\r
+
+      </env:unEdifact>`;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual).to.eql(expected);    \r
+
+      });"
+    language: text/javascript
+order: 8000

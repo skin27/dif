@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScript_sleep"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Response time is less than 3500ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(3500);
+          });
+          pm.test("Response time is more than 3000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.above(3000);
+          });
+    language: text/javascript
+order: 23000

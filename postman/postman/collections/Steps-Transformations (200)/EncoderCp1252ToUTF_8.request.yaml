@@ -1,0 +1,66 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/EncoderCp1252ToUTF_8"
+method: POST
+body:
+  type: file
+  content:
+    src: Windows1252-2.txt
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `0_	NUL	SOH	STX	ETX	EOT	ENQ	ACK	BEL	BS	HT	LF	VT	FF	CR	SO	SI
+      1_	DLE	DC1	DC2	DC3	DC4	NAK	SYN	ETB	CAN	EM	SUB	ESC	FS	GS	RS	US
+      2_	 SP 	!		#	$	%	&		(	)	*	+	,	-	.	/
+      3_	0	1	2	3	4	5	6	7	8	9	:	;	<	=	>	?
+      4_	@	A	B	C	D	E	F	G	H	I	J	K	L	M	N	O
+      5_	P	Q	R	S	T	U	V	W	X	Y	Z				^	_
+      6_		a	b	c	d	e	f	g	h	i	j	k	l	m	n	o
+      7_	p	q	r	s	t	u	v	w	x	y	z	{	|	}	~	DEL
+      8_	€
+      20AC		‚
+      201A	ƒ
+      0192	„
+      201E	…
+      2026	†
+      2020	‡
+      2021	ˆ
+      02C6	‰
+      2030	Š
+      0160	‹
+      2039	Œ
+      0152		Ž
+      017D	
+      9_		
+      2018	
+      2019	
+      201C	
+      201D	•
+      2022	–
+      2013	—
+      2014	˜
+      02DC	™
+      2122	š
+      0161	›
+      203A	œ
+      0153		ž
+      017E	Ÿ
+      0178
+      A_	NBSP	¡	¢	£	¤	¥	¦	§		©	ª	«	¬	SHY	®	¯
+      B_	°	±	²	³		µ	¶	·	¸	¹	º	»	¼	½	¾	¿
+      C_	À	Á	Â	Ã	Ä	Å	Æ	Ç	È	É	Ê	Ë	Ì	Í	Î	Ï
+      D_	Ð	Ñ	Ò	Ó	Ô	Õ	Ö	×	Ø	Ù	Ú	Û	Ü	Ý	Þ	ß
+      E_	à	á	â	ã	ä	å	æ	ç	è	é	ê	ë	ì	í	î	ï
+      F_	ð	ñ	ò	ó	ô	õ	ö	÷	ø	ù	ú	û	ü	ý	þ	ÿ`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 19000

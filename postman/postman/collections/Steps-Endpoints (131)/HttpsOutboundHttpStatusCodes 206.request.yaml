@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpsOutboundHttpStatusCodes?StatusCode=206"
+method: POST
+headers:
+  - key: url
+    value: https://httpbin.org:81/delay/1
+    disabled: true
+  - key: Range
+    value: bytes=0-99
+    disabled: false
+    description: ""
+queryParams:
+  StatusCode: "206"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code", function () {
+          pm.response.to.have.status(206);
+          });
+
+      pm.test("Body matches string", function () {
+          pm.expect(pm.response.text()).to.include('206 Partial Content');
+          });
+    language: text/javascript
+order: 36000

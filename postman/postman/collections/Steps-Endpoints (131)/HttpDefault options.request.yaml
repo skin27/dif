@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpDefault_options"
+method: POST
+headers:
+  BaseUrl: "{{BASE_URL}}"
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Allow", () => {
+        pm.expect(pm.response.headers.get('Allow')).to.eql('GET,HEAD,POST,PUT,DELETE,TRACE,OPTIONS,CONNECT,PATCH');
+      });
+    language: text/javascript
+order: 22000

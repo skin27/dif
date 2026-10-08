@@ -1,0 +1,30 @@
+$kind: http-request
+name: FLV Groups
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FLV_groups"
+method: POST
+body:
+  type: text
+  content: |-
+    YAYthing
+    HDRbody1234567890
+    HDRbody2345678901
+    HDRbody3456789012
+    HDRbody4567890123
+    HDRbody5678901234
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<flv-message><rule matchOn="YAY" fields="YAYheader[3]YAYbody[5]" /><rule matchOn="HDR" fields="HDRheader[3]HDRbody[5]" /><group><segment><YAYheader>YAY</YAYheader><YAYbody>thing</YAYbody></segment></group><group><segment><HDRheader>HDR</HDRheader><HDRbody>body1</HDRbody></segment></group><group><segment><HDRheader>HDR</HDRheader><HDRbody>body2</HDRbody></segment></group><group><segment><HDRheader>HDR</HDRheader><HDRbody>body3</HDRbody></segment></group><group><segment><HDRheader>HDR</HDRheader><HDRbody>body4</HDRbody></segment></group><group><segment><HDRheader>HDR</HDRheader><HDRbody>body5</HDRbody></segment></group></flv-message>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 48204

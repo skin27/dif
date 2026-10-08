@@ -1,0 +1,17 @@
+$kind: http-request
+name: archive unzip only
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_ArchiveUnzipOnly"
+method: POST
+body:
+  type: file
+  content:
+    src: ArchivePackUnpack.zip
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      \    });"
+    language: text/javascript
+order: 2580

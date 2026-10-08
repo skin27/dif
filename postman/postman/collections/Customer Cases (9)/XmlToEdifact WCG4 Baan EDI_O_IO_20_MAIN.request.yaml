@@ -1,0 +1,242 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToEdifact"
+method: POST
+body:
+  type: text
+  content: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <unEdifact>
+       <UNB>
+          <syntaxIdentifier>
+             <id>UNOC</id>
+             <versionNum>3</versionNum>
+          </syntaxIdentifier>
+          <sender>
+             <id>8719326339900</id>
+             <codeQualifier>14</codeQualifier>
+          </sender>
+          <recipient>
+             <id>8719333002552</id>
+             <codeQualifier>14</codeQualifier>
+          </recipient>
+          <dateTime>
+             <date>20231206</date>
+             <time>1408</time>
+          </dateTime>
+          <controlRef>2023120601</controlRef>
+          <testIndicator/>
+       </UNB>
+       <interchangeMessage>
+          <UNH>
+             <messageRefNum>20231206140801</messageRefNum>
+             <messageIdentifier>
+                <id>ORDERS</id>
+                <versionNum>D</versionNum>
+                <releaseNum>96A</releaseNum>
+                <controllingAgencyCode>UN</controllingAgencyCode>
+                <associationAssignedCode>EAN008</associationAssignedCode>
+             </messageIdentifier>
+          </UNH>
+          <ORDERS>
+             <BGM>
+                <C002>
+                   <e1001>220</e1001>
+                </C002>
+                <e1004>PU061428</e1004>
+             </BGM>
+             <DTM>
+                <C507>
+                   <e2005>2</e2005>
+                   <e2380>20231211</e2380>
+                   <e2379>102</e2379>
+                </C507>
+             </DTM>
+             <DTM>
+                <C507>
+                   <e2005>137</e2005>
+                   <e2380>20231206</e2380>
+                   <e2379>102</e2379>
+                </C507>
+             </DTM>
+             <Segment_group_2>
+                <NAD>
+                   <e3035>BY</e3035>
+                   <C082>
+                      <e3039>8719326339900</e3039>
+                      <e3055>9</e3055>
+                   </C082>
+                </NAD>
+             </Segment_group_2>
+             <Segment_group_2>
+                <NAD>
+                   <e3035>SU</e3035>
+                   <C082>
+                      <e3039>8719333002552</e3039>
+                   </C082>
+                </NAD>
+             </Segment_group_2>
+             <Segment_group_2>
+                <NAD>
+                   <e3035>DP</e3035>
+                   <C082>
+                      <e3039>8719326339900</e3039>
+                   </C082>
+                </NAD>
+             </Segment_group_2>
+             <Segment_group_25>
+                <LIN>
+                   <e1082>1</e1082>
+                   <C212>
+                      <e7140>7322301561305</e7140>
+                      <e7143>EN</e7143>
+                   </C212>
+                </LIN>
+                <QTY>
+                   <C186>
+                      <e6063>21</e6063>
+                      <e6060>1</e6060>
+                   </C186>
+                </QTY>
+                <IMD>
+                   <C273>
+                      <e7009>A</e7009>
+                      <e7008_-_-1>AMERIKAANSE OVERALL 41 PS25 GRIJS</e7008_-_-1>
+                   </C273>
+                </IMD>
+             </Segment_group_25>
+             <Segment_group_25>
+                <LIN>
+                   <e1082>2</e1082>
+                   <C212>
+                      <e7140>7322302561489</e7140>
+                      <e7143>EN</e7143>
+                   </C212>
+                </LIN>
+                <QTY>
+                   <C186>
+                      <e6063>21</e6063>
+                      <e6060>1</e6060>
+                   </C186>
+                </QTY>
+                <IMD>
+                   <C273>
+                      <e7009>A</e7009>
+                      <e7008_-_-1>AIRTECH WINTERJACK 4410 GTT DONKER</e7008_-_-1>
+                   </C273>
+                </IMD>
+             </Segment_group_25>
+             <Segment_group_25>
+                <LIN>
+                   <e1082>3</e1082>
+                   <C212>
+                      <e7140>7322301403001</e7140>
+                      <e7143>EN</e7143>
+                   </C212>
+                </LIN>
+                <QTY>
+                   <C186>
+                      <e6063>21</e6063>
+                      <e6060>1</e6060>
+                   </C186>
+                </QTY>
+                <IMD>
+                   <C273>
+                      <e7009>A</e7009>
+                      <e7008_-_-1>WERKBROEK 241 PS25 ZWART</e7008_-_-1>
+                   </C273>
+                </IMD>
+             </Segment_group_25>
+             <Segment_group_25>
+                <LIN>
+                   <e1082>4</e1082>
+                   <C212>
+                      <e7140>7322301620514</e7140>
+                      <e7143>EN</e7143>
+                   </C212>
+                </LIN>
+                <QTY>
+                   <C186>
+                      <e6063>21</e6063>
+                      <e6060>1</e6060>
+                   </C186>
+                </QTY>
+                <IMD>
+                   <C273>
+                      <e7009>A</e7009>
+                      <e7008_-_-1>WERKBROEK 288 PS25 ZWART</e7008_-_-1>
+                   </C273>
+                </IMD>
+             </Segment_group_25>
+             <Segment_group_25>
+                <LIN>
+                   <e1082>5</e1082>
+                   <C212>
+                      <e7140>7322301620521</e7140>
+                      <e7143>EN</e7143>
+                   </C212>
+                </LIN>
+                <QTY>
+                   <C186>
+                      <e6063>21</e6063>
+                      <e6060>1</e6060>
+                   </C186>
+                </QTY>
+                <IMD>
+                   <C273>
+                      <e7009>A</e7009>
+                      <e7008_-_-1>WERKBROEK 288 PS25 ZWART</e7008_-_-1>
+                   </C273>
+                </IMD>
+             </Segment_group_25>
+             <Segment_group_25>
+                <LIN>
+                   <e1082>6</e1082>
+                   <C212>
+                      <e7140>7322302310292</e7140>
+                      <e7143>EN</e7143>
+                   </C212>
+                </LIN>
+                <QTY>
+                   <C186>
+                      <e6063>21</e6063>
+                      <e6060>2</e6060>
+                   </C186>
+                </QTY>
+                <IMD>
+                   <C273>
+                      <e7009>A</e7009>
+                      <e7008_-_-1>KNIEBESCHERMERS 9395 KP MARINEBLAUW</e7008_-_-1>
+                   </C273>
+                </IMD>
+             </Segment_group_25>
+             <UNS>
+                <e0081>S</e0081>
+             </UNS>
+          </ORDERS>
+          <UNT>
+             <segmentCount>0</segmentCount>
+             <messageRefNum>20231206140801</messageRefNum>
+          </UNT>
+       </interchangeMessage>
+       <UNZ>
+          <controlCount>1</controlCount>
+          <controlRef>2023120601</controlRef>
+       </UNZ>
+    </unEdifact>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `UNA:+.? ' UNB+UNOC:3+8719326339900:14+8719333002552:14+20231206:1408+2023120601'UNH+20231206140801+ORDERS:D:96A:UN:EAN008'BGM+220+PU061428'DTM+2:20231211:102'DTM+137:20231206:102'NAD+BY+8719326339900::9'NAD+SU+8719333002552'NAD+DP+8719326339900'LIN+1.0++7322301561305:EN'IMD+++A:::AMERIKAANSE OVERALL 41 PS25 GRIJS'QTY+21:1.0'LIN+2.0++7322302561489:EN'IMD+++A:::AIRTECH WINTERJACK 4410 GTT DONKER'QTY+21:1.0'LIN+3.0++7322301403001:EN'IMD+++A:::WERKBROEK 241 PS25 ZWART'QTY+21:1.0'LIN+4.0++7322301620514:EN'IMD+++A:::WERKBROEK 288 PS25 ZWART'QTY+21:1.0'LIN+5.0++7322301620521:EN'IMD+++A:::WERKBROEK 288 PS25 ZWART'QTY+21:1.0'LIN+6.0++7322302310292:EN'IMD+++A:::KNIEBESCHERMERS 9395 KP MARINEBLAUW'QTY+21:2.0'UNS+S'UNT+27+20231206140801'UNZ+1+2023120601'`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 3000

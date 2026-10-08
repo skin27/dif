@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptGroovyScriptWCG_whlsl_20a_val"
+method: POST
+body:
+  type: xml
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("xmlValid", () => {
+        pm.expect(pm.response.headers.get('xmlValid')).to.eql('true');
+      });
+    language: text/javascript
+order: 32000

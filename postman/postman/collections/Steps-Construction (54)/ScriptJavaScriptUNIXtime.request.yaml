@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ScriptJavaScriptUNIXtime"
+method: POST
+body:
+  type: json
+  content: "{}"
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `UnixLastModifiedDate not empty`;
+
+      const actual = pm.response.text();
+
+      pm.test("UnixLastModifiedDate not empty", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 35000

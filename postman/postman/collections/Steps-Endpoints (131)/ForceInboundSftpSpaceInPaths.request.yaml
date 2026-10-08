@@ -1,0 +1,16 @@
+$kind: http-request
+name: ForceInboundSftpSpaceInPaths
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/ForceInboundSftpSpaceInPaths"
+method: POST
+body:
+  type: file
+  content:
+    src: PigsInSpace.jpg
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("X-Camelfileparent", () => {
+        pm.expect(pm.response.headers.get('X-Camelfileparent')).to.eql('pigs in spaces');
+      });
+    language: text/javascript
+order: 12381

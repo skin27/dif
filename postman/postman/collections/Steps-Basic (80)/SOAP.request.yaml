@@ -1,0 +1,68 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_SOAP"
+method: POST
+scripts:
+  - type: afterResponse
+    code: "const expected = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r
+
+      <m:FullCountryInfoResponse xmlns:m=\"http://www.oorsprong.org/websamples.countryinfo\"\r
+
+      \                            xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r
+
+      \   <m:FullCountryInfoResult>\r
+
+      \      <m:sISOCode>NL</m:sISOCode>\r
+
+      \      <m:sName>Netherlands</m:sName>\r
+
+      \      <m:sCapitalCity>Amsterdam</m:sCapitalCity>\r
+
+      \      <m:sPhoneCode>31</m:sPhoneCode>\r
+
+      \      <m:sContinentCode>EU</m:sContinentCode>\r
+
+      \      <m:sCurrencyISOCode>EUR</m:sCurrencyISOCode>\r
+
+      \      <m:sCountryFlag>http://www.oorsprong.org/WebSamples.CountryInfo/Flags/Netherlands.jpg</m:sCountryFlag>\r
+
+      \      <m:Languages>\r
+
+      \         <m:tLanguage>\r
+
+      \            <m:sISOCode>fry</m:sISOCode>\r
+
+      \            <m:sName>Frisian</m:sName>\r
+
+      \         </m:tLanguage>\r
+
+      \         <m:tLanguage>\r
+
+      \            <m:sISOCode>nl</m:sISOCode>\r
+
+      \            <m:sName>Dutch</m:sName>\r
+
+      \         </m:tLanguage>\r
+
+      \      </m:Languages>\r
+
+      \   </m:FullCountryInfoResult>\r
+
+      </m:FullCountryInfoResponse>\r
+
+      `;\r
+
+      \r
+
+      const actual = pm.response.text();\r
+
+      \r
+
+      pm.test(\"happyflow\", function () {\r
+
+      \    pm.response.to.not.be.error;\r
+
+      \    pm.expect(actual.replace(/[\\r\\n\\t\\s]/g, \"\")).to.eql(expected.replace(/[\\r\\n\\t\\s]/g, \"\"));     \r
+
+      });"
+    language: text/javascript
+order: 35000

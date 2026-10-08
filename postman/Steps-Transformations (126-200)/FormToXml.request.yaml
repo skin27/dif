@@ -1,0 +1,113 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/FormToXml"
+method: POST
+body:
+  type: urlencoded
+  content:
+    data-set: " empty-set / pairs"
+    pairs: " pair *(seperator pair)"
+    pair: ' name [ "=" value ]'
+    name: " *(namechar / escape / percent / plus)"
+    value: " *(valuechar / escape / percent / plus)"
+    namechar: ' <any octet except ";", "&", "+", "%", "=">'
+    valuechar: ' <any octet except ";", "&", "+", "%">'
+    escape: ' "%" 2hexdig'
+    separator: ' ";" / "&"'
+    percent: ' "%"'
+    plus: ' "+"'
+    empty-set: ' ""'
+scripts:
+  - type: afterResponse
+    code: |-
+      // const expected = `<?xml version="1.0" encoding="utf-8"?>
+      // <items>
+      //   <valuechar> &lt;any octet except &quot;;&quot;, &quot;</valuechar>
+      //   <empty-set> &quot;&quot;</empty-set>
+      //   <separator> &quot;;&quot; / &quot;</separator>
+      //   <percent> &quot;%&quot;</percent>
+      //   <data-set> empty-set / pairs</data-set>
+      //   <pairs> pair *(seperator pair)</pairs>
+      //   <pair> name [ &quot;</pair>
+      //   <plus> &quot;+&quot;</plus>
+      //   <name> *(namechar / escape / percent / plus)</name>
+      //   <namechar> &lt;any octet except &quot;;&quot;, &quot;</namechar>
+      //   <value> *(valuechar / escape / percent / plus)</value>
+      //   <escape> &quot;%&quot; 2hexdig</escape>
+      // </items>`;
+
+      // const actual = pm.response.text();
+
+      // pm.test("happyflow", function () {
+      // //    console.log('actual');
+      // //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      // //    console.log('expected');
+      // //    console.log(expected.replace(/[\r\n\t]/g, ""));
+      //     pm.response.to.not.be.error;
+      //     pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      // });
+
+      const xml2js = require('xml2js');
+
+      const expected = `<?xml version="1.0" encoding="utf-8"?>
+      <items>
+        <valuechar> &lt;any octet except &quot;;&quot;, &quot;</valuechar>
+        <empty-set> &quot;&quot;</empty-set>
+        <separator> &quot;;&quot; / &quot;</separator>
+        <percent> &quot;%&quot;</percent>
+        <data-set> empty-set / pairs</data-set>
+        <pairs> pair *(seperator pair)</pairs>
+        <pair> name [ &quot;</pair>
+        <plus> &quot;+&quot;</plus>
+        <name> *(namechar / escape / percent / plus)</name>
+        <namechar> &lt;any octet except &quot;;&quot;, &quot;</namechar>
+        <value> *(valuechar / escape / percent / plus)</value>
+        <escape> &quot;%&quot; 2hexdig</escape>
+      </items>`;
+
+      const actual = pm.response.text();
+
+      // Sorteert zowel object-sleutels als de inhoud van arrays
+      function canonicalSort(obj) {
+          if (typeof obj !== 'object' || obj === null) {
+              return obj;
+          }
+
+          if (Array.isArray(obj)) {
+              // 1. Sorteer eerst de inhoud van elk element in de array
+              // 2. Sorteer daarna de array zelf op basis van de JSON-representatie
+              return obj
+                  .map(canonicalSort)
+                  .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+          }
+
+          // Sorteer de sleutels van een object alfabetisch
+          return Object.keys(obj).sort().reduce((acc, key) => {
+              acc[key] = canonicalSort(obj[key]);
+              return acc;
+          }, {});
+      }
+
+      xml2js.parseString(expected, (err, result1) => {
+          if (err) {
+              pm.test('XML parsing error for expected xml', () => {
+                  pm.expect(err).to.be.null;
+              });
+          } else {
+              xml2js.parseString(actual, (err, result2) => {
+                  if (err) {
+                      pm.test('XML parsing error for actual xml', () => {
+                          pm.expect(err).to.be.null;
+                      });
+                  } else {
+                      const sorted1 = canonicalSort(result1);
+                      const sorted2 = canonicalSort(result2);
+
+                      pm.test('XML strings are equivalent, ignoring element order', () => {
+                          pm.expect(sorted1).to.eql(sorted2);
+                      });
+                  }
+              });
+          }
+      });
+    language: text/javascript
+order: 51000

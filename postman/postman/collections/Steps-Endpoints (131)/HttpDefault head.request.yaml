@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/HttpDefault_head"
+method: POST
+headers:
+  BaseUrl: "{{BASE_URL}}"
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("CheckMethod", () => {
+        pm.expect(pm.response.headers.get('CheckMethod')).to.eql('HEAD');
+      });
+    language: text/javascript
+order: 21000

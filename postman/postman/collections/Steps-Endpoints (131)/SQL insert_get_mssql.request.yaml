@@ -1,0 +1,18 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/SQL_insert_get_mssql"
+method: POST
+body:
+  type: text
+  content: ""
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Body matches string 1", function () {
+          pm.expect(pm.response.text()).to.include('<FirstName>John</FirstName>');
+      });
+
+      pm.test("Body matches string 2", function () {
+          pm.expect(pm.response.text()).to.include('<LastName>Doe</LastName>');
+      });
+    language: text/javascript
+order: 83000

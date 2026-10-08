@@ -1,0 +1,60 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJson?config=TFTFTF"
+method: POST
+queryParams:
+  config: TFTFTF
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <BarneyProductExport>
+    	<Product>
+    		<eanCode>8719426210406</eanCode>
+    		<productCode>PL06-02/NSF61</productCode>
+    		<unitCode>ST</unitCode>
+    		<searchName>NSF61</searchName>
+    		<debtorProducts class="array">
+    			<debtorProduct>
+    				<organisationGroupCode>ABC</organisationGroupCode>
+    				<debtorProductCode>ProdY</debtorProductCode>
+    			</debtorProduct>
+    			<debtorProduct>
+    				<organisationGroupCode>DEF</organisationGroupCode>
+    				<debtorProductCode>ProdZ</debtorProductCode>
+    			</debtorProduct>
+    		</debtorProducts>
+    		<productReplacements>
+    			<replacementProductCode>RepProdY</replacementProductCode>
+    			<replacementProductCode>RepProdY</replacementProductCode>
+    		</productReplacements>
+    	</Product>
+    	<Product>
+    		<eanCode>8719426210406</eanCode>
+    		<productCode>PL06-02/NSF61</productCode>
+    		<unitCode>ST</unitCode>
+    		<searchName>NSF61</searchName>
+    		<debtorProducts>
+    			<debtorProduct>
+    				<organisationGroupCode>ABC</organisationGroupCode>
+    				<debtorProductCode>ProdY</debtorProductCode>
+    			</debtorProduct>
+    		</debtorProducts>
+    		<productReplacements>
+    			<replacementProductCode>RepProdY</replacementProductCode>
+    		</productReplacements>
+    	</Product>
+    </BarneyProductExport>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = JSON.parse(`{"noTransformation":"Available"}`);
+
+      const actual = pm.response.json();
+
+      pm.test("happyflow", function () {
+          pm.response.to.not.be.error;
+          pm.expect(actual).to.eql(expected);
+          //pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');    
+      });
+    language: text/javascript
+order: 134000

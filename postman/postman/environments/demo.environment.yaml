@@ -1,0 +1,15 @@
+name: demo
+values:
+  - key: HOST
+    value: https
+  - key: INSTANCE
+    value: ''
+  - key: BASE_URI
+    value: ''
+  - key: ENVIRONMENT
+    value: ''
+  - key: PATH
+    value: ''
+  - key: HC_token
+    value: rJ7Tllm3gFNYEl5ZkXxOGwZeVt7ErwJT
+color: 180

@@ -1,0 +1,115 @@
+$kind: http-request
+url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/Replace_header"
+method: POST
+headers:
+  regex: <\?xml.*?\n
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Orders>
+        <OrderHeader>
+            <WebOrderNr>CE-35076</WebOrderNr>
+            <CompanyCode>KSV</CompanyCode>
+            <IsB2C>true</IsB2C>
+            <B2CType>2</B2CType>
+            <CustomerCode>ZFS DE</CustomerCode>
+            <CustomerReference>10103583274516</CustomerReference>
+            <SeasonCode>WEB</SeasonCode>
+            <WarehouseGroupCode>ZFSKSV</WarehouseGroupCode>
+            <OrderOriginCode>70</OrderOriginCode>
+            <SalesDepartmentCode>WEB</SalesDepartmentCode>
+            <SalesmanCode>WEB</SalesmanCode>
+            <SalesRepCode>777</SalesRepCode>
+            <OrderTypeCode>61</OrderTypeCode>
+            <DeliverySlipInfo>
+                <DeliveryPropNo>88888888</DeliveryPropNo>
+                <DoIncludeOtherOrders>false</DoIncludeOtherOrders>
+                <CompileInstruction>1</CompileInstruction>
+            </DeliverySlipInfo>
+            <OrderLines>
+                <OrderLine>
+                    <OrderLineSeq>1</OrderLineSeq>
+                    <EAN13>8720994900491</EAN13>
+                    <OrderedQty>1</OrderedQty>
+                    <SalesPriceAmt>99.95</SalesPriceAmt>
+                    <HasCustomPrice>true</HasCustomPrice>
+                    <CustomerItemNr>XX824550-998Z</CustomerItemNr>
+                </OrderLine>
+            </OrderLines>
+            <DeliveryAddresses>
+                <DeliveryAddress>
+                    <Name>Annegret Kraus</Name>
+                    <Street>Kaiser-Heinrich-Str</Street>
+                    <HouseNr>2</HouseNr>
+                    <HouseNrExt/>
+                    <ZipCode>82398</ZipCode>
+                    <City>Polling</City>
+                    <CountryIsoCode>DE</CountryIsoCode>
+                    <Email>o+10103583274516@pp-orders.zalan.do</Email>
+                    <ContactName>null</ContactName>
+                </DeliveryAddress>
+            </DeliveryAddresses>
+        </OrderHeader>
+    </Orders>
+scripts:
+  - type: afterResponse
+    code: |-
+      const expected = `<Orders>
+          <OrderHeader>
+              <WebOrderNr>CE-35076</WebOrderNr>
+              <CompanyCode>KSV</CompanyCode>
+              <IsB2C>true</IsB2C>
+              <B2CType>2</B2CType>
+              <CustomerCode>ZFS DE</CustomerCode>
+              <CustomerReference>10103583274516</CustomerReference>
+              <SeasonCode>WEB</SeasonCode>
+              <WarehouseGroupCode>ZFSKSV</WarehouseGroupCode>
+              <OrderOriginCode>70</OrderOriginCode>
+              <SalesDepartmentCode>WEB</SalesDepartmentCode>
+              <SalesmanCode>WEB</SalesmanCode>
+              <SalesRepCode>777</SalesRepCode>
+              <OrderTypeCode>61</OrderTypeCode>
+              <DeliverySlipInfo>
+                  <DeliveryPropNo>88888888</DeliveryPropNo>
+                  <DoIncludeOtherOrders>false</DoIncludeOtherOrders>
+                  <CompileInstruction>1</CompileInstruction>
+              </DeliverySlipInfo>
+              <OrderLines>
+                  <OrderLine>
+                      <OrderLineSeq>1</OrderLineSeq>
+                      <EAN13>8720994900491</EAN13>
+                      <OrderedQty>1</OrderedQty>
+                      <SalesPriceAmt>99.95</SalesPriceAmt>
+                      <HasCustomPrice>true</HasCustomPrice>
+                      <CustomerItemNr>XX824550-998Z</CustomerItemNr>
+                  </OrderLine>
+              </OrderLines>
+              <DeliveryAddresses>
+                  <DeliveryAddress>
+                      <Name>Annegret Kraus</Name>
+                      <Street>Kaiser-Heinrich-Str</Street>
+                      <HouseNr>2</HouseNr>
+                      <HouseNrExt/>
+                      <ZipCode>82398</ZipCode>
+                      <City>Polling</City>
+                      <CountryIsoCode>DE</CountryIsoCode>
+                      <Email>o+10103583274516@pp-orders.zalan.do</Email>
+                      <ContactName>null</ContactName>
+                  </DeliveryAddress>
+              </DeliveryAddresses>
+          </OrderHeader>
+      </Orders>`;
+
+      const actual = pm.response.text();
+
+      pm.test("happyflow", function () {
+      //    console.log('actual');
+      //    console.log(actual.replace(/[\r\n\t]/g, ""));
+      //    console.log('expected');
+      //    console.log(expected.replace(/[\r\n\t]/g, ""));
+          pm.response.to.not.be.error;
+          pm.expect(actual.replace(/[\r\n\t\s]/g, "")).to.eql(expected.replace(/[\r\n\t\s]/g, ""));     
+      });
+    language: text/javascript
+order: 79000
