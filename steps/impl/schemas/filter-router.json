@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:filter-router",
+	"title": "filter router",
+	"description": "Passes the message on when the condition holds and stops it otherwise. In DIL it is an action.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Language of the condition: simple (${header.x} == 'y'), xpath (/a/b = 'y') or jsonpath ($.a.b)",
+			"type": "string",
+			"enum": ["simple", "xpath", "jsonpath"],
+			"default": "simple"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "The condition",
+			"type": "string"
+		}
+	},
+	"required": ["expression"],
+	"additionalProperties": false
+}

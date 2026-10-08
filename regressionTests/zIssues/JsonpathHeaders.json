@@ -1,0 +1,127 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7eb2deee15e200100000b6",
+						"name": "JsonpathHeaders",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1c792bb5-3f3d-4903-a270-c9f08630cbc4",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/JsonpathHeaders",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5952fffd-d1fa-4923-924c-36242cb80408",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5952fffd-d1fa-4923-924c-36242cb80408",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\"ft_link\":\"https://www.filmtotaal.nl/film/19182\",\"titel\":\"Jack Reacher\",\"jaar\":\"2012\",\"regisseur\":\"Christopher McQuarrie\",\"cast\":\"Tom Cruise:Rosamund Pike:Richard Jenkins:David Oyelowo:Werner Herzog:Jai Courtney\",\"genre\":\"Actie:Misdaad:Mystery:Thriller\",\"land\":\"Verenigde Staten\",\"cover\":\"https://cdn.filmtotaal.nl/images/covers/r77iz4hxkx.jpg\",\"tagline\":\"The law has limits. He does not.\",\"duur\":\"130\",\"synopsis\":\"'Jack Reacher' onder regie van Christopher McQuarrie (The Way of the Gun, 2000) gaat over de ex-militair Jack Reacher die de moord op vijf onschuldige mensen onderzoekt. Hoewel er een verdachte is, twijfelt hij aan de schuld van deze persoon en diept hij de zaak verder uit.\",\"ft_rating\":\"6.9\",\"ft_votes\":\"54\",\"imdb_id\":\"0790724\",\"imdb_rating\":\"7\",\"imdb_votes\":\"230503\",\"starttijd\":\"1697653500\",\"eindtijd\":\"1697663100\",\"zender\":\"Veronica\",\"filmtip\":\"1\"}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5952fffd-d1fa-4923-924c-36242cb80408",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1499974d-0462-4afd-8abd-511a8db854a3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1499974d-0462-4afd-8abd-511a8db854a3",
+									"type": "action",
+									"uri": "setheaders:message:1499974d-0462-4afd-8abd-511a8db854a3",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1499974d-0462-4afd-8abd-511a8db854a3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "86d422cd-f939-40f3-a332-469f4561e4ce",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "86d422cd-f939-40f3-a332-469f4561e4ce",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "86d422cd-f939-40f3-a332-469f4561e4ce",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a7eb2deee15e200100000b8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "1499974d-0462-4afd-8abd-511a8db854a3",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "jsonpath",
+							"name": "title",
+							"value": "@.titel"
+						}
+					}
+				}
+			}
+		}
+	}
+}

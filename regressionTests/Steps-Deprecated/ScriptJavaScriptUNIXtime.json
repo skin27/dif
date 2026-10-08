@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a8330bcdd4f5700160001d9",
+						"name": "ScriptJavaScriptUNIXtime",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "008d2150-7efb-4ec7-a0b0-c86899ebc8e9",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptUNIXtime",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "c2af326b-a4bc-40f9-8aa3-11d6dd0ae206",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c2af326b-a4bc-40f9-8aa3-11d6dd0ae206",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "UnixLastModifiedDate not empty"
+									},
+									"links": {
+										"link": {
+											"id": "c2af326b-a4bc-40f9-8aa3-11d6dd0ae206",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a8330bcdd4f5700160001db",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

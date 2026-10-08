@@ -1,0 +1,57 @@
+{
+  "dil": {
+    "core": {},
+    "integrations": {
+      "integration": {
+        "flows": {
+          "flow": {
+            "id": "test89",
+            "name": "test89",
+            "steps": {
+              "step": [
+                {
+                  "id": "test89-source",
+                  "type": "source",
+                  "uri": "timer:test89",
+                  "options": {
+                    "period": 1000
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "test89-link",
+                        "bound": "out",
+                        "rule": "",
+                        "language": "",
+                        "expression": ""
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "test89-sink",
+                  "type": "sink",
+                  "uri": "log",
+                  "options": {
+                    "showBody": true
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "test89-link",
+                        "bound": "in",
+                        "rule": "",
+                        "language": "",
+                        "expression": ""
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

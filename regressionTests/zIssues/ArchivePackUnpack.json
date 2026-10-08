@@ -1,0 +1,240 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695506bdf71686000d000053",
+						"name": "ArchivePackUnpack",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "992763f3-6273-48eb-a1ef-f4ea28713f2f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ArchivePackUnpack",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "3b050549-7e17-4cbd-9d7f-be6a0578ce33",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3b050549-7e17-4cbd-9d7f-be6a0578ce33",
+									"type": "action",
+									"uri": "setheaders:message:3b050549-7e17-4cbd-9d7f-be6a0578ce33",
+									"links": {
+										"link": [
+											{
+												"id": "3b050549-7e17-4cbd-9d7f-be6a0578ce33",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4af65f49-949c-45b8-a266-67def7d08985",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4af65f49-949c-45b8-a266-67def7d08985",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "4af65f49-949c-45b8-a266-67def7d08985",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "247d4f5f-caf3-4742-9164-e28785ea6442",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "247d4f5f-caf3-4742-9164-e28785ea6442",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "247d4f5f-caf3-4742-9164-e28785ea6442",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "25bd8314-675e-4d49-9364-b7a62ad7748f",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "08d2574e-2f06-490c-913c-fb38ecfa20e5",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "25bd8314-675e-4d49-9364-b7a62ad7748f",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out/",
+									"options": {
+										"fileName": "OauthGmailNoreply.zip",
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"binary": true,
+										"passiveMode": true,
+										"disconnect": true,
+										"autoCreate": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "25bd8314-675e-4d49-9364-b7a62ad7748f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "abc790ac-131a-4415-939a-2d4168a94b1d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "abc790ac-131a-4415-939a-2d4168a94b1d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "abc790ac-131a-4415-939a-2d4168a94b1d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "08d2574e-2f06-490c-913c-fb38ecfa20e5",
+									"type": "action",
+									"uri": "unzip",
+									"links": {
+										"link": [
+											{
+												"id": "08d2574e-2f06-490c-913c-fb38ecfa20e5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e5d136d0-a043-4947-84be-3e7b47fee289",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e5d136d0-a043-4947-84be-3e7b47fee289",
+									"type": "action",
+									"uri": "ftp:api-testing.dovetail.world:2121/next/Regression Tests/test/out/",
+									"options": {
+										"fileName": "OauthGmailNoreply.txt",
+										"binary": false,
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e5d136d0-a043-4947-84be-3e7b47fee289",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4f26464d-27ce-426c-8cef-8c2d029086d9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4f26464d-27ce-426c-8cef-8c2d029086d9",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "4f26464d-27ce-426c-8cef-8c2d029086d9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3bdc5d08-80ea-4938-9705-4f8348f5bfd9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "3b050549-7e17-4cbd-9d7f-be6a0578ce33",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelFileName",
+							"value": "text.txt"
+						}
+					}
+				}
+			}
+		}
+	}
+}

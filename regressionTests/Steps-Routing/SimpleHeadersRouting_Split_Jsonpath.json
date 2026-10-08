@@ -1,0 +1,169 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e654cf71686001400019c",
+						"name": "SimpleHeadersRouting_Split_Jsonpath",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5e677e19-c022-4262-bf73-e3e5a79eaac7",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersRouting_Split_Jsonpath",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "eecbfa8a-3f8f-4e65-8d0a-f39b090c69d6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eecbfa8a-3f8f-4e65-8d0a-f39b090c69d6",
+									"type": "action",
+									"uri": "setheaders:message:eecbfa8a-3f8f-4e65-8d0a-f39b090c69d6",
+									"links": {
+										"link": [
+											{
+												"id": "eecbfa8a-3f8f-4e65-8d0a-f39b090c69d6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "026ef2dd-d7eb-4857-a5d0-294cd1c71934",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "026ef2dd-d7eb-4857-a5d0-294cd1c71934",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n    \"@datum\": \"18-10-2023\",\n    \"film\": [\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/19182\",\n            \"titel\": \"Jack Reacher\",\n            \"jaar\": \"2012\",\n            \"regisseur\": \"Christopher McQuarrie\",\n            \"cast\": \"Tom Cruise:Rosamund Pike:Richard Jenkins:David Oyelowo:Werner Herzog:Jai Courtney\",\n            \"genre\": \"Actie:Misdaad:Mystery:Thriller\",\n            \"land\": \"Verenigde Staten\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/r77iz4hxkx.jpg\",\n            \"tagline\": \"The law has limits. He does not.\",\n            \"duur\": \"130\",\n            \"synopsis\": \"'Jack Reacher' onder regie van Christopher McQuarrie (The Way of the Gun, 2000) gaat over de ex-militair Jack Reacher die de moord op vijf onschuldige mensen onderzoekt. Hoewel er een verdachte is, twijfelt hij aan de schuld van deze persoon en diept hij de zaak verder uit.\",\n            \"ft_rating\": \"6.9\",\n            \"ft_votes\": \"54\",\n            \"imdb_id\": \"0790724\",\n            \"imdb_rating\": \"7\",\n            \"imdb_votes\": \"230503\",\n            \"starttijd\": \"1697653500\",\n            \"eindtijd\": \"1697663100\",\n            \"zender\": \"Veronica\",\n            \"filmtip\": \"1\"\n        },\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/23843\",\n            \"titel\": \"Spider-Man: Homecoming\",\n            \"jaar\": \"2017\",\n            \"regisseur\": \"Jon Watts\",\n            \"cast\": \"Tom Holland:Michael Keaton:Robert Downey Jr.:Marisa Tomei:Jon Favreau:Gwyneth Paltrow\",\n            \"genre\": \"Actie:Avontuur:Sci-Fi\",\n            \"land\": \"Verenigde Staten\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/q1xxwax9p9.jpg\",\n            \"tagline\": [],\n            \"duur\": \"133\",\n            \"synopsis\": \"Geen synopsis beschikbaar.Een jonge Peter Parker/Spider-Man (Holland), die zijn sensationele debuut beleefde in Captain America: Civil War leert in Spider-Man: Homecoming om te gaan met zijn nieuwgevonden identiteit als webslingende superheld. Enthousiast door zijn ervaring met de Avengers, keert Peter terug naar huis, waar hij met zijn tante May (Marisa Tomei) woont, en onder het waakzame oog van zijn nieuwe mentor Tony Stark (Downey Jr.) door het leven gaat. Peter probeert weer in zijn normale dagelijkse routine terug te komen, maar wordt afgeleid van de gedachte dat hij zichzelf moet bewijzen als meer dan alleen de vriendelijke Spider-Man. Als de nieuwe superschurk Vulture (Keaton) zijn opwachting maakt, komt alles waar Peter aan hecht in gevaar.\",\n            \"ft_rating\": \"0\",\n            \"ft_votes\": \"0\",\n            \"imdb_id\": \"2250912\",\n            \"imdb_rating\": \"0\",\n            \"imdb_votes\": \"0\",\n            \"starttijd\": \"1697653500\",\n            \"eindtijd\": \"1697664000\",\n            \"zender\": \"RTL7\",\n            \"filmtip\": \"1\"\n        },\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/15557\",\n            \"titel\": \"Clash of the Titans\",\n            \"jaar\": \"2010\",\n            \"regisseur\": \"Louis Leterrier\",\n            \"cast\": \"Sam Worthington:Liam Neeson:Ralph Fiennes:Jason Flemyng:Gemma Arterton:Alexa Davalos\",\n            \"genre\": \"Actie:Avontuur:Fantasy\",\n            \"land\": \"Verenigde Staten\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/162vbhwx2n.jpg\",\n            \"tagline\": \"The Clash Begins 2.4.2010\",\n            \"duur\": \"106\",\n            \"synopsis\": \"Geboren als een god, maar opgevoed als een mens probeert Perseus (Sam Worthington) hulpeloos zijn familie te redden van Hades (Ralph Fiennes), de wraakzuchtige god van de onderwereld. Perseus biedt zich vrijwillig aan om deel te nemen aan een levensgevaarlijke missie om Hades te vermoorden, voordat die de macht van Zeus (Liam Neeson) kan grijpen, om zo de aarde in een hel te laten veranderen en prinses Andromeda (Alexa Davalos) van haar leven te beroven. Bijgestaan door Io (Gemma Arterton), een mysterieuze spirituele gids leidt de missie Perseus en zijn groep strijders op een gevaarlijke reis diep de verboden wereld in. Daar moeten ze vechten tegen heidense demonen en andere beesten die geen gevaar vrezen. Perseus zal zijn bestaan en zijn macht als die van een god moeten accepteren en zijn eigen lot moeten creëren, wil hij het uiteindelijk gaan redden...\",\n            \"ft_rating\": \"5.8\",\n            \"ft_votes\": \"117\",\n            \"imdb_id\": \"0800320\",\n            \"imdb_rating\": \"5.8\",\n            \"imdb_votes\": \"231195\",\n            \"starttijd\": \"1697653800\",\n            \"eindtijd\": \"1697661000\",\n            \"zender\": \"Paramount Network\",\n            \"filmtip\": \"1\"\n        },\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/31409\",\n            \"titel\": \"Good Time\",\n            \"jaar\": \"2017\",\n            \"regisseur\": \"Ben Safdie:Joshua Safdie\",\n            \"cast\": \"Jennifer Jason Leigh:Robert Pattinson:Barkhad Abdi:Ben Safdie:Luke Eberl:Buddy Duress\",\n            \"genre\": \"Misdaad:Drama\",\n            \"land\": \"Verenigde Staten\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/z9wg6d8y50.jpg\",\n            \"tagline\": [],\n            \"duur\": \"100\",\n            \"synopsis\": \"Nadat een bankoverval mislukt en zijn jongere broer in de bak terecht komt, vertrekt Constantine Nikas op een reis door de onderwereld van New York in een gevaarlijke poging zijn broertje vrij te krijgen. Gedurende één nacht, vervalt Constantine in geweld en chaso in een race tegen de klok om zijn broer en ook zichzelf te redden.\",\n            \"ft_rating\": \"0\",\n            \"ft_votes\": \"0\",\n            \"imdb_id\": \"4846232\",\n            \"imdb_rating\": \"7.8\",\n            \"imdb_votes\": \"494\",\n            \"starttijd\": \"1697662500\",\n            \"eindtijd\": \"1697668500\",\n            \"zender\": \"Canvas\",\n            \"filmtip\": \"1\"\n        },\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/32800\",\n            \"titel\": \"21 Bridges\",\n            \"jaar\": \"2019\",\n            \"regisseur\": \"Brian Kirk\",\n            \"cast\": \"Chadwick Boseman:Sienna Miller:J.K. Simmons:Stephan James:Taylor Kitsch:Keith David\",\n            \"genre\": \"Actie:Misdaad:Drama:Thriller\",\n            \"land\": \"China:Verenigde Staten\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/vcp0auqght.jpg\",\n            \"tagline\": \"The Ultimate Heist. Everyone Is a Suspect.\",\n            \"duur\": \"99\",\n            \"synopsis\": \"Als NYPD rechercheur Simpson (Chadwick Boseman) een operatie verknalt, krijgt hij nog één laatste kans om zijn baan te redden. Samen met zijn collega's moet hij op Manhattan een voortvluchtige 'cop killer' zien in te rekenen. Naarmate de nacht vordert, moeten er steeds extremere maatregelen worden genomen. Voor het eerst in de geschiedenis van New York worden alle 21 bruggen gesloten, zodat de moordenaar geen kant meer op kan. Zo wordt Manhattan voor één nacht een afgesloten eiland en is de jacht op de moordenaar geopend!\",\n            \"ft_rating\": \"0\",\n            \"ft_votes\": \"0\",\n            \"imdb_id\": \"8688634\",\n            \"imdb_rating\": \"6.6\",\n            \"imdb_votes\": \"21927\",\n            \"starttijd\": \"1697663100\",\n            \"eindtijd\": \"1697669700\",\n            \"zender\": \"Veronica\",\n            \"filmtip\": \"1\"\n        },\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/19227\",\n            \"titel\": \"Total Recall\",\n            \"jaar\": \"2012\",\n            \"regisseur\": \"Len Wiseman\",\n            \"cast\": \"Colin Farrell:Kate Beckinsale:Jessica Biel:Bryan Cranston:Bokeem Woodbine:Bill Nighy\",\n            \"genre\": \"Actie:Avontuur:Mystery:Sci-Fi:Thriller\",\n            \"land\": \"Verenigde Staten:Canada\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/hy6ypcemo9.jpg\",\n            \"tagline\": \"What is real?\",\n            \"duur\": \"118\",\n            \"synopsis\": \"Welkom bij Rekall, het bedrijf dat dromen tot werkelijkheid kan brengen. Voor de fabrieksmedewerker Douglas Quaid (Colin Farrell) klinkt deze trip als de perfecte vakantie om aan zijn frustrerende leven te ontkomen, ook al heeft hij een prachtige vrouw (Kate Beckinsale). Echte herinneringen van het leven als een super spion is net wat hij nodig heeft. Maar als de procedure goed fout gaat, wordt Quaid een opgejaagd man. Hij wordt achtervolgd door de politie, geleid door Chancellor Cohaagen (Bryan Cranston) en besluit samen te werken met een vrouwelijke rebel vechter (Jessica Biel) om Cohaagen te stoppen. Het is niet meer duidelijk wat fantasie en werkelijkheid is en Quaid ontdekt zijn echte identiteit, liefde en lot.\",\n            \"ft_rating\": \"6.2\",\n            \"ft_votes\": \"61\",\n            \"imdb_id\": \"1386703\",\n            \"imdb_rating\": \"6.3\",\n            \"imdb_votes\": \"222883\",\n            \"starttijd\": \"1697664000\",\n            \"eindtijd\": \"1697672700\",\n            \"zender\": \"RTL7\",\n            \"filmtip\": \"1\"\n        },\n        {\n            \"ft_link\": \"https://www.filmtotaal.nl/film/18314\",\n            \"titel\": \"Halloween\",\n            \"jaar\": \"2018\",\n            \"regisseur\": \"David Gordon Green\",\n            \"cast\": \"Jamie Lee Curtis:Judy Greer:Andi Matichak:James Jude Courtney:Nick Castle:Haluk Bilginer\",\n            \"genre\": \"Misdaad:Horror:Thriller\",\n            \"land\": \"Verenigde Staten\",\n            \"cover\": \"https://cdn.filmtotaal.nl/images/covers/oqzkvcnhbv.jpg\",\n            \"tagline\": [],\n            \"duur\": \"106\",\n            \"synopsis\": \"Laurie Strode keert terug om het nog eenmaal op te nemen tegen Michael Myers, de gemaskerde figuur die haar vier decennia geleden bijna vermoordde. Maar wat ze niet weet, is dat Michael er ook helemaal klaar voor is.\",\n            \"ft_rating\": \"0\",\n            \"ft_votes\": \"0\",\n            \"imdb_id\": \"1502407\",\n            \"imdb_rating\": \"6.5\",\n            \"imdb_votes\": \"157309\",\n            \"starttijd\": \"1697665200\",\n            \"eindtijd\": \"1697671200\",\n            \"zender\": \"BBC1\",\n            \"filmtip\": \"1\"\n        }\n    ]\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "026ef2dd-d7eb-4857-a5d0-294cd1c71934",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ed348a4f-3742-4429-9aa0-2e85a8f50a0a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ed348a4f-3742-4429-9aa0-2e85a8f50a0a",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "jsonpath",
+										"aggregateType": "json",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ed348a4f-3742-4429-9aa0-2e85a8f50a0a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ff90192f-cd0e-4391-8dcb-6d0d9bbb0295",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "2a94444a-9b14-427b-9fa4-13bf3d3a3f9c",
+												"bound": "out",
+												"expression": "${header.expression}",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ff90192f-cd0e-4391-8dcb-6d0d9bbb0295",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ff90192f-cd0e-4391-8dcb-6d0d9bbb0295",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2a94444a-9b14-427b-9fa4-13bf3d3a3f9c",
+									"type": "sink",
+									"uri": "setbodyasstring",
+									"links": {
+										"link": {
+											"id": "2a94444a-9b14-427b-9fa4-13bf3d3a3f9c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "210a6e3b-b48b-4101-b43c-e090f23fd182",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "eecbfa8a-3f8f-4e65-8d0a-f39b090c69d6",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "expression",
+							"value": "$.film"
+						}
+					}
+				}
+			}
+		}
+	}
+}

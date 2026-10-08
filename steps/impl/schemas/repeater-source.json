@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:repeater-source",
+	"title": "repeater source",
+	"description": "Produces a message every period, like the timer source. The body is the counter (1, 2, 3, ...).",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Name",
+			"description": "Name of the repeater, from the URI (repeater:<name>); informational only",
+			"type": "string"
+		},
+		"period": {
+			"title": "Period",
+			"description": "Milliseconds between two messages",
+			"type": "integer",
+			"minimum": 1,
+			"default": 10000
+		},
+		"repeatCount": {
+			"title": "Repeat count",
+			"description": "Number of messages to produce; 0 or less (as -1) means unlimited",
+			"type": "integer",
+			"default": 0
+		}
+	},
+	"additionalProperties": false
+}

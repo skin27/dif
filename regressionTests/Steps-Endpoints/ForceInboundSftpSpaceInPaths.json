@@ -1,0 +1,174 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4e52052f74a0000c000056",
+						"name": "ForceInboundSftpSpaceInPaths",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d0dd8eb5-fc12-4059-a96a-8a3fbcd7e75e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ForceInboundSftpSpaceInPaths",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "ee4b3bc4-9996-463e-ac1e-c90c9fddba70",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ee4b3bc4-9996-463e-ac1e-c90c9fddba70",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022//next/Regression Tests/test/out/pigs in spaces",
+									"options": {
+										"fileName": "PigsInSpace.jpg",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "ENC(E7RfA4CPoI2D/gmIx+ng8Q==|eClzJeiE2GXe/2uOqpIZSw==|zHkAAk00Ro/N9k5ahoVE+wh6nUZ+pvCp4ZtApKsHHyeKRSM9brY6QiAeUs+AbNiPCODlKJ8uSKbo/C0tI/ehUJC/iLuhLLGEtbtJXHXZITnqyN+0Rg06wFN3TkDMsd0dVwaGS1N2oRFubxLlEJsqFQ==)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ee4b3bc4-9996-463e-ac1e-c90c9fddba70",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "92f2c412-2991-40f5-a4d9-09d0a49a41ab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "92f2c412-2991-40f5-a4d9-09d0a49a41ab",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022//next/Regression Tests/test/out/pigs in spaces",
+									"options": {
+										"recursive": false,
+										"fileName": "PigsInSpace.jpg",
+										"binary": true,
+										"charset": "utf-8",
+										"maxMessagesPerPoll": "1",
+										"delete": false,
+										"moveFailed": "RAW(.error)",
+										"autoCreate": true,
+										"readLock": "none",
+										"userName": "dovetail",
+										"password": "ENC(vOJDIEutqjHzoRuN5hEAcg==|lN8PnwyYIHS/gAlfakyGmQ==|DePFgPhsliKYcmJMFK6QW+SXPjEzGJDzoVP66gQHDP/btFBC+wS52JkQgmqU8rrK83YXdHM+9fFhF25B0kPIyntyvjgVY5EG7pBi95Vjf2I3vEJtk2P/DMX0VXox0e7glasFnkP2RwrW/jtWrdWz6w==)",
+										"abortMode": false,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "92f2c412-2991-40f5-a4d9-09d0a49a41ab",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ac330bc1-7297-49cd-b50c-e0de8ccdb0d3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ac330bc1-7297-49cd-b50c-e0de8ccdb0d3",
+									"type": "action",
+									"uri": "setheaders:message:ac330bc1-7297-49cd-b50c-e0de8ccdb0d3",
+									"links": {
+										"link": [
+											{
+												"id": "ac330bc1-7297-49cd-b50c-e0de8ccdb0d3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "42ec611c-c00d-4919-a34c-af6a9511b979",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "42ec611c-c00d-4919-a34c-af6a9511b979",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "42ec611c-c00d-4919-a34c-af6a9511b979",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a4e52052f74a0000c000058",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "ac330bc1-7297-49cd-b50c-e0de8ccdb0d3",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "CamelFileParentTmp",
+								"value": "${header.CamelFileParent}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "X-CamelFileParent",
+								"value": "${header.CamelFileParentTmp.replaceAll('^.*/', '')}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

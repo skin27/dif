@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ce62aa93e3000c000215",
+						"name": "CB_Wiretap",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "fbb9aee9-ed99-439a-bcee-b30b0f600913",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Wiretap",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "f3ac260d-0924-4adc-8ff5-1de3559c8055",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f3ac260d-0924-4adc-8ff5-1de3559c8055",
+									"type": "router",
+									"uri": "wiretap",
+									"links": {
+										"link": [
+											{
+												"id": "f3ac260d-0924-4adc-8ff5-1de3559c8055",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "49a2dd42-e25b-496a-bed4-33c44e24b4ab",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "e319b564-7ed2-4609-90c5-00689f6d23ca",
+												"bound": "out",
+												"rule": "wiretap",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "49a2dd42-e25b-496a-bed4-33c44e24b4ab",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Test finished"
+									},
+									"links": {
+										"link": {
+											"id": "49a2dd42-e25b-496a-bed4-33c44e24b4ab",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e319b564-7ed2-4609-90c5-00689f6d23ca",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e319b564-7ed2-4609-90c5-00689f6d23ca",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9f97ed14-60c5-4e98-ba6c-11ed74714516",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

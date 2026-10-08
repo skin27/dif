@@ -1,0 +1,209 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7b0d7db55b6d000c000378",
+						"name": "SqlMultipleInsert",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3b6700d2-eec2-4fde-acf2-b854422ba87c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SqlMultipleInsert",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "92981751-19d9-43c5-8dbc-b8f9ddea9859",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "92981751-19d9-43c5-8dbc-b8f9ddea9859",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "call"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "92981751-19d9-43c5-8dbc-b8f9ddea9859",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f1d26928-d014-4480-8d98-74f71a649dd9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f1d26928-d014-4480-8d98-74f71a649dd9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "('Bertus1','Aafjes','baafjes@a.ork','2023-03-21','2023-03-21'),\n('Bertus2','Aafjes','baafjes@a.ork','2023-03-21','2023-03-21'),\n('Bertus3','Aafjes','baafjes@a.ork','2023-03-21','2023-03-21'),\n('Bertus4','Aafjes','baafjes@a.ork','2023-03-21','2023-03-21'),\n('Bertus5','Aafjes','baafjes@a.ork','2023-03-21','2023-03-21')"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f1d26928-d014-4480-8d98-74f71a649dd9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0645e753-1a91-4896-b751-897b1d50e4d9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0645e753-1a91-4896-b751-897b1d50e4d9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT INTO customers_next (firstname, lastname, email, createdat, updatedat) VALUES ${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0645e753-1a91-4896-b751-897b1d50e4d9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3d3052d1-58dd-45bc-be83-ad6cd2eec1bd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3d3052d1-58dd-45bc-be83-ad6cd2eec1bd",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": true,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "ENC(JyaOObiX11mrmIzxLNqBFQ==|foOnEqtgdMpGFxR7X3yI5A==|MhXIgs9xlQLC82+JNFuKlGanWxyJ6FsPMg05wpCS3/bN5c5R7pO+HhGU7zFi0fuwIu+/oek3kGYiQBrrGPCBJPKz9rhsCOGlbHVEkzL+nWw=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3d3052d1-58dd-45bc-be83-ad6cd2eec1bd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5aed8c77-f563-4381-8d13-6925209559f2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5aed8c77-f563-4381-8d13-6925209559f2",
+									"type": "action",
+									"uri": "setheaders:message:5aed8c77-f563-4381-8d13-6925209559f2",
+									"links": {
+										"link": [
+											{
+												"id": "5aed8c77-f563-4381-8d13-6925209559f2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "726b5ee4-0997-48a3-a541-023c4903f4f5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "726b5ee4-0997-48a3-a541-023c4903f4f5",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "726b5ee4-0997-48a3-a541-023c4903f4f5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "19964776-71e3-44a6-8a97-c4ba436fc813",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "5aed8c77-f563-4381-8d13-6925209559f2",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "xpath",
+								"name": "numberOfRecords",
+								"value": "count(//Result/generatedKey)"
+							},
+							{
+								"type": "header",
+								"language": "xpath",
+								"name": "hasErrors",
+								"value": "//HasErrors/text()"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7dc84ca9e3970011000012",
+						"name": "SQL_insert_mysql8_tls1_2",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "665ee74d-f2b7-472e-8333-d44ed702313a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_insert_mysql8_tls1_2",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "f44a91a5-1631-49f1-abf1-c23102b00301",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f44a91a5-1631-49f1-abf1-c23102b00301",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SQL tls 1.2 is not deprecated, but is no option in MySql option anymore.\n\nBody matches strings:\nOriginal body"
+									},
+									"links": {
+										"link": {
+											"id": "f44a91a5-1631-49f1-abf1-c23102b00301",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "37b140a4-be39-4c75-8971-d7fd480a9ded",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

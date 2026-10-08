@@ -1,0 +1,74 @@
+apiVersion: "camel.apache.org/v1"
+kind: "Kamelet"
+metadata:
+  name: "multipart-action"
+  labels:
+    camel.apache.org/kamelet.type: "action"
+spec:
+  definition:
+    title: "multipart action"
+    description: "Add multipart to message"
+    type: "object"
+    properties:
+      fname:
+        title: "Field Name"
+        description: "Field Name"
+        type: "string"
+      contentType:
+        title: "Content-Type"
+        description: "Content-Type on the message"
+        type: "string"
+        default: "multipart/form-data"
+      in:
+        title: "Source Endpoint"
+        type: "string"
+        default: "kamelet:source"
+      out:
+        title: "Sink Endpoint"
+        type: "string"
+        default: "mock:sink"
+      sink:
+        title: "Sink"
+        type: "boolean"
+        default: false
+      routeId:
+        title: "Route ID"
+        type: "string"
+      stepId:
+        title: "Step ID"
+        type: "string"
+      routeConfigurationId:
+        title: "Route Configuration ID"
+        type: "string"
+        default: "0"
+  dependencies:
+  - "camel:kamelet"
+  template:
+    route:
+      routeConfigurationId: "{{routeConfigurationId}}"
+      from:
+        uri: "{{in}}"
+        steps:
+        - step:
+            id: "step-{{stepId}}"
+            steps:
+            - choice:
+                when:
+                - simple: "${header.Content-Type}"
+                  steps:
+                  - setHeader:
+                      name: "MultipartFieldName"
+                      simple: "{{fname}}"
+                otherwise:
+                  steps:
+                  - setHeader:
+                      name: "Content-Type"
+                      constant: "{{contentType}}"
+                  - setHeader:
+                      name: "MultipartFieldName"
+                      simple: "{{fname}}"
+            - process:
+                ref: "multipartProcessor"
+            - to:
+                disabled: "{{sink}}"
+                uri: "{{out}}"

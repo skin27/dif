@@ -1,0 +1,135 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a3178dabbc9001400054b",
+						"name": "CB_DocConverterJsonToYaml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cd0a3f00-6501-459f-a33c-a04ed3412456",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_DocConverterJsonToYaml",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "dfb33728-74bf-4dec-87b9-51e780262257",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dfb33728-74bf-4dec-87b9-51e780262257",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dfb33728-74bf-4dec-87b9-51e780262257",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a785542b-08b4-43ff-9690-06c582c0f7b5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a785542b-08b4-43ff-9690-06c582c0f7b5",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n  \"product\": {\n    \"id\": \"PRD-100245\",\n    \"name\": \"UltraSmart Coffee Machine 5000\",\n    \"description\": \"Fully automatic bean-to-cup coffee machine\",\n    \"category\": {\n      \"id\": 12,\n      \"name\": \"Kitchen Appliances\"\n    },\n    \"price\": {\n      \"currency\": \"EUR\",\n      \"amount\": 899.95,\n      \"vatIncluded\": true\n    },\n    \"stock\": {\n      \"warehouse\": [\n        {\n          \"location\": \"Amsterdam\",\n          \"quantity\": 24\n        },\n        {\n          \"location\": \"Rotterdam\",\n          \"quantity\": 18\n        },\n        {\n          \"location\": \"Eindhoven\",\n          \"quantity\": 0\n        }\n      ]\n    },\n    \"dimensions\": {\n      \"width\": 28.5,\n      \"height\": 42.3,\n      \"depth\": 36.1,\n      \"unit\": \"cm\"\n    },\n    \"weight\": {\n      \"value\": 8.75,\n      \"unit\": \"kg\"\n    },\n    \"manufacturer\": {\n      \"name\": \"CoffeeTech Europe\",\n      \"country\": \"Netherlands\",\n      \"support\": {\n        \"email\": \"support@coffeetech.example\",\n        \"phone\": \"+31-20-1234567\"\n      }\n    },\n    \"tags\": [\n      \"coffee\",\n      \"espresso\",\n      \"automatic\",\n      \"premium\"\n    ],\n    \"specifications\": {\n      \"power\": \"1450W\",\n      \"voltage\": \"230V\",\n      \"waterTank\": {\n        \"capacity\": 1.8,\n        \"unit\": \"L\"\n      },\n      \"programs\": [\n        \"Espresso\",\n        \"Cappuccino\",\n        \"Latte\",\n        \"Hot Water\"\n      ]\n    },\n    \"reviews\": [\n      {\n        \"user\": \"john.doe\",\n        \"rating\": 5,\n        \"comment\": \"Excellent coffee!\"\n      },\n      {\n        \"user\": \"jane.smith\",\n        \"rating\": 4,\n        \"comment\": \"Very good, but a bit noisy.\"\n      }\n    ],\n    \"availability\": {\n      \"online\": true,\n      \"stores\": [\n        \"Amsterdam\",\n        \"Rotterdam\",\n        \"Utrecht\"\n      ]\n    },\n    \"createdAt\": \"2026-07-17T10:15:30Z\",\n    \"updatedAt\": \"2026-07-17T11:45:00Z\"\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a785542b-08b4-43ff-9690-06c582c0f7b5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "79368cc8-b30a-4786-b54a-a52ebe9f547b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "79368cc8-b30a-4786-b54a-a52ebe9f547b",
+									"type": "action",
+									"uri": "docconverter",
+									"options": {
+										"convert": "jsontoyaml"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "79368cc8-b30a-4786-b54a-a52ebe9f547b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1b4bd7b0-0c2f-4534-a413-404a6142acdd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1b4bd7b0-0c2f-4534-a413-404a6142acdd",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1b4bd7b0-0c2f-4534-a413-404a6142acdd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c4e39c22-70a1-45ed-8488-c3705847a0be",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

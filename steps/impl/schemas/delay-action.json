@@ -1,0 +1,17 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:delay-action",
+	"title": "delay action",
+	"description": "Holds the message for a while, then passes it on.",
+	"type": "object",
+	"properties": {
+		"milliseconds": {
+			"title": "Delay",
+			"description": "Milliseconds to hold the message",
+			"type": "integer",
+			"minimum": 0,
+			"default": 5000
+		}
+	},
+	"additionalProperties": false
+}

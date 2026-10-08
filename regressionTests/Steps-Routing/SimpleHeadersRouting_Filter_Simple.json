@@ -1,0 +1,178 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e6430f71686001400016b",
+						"name": "SimpleHeadersRouting_Filter_Simple",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8d2adfaf-8b64-4e72-b3c2-b1b7610c0942",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersRouting_Filter_Simple",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "871acdeb-9b4d-4880-8cdb-211db528241b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "871acdeb-9b4d-4880-8cdb-211db528241b",
+									"type": "action",
+									"uri": "setheaders:message:871acdeb-9b4d-4880-8cdb-211db528241b",
+									"links": {
+										"link": [
+											{
+												"id": "871acdeb-9b4d-4880-8cdb-211db528241b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "52ee4083-1208-4c0a-8e49-1234d54a6a97",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "52ee4083-1208-4c0a-8e49-1234d54a6a97",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<lines>\n    <line>1</line>\n</lines>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "52ee4083-1208-4c0a-8e49-1234d54a6a97",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9bb98b82-85a1-4d14-9f3b-07b33cb5f22f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9bb98b82-85a1-4d14-9f3b-07b33cb5f22f",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"language": "simple",
+										"expression": "${header.name} starts with '1'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9bb98b82-85a1-4d14-9f3b-07b33cb5f22f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "983331db-6476-446d-b2f6-fae0550fe1cb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "983331db-6476-446d-b2f6-fae0550fe1cb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "After filter"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "983331db-6476-446d-b2f6-fae0550fe1cb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f9fb94f2-b216-4171-8d6d-ffc6efcf9f21",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f9fb94f2-b216-4171-8d6d-ffc6efcf9f21",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f9fb94f2-b216-4171-8d6d-ffc6efcf9f21",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4875859f-5895-4502-84ef-ab27e5e87fb8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "871acdeb-9b4d-4880-8cdb-211db528241b",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "name",
+								"value": "123"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "expression",
+								"value": "${header.name} starts with '1'"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

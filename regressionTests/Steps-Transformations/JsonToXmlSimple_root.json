@@ -1,0 +1,93 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696fa5f3c9b9a40012000186",
+						"name": "JsonToXmlSimple_root",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a6c35179-1b9b-4546-845d-e1f28aef86ef",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/JsonToXmlSimple_root",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "07b9409e-514a-420e-a001-101c37a6bc00",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "07b9409e-514a-420e-a001-101c37a6bc00",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": true,
+										"rootTag": "root",
+										"checkJsonKeys": false,
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "07b9409e-514a-420e-a001-101c37a6bc00",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f41ef2da-5e86-4c8c-8f20-69a91219e2b3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f41ef2da-5e86-4c8c-8f20-69a91219e2b3",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f41ef2da-5e86-4c8c-8f20-69a91219e2b3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8e93b192-c5c9-4218-8766-62e4d0698cd4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

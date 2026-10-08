@@ -1,0 +1,322 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6abe5849a6fb9d001600010f",
+						"name": "Enrich_zip_single_sftp",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6abe5849a6fb9d0016000110",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_zip_single_sftp",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6abe5849a6fb9d001600012c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d001600012c",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d001600012c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d0016000128",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d0016000128",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bicycle_brands>\n    <brand>\n        <name>Batavus</name>\n        <country>The Netherlands</country>\n        <founded>1888</founded>\n        <website>www.batavus.nl</website>\n    </brand>\n</bicycle_brands>\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d0016000128",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d0016000113",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d0016000113",
+									"type": "action",
+									"uri": "setheaders:message:6abe5849a6fb9d0016000113",
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d0016000113",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d0016000125",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d0016000125",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d0016000125",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d0016000122",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d0016000122",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "zip",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d0016000122",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d001600011e",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "2249225d-9a0a-43fc-86b4-b09a02c03b4b",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d001600011e",
+									"type": "action",
+									"uri": "setheaders:message:6abe5849a6fb9d001600011e",
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d001600011e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d0016000132",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d0016000132",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out",
+									"options": {
+										"fileName": "OauthGmailNoreply_${date-with-timezone:now:Europe/Amsterdam:yyyyMMddHHmmssSSS}.zip",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "ENC(WFX5s4IX7x1PlZhY+0LoxQ==|uc6rSvlQbPruTDKE+1uPuA==|JKv9eA7GWLjeqUf2pMTlJjPmwVw6DdbkzeD+JXuJpZoE5ukOcu/3CSyY6i39Rzyc6qkUoYVEM/m3TteB64n7PzljYHgdkJlBSZtO1FHaAHNDytGrRrY0ktSqb7GM7uow2BzZRVxXD1bQNcHQgz8BAA==)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6abe5849a6fb9d0016000132",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6abe5849a6fb9d001600012f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d001600012f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6abe5849a6fb9d001600012f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2249225d-9a0a-43fc-86b4-b09a02c03b4b",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022/next/Regression Tests/test/in",
+									"options": {
+										"fileName": "enrich3.txt",
+										"charset": "utf-8",
+										"userName": "dovetail",
+										"password": "ENC(9TqXLIOIU3Fh9Ubg3NZNHg==|LNEdNjJt/3S9iLRuvRpfsQ==|So66u49JWojvC4I7yDUrjG28zweLFm385sb/syWoVypBxc/ICZ1B2V9kQNadDuqtz/M4wiAzf0xCQ995iAk4KNfHErtgViD196JoWdPpZ7kTJwFmk0CUCBjT9nR2Gxv/Ggj8QqgPMFMTu/wqxyCWZA==)",
+										"disconnect": true,
+										"autoCreate": true,
+										"passiveMode": true,
+										"recursive": false,
+										"delete": false,
+										"binary": false,
+										"abortMode": false,
+										"maxMessagesPerPoll": 1,
+										"move": "RAW(archive)",
+										"moveFailed": "RAW(error)",
+										"readLock": "none"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2249225d-9a0a-43fc-86b4-b09a02c03b4b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f951b294-616b-4d2d-9bd6-282690dd06cf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f951b294-616b-4d2d-9bd6-282690dd06cf",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f951b294-616b-4d2d-9bd6-282690dd06cf",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6abe5849a6fb9d0016000136",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "6abe5849a6fb9d0016000113",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "enrich1.txt"
+							}
+						}
+					},
+					{
+						"name": "6abe5849a6fb9d001600011e",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "Position",
+									"value": "After 1st enrich"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "Body",
+									"value": "${body}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "CamelFileName",
+									"value": "OauthGmailNoreply.zip"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

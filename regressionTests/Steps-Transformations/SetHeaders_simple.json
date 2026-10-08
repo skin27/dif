@@ -1,0 +1,677 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69665702bf1e3b000c000001",
+						"name": "SetHeaders_simple",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a1613c0f-562a-40dd-a5b5-4b1ee5f409d8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetHeaders_simple",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "26f48167-3469-4e5b-826b-f5f58a65354f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "26f48167-3469-4e5b-826b-f5f58a65354f",
+									"type": "action",
+									"uri": "setheaders:message:26f48167-3469-4e5b-826b-f5f58a65354f",
+									"links": {
+										"link": [
+											{
+												"id": "26f48167-3469-4e5b-826b-f5f58a65354f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1bff5c6f-95c4-4f16-9388-1414458b6fa3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1bff5c6f-95c4-4f16-9388-1414458b6fa3",
+									"type": "action",
+									"uri": "setheaders:message:1bff5c6f-95c4-4f16-9388-1414458b6fa3",
+									"links": {
+										"link": [
+											{
+												"id": "1bff5c6f-95c4-4f16-9388-1414458b6fa3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7ade8041-6cf5-4a7d-8bde-fac48b8c7e94",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7ade8041-6cf5-4a7d-8bde-fac48b8c7e94",
+									"type": "action",
+									"uri": "setheaders:message:7ade8041-6cf5-4a7d-8bde-fac48b8c7e94",
+									"links": {
+										"link": [
+											{
+												"id": "7ade8041-6cf5-4a7d-8bde-fac48b8c7e94",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dfd779e8-3be4-4c59-aff1-8b23dac52f17",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dfd779e8-3be4-4c59-aff1-8b23dac52f17",
+									"type": "action",
+									"uri": "setheaders:message:dfd779e8-3be4-4c59-aff1-8b23dac52f17",
+									"links": {
+										"link": [
+											{
+												"id": "dfd779e8-3be4-4c59-aff1-8b23dac52f17",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f47a63b7-fdfa-413d-95b0-f4e2485c43d6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f47a63b7-fdfa-413d-95b0-f4e2485c43d6",
+									"type": "action",
+									"uri": "setheaders:message:f47a63b7-fdfa-413d-95b0-f4e2485c43d6",
+									"links": {
+										"link": [
+											{
+												"id": "f47a63b7-fdfa-413d-95b0-f4e2485c43d6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f5ae7564-f6e4-46ec-ae46-e9663c8dfaf3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f5ae7564-f6e4-46ec-ae46-e9663c8dfaf3",
+									"type": "action",
+									"uri": "setheaders:message:f5ae7564-f6e4-46ec-ae46-e9663c8dfaf3",
+									"links": {
+										"link": [
+											{
+												"id": "f5ae7564-f6e4-46ec-ae46-e9663c8dfaf3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f5a43118-e38b-42ff-8208-4a4c29c75555",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f5a43118-e38b-42ff-8208-4a4c29c75555",
+									"type": "action",
+									"uri": "setheaders:message:f5a43118-e38b-42ff-8208-4a4c29c75555",
+									"links": {
+										"link": [
+											{
+												"id": "f5a43118-e38b-42ff-8208-4a4c29c75555",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bc5522b7-3f92-4962-9645-566bb4cb3a92",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bc5522b7-3f92-4962-9645-566bb4cb3a92",
+									"type": "action",
+									"uri": "setheaders:message:bc5522b7-3f92-4962-9645-566bb4cb3a92",
+									"links": {
+										"link": [
+											{
+												"id": "bc5522b7-3f92-4962-9645-566bb4cb3a92",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "de616fb9-208f-4ec4-9a64-08b015423ecc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "de616fb9-208f-4ec4-9a64-08b015423ecc",
+									"type": "action",
+									"uri": "setheaders:message:de616fb9-208f-4ec4-9a64-08b015423ecc",
+									"links": {
+										"link": [
+											{
+												"id": "de616fb9-208f-4ec4-9a64-08b015423ecc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "19b4a969-650d-40d4-969c-a059abafbde5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "19b4a969-650d-40d4-969c-a059abafbde5",
+									"type": "action",
+									"uri": "setheaders:message:19b4a969-650d-40d4-969c-a059abafbde5",
+									"links": {
+										"link": [
+											{
+												"id": "19b4a969-650d-40d4-969c-a059abafbde5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2d105558-8266-474b-b4a3-e79a375bcdd0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2d105558-8266-474b-b4a3-e79a375bcdd0",
+									"type": "action",
+									"uri": "setheaders:message:2d105558-8266-474b-b4a3-e79a375bcdd0",
+									"links": {
+										"link": [
+											{
+												"id": "2d105558-8266-474b-b4a3-e79a375bcdd0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "972cf47d-3ef9-4060-aa1a-aedaf11f4c69",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "972cf47d-3ef9-4060-aa1a-aedaf11f4c69",
+									"type": "action",
+									"uri": "setheaders:message:972cf47d-3ef9-4060-aa1a-aedaf11f4c69",
+									"links": {
+										"link": [
+											{
+												"id": "972cf47d-3ef9-4060-aa1a-aedaf11f4c69",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bca6f758-bb2a-45ab-8318-00fbb84c56df",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bca6f758-bb2a-45ab-8318-00fbb84c56df",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<products>\n  <product><id>1</id><name>bike1</name><price>1000</price></product>\n  <product><id>2</id><name>bike2</name><price>500</price></product>\n</products>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bca6f758-bb2a-45ab-8318-00fbb84c56df",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a36f50bb-964b-491f-b3fb-fe9871367b49",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a36f50bb-964b-491f-b3fb-fe9871367b49",
+									"type": "action",
+									"uri": "setheaders:message:a36f50bb-964b-491f-b3fb-fe9871367b49",
+									"links": {
+										"link": [
+											{
+												"id": "a36f50bb-964b-491f-b3fb-fe9871367b49",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "da4ea9fb-c86f-4d54-83ae-e908def4e668",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "da4ea9fb-c86f-4d54-83ae-e908def4e668",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\"FinancialPeriod\":11,\"FinancialYear\":2025,\"JournalCode\":\"43\",\"Currency\":\"EUR\",\"GeneralJournalEntryLines\":[{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-92.64,\"Date\":\"2025-11-02T00:00:00\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"801001\",\"GLAccountDescription\":\"Doorlopende provisie volmacht\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-130.6,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW230\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":558.84,\"Date\":\"2025-11-02T00:00:00\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"130000\",\"GLAccountDescription\":\"Debiteuren ANVA\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-233.53,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW217\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-35.97,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW237\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-16.13,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW227\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-16.13,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW239\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-33.84,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW208\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"}]}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "da4ea9fb-c86f-4d54-83ae-e908def4e668",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7dc8b096-6f89-4c29-84d5-c090462dd65c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7dc8b096-6f89-4c29-84d5-c090462dd65c",
+									"type": "action",
+									"uri": "setheaders:message:7dc8b096-6f89-4c29-84d5-c090462dd65c",
+									"links": {
+										"link": [
+											{
+												"id": "7dc8b096-6f89-4c29-84d5-c090462dd65c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "db1c97a5-c428-473b-802c-3a126ed9463a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "db1c97a5-c428-473b-802c-3a126ed9463a",
+									"type": "action",
+									"uri": "setheaders:message:db1c97a5-c428-473b-802c-3a126ed9463a",
+									"links": {
+										"link": [
+											{
+												"id": "db1c97a5-c428-473b-802c-3a126ed9463a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "39ddb5b3-24e8-4fae-88a4-cb73bc47330c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "39ddb5b3-24e8-4fae-88a4-cb73bc47330c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "39ddb5b3-24e8-4fae-88a4-cb73bc47330c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69665702bf1e3b000c000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "26f48167-3469-4e5b-826b-f5f58a65354f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "image.jpg"
+							}
+						}
+					},
+					{
+						"name": "1bff5c6f-95c4-4f16-9388-1414458b6fa3",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "headerName1",
+								"value": "${header.headerName1.trim()}"
+							}
+						}
+					},
+					{
+						"name": "7ade8041-6cf5-4a7d-8bde-fac48b8c7e94",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "headerName2",
+								"value": "${header.headerName2.replaceAll('A','B')}"
+							}
+						}
+					},
+					{
+						"name": "dfd779e8-3be4-4c59-aff1-8b23dac52f17",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "bodyLength",
+								"value": "${bodyAs(String).length}"
+							}
+						}
+					},
+					{
+						"name": "f47a63b7-fdfa-413d-95b0-f4e2485c43d6",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "random",
+								"value": "${random(100)}"
+							}
+						}
+					},
+					{
+						"name": "f5ae7564-f6e4-46ec-ae46-e9663c8dfaf3",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH01_Absolute",
+									"value": "${file:absolute}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH02_AbsolutePath",
+									"value": "${file:absolute.path}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH03_Ext",
+									"value": "${file:ext}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH04_Length",
+									"value": "${file:length}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH05_Modified",
+									"value": "${file:modified}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH06_Name",
+									"value": "${file:name}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH07_NameExt",
+									"value": "${file:name.ext}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH08_NameExtSingle",
+									"value": "${file:name.ext.single}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH09_NameNoext",
+									"value": "${file:name.noext}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH10_NameNoextSingle",
+									"value": "${file:name.noext.single}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH11_Onlyname",
+									"value": "${file:onlyname}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH12_OnlynameNoext",
+									"value": "${file:onlyname.noext}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH13_OnlynameNoextSingle",
+									"value": "${file:onlyname.noext.single}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH14_Parent",
+									"value": "${file:parent}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH15_Path",
+									"value": "${file:path}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "SH16_Size",
+									"value": "${file:size}"
+								}
+							]
+						}
+					},
+					{
+						"name": "f5a43118-e38b-42ff-8208-4a4c29c75555",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "filename",
+								"value": "${file:onlyname.noext}.jpg"
+							}
+						}
+					},
+					{
+						"name": "bc5522b7-3f92-4962-9645-566bb4cb3a92",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "bodyUpperCase",
+								"value": "${header.lowerCase.toUpperCase()}"
+							}
+						}
+					},
+					{
+						"name": "de616fb9-208f-4ec4-9a64-08b015423ecc",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "discountedPrice",
+								"value": "${header.Amount * 0.9}"
+							}
+						}
+					},
+					{
+						"name": "19b4a969-650d-40d4-969c-a059abafbde5",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "codeOK",
+								"value": "${iif(${header.code} == 200, OK, NOK)}"
+							}
+						}
+					},
+					{
+						"name": "2d105558-8266-474b-b4a3-e79a375bcdd0",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "hash",
+								"value": "${hash($body,SHA-256)}"
+							}
+						}
+					},
+					{
+						"name": "a36f50bb-964b-491f-b3fb-fe9871367b49",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "cheapestProduct",
+								"value": "${xpath(\"//product[price < 1000]\")}"
+							}
+						}
+					},
+					{
+						"name": "972cf47d-3ef9-4060-aa1a-aedaf11f4c69",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "substring_positive",
+								"value": "${header.number.substring(3,6)}"
+							}
+						}
+					},
+					{
+						"name": "7dc8b096-6f89-4c29-84d5-c090462dd65c",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "EntryGLAccountCodes_JQ_empty_string",
+									"value": "${empty(String)}${jq('[.GeneralJournalEntryLines[].GLAccountCode] | join(\",\")')}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "EntryDescriptions_JQ_empty_string",
+									"value": "${empty(String)}${jq('[.GeneralJournalEntryLines[].Description] | join(\",\")')}"
+								}
+							]
+						}
+					},
+					{
+						"name": "db1c97a5-c428-473b-802c-3a126ed9463a",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "EntryGLAccountCodes_JQ_fail",
+									"value": "${jq('[.GeneralJournalEntryLines[].GLAccountCode] | join(\",\")')}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "EntryDescriptions_JQ_fail",
+									"value": "${jq('[.GeneralJournalEntryLines[].Description] | join(\",\")')}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

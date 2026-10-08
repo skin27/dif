@@ -1,0 +1,47 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:https-action",
+	"title": "https action",
+	"description": "Calls an HTTPS endpoint with the message; the response becomes the message.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address and path",
+			"description": "From the URI: https://<host>[:<port>]/<path>",
+			"type": "string"
+		},
+		"httpMethod": {
+			"title": "HTTP method",
+			"description": "The body is sent with all methods but GET and HEAD",
+			"type": "string",
+			"enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"],
+			"default": "GET"
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": "security/outbound-truststore.p12"
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds the whole call may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"throwExceptionOnFailure": {
+			"title": "Fail on error status",
+			"description": "Fail the message when the response status is 400 or higher",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

@@ -1,0 +1,476 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a59efcfdabbc90014000047",
+						"name": "4.TVMovies",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a1b4585c-09d7-43ee-b32d-9ed4ecb0ac9f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/4.TVMovies",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "1407059f-2304-42a2-80e6-c57fa98061e9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1407059f-2304-42a2-80e6-c57fa98061e9",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1407059f-2304-42a2-80e6-c57fa98061e9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3d843d7f-8f4c-4cfb-82b8-7be3ffc671b8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3d843d7f-8f4c-4cfb-82b8-7be3ffc671b8",
+									"type": "action",
+									"uri": "gettenantvariable:Filmtotaal_apikey",
+									"options": {
+										"headerName": "apikey_filmtotaal",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3d843d7f-8f4c-4cfb-82b8-7be3ffc671b8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "22e7c83e-8fa0-43c0-9d98-8694216a51cd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "22e7c83e-8fa0-43c0-9d98-8694216a51cd",
+									"type": "action",
+									"uri": "setheaders:message:22e7c83e-8fa0-43c0-9d98-8694216a51cd",
+									"options": {
+										"expression": "?apikey=${header.apikey_filmtotaal}&dag=${header.day}&sorteer=${header.sort}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "22e7c83e-8fa0-43c0-9d98-8694216a51cd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "03a4308f-4f4e-4a0f-95b8-3ddfc93024f6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "03a4308f-4f4e-4a0f-95b8-3ddfc93024f6",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "dynamicUrl"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "03a4308f-4f4e-4a0f-95b8-3ddfc93024f6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "db8fcb2d-8a14-4789-ba0e-e42f25aeac48",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "db8fcb2d-8a14-4789-ba0e-e42f25aeac48",
+									"type": "action",
+									"uri": "https:${header.dynamicUrl}",
+									"options": {
+										"httpMethod": "GET",
+										"useErrorRoute": true,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"retryInterval": 30000,
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "None",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "db8fcb2d-8a14-4789-ba0e-e42f25aeac48",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2d31a119-b32a-43a5-8d57-cddf001558a5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2d31a119-b32a-43a5-8d57-cddf001558a5",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2d31a119-b32a-43a5-8d57-cddf001558a5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4b0debd2-c277-4281-9eb9-37340fc4c6a8",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "cd805148-feb5-47c1-ab84-0f06adf6e239",
+												"bound": "out",
+												"expression": "/filmsoptv/film",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4b0debd2-c277-4281-9eb9-37340fc4c6a8",
+									"type": "action",
+									"uri": "setheaders:message:4b0debd2-c277-4281-9eb9-37340fc4c6a8",
+									"links": {
+										"link": [
+											{
+												"id": "4b0debd2-c277-4281-9eb9-37340fc4c6a8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "42aa743b-5382-4e1f-a26e-8527580013a0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "42aa743b-5382-4e1f-a26e-8527580013a0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "42aa743b-5382-4e1f-a26e-8527580013a0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cd805148-feb5-47c1-ab84-0f06adf6e239",
+									"type": "action",
+									"uri": "setheaders:message:cd805148-feb5-47c1-ab84-0f06adf6e239",
+									"links": {
+										"link": [
+											{
+												"id": "cd805148-feb5-47c1-ab84-0f06adf6e239",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "af42de10-8852-436e-a032-93736e5b205f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "af42de10-8852-436e-a032-93736e5b205f",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichMethod": "xml",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "af42de10-8852-436e-a032-93736e5b205f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0c8b9b3b-8ab4-41c8-bf2d-5ce3125c70de",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "82f91169-0245-425a-a24f-9b42efaf1d58",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0c8b9b3b-8ab4-41c8-bf2d-5ce3125c70de",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "0c8b9b3b-8ab4-41c8-bf2d-5ce3125c70de",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "82f91169-0245-425a-a24f-9b42efaf1d58",
+									"type": "action",
+									"uri": "gettenantvariable:Movies_apikey",
+									"options": {
+										"headerName": "apikey_ft",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "82f91169-0245-425a-a24f-9b42efaf1d58",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8d160eec-2032-4cd0-bfa8-0b7410a9bcba",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8d160eec-2032-4cd0-bfa8-0b7410a9bcba",
+									"type": "action",
+									"uri": "https:https://www.omdbapi.com?apikey=${header.apikey_ft}&t=${header.title}",
+									"options": {
+										"httpMethod": "GET",
+										"useErrorRoute": true,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"retryInterval": 30000,
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "None",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8d160eec-2032-4cd0-bfa8-0b7410a9bcba",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "886faf02-4c83-4438-b335-692986055341",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "886faf02-4c83-4438-b335-692986055341",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": true,
+										"rootTag": "omdb",
+										"checkJsonKeys": false,
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "886faf02-4c83-4438-b335-692986055341",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f9299057-fb65-4880-ae50-cbdee27d8040",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f9299057-fb65-4880-ae50-cbdee27d8040",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "f9299057-fb65-4880-ae50-cbdee27d8040",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8bda7ee8-860f-4dfc-b963-7d868a0f8b10",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "4b0debd2-c277-4281-9eb9-37340fc4c6a8",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "breadcrumbId",
+								"value": "end"
+							}
+						}
+					},
+					{
+						"name": "cd805148-feb5-47c1-ab84-0f06adf6e239",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "Content-Type",
+									"value": "text/xml"
+								},
+								{
+									"type": "header",
+									"language": "xpath",
+									"name": "title",
+									"value": "//*:film/*:titel/text()"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "breadcrumbId",
+									"value": "${header.breadcrumbId}_${header.CamelSplitIndex}_${header.CamelSplitSize}"
+								}
+							]
+						}
+					},
+					{
+						"name": "22e7c83e-8fa0-43c0-9d98-8694216a51cd",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "day",
+									"value": "${date:now:dd-MM-yyyy}"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "dayFixed",
+									"value": "28-10-2023"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "sort",
+									"value": "0"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "dynamicUrl",
+									"value": "?apikey=${header.apikey_filmtotaal}&dag=${header.day}&sorteer=${header.sort}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

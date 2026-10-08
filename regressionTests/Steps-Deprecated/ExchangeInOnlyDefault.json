@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a830b98dd4f5700110000c2",
+						"name": "ExchangeInOnlyDefault",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ad909c15-8581-48a0-90c0-619ebc73d068",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ExchangeInOnlyDefault",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "84cf12da-764e-4d02-b27f-c3a14ec46af5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "84cf12da-764e-4d02-b27f-c3a14ec46af5",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "In only Default returns new body"
+									},
+									"links": {
+										"link": {
+											"id": "84cf12da-764e-4d02-b27f-c3a14ec46af5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "631c78f8-7139-481b-93d9-e6618901ef88",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

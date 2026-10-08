@@ -1,0 +1,182 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a03fbdabbc9000c000150",
+						"name": "Simple_subtract",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "92dc6bec-0804-4485-a4fa-b6fffebd322b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Simple_subtract",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "f81ed9f3-b434-4000-8660-6a2ba8f903e4",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f81ed9f3-b434-4000-8660-6a2ba8f903e4",
+									"type": "action",
+									"uri": "setheaders:message:f81ed9f3-b434-4000-8660-6a2ba8f903e4",
+									"links": {
+										"link": [
+											{
+												"id": "f81ed9f3-b434-4000-8660-6a2ba8f903e4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "38f0a4d2-5bde-426d-9bda-95afa218dac1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "38f0a4d2-5bde-426d-9bda-95afa218dac1",
+									"type": "action",
+									"uri": "setheaders:message:38f0a4d2-5bde-426d-9bda-95afa218dac1",
+									"links": {
+										"link": [
+											{
+												"id": "38f0a4d2-5bde-426d-9bda-95afa218dac1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "afed3714-b168-47fa-a640-123f240626ab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "afed3714-b168-47fa-a640-123f240626ab",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.result}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "afed3714-b168-47fa-a640-123f240626ab",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dc7d1d8a-5a7e-49eb-a88a-b0cecddcbf3d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dc7d1d8a-5a7e-49eb-a88a-b0cecddcbf3d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "dc7d1d8a-5a7e-49eb-a88a-b0cecddcbf3d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "aa437980-9a1c-4d90-b26d-7e34f1e803c6",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "f81ed9f3-b434-4000-8660-6a2ba8f903e4",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "value1",
+									"value": "150"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "value2",
+									"value": "20"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "value3",
+									"value": "30"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "value4",
+									"value": "40"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "value5",
+									"value": "50"
+								}
+							]
+						}
+					},
+					{
+						"name": "38f0a4d2-5bde-426d-9bda-95afa218dac1",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "result",
+								"value": "${sum(${header.value1},-${header.value2},-${header.value3},-${header.value4},-${header.value5})}"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

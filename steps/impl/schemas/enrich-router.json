@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:enrich-router",
+	"title": "enrich router",
+	"description": "Sends a copy of the message along the outbound link with rule enrich, merges what comes out into the message and sends it on along the other link.",
+	"type": "object",
+	"properties": {
+		"enrichType": {
+			"title": "Enrich type",
+			"description": "How the enrichment is merged: override (it replaces the message), xml (its root element is appended to the body's root element) or json (its members are set in the body's object)",
+			"type": "string",
+			"enum": ["override", "xml", "json"],
+			"default": "xml"
+		},
+		"useErrorRoute": {
+			"title": "Use error route",
+			"description": "When the enrichment fails, fail the message (the flow's error route can take it); otherwise continue without the enrichment",
+			"type": "boolean",
+			"default": true
+		},
+		"attachmentName": {
+			"title": "Attachment name",
+			"description": "Accepted for compatibility; has no effect (DIF has no attachments)",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

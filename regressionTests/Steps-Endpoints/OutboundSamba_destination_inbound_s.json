@@ -1,0 +1,138 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a79c0eb705d91000c0000db",
+						"name": "OutboundSamba_destination_inbound_s",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "150795d4-e9c3-44d7-8044-dbe7d2d7cfc4",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSamba_destination_inbound_s",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "76ffccbc-9fa9-4ddd-8303-679c1fe20c78",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "76ffccbc-9fa9-4ddd-8303-679c1fe20c78",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "76ffccbc-9fa9-4ddd-8303-679c1fe20c78",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0520c88d-a724-4bc0-8832-a20e06e77cd7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0520c88d-a724-4bc0-8832-a20e06e77cd7",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "OutboundSambaDestinationInboundSamba"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0520c88d-a724-4bc0-8832-a20e06e77cd7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a838b967-43e1-406d-8ec5-4442a1c54b79",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a838b967-43e1-406d-8ec5-4442a1c54b79",
+									"type": "action",
+									"uri": "smb://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"fileName": "abcdef.xyz",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"password": "ENC(zQS0pK2KrgEnKhl/2SlRlg==|c+3cD3dXxYpwlnkrJwmOKw==|777mzSgQfonn5JBtVcQojQY3yJDTRu5nR2cwQeSq8PBtWWWVgd1ObVlOKdZykjQO/Xtqfm7QX0GxSXZcPnWj7cVHCBxev6NtokSm00GVqZ0=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a838b967-43e1-406d-8ec5-4442a1c54b79",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "eba5cb0a-5e0e-4d2f-9a38-d0708647ead7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "eba5cb0a-5e0e-4d2f-9a38-d0708647ead7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "eba5cb0a-5e0e-4d2f-9a38-d0708647ead7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c90a8ff4-5d6e-4d7a-99fc-c7e5de30e9a8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

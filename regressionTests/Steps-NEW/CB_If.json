@@ -1,0 +1,132 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7582949670a500160000a7",
+						"name": "CB_If",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ddec8513-3d62-49dc-a2be-52ef85d5218a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_If",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "d3adac5d-32d2-4abc-b239-e8651c1fd410",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d3adac5d-32d2-4abc-b239-e8651c1fd410",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "ABC"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d3adac5d-32d2-4abc-b239-e8651c1fd410",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "509d72b8-157c-4202-932f-78e4c938b929",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "509d72b8-157c-4202-932f-78e4c938b929",
+									"type": "router",
+									"uri": "if",
+									"links": {
+										"link": [
+											{
+												"id": "509d72b8-157c-4202-932f-78e4c938b929",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1d61c994-ac56-4634-acea-39a1c9875ed4",
+												"bound": "out",
+												"expression": "${body} contains 'ABC'",
+												"language": "simple",
+												"rule": "if",
+												"transport": "sync"
+											},
+											{
+												"id": "309fd3c5-411c-413e-92d5-6f9c349bbb8c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1d61c994-ac56-4634-acea-39a1c9875ed4",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "ABC found"
+									},
+									"links": {
+										"link": {
+											"id": "1d61c994-ac56-4634-acea-39a1c9875ed4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "309fd3c5-411c-413e-92d5-6f9c349bbb8c",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "DEF found"
+									},
+									"links": {
+										"link": {
+											"id": "309fd3c5-411c-413e-92d5-6f9c349bbb8c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a7582949670a500160000a9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

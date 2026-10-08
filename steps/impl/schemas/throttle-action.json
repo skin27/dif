@@ -1,0 +1,24 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:throttle-action",
+	"title": "throttle action",
+	"description": "Lets at most maxRequests messages pass per timePeriod; later messages wait.",
+	"type": "object",
+	"properties": {
+		"maxRequests": {
+			"title": "Maximum requests",
+			"description": "Number of messages that may pass per time period",
+			"type": "integer",
+			"minimum": 1
+		},
+		"timePeriod": {
+			"title": "Time period",
+			"description": "Length of the time period in milliseconds",
+			"type": "integer",
+			"minimum": 1,
+			"default": 1000
+		}
+	},
+	"required": ["maxRequests"],
+	"additionalProperties": false
+}

@@ -1,0 +1,95 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e77889657757003c000056",
+						"name": "InboundGoogleDrive_SLIDE",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e38d23de-4f22-485f-80ad-f90ddfa448ce",
+									"type": "source",
+									"uri": "googledrive:1IpZshvaz2mwdxcsEwq8k4VjMAEwFBvT-",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"filterFiles": "slide.*",
+										"moveTo": "processed",
+										"initialDelay": 1000,
+										"delay": 1000,
+										"gSuiteFiles": "Convert",
+										"flowId": "69e77889657757003c000056",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "37c5e627-f6ee-4c45-9c82-a8e5bd2f593e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "37c5e627-f6ee-4c45-9c82-a8e5bd2f593e",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "CamelFileName|Filename"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "37c5e627-f6ee-4c45-9c82-a8e5bd2f593e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ffe9828c-94f4-4322-9d97-420964b07453",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ffe9828c-94f4-4322-9d97-420964b07453",
+									"type": "sink",
+									"uri": "googledrive:1zhyCHtGEO0Ti9dglDWHoCVi8_dTKc5ZJ",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"flowId": "69e77889657757003c000056",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "ffe9828c-94f4-4322-9d97-420964b07453",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "04a11ef8-7e65-4848-8123-5cf5fd9a1724",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

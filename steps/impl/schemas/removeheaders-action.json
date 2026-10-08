@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:removeheaders-action",
+	"title": "removeheaders action",
+	"description": "Removes the headers whose name matches a pattern. The body and metadata are never removed.",
+	"type": "object",
+	"properties": {
+		"pattern": {
+			"title": "Pattern",
+			"description": "Headers to remove: an exact name, a prefix ending with * (last*) or a regular expression; case-insensitive",
+			"type": "string"
+		},
+		"excludePattern": {
+			"title": "Exclude pattern",
+			"description": "Headers to keep even when they match pattern, in the same form",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"required": ["pattern"],
+	"additionalProperties": false
+}

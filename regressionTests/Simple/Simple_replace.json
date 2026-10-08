@@ -1,0 +1,246 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "699dd7ed7b0d3100110001fb",
+						"name": "Simple_replace",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ead5d95d-8867-45c4-81f6-1bc83e3b34f3",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Simple_replace",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d02b3ae4-59c6-40c1-a829-3afb36af956c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d02b3ae4-59c6-40c1-a829-3afb36af956c",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d02b3ae4-59c6-40c1-a829-3afb36af956c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8fa33635-374c-4455-a166-e868dac47fae",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8fa33635-374c-4455-a166-e868dac47fae",
+									"type": "action",
+									"uri": "setheaders:message:8fa33635-374c-4455-a166-e868dac47fae",
+									"links": {
+										"link": [
+											{
+												"id": "8fa33635-374c-4455-a166-e868dac47fae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cc038141-6431-46a1-ad35-02ef91e32edb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cc038141-6431-46a1-ad35-02ef91e32edb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "you nique it"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cc038141-6431-46a1-ad35-02ef91e32edb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2edabe11-3c27-415f-938e-30106936d5ff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2edabe11-3c27-415f-938e-30106936d5ff",
+									"type": "action",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "2edabe11-3c27-415f-938e-30106936d5ff",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "67240443-4305-4c6d-bae7-251a7f7c4d4e",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "67240443-4305-4c6d-bae7-251a7f7c4d4e",
+									"type": "action",
+									"uri": "setheaders:message:67240443-4305-4c6d-bae7-251a7f7c4d4e",
+									"options": {
+										"expression": "${replace('H','ld',${header.inputHeader1})}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "67240443-4305-4c6d-bae7-251a7f7c4d4e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "10d77396-c59d-4169-bf5b-1997c7d77ff3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "10d77396-c59d-4169-bf5b-1997c7d77ff3",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${replace('you nique','Unique',${body})}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "10d77396-c59d-4169-bf5b-1997c7d77ff3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8ef4fdc0-a353-473b-b385-1dc803798e7d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8ef4fdc0-a353-473b-b385-1dc803798e7d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8ef4fdc0-a353-473b-b385-1dc803798e7d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "01975cf8-8e5a-4342-965f-6045c1489124",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "67240443-4305-4c6d-bae7-251a7f7c4d4e",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader1",
+									"value": "${replace('Hello','Hi',${header.inputHeader1})}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader2",
+									"value": "${replace('world','Portugal','Hello world')}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader3",
+									"value": "${replace('you nique','Unique',${body})}"
+								}
+							]
+						}
+					},
+					{
+						"name": "8fa33635-374c-4455-a166-e868dac47fae",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader1",
+									"value": "hello world"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader2",
+									"value": "Hello     great     big"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,88 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b3f3f3fbdb4c0015000057",
+						"name": "delay",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f88b7d92-7d3a-423b-80ec-9ee83d7cb6bd",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/delay",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "dd28a9c9-c6c1-4d31-b773-929469bebbb6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dd28a9c9-c6c1-4d31-b773-929469bebbb6",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Finished"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dd28a9c9-c6c1-4d31-b773-929469bebbb6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "17325924-84c6-47cb-bbf8-7f4a35be3d30",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "17325924-84c6-47cb-bbf8-7f4a35be3d30",
+									"type": "sink",
+									"uri": "delay",
+									"options": {
+										"milliseconds": "5000"
+									},
+									"links": {
+										"link": {
+											"id": "17325924-84c6-47cb-bbf8-7f4a35be3d30",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b3f3f3fbdb4c0015000059",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

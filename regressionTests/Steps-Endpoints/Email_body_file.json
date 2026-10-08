@@ -1,0 +1,172 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694b9715da8dd5000c000013",
+						"name": "Email_body_file",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d5af114b-ecbb-4fe0-8a68-eb6f0443a70d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Email_body_file",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "efa8624e-0646-4031-a855-2740ae33f670",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "efa8624e-0646-4031-a855-2740ae33f670",
+									"type": "action",
+									"uri": "setheaders:message:efa8624e-0646-4031-a855-2740ae33f670",
+									"links": {
+										"link": [
+											{
+												"id": "efa8624e-0646-4031-a855-2740ae33f670",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "53945ebe-af1f-427c-91f1-ac5b3553137f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "53945ebe-af1f-427c-91f1-ac5b3553137f",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@fluxygen.com",
+										"replyTo": "norman.hooghof@fluxygen.com",
+										"subject": "Dummy",
+										"exchangeBodyAs": "body",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman@fluxygen.com",
+										"authenticationType": "oauth2",
+										"accessToken": "ENC(Ke5BvaYHVEFFyp++O6YeMA==|baOkii72z2soJBJ924LHhw==|zetr/9IBhCLIIWGQVW4UEQ==)",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "53945ebe-af1f-427c-91f1-ac5b3553137f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f506907a-908c-4261-9596-caa75713d2b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f506907a-908c-4261-9596-caa75713d2b0",
+									"type": "action",
+									"uri": "setheaders:message:f506907a-908c-4261-9596-caa75713d2b0",
+									"links": {
+										"link": [
+											{
+												"id": "f506907a-908c-4261-9596-caa75713d2b0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "84ad1a24-2e8b-44bd-9bc3-b2f94060e227",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "84ad1a24-2e8b-44bd-9bc3-b2f94060e227",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "84ad1a24-2e8b-44bd-9bc3-b2f94060e227",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "694b9715da8dd5000c000015",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "efa8624e-0646-4031-a855-2740ae33f670",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "subject",
+								"value": "Email body next test"
+							}
+						}
+					},
+					{
+						"name": "f506907a-908c-4261-9596-caa75713d2b0",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessageId",
+									"value": "${header.CamelMailMessageId}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessage",
+									"value": "${header.mailMessageId.replaceAll('<.*@|>','')}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

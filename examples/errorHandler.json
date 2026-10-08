@@ -12,10 +12,11 @@
 								{
 									"id": "738b5d30-88c1-490c-a164-72c33d9e5d12",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/errorHandler",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -97,7 +98,9 @@
 									"uri": "failedexchange",
 									"options": {
 										"redeliveryAttempts": 0,
-										"redeliveryInterval": 0
+										"redeliveryInterval": 0,
+										"maximumRedeliveries": "0",
+										"redeliveryDelay": "1000"
 									},
 									"links": {
 										"link": {
@@ -152,7 +155,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

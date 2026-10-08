@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a79a65a705d91001100009c",
+						"name": "InboundHttpOneWaySynchronous",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "89daa1eb-d899-4543-896b-ba62e3170936",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/InboundHttpOneWaySynchronous",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "97eb34cc-ee30-4abc-8a5c-c0856a6c8918",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "97eb34cc-ee30-4abc-8a5c-c0856a6c8918",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Exchange pattern one way is deprecated\n\nBody matches strings:\nNew body"
+									},
+									"links": {
+										"link": {
+											"id": "97eb34cc-ee30-4abc-8a5c-c0856a6c8918",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "638be8b4-08f1-47a4-8beb-1797425f4006",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

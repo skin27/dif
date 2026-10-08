@@ -1,0 +1,191 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7de4aba9e39700110000b2",
+						"name": "SQL_select_mysql_version",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cb3692c0-89f4-4b9f-a069-a43a681ff4dd",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_select_mysql_version",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "71351190-3391-4b1e-98cf-49973c479d4e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "71351190-3391-4b1e-98cf-49973c479d4e",
+									"type": "action",
+									"uri": "setheaders:message:71351190-3391-4b1e-98cf-49973c479d4e",
+									"links": {
+										"link": [
+											{
+												"id": "71351190-3391-4b1e-98cf-49973c479d4e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bdf65cc0-9597-416b-899d-9d756687e04a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bdf65cc0-9597-416b-899d-9d756687e04a",
+									"type": "action",
+									"uri": "settenantvariable:IP_ADDRESS_ENDPOINT_TEST_SERVER",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "simple",
+										"value": "SVBfQUREUkVTU19FTkRQT0lOVF9URVNUX1NFUlZFUg==",
+										"flowName": "SQL_select_mysql_version",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bdf65cc0-9597-416b-899d-9d756687e04a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "32d5f2d2-d1e4-466f-bc29-94abedffe897",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "32d5f2d2-d1e4-466f-bc29-94abedffe897",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT version()"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "32d5f2d2-d1e4-466f-bc29-94abedffe897",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "906f6e6f-8db4-4ad5-92d1-456ecd047388",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "906f6e6f-8db4-4ad5-92d1-456ecd047388",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": true,
+										"connectionType": "mysql8",
+										"database": "dovetail",
+										"host": "api-testing.dovetail.world",
+										"port": "3306",
+										"username": "root",
+										"password": "ENC(iPY5Yxg9DYJny1F5AHl8VQ==|eCHUAKJ0tThygN0OrgDgqg==|fnsHXGH9CXriR9c+fW2hBrMIsjs4flAjJ6zHDB6XD4WoU9eqsi/1zaeWpo9LnFELBNqIhGD7UX/bRSquUrw+mFfpzvleIH+Yjtjl6mhNkWs=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "906f6e6f-8db4-4ad5-92d1-456ecd047388",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f9fecf63-d977-445b-8127-1e3546ba451e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f9fecf63-d977-445b-8127-1e3546ba451e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f9fecf63-d977-445b-8127-1e3546ba451e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ee33b03d-c529-4c4c-92b3-69d269842865",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "71351190-3391-4b1e-98cf-49973c479d4e",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "name",
+								"value": "body"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

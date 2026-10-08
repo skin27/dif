@@ -1,0 +1,157 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54b2d2aa93e3001500001a",
+						"name": "CB_Recipient",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "475b6aef-5278-4a41-9367-218096c36ffc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Recipient",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "721ef178-e6f0-43ff-95f2-2bbab2330889",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "721ef178-e6f0-43ff-95f2-2bbab2330889",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "721ef178-e6f0-43ff-95f2-2bbab2330889",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "51216595-a119-425a-86c6-589f9c08d5d5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "51216595-a119-425a-86c6-589f9c08d5d5",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "51216595-a119-425a-86c6-589f9c08d5d5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a648c7c3-31a3-47bb-83ad-06a692eda784",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "d772b68e-6d9d-4bf8-a3fb-cf7565cd16da",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a648c7c3-31a3-47bb-83ad-06a692eda784",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a648c7c3-31a3-47bb-83ad-06a692eda784",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dd2e1ccd-7b3b-40b9-a7d9-2efff22b6808",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dd2e1ccd-7b3b-40b9-a7d9-2efff22b6808",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "dd2e1ccd-7b3b-40b9-a7d9-2efff22b6808",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d772b68e-6d9d-4bf8-a3fb-cf7565cd16da",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d772b68e-6d9d-4bf8-a3fb-cf7565cd16da",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a54b2d2aa93e3001500001c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

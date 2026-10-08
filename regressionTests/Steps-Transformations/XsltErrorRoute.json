@@ -1,0 +1,119 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6973a335f624bf000f000321",
+						"name": "XsltErrorRoute",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f56abc5c-2bdc-44f5-9df0-39e0ae7c44cc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XsltErrorRoute",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "90c153fb-c7f1-4ccd-ace2-7c46e766b287",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "90c153fb-c7f1-4ccd-ace2-7c46e766b287",
+									"type": "sink",
+									"uri": "jsontoxml",
+									"options": {
+										"elementName": "element",
+										"arrayName": "array",
+										"namespaceLenient": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": {
+											"id": "90c153fb-c7f1-4ccd-ace2-7c46e766b287",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6973a335f624bf000f000323",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "c92f03f1-31b6-41ad-8f12-e73710dd8cd5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c92f03f1-31b6-41ad-8f12-e73710dd8cd5",
+									"type": "action",
+									"uri": "xslt:ref:3dced3a4-8740-4f4c-98f5-ba13506ff389",
+									"links": {
+										"link": [
+											{
+												"id": "c92f03f1-31b6-41ad-8f12-e73710dd8cd5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "113a1cfe-9d01-497b-b64d-99cdbf47020d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "113a1cfe-9d01-497b-b64d-99cdbf47020d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "113a1cfe-9d01-497b-b64d-99cdbf47020d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "3dced3a4-8740-4f4c-98f5-ba13506ff389",
+					"content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n    <xsl:output method=\"xml\" indent=\"yes\"/>\n    \n    <xsl:template match=\"/products\">\n        <products>\n            <xsl:apply-templates select=\"product\"/>\n        </products>\n    </xsl:template>\n    \n    <xsl:template match=\"product\">\n        <product>\n            <xsl:value-of select=\"name\"/>\n        </product>\n    </xsl:template>\n</xsl:stylesheet>"
+				}
+			}
+		}
+	}
+}

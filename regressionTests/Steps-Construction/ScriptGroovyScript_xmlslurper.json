@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953e0a4da8dd50011000460",
+						"name": "ScriptGroovyScript_xmlslurper",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5af05d75-0afa-4ad8-9a58-b30347cee3e3",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_xmlslurper",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1fc1ac97-90fb-44ff-ba70-2954b340a303",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1fc1ac97-90fb-44ff-ba70-2954b340a303",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<properties>\n    <ReasonCancelled/>\n    <InvoiceToContactPerson>26dc064c-caf6-4231-b161-389752fc14e6</InvoiceToContactPerson>\n    <InvoicingStartDate>2019-01-01T00:00:00</InvoicingStartDate>\n    <PaymentCondition>08</PaymentCondition>\n    <ReasonCancelledDescription/>\n    <Description>Initieel abonnement 12 mnd, verleng 1 mnd, opzeg 1 mnd</Description>\n    <Modified>2019-02-01T15:31:11.84</Modified>\n    <ModifierFullName>Norman Hooghof</ModifierFullName>\n    <InvoiceDay>1</InvoiceDay>\n    <Creator>5a444652-c9f8-44a7-80e7-0bdd3a8d5076</Creator>\n    <ClassificationDescription>Prijs gebaseerd op resultaat</ClassificationDescription>\n    <Created>2019-01-16T14:35:10.02</Created>\n    <ReasonCancelledCode/>\n    <StartDate>2019-01-01T00:00:00</StartDate>\n    <CustomerPONumber/>\n    <SubscriptionType>02148be5-dc08-4edc-a3fe-a760705cf479</SubscriptionType>\n    <SubscriptionTypeCode>A12010101</SubscriptionTypeCode>\n    <InvoicedTo>2019-02-28T00:00:00</InvoicedTo>\n    <InvoiceToName>ABC</InvoiceToName>\n    <Number>12345678</Number>\n    <BlockEntry/>\n    <ClassificationCode>RESULT</ClassificationCode>\n    <Classification>6ce01a08-394d-4abf-aaab-97d38b13949e</Classification>\n    <Currency>EUR</Currency>\n    <OrderedByContactPerson>26dc064c-caf6-4231-b161-389752fc14e6</OrderedByContactPerson>\n    <Division>1682591</Division>\n    <InvoiceToContactPersonFullName>Peppie en Kokkie</InvoiceToContactPersonFullName>\n    <Printed>true</Printed>\n    <Modifier>5a444652-c9f8-44a7-80e7-0bdd3a8d5076</Modifier>\n    <Notes/>\n    <OrderedByContactPersonFullName>Peppie en Kokkie</OrderedByContactPersonFullName>\n    <CancellationDate>2019-02-28T00:00:00</CancellationDate>\n    <PaymentConditionDescription>Bedrijfsincasso / 30 dagen</PaymentConditionDescription>\n    <OrderedBy>d0fdf086-b98e-4b8e-b47a-c071e23882c3</OrderedBy>\n    <OrderedByName>ABC</OrderedByName>\n    <InvoiceTo>d0fdf086-b98e-4b8e-b47a-c071e23882c3</InvoiceTo>\n    <EndDate>2019-02-28T00:00:00</EndDate>\n    <SubscriptionTypeDescription>Initieel abonnement 12 mnd-verleng 1 mnd-opzeg 1 mnd</SubscriptionTypeDescription>\n    <EntryID>8e29100e-4f18-4d5b-a8df-fe286c8c89a5</EntryID>\n    <CreatorFullName>Norman Hooghof</CreatorFullName>\n</properties>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1fc1ac97-90fb-44ff-ba70-2954b340a303",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "295bd1f6-068b-49c5-b83b-d74b93e70080",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "295bd1f6-068b-49c5-b83b-d74b93e70080",
+									"type": "action",
+									"uri": "groovy:ref:ac809f80-bf51-439d-bddf-98af1bf98f3c",
+									"links": {
+										"link": [
+											{
+												"id": "295bd1f6-068b-49c5-b83b-d74b93e70080",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7189e85e-b120-4491-a2dd-ca913d1813c8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7189e85e-b120-4491-a2dd-ca913d1813c8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7189e85e-b120-4491-a2dd-ca913d1813c8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4d304d0b-3942-4320-8157-b41081793455",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "ac809f80-bf51-439d-bddf-98af1bf98f3c",
+					"content": "import groovy.xml.*; \nxmlString = request.getBody(String.class);\npropertiesRootNode = new XmlSlurper().parseText(xmlString);\npropertiesRootNode.children().each {\n    request.setHeader(it.name(), it.text())\n}\nresult = request.body"
+				}
+			}
+		}
+	}
+}

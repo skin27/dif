@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setheaders-action",
+	"title": "setheaders action",
+	"description": "Sets the headers of a core message (setheaders:message:<name>) on the message.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Message",
+			"description": "The core message whose headers are set, from the URI (setheaders:message:<name>)",
+			"type": "string"
+		},
+		"headers": {
+			"title": "Headers",
+			"description": "JSON array of {name, value, language}; language is constant or simple (default). Filled in from the core message by the DIL parser",
+			"type": "string"
+		}
+	},
+	"required": ["headers"],
+	"additionalProperties": false
+}

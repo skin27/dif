@@ -1,0 +1,86 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6960f409bf1e3b0018000025",
+						"name": "FlowlinkQueuesIn",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "60e99e7a-bff6-4a00-9df1-bdff04f3a12a",
+									"type": "source",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "723df949-434f-4aa2-9cbd-ecf4a0a1cd7b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "723df949-434f-4aa2-9cbd-ecf4a0a1cd7b",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body} -> OauthGmailNoreply"
+									},
+									"links": {
+										"link": {
+											"id": "723df949-434f-4aa2-9cbd-ecf4a0a1cd7b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cf150054-305e-4d3e-904c-a2feb96e8dd7",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"id": "activemq-connection",
+					"name": "activemq",
+					"type": "activemq",
+					"keys": {
+						"jmsprovider": "classic",
+						"pooled": "true",
+						"url": "tcp://assimbly-broker-test:61616",
+						"username": "admin",
+						"password": "admin"
+					}
+				}
+			}
+		}
+	}
+}

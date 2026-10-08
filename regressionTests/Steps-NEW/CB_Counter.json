@@ -1,0 +1,90 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a1dd2dabbc9001000022e",
+						"name": "CB_Counter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "fecb9f2d-fada-423e-a579-6e21243ff636",
+									"type": "source",
+									"uri": "counter",
+									"options": {
+										"start": "1",
+										"numbers": "10",
+										"period": "1000"
+									},
+									"links": {
+										"link": {
+											"id": "d98c194b-fda8-4767-adad-e2044d2a397b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d98c194b-fda8-4767-adad-e2044d2a397b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "test"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d98c194b-fda8-4767-adad-e2044d2a397b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "455d6c3d-eefb-472f-b8ef-ff11531e27c4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "455d6c3d-eefb-472f-b8ef-ff11531e27c4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "455d6c3d-eefb-472f-b8ef-ff11531e27c4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a5a1dd2dabbc90010000230",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

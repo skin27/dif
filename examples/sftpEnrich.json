@@ -12,10 +12,11 @@
 								{
 									"id": "67de8091-3189-43da-b28d-c2be6ef81d97",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/sftpEnrich",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -111,7 +112,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

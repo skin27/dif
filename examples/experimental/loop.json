@@ -1,0 +1,139 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a72e395bd7572000d000001",
+						"name": "loop",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6c795ae3-cada-4116-aaea-97bb710dbf89",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/loop",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "17c880bf-a6de-4201-bb4f-11a790b45c62",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "17c880bf-a6de-4201-bb4f-11a790b45c62",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Loops:"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "17c880bf-a6de-4201-bb4f-11a790b45c62",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "420ea4dd-779a-41ce-a6a3-a392456697cc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "420ea4dd-779a-41ce-a6a3-a392456697cc",
+									"type": "action",
+									"uri": "loop",
+									"options": {
+										"language": "simple",
+										"copy": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "420ea4dd-779a-41ce-a6a3-a392456697cc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "350d9536-0d9c-4206-a279-4944e3548be2",
+												"bound": "out",
+												"expression": "3",
+												"language": "simple",
+												"rule": "loop",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "350d9536-0d9c-4206-a279-4944e3548be2",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body} ${headers.CamelLoopIndex}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "350d9536-0d9c-4206-a279-4944e3548be2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6e0e40ff-365a-4ef0-b746-f7c1c6c7de85",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6e0e40ff-365a-4ef0-b746-f7c1c6c7de85",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "6e0e40ff-365a-4ef0-b746-f7c1c6c7de85",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a72e395bd7572000d000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

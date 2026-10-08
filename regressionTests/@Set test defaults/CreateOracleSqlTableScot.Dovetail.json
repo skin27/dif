@@ -1,0 +1,97 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698f4ff5e9d4cd0023000087",
+						"name": "CreateOracleSqlTableScot.Dovetail",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c1e95c40-643c-4a8f-9c8e-a06630af0459",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "13588af0-a47b-452b-b73d-e75b47d639ce",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "13588af0-a47b-452b-b73d-e75b47d639ce",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "CREATE TABLE SCOTT.DOVETAIL (\n    ID NUMBER PRIMARY KEY,       -- Unieke ID\n    NAME VARCHAR2(100),          -- Naamkolom\n    CITY VARCHAR2(100)           -- Stadkolom\n);",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "oracle",
+										"database": "xe",
+										"host": "api-testing.dovetail.world",
+										"port": "1521",
+										"username": "system",
+										"password": "oracle"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "13588af0-a47b-452b-b73d-e75b47d639ce",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4a694cfd-14cb-4561-9673-135e40e112e8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4a694cfd-14cb-4561-9673-135e40e112e8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4a694cfd-14cb-4561-9673-135e40e112e8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ea061265-741e-4812-80ad-2c9171997cf0",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,71 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694be173da8dd5000c00030e",
+						"name": "FileInbound1",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e3df7943-7b89-4391-8384-e92428c690dc",
+									"type": "source",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound1.xml",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"recursive": false,
+										"delete": true,
+										"initialDelay": "10000",
+										"delay": "10000"
+									},
+									"links": {
+										"link": {
+											"id": "b3fed0d8-1f21-4f87-894f-d3917e32faf6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b3fed0d8-1f21-4f87-894f-d3917e32faf6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b3fed0d8-1f21-4f87-894f-d3917e32faf6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "35a3c6e1-1d86-4241-85b3-e22eed9c196e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

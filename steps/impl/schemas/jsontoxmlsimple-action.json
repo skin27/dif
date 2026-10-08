@@ -1,0 +1,40 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:jsontoxmlsimple-action",
+	"title": "jsontoxmlsimple action",
+	"description": "Converts a JSON body to XML as org.json does: members become elements, array items repeat the member's element, the member content becomes text.",
+	"type": "object",
+	"properties": {
+		"addRoot": {
+			"title": "Add root",
+			"description": "Wrap the result in the element rootTag",
+			"type": "boolean",
+			"default": false
+		},
+		"rootTag": {
+			"title": "Root tag",
+			"description": "Name of the root element with addRoot",
+			"type": "string",
+			"default": "root"
+		},
+		"checkJsonKeys": {
+			"title": "Check JSON keys",
+			"description": "A key that is not an XML name fails the message; otherwise its invalid characters become _",
+			"type": "boolean",
+			"default": false
+		},
+		"changeArrayElements": {
+			"title": "Change array elements",
+			"description": "Write an array as one element named after the key, holding an element arrayElementName per item",
+			"type": "boolean",
+			"default": false
+		},
+		"arrayElementName": {
+			"title": "Array element name",
+			"description": "Name of the element per array item, with changeArrayElements or for a top-level array",
+			"type": "string",
+			"default": "element"
+		}
+	},
+	"additionalProperties": false
+}

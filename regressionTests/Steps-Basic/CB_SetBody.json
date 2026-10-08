@@ -1,0 +1,138 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cd86aa93e30015000119",
+						"name": "CB_SetBody",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c3d373ed-9e46-4158-b228-24220635c0d3",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_SetBody",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "05ff067d-0df8-4e6d-8b2f-b60cede26656",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "05ff067d-0df8-4e6d-8b2f-b60cede26656",
+									"type": "action",
+									"uri": "setheaders:message:05ff067d-0df8-4e6d-8b2f-b60cede26656",
+									"links": {
+										"link": [
+											{
+												"id": "05ff067d-0df8-4e6d-8b2f-b60cede26656",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "56870494-d869-4a97-9eef-ca3f9ba81c62",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "56870494-d869-4a97-9eef-ca3f9ba81c62",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Dear ${headers.lastName}, ${headers.firstName}\n\nThanks for the order of ${headers.item}.\n\nRegards Dovetail\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "56870494-d869-4a97-9eef-ca3f9ba81c62",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d27be85a-a400-4e29-8218-e677d7b4d227",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d27be85a-a400-4e29-8218-e677d7b4d227",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "d27be85a-a400-4e29-8218-e677d7b4d227",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4ab705c1-1485-48cc-b34d-186098e4ec99",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "05ff067d-0df8-4e6d-8b2f-b60cede26656",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "firstname",
+								"value": "Jane"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "lastname",
+								"value": "Doe"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "item",
+								"value": "Dovetail Hoodie"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

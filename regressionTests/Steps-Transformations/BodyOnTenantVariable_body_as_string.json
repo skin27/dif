@@ -1,0 +1,190 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695fb69cf71686000c000002",
+						"name": "BodyOnTenantVariable_body_as_string",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "87b5ec5f-ca61-458b-8254-4f52bc204b3c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/BodyOnTenantVariable_body_as_string",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "3bcea64f-b280-4d7e-b7f4-b402b1883570",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3bcea64f-b280-4d7e-b7f4-b402b1883570",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n    <id>5</id>\n    <name>Ronaldo</name>\n</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3bcea64f-b280-4d7e-b7f4-b402b1883570",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "820985ff-5855-4e86-a1cb-95c362798411",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "820985ff-5855-4e86-a1cb-95c362798411",
+									"type": "action",
+									"uri": "settenantvariable:Body",
+									"options": {
+										"language": "constant",
+										"value": "TkE=",
+										"encrypt": false,
+										"flowName": "BodyOnTenantVariable_body_as_string",
+										"groupName": "Steps-Transformations",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "820985ff-5855-4e86-a1cb-95c362798411",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8f6b9f51-06e9-46b4-9a64-e9288479044f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8f6b9f51-06e9-46b4-9a64-e9288479044f",
+									"type": "action",
+									"uri": "settenantvariable:Body",
+									"options": {
+										"language": "simple",
+										"value": "JHtib2R5QXMoU3RyaW5nKX0=",
+										"encrypt": false,
+										"flowName": "BodyOnTenantVariable_body_as_string",
+										"groupName": "Steps-Transformations",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8f6b9f51-06e9-46b4-9a64-e9288479044f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2fc69c06-67ca-4faf-a7ec-f9c99c9711f7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2fc69c06-67ca-4faf-a7ec-f9c99c9711f7",
+									"type": "action",
+									"uri": "gettenantvariable:Body",
+									"options": {
+										"headerName": "Body",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2fc69c06-67ca-4faf-a7ec-f9c99c9711f7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3ce1cfa7-d992-4632-94fe-a99b270f77b4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3ce1cfa7-d992-4632-94fe-a99b270f77b4",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.Body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3ce1cfa7-d992-4632-94fe-a99b270f77b4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0196588a-a56f-4aaa-b701-b61bbdae8b6f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0196588a-a56f-4aaa-b701-b61bbdae8b6f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0196588a-a56f-4aaa-b701-b61bbdae8b6f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3b0230c6-48f3-4604-ad4c-9f3cb1af26ba",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

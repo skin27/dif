@@ -1,0 +1,138 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e76f7f71686000c0001fd",
+						"name": "SplitXml_xml_aggr_rr_cdata",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "052f3e72-be33-4f45-b666-2d2eac893220",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitXml_xml_aggr_rr_cdata",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9c95a16a-afe3-49d5-9e4c-e758393b2d8f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9c95a16a-afe3-49d5-9e4c-e758393b2d8f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<DLL>\n\t<veld>\n\t\tText\n\t</veld>\n\t<veld>\n\t\t<![CDATA[<?xml version=\"1.0\" encoding=\"UTF-8\"?><veld2a>2a</veld2a>]]>\n\t</veld>\n\t<veld>\n\t\t<![CDATA[Text]]>\n\t</veld>\n</DLL>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9c95a16a-afe3-49d5-9e4c-e758393b2d8f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "da4abd53-e3b3-4849-9bed-15ffc03d5ade",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "da4abd53-e3b3-4849-9bed-15ffc03d5ade",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xtokenize",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "da4abd53-e3b3-4849-9bed-15ffc03d5ade",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d7b30fbd-34c1-4329-994b-54001d6cb4fd",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "b44c5be4-9b2c-45ed-a01e-4e67fb9ddd26",
+												"bound": "out",
+												"expression": "veld",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d7b30fbd-34c1-4329-994b-54001d6cb4fd",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d7b30fbd-34c1-4329-994b-54001d6cb4fd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b44c5be4-9b2c-45ed-a01e-4e67fb9ddd26",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "b44c5be4-9b2c-45ed-a01e-4e67fb9ddd26",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eca18cdc-6c38-4258-87b9-a88541a21ed9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

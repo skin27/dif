@@ -1,0 +1,92 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cd98aa93e30015000149",
+						"name": "CB_SetCookie",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c08278dd-2fc2-4d49-a2bf-d13784c7232e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_SetCookie",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "154298ad-674f-40a5-ba7c-1ae3807befe8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "154298ad-674f-40a5-ba7c-1ae3807befe8",
+									"type": "action",
+									"uri": "setcookie",
+									"options": {
+										"name": "MyCookie",
+										"value": "MyCookie",
+										"domain": "dovetail.world",
+										"isSecure": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "154298ad-674f-40a5-ba7c-1ae3807befe8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d812da4f-1d40-4042-810f-0fc153d1bd96",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d812da4f-1d40-4042-810f-0fc153d1bd96",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Test finished"
+									},
+									"links": {
+										"link": {
+											"id": "d812da4f-1d40-4042-810f-0fc153d1bd96",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "94a17742-6462-4e55-9be1-35b8bf800ab4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

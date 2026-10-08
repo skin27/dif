@@ -1,0 +1,175 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7af25bb55b6d0016000152",
+						"name": "SetGetTenantVariable_properties_val",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5e4837da-9a5b-4551-84b6-c06f0f75ba2a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetGetTenantVariable_properties_val",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "664454f3-a4db-4d2d-8350-1c95d5c6944b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "664454f3-a4db-4d2d-8350-1c95d5c6944b",
+									"type": "action",
+									"uri": "setheaders:message:664454f3-a4db-4d2d-8350-1c95d5c6944b",
+									"links": {
+										"link": [
+											{
+												"id": "664454f3-a4db-4d2d-8350-1c95d5c6944b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6069c8b7-1e01-475c-8f64-e38aa1aeb13a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6069c8b7-1e01-475c-8f64-e38aa1aeb13a",
+									"type": "action",
+									"uri": "settenantvariable:SetGetTenantVariable_properties_val_active",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "simple",
+										"value": "T2F1dGhHbWFpbE5vcmVwbHlfJHtoZWFkZXIudmFsdWV9",
+										"flowName": "SetGetTenantVariable_properties_val",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6069c8b7-1e01-475c-8f64-e38aa1aeb13a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8a1bf539-532a-442b-b6f4-9bb10a55ba4a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8a1bf539-532a-442b-b6f4-9bb10a55ba4a",
+									"type": "action",
+									"uri": "gettenantvariable:SetGetTenantVariable_properties_val_active",
+									"options": {
+										"headerName": "tenantVar",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8a1bf539-532a-442b-b6f4-9bb10a55ba4a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1a7bc2e7-846a-43ec-acc2-3b12bb0f571c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1a7bc2e7-846a-43ec-acc2-3b12bb0f571c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.tenantVar}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1a7bc2e7-846a-43ec-acc2-3b12bb0f571c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3963900d-796d-4b79-a5e8-a533d0af5fe7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3963900d-796d-4b79-a5e8-a533d0af5fe7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "3963900d-796d-4b79-a5e8-a533d0af5fe7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5d7abba6-9e99-4d04-a936-d9e7f70e3d0d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "664454f3-a4db-4d2d-8350-1c95d5c6944b",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "value",
+							"value": "1234567890"
+						}
+					}
+				}
+			}
+		}
+	}
+}

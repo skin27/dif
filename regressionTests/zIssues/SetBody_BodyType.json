@@ -1,0 +1,90 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e79cdf7168600100002f2",
+						"name": "SetBody_BodyType",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ae08ac43-9039-49a2-8ae8-8aef3e828b16",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetBody_BodyType",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "84144b2c-722c-49df-a51a-4b097d6e6e99",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "84144b2c-722c-49df-a51a-4b097d6e6e99",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<DLL>\n\t<veld>\n\t\tText\n\t</veld>\n\t<veld>\n\t\t<![CDATA[<?xml version=\"1.0\" encoding=\"UTF-8\"?><veld2a>2a</veld2a>]]>\n\t</veld>\n\t<veld>\n\t\t<![CDATA[Text]]>\n\t</veld>\n</DLL>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "84144b2c-722c-49df-a51a-4b097d6e6e99",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8cd9605b-dd00-4cac-b3df-d8719fe9f0d4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8cd9605b-dd00-4cac-b3df-d8719fe9f0d4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8cd9605b-dd00-4cac-b3df-d8719fe9f0d4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695e79cdf7168600100002f4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695d2d07f71686000e00021e",
+						"name": "Filter_simple_header_contains",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "4dc6ccf1-1071-4f14-b896-a66a0ef227fa",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Filter_simple_header_contains",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "f750db3d-1fe1-486d-8a9f-4879f559a037",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f750db3d-1fe1-486d-8a9f-4879f559a037",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"language": "simple",
+										"expression": "${header.name} contains 'con'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f750db3d-1fe1-486d-8a9f-4879f559a037",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cb06556c-4edd-4036-9a45-41f32d8d2879",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cb06556c-4edd-4036-9a45-41f32d8d2879",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.name} contains 'con'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cb06556c-4edd-4036-9a45-41f32d8d2879",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a9bed3d4-b0de-46d1-8223-03bc04ed0264",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a9bed3d4-b0de-46d1-8223-03bc04ed0264",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a9bed3d4-b0de-46d1-8223-03bc04ed0264",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9020a5b8-ff9c-457b-873e-9c613636c7a1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

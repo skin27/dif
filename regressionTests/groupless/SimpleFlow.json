@@ -1,0 +1,104 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6aad38471dd05d0011000000",
+						"name": "SimpleFlow",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ac36535f-cfb1-4f8d-92dc-29be5960537f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleFlow",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "3a4e002f-fe94-44cc-afb3-5c6df9d23cdd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3a4e002f-fe94-44cc-afb3-5c6df9d23cdd",
+									"type": "action",
+									"uri": "setheaders:message:3a4e002f-fe94-44cc-afb3-5c6df9d23cdd",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3a4e002f-fe94-44cc-afb3-5c6df9d23cdd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9b0c068b-f9e1-41f0-9e05-70028f5f134e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9b0c068b-f9e1-41f0-9e05-70028f5f134e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "9b0c068b-f9e1-41f0-9e05-70028f5f134e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6aad38471dd05d0011000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "3a4e002f-fe94-44cc-afb3-5c6df9d23cdd",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "test",
+							"value": "234"
+						}
+					}
+				}
+			}
+		}
+	}
+}

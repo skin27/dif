@@ -1,0 +1,77 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694ac008da8dd50016000147",
+						"name": "AS2InboundSignedAndEncrypted",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6ba2d87a-7fb5-4e6b-a070-610b1a8af8d2",
+									"type": "source",
+									"uri": "as2",
+									"options": {
+										"flowNameAsEndpoint": true,
+										"as2From": "DOVETAIL_OUTBOUND",
+										"as2To": "DOVETAIL_INBOUND",
+										"as2MessageStructure": "SIGNED_ENCRYPTED",
+										"alias": "Key3",
+										"password": "test",
+										"serverPortNumber": "9002",
+										"requestUriPattern": "/AS2InboundSignedAndEncrypted",
+										"serverFqdn": "dovetail.world",
+										"signingPrivateKey": "http://nginx:8080/private_keys/694ac008da8dd50016000147?version=0&tenant=regressiontests&step=6ba2d87a-7fb5-4e6b-a070-610b1a8af8d2&key=privateKey",
+										"signingCertificateChain": "http://nginx:8080/private_keys/694ac008da8dd50016000147?version=0&tenant=regressiontests&step=6ba2d87a-7fb5-4e6b-a070-610b1a8af8d2&key=privateKey",
+										"decryptingPrivateKey": "http://nginx:8080/private_keys/694ac008da8dd50016000147?version=0&tenant=regressiontests&step=6ba2d87a-7fb5-4e6b-a070-610b1a8af8d2&key=privateKey",
+										"validateSigningCertificateChain": "http://nginx:8080/private_keys/694ac008da8dd50016000147?version=0&tenant=regressiontests&step=6ba2d87a-7fb5-4e6b-a070-610b1a8af8d2&key=publicCertificate"
+									},
+									"links": {
+										"link": {
+											"id": "a899c5de-6b53-4818-9f0f-443b7543d614",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a899c5de-6b53-4818-9f0f-443b7543d614",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a899c5de-6b53-4818-9f0f-443b7543d614",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6cb9d099-163b-42c1-8cb1-bb7862f64a41",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,147 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dif-flows-v1
+immutable: true
+data:
+  ticker.json: |
+    {
+      "dil": {
+        "integrations": {
+          "integration": {
+            "flows": {
+              "flow": {
+                "id": "ticker",
+                "steps": {
+                  "step": [
+                    {
+                      "id": "timer", "type": "source", "uri": "timer:tick",
+                      "options": {"period": 5000},
+                      "links": {"link": [{"id": "tick", "bound": "out"}]}
+                    },
+                    {
+                      "id": "log", "type": "sink", "uri": "log",
+                      "options": {"showBody": false, "showHeaders": false},
+                      "links": {"link": [{"id": "tick", "bound": "in"}]}
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dif
+spec:
+  replicas: 1
+  # A timer runs in every replica. Avoid overlap during ordinary rollouts.
+  # Strict singleton guarantees still require external coordination.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dif
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dif
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 40
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: dif
+          # Replace with your registry image, pinned by digest for production.
+          image: dif:local
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - --dir=/etc/dif/flows
+            - --monitor-address=0.0.0.0:9090
+            - --startup-timeout=30s
+            - --shutdown-timeout=25s
+          ports:
+            - name: monitor
+              containerPort: 9090
+          startupProbe:
+            httpGet:
+              path: /startupz
+              port: monitor
+            periodSeconds: 2
+            failureThreshold: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: monitor
+            periodSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: monitor
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 256Mi
+          env:
+            # Leave room outside Go's managed heap within the memory limit.
+            - name: GOMEMLIMIT
+              value: 192MiB
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: flows
+              mountPath: /etc/dif/flows
+              readOnly: true
+      volumes:
+        - name: flows
+          configMap:
+            name: dif-flows-v1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dif-monitor
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: dif
+  ports:
+    - name: monitor
+      port: 9090
+      targetPort: monitor
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dif-monitor
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: dif
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        # Adapt to the labels and namespace of your monitoring installation.
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090

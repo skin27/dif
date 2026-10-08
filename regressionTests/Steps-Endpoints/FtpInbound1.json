@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695fd926f71686001b00029c",
+						"name": "FtpInbound1",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6a627075-db1c-4174-9bfc-a3d49a389487",
+									"type": "source",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out/",
+									"options": {
+										"fileName": "FtpOutbound1.xml",
+										"charset": "utf-8",
+										"delay": "10000",
+										"userName": "dovetail",
+										"password": "ENC(4hNYzxmQa7bD4OTXYyCGfw==|N7UnDh3GlBTvYMrGufY+dA==|3Jf3ZaE6ewjRTZwhs0KadG83zqj4gkCTu8Fi6UE0k9BH2piga/Daw5dcKrY+diIAi/8WIG8TewhQ63UOBU5+0OZ/Uw5pHtKA9mSQjnhHnwXnW8dCHjXQ1+CVgGZCU1sVrtpSrnTFp16w/c0Cp3d4Zg==)",
+										"binary": false,
+										"disconnect": true,
+										"autoCreate": true,
+										"passiveMode": true,
+										"maxMessagesPerPoll": "123456789",
+										"recursive": false,
+										"delete": false,
+										"moveFailed": ".error",
+										"readLock": "none",
+										"initialDelay": "1000",
+										"stopIfNoFileFound": false
+									},
+									"links": {
+										"link": {
+											"id": "52e11b31-e3d1-4f53-8703-fca0711368a5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "52e11b31-e3d1-4f53-8703-fca0711368a5",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022/next/Regression Tests/test/out/",
+									"options": {
+										"fileName": "FtpOutbound1.xml",
+										"charset": "utf-8",
+										"userName": "dovetail",
+										"password": "ENC(X2S8+XKupx35rGRgKGlxuQ==|EVMJ1ZxYY3pNNAIAUuV7jQ==|bT5tjPTdXCRwACqLrxfRD45GO31mt68jTgLvYAB5p6k2IFmVSLhb+KkUpitwWbU+5FbSTF/wrR/zxXTUsEpbu3iD6ndNZIcYPHg6ecehQjhdzgPACTeOwQQ83Qwr3l2ItCfeVKHfdSJr8y3U5V4FcA==)",
+										"disconnect": true,
+										"autoCreate": true,
+										"passiveMode": true,
+										"recursive": false,
+										"delete": false,
+										"binary": false,
+										"abortMode": true,
+										"maxMessagesPerPoll": 1,
+										"move": "RAW(processed)",
+										"moveFailed": "RAW(error)",
+										"readLock": "none"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "52e11b31-e3d1-4f53-8703-fca0711368a5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f0723685-a6d8-44a1-8c57-1a54e917daaf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f0723685-a6d8-44a1-8c57-1a54e917daaf",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f0723685-a6d8-44a1-8c57-1a54e917daaf",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695fd926f71686001b00029e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

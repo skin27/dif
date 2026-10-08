@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:removetenantvariable-action",
+	"title": "removetenantvariable action",
+	"description": "Removes a tenant variable.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Variable",
+			"description": "Name of the variable, from the URI (<step>:<name>)",
+			"type": "string"
+		},
+		"tenantDbName": {
+			"title": "Tenant",
+			"description": "Tenant the variable belongs to",
+			"type": "string",
+			"default": "default"
+		}
+	},
+	"additionalProperties": false
+}

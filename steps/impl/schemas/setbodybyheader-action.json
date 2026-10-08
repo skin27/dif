@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setbodybyheader-action",
+	"title": "setbodybyheader action",
+	"description": "Replaces the body with the value of a header (empty if it is not set).",
+	"type": "object",
+	"properties": {
+		"headerName": {
+			"title": "Header name",
+			"description": "Name of the header",
+			"type": "string"
+		}
+	},
+	"required": ["headerName"],
+	"additionalProperties": false
+}

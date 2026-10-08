@@ -1,0 +1,880 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694b9e66da8dd50011000085",
+						"name": "FileOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "39a0e2fd-1c42-4363-8cad-4d152b1f0693",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FileOutbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9b167065-b6fe-43ac-b606-b7c7fc894aba",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9b167065-b6fe-43ac-b606-b7c7fc894aba",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "9b167065-b6fe-43ac-b606-b7c7fc894aba",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ea089787-a497-40f8-a62d-f8a3c50486c1",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "ee07f71c-c08b-4684-980a-2a4eff4ae374",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "a7b76745-fc79-45ee-9a7b-ae0cfdeb25e1",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "64a5bfa8-a727-4ec0-ac89-c8daf6db4817",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "68328592-973c-410a-88db-8168629a4c27",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ea089787-a497-40f8-a62d-f8a3c50486c1",
+									"type": "action",
+									"uri": "setheaders:message:ea089787-a497-40f8-a62d-f8a3c50486c1",
+									"links": {
+										"link": [
+											{
+												"id": "ea089787-a497-40f8-a62d-f8a3c50486c1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d064f520-bf99-44f3-9498-2091f9e9bc8b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d064f520-bf99-44f3-9498-2091f9e9bc8b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root>Test file</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d064f520-bf99-44f3-9498-2091f9e9bc8b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "63055b35-f1ff-46e0-a2f2-e3ff70686a74",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "63055b35-f1ff-46e0-a2f2-e3ff70686a74",
+									"type": "action",
+									"uri": "setheaders:message:63055b35-f1ff-46e0-a2f2-e3ff70686a74",
+									"links": {
+										"link": [
+											{
+												"id": "63055b35-f1ff-46e0-a2f2-e3ff70686a74",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2c7e43a6-2ad3-496f-9c29-d425c57383fb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2c7e43a6-2ad3-496f-9c29-d425c57383fb",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound1.xml",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2c7e43a6-2ad3-496f-9c29-d425c57383fb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4ca1df6f-ddb3-40df-9de2-da0688b24ef2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4ca1df6f-ddb3-40df-9de2-da0688b24ef2",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4ca1df6f-ddb3-40df-9de2-da0688b24ef2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ee07f71c-c08b-4684-980a-2a4eff4ae374",
+									"type": "action",
+									"uri": "setheaders:message:ee07f71c-c08b-4684-980a-2a4eff4ae374",
+									"links": {
+										"link": [
+											{
+												"id": "ee07f71c-c08b-4684-980a-2a4eff4ae374",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "07d84cb8-ec3e-498b-8b98-e7f58a4e7e38",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "07d84cb8-ec3e-498b-8b98-e7f58a4e7e38",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "07d84cb8-ec3e-498b-8b98-e7f58a4e7e38",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "059d4d26-c447-4c95-b95f-bd54010dc935",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "059d4d26-c447-4c95-b95f-bd54010dc935",
+									"type": "action",
+									"uri": "setheaders:message:059d4d26-c447-4c95-b95f-bd54010dc935",
+									"options": {
+										"expression": "test"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "059d4d26-c447-4c95-b95f-bd54010dc935",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3e9f33ef-5892-4a02-aeaa-9be00ee3f257",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3e9f33ef-5892-4a02-aeaa-9be00ee3f257",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/${header.environment}/regressionTests/",
+									"options": {
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3e9f33ef-5892-4a02-aeaa-9be00ee3f257",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b32b52a4-8f58-4614-9135-fe4069942aaa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b32b52a4-8f58-4614-9135-fe4069942aaa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b32b52a4-8f58-4614-9135-fe4069942aaa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a7b76745-fc79-45ee-9a7b-ae0cfdeb25e1",
+									"type": "action",
+									"uri": "setheaders:message:a7b76745-fc79-45ee-9a7b-ae0cfdeb25e1",
+									"links": {
+										"link": [
+											{
+												"id": "a7b76745-fc79-45ee-9a7b-ae0cfdeb25e1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "24013248-077d-4a76-986e-03ca8c412a0e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "24013248-077d-4a76-986e-03ca8c412a0e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test file"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "24013248-077d-4a76-986e-03ca8c412a0e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "58d0a0cd-3a88-488c-b5d5-aebdecdf3d23",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "58d0a0cd-3a88-488c-b5d5-aebdecdf3d23",
+									"type": "action",
+									"uri": "setheaders:message:58d0a0cd-3a88-488c-b5d5-aebdecdf3d23",
+									"links": {
+										"link": [
+											{
+												"id": "58d0a0cd-3a88-488c-b5d5-aebdecdf3d23",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "70c58a78-8aa7-48d0-976b-124b34e8426f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "70c58a78-8aa7-48d0-976b-124b34e8426f",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/${header.environment}/regressionTests/",
+									"options": {
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Append"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "70c58a78-8aa7-48d0-976b-124b34e8426f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "620de71e-44cc-41e3-9f4c-f9c4c184746c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "620de71e-44cc-41e3-9f4c-f9c4c184746c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "620de71e-44cc-41e3-9f4c-f9c4c184746c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "64a5bfa8-a727-4ec0-ac89-c8daf6db4817",
+									"type": "action",
+									"uri": "setheaders:message:64a5bfa8-a727-4ec0-ac89-c8daf6db4817",
+									"links": {
+										"link": [
+											{
+												"id": "64a5bfa8-a727-4ec0-ac89-c8daf6db4817",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f8f6e163-1e4f-4562-81e1-909330eb05f3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f8f6e163-1e4f-4562-81e1-909330eb05f3",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test file"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f8f6e163-1e4f-4562-81e1-909330eb05f3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c4249773-fe51-411a-9f96-ac5da7103eb8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c4249773-fe51-411a-9f96-ac5da7103eb8",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "c4249773-fe51-411a-9f96-ac5da7103eb8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "911039b7-6938-4110-83c0-10ceea50bc3a",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "155afa4b-be38-4927-9da0-d180bd25ce20",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "911039b7-6938-4110-83c0-10ceea50bc3a",
+									"type": "action",
+									"uri": "setheaders:message:911039b7-6938-4110-83c0-10ceea50bc3a",
+									"links": {
+										"link": [
+											{
+												"id": "911039b7-6938-4110-83c0-10ceea50bc3a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9c6d1516-d46b-40ec-984f-e228b2373ea0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9c6d1516-d46b-40ec-984f-e228b2373ea0",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound4.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Fail"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9c6d1516-d46b-40ec-984f-e228b2373ea0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "54748efe-57cb-4fe1-a79e-cbc55157688f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "54748efe-57cb-4fe1-a79e-cbc55157688f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "54748efe-57cb-4fe1-a79e-cbc55157688f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "155afa4b-be38-4927-9da0-d180bd25ce20",
+									"type": "action",
+									"uri": "setheaders:message:155afa4b-be38-4927-9da0-d180bd25ce20",
+									"links": {
+										"link": [
+											{
+												"id": "155afa4b-be38-4927-9da0-d180bd25ce20",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9f3f78ea-806c-461c-a936-306da8092c08",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9f3f78ea-806c-461c-a936-306da8092c08",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound4.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Fail"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9f3f78ea-806c-461c-a936-306da8092c08",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cbcfbcf8-7523-4c9a-ab27-e9efecee8100",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cbcfbcf8-7523-4c9a-ab27-e9efecee8100",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "cbcfbcf8-7523-4c9a-ab27-e9efecee8100",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68328592-973c-410a-88db-8168629a4c27",
+									"type": "action",
+									"uri": "setheaders:message:68328592-973c-410a-88db-8168629a4c27",
+									"links": {
+										"link": [
+											{
+												"id": "68328592-973c-410a-88db-8168629a4c27",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9dc6ea63-bd19-4b5f-813a-5e167e8d0d52",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9dc6ea63-bd19-4b5f-813a-5e167e8d0d52",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test file"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9dc6ea63-bd19-4b5f-813a-5e167e8d0d52",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "14b9cb88-8229-4375-856b-3faeceaaa9e3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "14b9cb88-8229-4375-856b-3faeceaaa9e3",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound5.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Ignore"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "14b9cb88-8229-4375-856b-3faeceaaa9e3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b3aca61d-08ef-4a0f-ba5a-54c387a622ac",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b3aca61d-08ef-4a0f-ba5a-54c387a622ac",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b3aca61d-08ef-4a0f-ba5a-54c387a622ac",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "694b9e66da8dd50011000087",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "7bc7e447-4115-443b-9c7b-0afe488e82c1",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7bc7e447-4115-443b-9c7b-0afe488e82c1",
+									"type": "action",
+									"uri": "setheaders:message:7bc7e447-4115-443b-9c7b-0afe488e82c1",
+									"links": {
+										"link": [
+											{
+												"id": "7bc7e447-4115-443b-9c7b-0afe488e82c1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "97fc2caf-6e34-4715-a257-5e3dba35f07d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "97fc2caf-6e34-4715-a257-5e3dba35f07d",
+									"type": "sink",
+									"uri": "replace",
+									"options": {
+										"regex": "1234567890",
+										"replaceWith": "0987654321",
+										"group": 0
+									},
+									"links": {
+										"link": {
+											"id": "97fc2caf-6e34-4715-a257-5e3dba35f07d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "ea089787-a497-40f8-a62d-f8a3c50486c1",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_override_xml"
+							}
+						}
+					},
+					{
+						"name": "63055b35-f1ff-46e0-a2f2-e3ff70686a74",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "CamelFileName",
+								"value": "FileOutbound1.xml"
+							}
+						}
+					},
+					{
+						"name": "a7b76745-fc79-45ee-9a7b-ae0cfdeb25e1",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_append"
+							}
+						}
+					},
+					{
+						"name": "58d0a0cd-3a88-488c-b5d5-aebdecdf3d23",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "CamelFileName",
+									"value": "FileOutbound3.txt"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "environment",
+									"value": "test"
+								}
+							]
+						}
+					},
+					{
+						"name": "ee07f71c-c08b-4684-980a-2a4eff4ae374",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_override_zip"
+							}
+						}
+					},
+					{
+						"name": "059d4d26-c447-4c95-b95f-bd54010dc935",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "CamelFileName",
+									"value": "FileOutbound2.zip"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "environment",
+									"value": "test"
+								}
+							]
+						}
+					},
+					{
+						"name": "64a5bfa8-a727-4ec0-ac89-c8daf6db4817",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_fail"
+							}
+						}
+					},
+					{
+						"name": "911039b7-6938-4110-83c0-10ceea50bc3a",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_1"
+							}
+						}
+					},
+					{
+						"name": "155afa4b-be38-4927-9da0-d180bd25ce20",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_2"
+							}
+						}
+					},
+					{
+						"name": "68328592-973c-410a-88db-8168629a4c27",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_ignore"
+							}
+						}
+					},
+					{
+						"name": "7bc7e447-4115-443b-9c7b-0afe488e82c1",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception",
+									"value": "${exception}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.class",
+									"value": " ${exception.class}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.message",
+									"value": "${exception.message}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.stacktrace",
+									"value": "${exception.stacktrace}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

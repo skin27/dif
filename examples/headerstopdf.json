@@ -12,10 +12,11 @@
 								{
 									"id": "9f918cd5-4c48-4d63-abeb-d9d533138d93",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/headerstopdf",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -97,7 +98,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

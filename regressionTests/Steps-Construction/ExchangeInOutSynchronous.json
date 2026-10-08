@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69577f8cf71686000b00002f",
+						"name": "ExchangeInOutSynchronous",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8448082c-5caa-4fd2-bbfd-5cd243988328",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ExchangeInOutSynchronous",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8854e360-325e-4746-99f2-c30611b438ed",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8854e360-325e-4746-99f2-c30611b438ed",
+									"type": "action",
+									"uri": "setrequestreply",
+									"links": {
+										"link": [
+											{
+												"id": "8854e360-325e-4746-99f2-c30611b438ed",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b37cb941-6b35-490d-9401-73dcf6a392b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b37cb941-6b35-490d-9401-73dcf6a392b0",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "InOut Synchronous returns new body"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b37cb941-6b35-490d-9401-73dcf6a392b0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8c8be269-845e-4fac-81d9-408848b1cb67",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8c8be269-845e-4fac-81d9-408848b1cb67",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8c8be269-845e-4fac-81d9-408848b1cb67",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f5d5e514-584a-4137-acb5-4a824ebfaefa",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

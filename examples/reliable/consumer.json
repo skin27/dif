@@ -1,0 +1,11 @@
+{
+  "dil": {"integrations": {"integration": {"flows": {"flow": {
+    "id": "reliable-consumer",
+    "steps": {"step": [
+      {"id": "in", "type": "source", "uri": "queue:orders", "links": {"link": [{"id": "guard", "bound": "out"}]}},
+      {"id": "guard", "type": "action", "uri": "idempotent", "options": {"namespace": "orders", "key": "${header.orderId}"}, "links": {"link": [{"id": "guard", "bound": "in"}, {"id": "slow", "bound": "out"}]}},
+      {"id": "slow", "type": "action", "uri": "delay", "options": {"milliseconds": 200}, "links": {"link": [{"id": "slow", "bound": "in"}, {"id": "log", "bound": "out"}]}},
+      {"id": "log", "type": "sink", "uri": "log", "options": {"showBody": true}, "links": {"link": [{"id": "log", "bound": "in"}]}}
+    ]}
+  }}}}}
+}

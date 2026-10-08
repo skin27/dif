@@ -1,0 +1,127 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696fa8ebc9b9a40016000250",
+						"name": "JsonToXmlSimple_variables",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "bf6ba58d-d2c8-40f4-8f8a-29e7060855ad",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/JsonToXmlSimple_variables",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6f7004cb-9440-4018-bd11-e0faea8f486f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6f7004cb-9440-4018-bd11-e0faea8f486f",
+									"type": "action",
+									"uri": "setheaders:message:6f7004cb-9440-4018-bd11-e0faea8f486f",
+									"links": {
+										"link": [
+											{
+												"id": "6f7004cb-9440-4018-bd11-e0faea8f486f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b158442b-2f79-4004-be97-1ebce37b9029",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b158442b-2f79-4004-be97-1ebce37b9029",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": true,
+										"rootTag": "OauthGmailNoreply",
+										"checkJsonKeys": true,
+										"changeArrayElements": true,
+										"arrayElementName": "${header.flowName}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b158442b-2f79-4004-be97-1ebce37b9029",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ac36c6ae-27b5-4306-b684-b18e75697eee",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ac36c6ae-27b5-4306-b684-b18e75697eee",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ac36c6ae-27b5-4306-b684-b18e75697eee",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b0fe83bf-269f-4901-aa74-4ac3f65f4cdb",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "6f7004cb-9440-4018-bd11-e0faea8f486f",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "flowName",
+							"value": "OauthGmailNoreply"
+						}
+					}
+				}
+			}
+		}
+	}
+}

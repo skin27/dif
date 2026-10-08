@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a633b1dc1b8eb0012000000",
+						"name": "graphql",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "571a486b-cca4-41af-93ab-c6cec058fc3d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/graphql",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "572c52c9-d29d-46a8-ad17-bdce027767ec",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "572c52c9-d29d-46a8-ad17-bdce027767ec",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "572c52c9-d29d-46a8-ad17-bdce027767ec",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ea973b8a-e006-458f-aa78-e63bbce94956",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ea973b8a-e006-458f-aa78-e63bbce94956",
+									"type": "action",
+									"uri": "graphql",
+									"options": {
+										"query": "query {\n  character(id: 1) {\n    name\n    species\n  }\n}",
+										"url": "https://rickandmortyapi.com/graphql"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ea973b8a-e006-458f-aa78-e63bbce94956",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a7fa5685-4992-4103-b6cf-10ec3371fcbf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a7fa5685-4992-4103-b6cf-10ec3371fcbf",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a7fa5685-4992-4103-b6cf-10ec3371fcbf",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a633b1dc1b8eb0012000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

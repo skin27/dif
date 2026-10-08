@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a9806b90fe1e1000c00013c",
+						"name": "direct access json values",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "16c69f17-128d-45b0-a3c9-64bf33a5f183",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/directaccessjsonvalues",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "1265e972-2995-487b-b774-78d5307ea6ad",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1265e972-2995-487b-b774-78d5307ea6ad",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"person\": {\n    \"name\": \"John Doe\",\n    \"address\": {\n      \"street\": \"123 Main St\",\n      \"city\": \"Anytown\"\n    }\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1265e972-2995-487b-b774-78d5307ea6ad",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5b117375-417f-4608-afa4-bb975f8bb311",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5b117375-417f-4608-afa4-bb975f8bb311",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${jq('{wrapper: [.person, (.fakeKey // {fakeKey: null\\})]\\}')}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5b117375-417f-4608-afa4-bb975f8bb311",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c5c86961-d95f-4ee4-9c04-96443dc44cf0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c5c86961-d95f-4ee4-9c04-96443dc44cf0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c5c86961-d95f-4ee4-9c04-96443dc44cf0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "22d90195-f2d5-403f-8e83-c83351c5fa4d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

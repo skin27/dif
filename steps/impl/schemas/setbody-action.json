@@ -1,0 +1,23 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setbody-action",
+	"title": "setbody action",
+	"description": "Sets the body of the message by an expression.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Expression language: constant (literal text) or simple (${body}, ${header.name})",
+			"type": "string",
+			"enum": ["constant", "simple"],
+			"default": "constant"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "The new content of the body",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

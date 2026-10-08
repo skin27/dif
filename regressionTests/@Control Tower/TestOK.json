@@ -1,0 +1,134 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a957fc7bff3510016000425",
+						"name": "TestOK",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ad970b12-65db-4236-83e0-574f79ae029d",
+									"type": "source",
+									"uri": "setheaders:message:ad970b12-65db-4236-83e0-574f79ae029d",
+									"options": {
+										"expression": "694aca3eda8dd5001600023e"
+									},
+									"links": {
+										"link": {
+											"id": "7432ed1b-459d-4a78-8255-81741957cc09",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7432ed1b-459d-4a78-8255-81741957cc09",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test/inbound_http/regressiontests/TestCollector",
+									"options": {
+										"httpMethod": "GET",
+										"useErrorRoute": true,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"retryInterval": 30000,
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "Basic",
+										"authUsername": "tester",
+										"authPassword": "ENC(W88h20W6Q7JYFR4xQEhsww==|bbfAKW8sVr1d+S4M8NI6kQ==|mQ0iYOJ/ToJYxU4e55ylEjtVc2chLZj6DaNUMFhsomIc5QB5pfeXDjGweO1t7wfidUVvX2nOWJHVjokvdl6Bl+fC3Y+irpAt4W48NWVlCwhu6530WSBv5SX4m1LjeVrzt7iouqjypTz1HQAfLSEcxCmbcdZuDsaF82jFKAOrRsw=)",
+										"authenticationPreemptive": false,
+										"sslContextParameters": "#sslContext"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7432ed1b-459d-4a78-8255-81741957cc09",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e3d0dceb-d18e-4673-b475-0595a23ea67a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e3d0dceb-d18e-4673-b475-0595a23ea67a",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": {
+											"id": "e3d0dceb-d18e-4673-b475-0595a23ea67a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a957fc7bff3510016000427",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "ad970b12-65db-4236-83e0-574f79ae029d",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "testFlowName",
+								"value": "OauthGmailNoreply"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "testFlowId",
+								"value": "694aca3eda8dd5001600023e"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "testException",
+								"value": "${exception.message}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "testStatus",
+								"value": "OK"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

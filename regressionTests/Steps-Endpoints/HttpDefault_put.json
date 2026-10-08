@@ -1,0 +1,135 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953c675da8dd5001500020b",
+						"name": "HttpDefault_put",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "69100585-4167-455c-b4f5-085b5471038a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpDefault_put",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "41a44f2c-21a8-43b6-a086-91ce8f519962",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "41a44f2c-21a8-43b6-a086-91ce8f519962",
+									"type": "action",
+									"uri": "setheaders:message:41a44f2c-21a8-43b6-a086-91ce8f519962",
+									"links": {
+										"link": [
+											{
+												"id": "41a44f2c-21a8-43b6-a086-91ce8f519962",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3f7bbe70-d115-4dbe-9686-6002adbc1b17",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3f7bbe70-d115-4dbe-9686-6002adbc1b17",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test/inbound_http/regressiontests/HttpCatchCalls",
+									"options": {
+										"httpMethod": "PUT",
+										"authMethod": "None",
+										"authenticationPreemptive": false,
+										"useErrorRoute": true,
+										"useCustomDateHeader": false,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"mutualTls": false,
+										"retryInterval": 30000,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3f7bbe70-d115-4dbe-9686-6002adbc1b17",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6c582d79-107f-4f3e-bb00-de704e6df58e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6c582d79-107f-4f3e-bb00-de704e6df58e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6c582d79-107f-4f3e-bb00-de704e6df58e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2f56a528-d2ab-4074-beb9-edcf137737cb",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "41a44f2c-21a8-43b6-a086-91ce8f519962",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "url",
+							"value": "https://next.dovetail.world/test/"
+						}
+					}
+				}
+			}
+		}
+	}
+}

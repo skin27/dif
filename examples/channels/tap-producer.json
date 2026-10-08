@@ -1,0 +1,18 @@
+{
+  "dil": {
+    "integrations": {"integration": {"flows": {"flow": {
+      "id": "tap-producer",
+      "steps": {"step": [
+        {"id": "in", "type": "source", "uri": "message", "links": {"link": [{"id": "tap", "bound": "out"}]}},
+        {"id": "tap", "type": "router", "uri": "wiretap", "links": {"link": [
+          {"id": "tap", "bound": "in"},
+          {"id": "audit", "bound": "out", "rule": "wiretap"},
+          {"id": "main", "bound": "out"}
+        ]}},
+        {"id": "audit", "type": "sink", "uri": "queue:orders.audit", "options": {"delivery": "enqueue"}, "links": {"link": [{"id": "audit", "bound": "in"}]}},
+        {"id": "main", "type": "sink", "uri": "passthrough", "links": {"link": [{"id": "main", "bound": "in"}]}}
+      ]}
+    }}}},
+    "core": {"messages": {"message": {"name": "order", "body": "Main path continues immediately"}}}
+  }
+}

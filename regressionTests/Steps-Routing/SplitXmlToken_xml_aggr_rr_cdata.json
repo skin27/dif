@@ -1,0 +1,138 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a951e54bff35100110000c6",
+						"name": "SplitXmlToken_xml_aggr_rr_cdata",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a7b49e69-d939-423e-b4ae-e3bb4d826beb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitXmlToken_xml_aggr_rr_cdata",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8b31ef8e-e042-436b-90a3-2090c705d870",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8b31ef8e-e042-436b-90a3-2090c705d870",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<products>\n    <product>\n        <id>10001</id>\n        <sku>TSHIRT-BLK-M</sku>\n        <ean>8712345678901</ean>\n\n        <name>Basic T-shirt zwart</name>\n\n        <description><![CDATA[\n            <p>Dit comfortabele <strong>basic T-shirt</strong> is gemaakt van\n            100% biologisch katoen.</p>\n            <p>Het shirt heeft een normale pasvorm en is geschikt voor dagelijks gebruik.</p>\n        ]]></description>\n\n        <shortDescription><![CDATA[\n            Zwart basic T-shirt van 100% biologisch katoen.\n        ]]></shortDescription>\n\n        <price currency=\"EUR\">24.95</price>\n        <vat>21</vat>\n\n        <stock>\n            <quantity>147</quantity>\n            <availability>in_stock</availability>\n        </stock>\n\n        <brand>Example Clothing</brand>\n        <category>\n            <id>10</id>\n            <name>T-shirts</name>\n        </category>\n\n        <attributes>\n            <attribute>\n                <name>kleur</name>\n                <value>zwart</value>\n            </attribute>\n            <attribute>\n                <name>maat</name>\n                <value>M</value>\n            </attribute>\n            <attribute>\n                <name>materiaal</name>\n                <value>100% biologisch katoen</value>\n            </attribute>\n        </attributes>\n\n        <images>\n            <image type=\"main\"><![CDATA[\n                https://www.example.com/images/tshirt-zwart.jpg\n            ]]></image>\n            <image type=\"thumbnail\"><![CDATA[\n                https://www.example.com/images/tshirt-zwart-thumb.jpg\n            ]]></image>\n        </images>\n\n        <shipping>\n            <weight unit=\"kg\">0.25</weight>\n            <freeShipping>true</freeShipping>\n        </shipping>\n\n        <seo>\n            <title><![CDATA[\n                Basic T-shirt zwart kopen | Example Clothing\n            ]]></title>\n            <description><![CDATA[\n                Bestel ons zwarte basic T-shirt van 100% biologisch katoen.\n                Snelle levering en gratis verzending.\n            ]]></description>\n        </seo>\n\n    </product>\n\n    <product>\n        <id>10002</id>\n        <sku>JEANS-BLU-32</sku>\n        <ean>8712345678918</ean>\n\n        <name>Classic jeans blauw</name>\n\n        <description><![CDATA[\n            <p>Een klassieke blauwe jeans met een <em>slim fit</em> pasvorm.</p>\n            <ul>\n                <li>98% katoen</li>\n                <li>2% elastaan</li>\n                <li>Machinewasbaar</li>\n            </ul>\n        ]]></description>\n\n        <shortDescription><![CDATA[\n            Klassieke blauwe jeans met slim fit pasvorm.\n        ]]></shortDescription>\n\n        <price currency=\"EUR\">69.95</price>\n        <vat>21</vat>\n\n        <stock>\n            <quantity>32</quantity>\n            <availability>in_stock</availability>\n        </stock>\n\n        <brand>Example Clothing</brand>\n\n        <category>\n            <id>20</id>\n            <name>Broeken</name>\n        </category>\n\n        <attributes>\n            <attribute>\n                <name>kleur</name>\n                <value>blauw</value>\n            </attribute>\n            <attribute>\n                <name>maat</name>\n                <value>32</value>\n            </attribute>\n            <attribute>\n                <name>materiaal</name>\n                <value>98% katoen, 2% elastaan</value>\n            </attribute>\n        </attributes>\n\n        <images>\n            <image type=\"main\"><![CDATA[\n                https://www.example.com/images/jeans-blauw.jpg\n            ]]></image>\n        </images>\n\n        <shipping>\n            <weight unit=\"kg\">0.65</weight>\n            <freeShipping>false</freeShipping>\n        </shipping>\n\n        <seo>\n            <title><![CDATA[\n                Classic jeans blauw | Example Clothing\n            ]]></title>\n            <description><![CDATA[\n                Klassieke blauwe slim fit jeans van Example Clothing.\n            ]]></description>\n        </seo>\n\n    </product>\n</products>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8b31ef8e-e042-436b-90a3-2090c705d870",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "013b912f-e82f-46ce-9abc-77014a50015c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "013b912f-e82f-46ce-9abc-77014a50015c",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xtokenize",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "013b912f-e82f-46ce-9abc-77014a50015c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "67290f3a-f8a3-41f0-9485-90839906ce1f",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "fcc37821-0806-42f6-9030-3246775d9f1f",
+												"bound": "out",
+												"expression": "//product",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "67290f3a-f8a3-41f0-9485-90839906ce1f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "67290f3a-f8a3-41f0-9485-90839906ce1f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fcc37821-0806-42f6-9030-3246775d9f1f",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "fcc37821-0806-42f6-9030-3246775d9f1f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2695ebe5-1e4f-4819-94ad-848c2bdd6b0a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

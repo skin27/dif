@@ -1,0 +1,94 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6973970cf624bf000f00014d",
+						"name": "Velocity_flow_property",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b3d4e9c7-5246-4738-b19f-282e053a8cf6",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Velocity_flow_property",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6be4a4f0-d02e-49b0-99e9-1f98decf719d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6be4a4f0-d02e-49b0-99e9-1f98decf719d",
+									"type": "action",
+									"uri": "velocity:ref:3523d5b1-c311-4e65-aa07-be8e5e6a3e85",
+									"links": {
+										"link": [
+											{
+												"id": "6be4a4f0-d02e-49b0-99e9-1f98decf719d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "542e3d04-b199-4505-9a61-da81681fc1aa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "542e3d04-b199-4505-9a61-da81681fc1aa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "542e3d04-b199-4505-9a61-da81681fc1aa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9a5bc293-5087-4264-b6b4-077649955f0d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "3523d5b1-c311-4e65-aa07-be8e5e6a3e85",
+					"content": "#if($headers.YourHeaderName == \"A\")\n    #set($messageBody = \"OauthGmailNoreply\")\n#else\n    #set($messageBody = \"Regression Tests\")\n#end\n$messageBody"
+				}
+			}
+		}
+	}
+}

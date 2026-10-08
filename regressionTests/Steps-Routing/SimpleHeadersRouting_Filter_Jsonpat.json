@@ -1,0 +1,170 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e634ff71686001400013d",
+						"name": "SimpleHeadersRouting_Filter_Jsonpat",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3359ccdb-2357-43f1-b4c2-6d4a8a72cf79",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersRouting_Filter_Jsonpat",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "e06243ca-50ba-4d50-9344-f4b8e82cd396",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e06243ca-50ba-4d50-9344-f4b8e82cd396",
+									"type": "action",
+									"uri": "setheaders:message:e06243ca-50ba-4d50-9344-f4b8e82cd396",
+									"links": {
+										"link": [
+											{
+												"id": "e06243ca-50ba-4d50-9344-f4b8e82cd396",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "af36e695-1e96-44c5-97e8-ec97efc12901",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "af36e695-1e96-44c5-97e8-ec97efc12901",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{ \"store\": {\n    \"book\": [ \n      { \"category\": \"fiction\",\n        \"author\": \"Herman Melville\",\n        \"title\": \"Moby Dick\",\n        \"isbn\": \"0-553-21311-3\",\n        \"price\": 8.99\n      }\n    ],\n    \"bicycle\": {\n      \"color\": \"red\",\n      \"price\": 19.95\n    }\n  }\n}\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "af36e695-1e96-44c5-97e8-ec97efc12901",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e992773a-7fbc-4d2a-b7a0-106eeeceb391",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e992773a-7fbc-4d2a-b7a0-106eeeceb391",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"language": "jsonpath",
+										"expression": "${header.expression}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e992773a-7fbc-4d2a-b7a0-106eeeceb391",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5ed499a1-1bd4-4471-b0a0-afb08445c6bf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5ed499a1-1bd4-4471-b0a0-afb08445c6bf",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "After filter"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5ed499a1-1bd4-4471-b0a0-afb08445c6bf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c2a5b221-4a63-4328-b032-5e1f8cbfd3f9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c2a5b221-4a63-4328-b032-5e1f8cbfd3f9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c2a5b221-4a63-4328-b032-5e1f8cbfd3f9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2457ab4f-f152-4285-afb2-571227a1d312",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "e06243ca-50ba-4d50-9344-f4b8e82cd396",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "expression",
+							"value": "$.store.book[?(@.price < 10)]"
+						}
+					}
+				}
+			}
+		}
+	}
+}

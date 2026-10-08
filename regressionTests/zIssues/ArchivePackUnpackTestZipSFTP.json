@@ -1,0 +1,175 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69a1c1e94b71b6000e000002",
+						"name": "ArchivePackUnpackTestZipSFTP",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "07bfb3a8-64b1-49d1-b863-e758d1778010",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ArchivePackUnpackTestZipSFTP",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "06d08d86-1fea-4e2c-9709-e605073887b3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "06d08d86-1fea-4e2c-9709-e605073887b3",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "ID,Name,Number\n1,Pete,1001\n2,John,1002\n3,Frank,1003\n4,Max,1004"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "06d08d86-1fea-4e2c-9709-e605073887b3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "54450c79-0e93-432d-a1a2-5c196f63a365",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "54450c79-0e93-432d-a1a2-5c196f63a365",
+									"type": "action",
+									"uri": "setheaders:message:54450c79-0e93-432d-a1a2-5c196f63a365",
+									"links": {
+										"link": [
+											{
+												"id": "54450c79-0e93-432d-a1a2-5c196f63a365",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3f97d936-9dc5-4d67-b7ba-0ecc9218473d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3f97d936-9dc5-4d67-b7ba-0ecc9218473d",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "3f97d936-9dc5-4d67-b7ba-0ecc9218473d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "595464bb-a43b-4769-86ba-a530da44a6dc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "595464bb-a43b-4769-86ba-a530da44a6dc",
+									"type": "action",
+									"uri": "setheaders:message:595464bb-a43b-4769-86ba-a530da44a6dc",
+									"links": {
+										"link": [
+											{
+												"id": "595464bb-a43b-4769-86ba-a530da44a6dc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a2ecc651-b995-44ed-8960-3cc32ebaa86d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a2ecc651-b995-44ed-8960-3cc32ebaa86d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a2ecc651-b995-44ed-8960-3cc32ebaa86d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a5d08ab8-4881-4335-90f2-b71a48253b54",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "54450c79-0e93-432d-a1a2-5c196f63a365",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "text-test.txt"
+							}
+						}
+					},
+					{
+						"name": "595464bb-a43b-4769-86ba-a530da44a6dc",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "test.zip"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

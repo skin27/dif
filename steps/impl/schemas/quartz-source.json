@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:quartz-source",
+	"title": "quartz source",
+	"description": "Produces a message, without a body, at every time a Quartz cron expression matches, with header quartz.firetime. A time missed while the flow is busy or paused is skipped.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Name",
+			"description": "Name of the schedule, from the URI (quartz:<name>); informational only",
+			"type": "string"
+		},
+		"cron": {
+			"title": "Cron",
+			"description": "Quartz cron expression: seconds minutes hours day-of-month month day-of-week [year], e.g. 0 0 3 * * ? for 03:00 every day. Supports *, ?, values, ranges, steps, lists and names (JAN, MON); not L, W or #",
+			"type": "string"
+		},
+		"timeZone": {
+			"title": "Time zone",
+			"description": "IANA time zone of the expression, e.g. Europe/Amsterdam; empty for the local time zone",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"required": ["cron"],
+	"additionalProperties": false
+}

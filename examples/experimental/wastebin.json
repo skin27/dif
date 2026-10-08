@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a634fdac1b8eb0012000064",
+						"name": "wastebin",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1f4e070f-61e9-4662-85f7-85f829a944cc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/wastebin",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "dc83b1c5-98c2-4637-aba7-705933476580",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dc83b1c5-98c2-4637-aba7-705933476580",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "This message is put in the wastebin"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dc83b1c5-98c2-4637-aba7-705933476580",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "53f00f78-4d1e-448b-b504-f249687d3f59",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "53f00f78-4d1e-448b-b504-f249687d3f59",
+									"type": "action",
+									"uri": "wastebin",
+									"links": {
+										"link": [
+											{
+												"id": "53f00f78-4d1e-448b-b504-f249687d3f59",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "84502ff8-969c-47de-bd0e-8462af3263d8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "84502ff8-969c-47de-bd0e-8462af3263d8",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "After the wastebin"
+									},
+									"links": {
+										"link": {
+											"id": "84502ff8-969c-47de-bd0e-8462af3263d8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a634fdac1b8eb0012000066",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

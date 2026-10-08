@@ -1,0 +1,156 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a2c82dabbc900140004b6",
+						"name": "EmailWithAttachment",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f368887f-772c-4900-8965-3cf3df44e206",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_EmailWithAttachment_issue",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "4f0cad00-e26b-4c8f-babe-60374d488549",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4f0cad00-e26b-4c8f-babe-60374d488549",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Attachment: Test"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4f0cad00-e26b-4c8f-babe-60374d488549",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5e294366-dd2a-42ef-8cba-8b0b93ba9c39",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5e294366-dd2a-42ef-8cba-8b0b93ba9c39",
+									"type": "action",
+									"uri": "setheaders:message:5e294366-dd2a-42ef-8cba-8b0b93ba9c39",
+									"links": {
+										"link": [
+											{
+												"id": "5e294366-dd2a-42ef-8cba-8b0b93ba9c39",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ba9452ee-f611-41d1-a092-80683ce7e493",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ba9452ee-f611-41d1-a092-80683ce7e493",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@fluxygen.com",
+										"subject": "next Regression Tests test OauthGmailNoreply",
+										"exchangeBodyAs": "attachment",
+										"emailBody": "Attachment enclosed.",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "oauth2",
+										"accessToken": "@{accessToken}",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ba9452ee-f611-41d1-a092-80683ce7e493",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "21a74211-b25f-4380-9fff-e01a98701aaa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "21a74211-b25f-4380-9fff-e01a98701aaa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "21a74211-b25f-4380-9fff-e01a98701aaa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0b2b6731-5d4a-47f5-9f55-a7eb2a4c147f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "5e294366-dd2a-42ef-8cba-8b0b93ba9c39",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelFileName",
+							"value": "attachment.txt"
+						}
+					}
+				}
+			}
+		}
+	}
+}

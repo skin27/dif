@@ -1,0 +1,135 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a3819dabbc9000c0003fa",
+						"name": "CB_DocConverterCsvToJson",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7bfa2f95-6aa9-4a7a-8567-58d59be61473",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_DocConverterCsvToJson",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "a3a83a6f-24d8-442c-a596-382725e1df61",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a3a83a6f-24d8-442c-a596-382725e1df61",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a3a83a6f-24d8-442c-a596-382725e1df61",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e0a7ad1e-cb41-48f0-83f9-5c03953eb5ce",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e0a7ad1e-cb41-48f0-83f9-5c03953eb5ce",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "id,name,description,category_id,category_name,currency,amount,vatIncluded,stock_amsterdam,stock_rotterdam,stock_eindhoven,width,height,depth,dimension_unit,weight,weight_unit,manufacturer,country,support_email,support_phone,tags,power,voltage,waterTank_capacity,waterTank_unit,programs,review_count,average_rating,online,stores,createdAt,updatedAt\nPRD-100245,\"UltraSmart Coffee Machine 5000\",\"Fully automatic bean-to-cup coffee machine\",12,\"Kitchen Appliances\",EUR,899.95,true,24,18,0,28.5,42.3,36.1,cm,8.75,kg,\"CoffeeTech Europe\",Netherlands,support@coffeetech.example,+31-20-1234567,\"coffee|espresso|automatic|premium\",\"1450W\",\"230V\",1.8,L,\"Espresso|Cappuccino|Latte|Hot Water\",2,4.5,true,\"Amsterdam|Rotterdam|Utrecht\",2026-07-17T10:15:30Z,2026-07-17T11:45:00Z"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e0a7ad1e-cb41-48f0-83f9-5c03953eb5ce",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "92d90b60-1135-4b75-8833-299499be05c9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "92d90b60-1135-4b75-8833-299499be05c9",
+									"type": "action",
+									"uri": "docconverter",
+									"options": {
+										"convert": "csvtojson"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "92d90b60-1135-4b75-8833-299499be05c9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "62b6e1d4-fce7-44a0-80d5-b2e6404aa3f6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "62b6e1d4-fce7-44a0-80d5-b2e6404aa3f6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "62b6e1d4-fce7-44a0-80d5-b2e6404aa3f6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "70e13a61-2e01-4c8a-a4e8-e4673fd77727",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

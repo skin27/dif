@@ -1,0 +1,77 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a83311fdd4f5700160001f1",
+						"name": "ScriptJavaScriptWCG_cdf_in_soorder",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0ab66336-18c1-4f67-9b58-13c00017389d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_cdf_in_soorder",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "01b34f48-e6b1-49b3-8e2d-9c33188d0089",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "01b34f48-e6b1-49b3-8e2d-9c33188d0089",
+									"type": "sink",
+									"uri": "setheaders:message:01b34f48-e6b1-49b3-8e2d-9c33188d0089",
+									"links": {
+										"link": {
+											"id": "01b34f48-e6b1-49b3-8e2d-9c33188d0089",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b8427af0-994f-4515-be0b-f4a2700302e1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "01b34f48-e6b1-49b3-8e2d-9c33188d0089",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "statusVerwerking",
+							"value": "TOTAL, AVEC NOTIFICATIONS"
+						}
+					}
+				}
+			}
+		}
+	}
+}

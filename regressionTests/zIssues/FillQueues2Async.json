@@ -1,0 +1,65 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a0c8c59aa1408000c00001a",
+						"name": "FillQueues2Async",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "62638e90-952e-4d39-b5bf-f379493bfbd8",
+									"type": "source",
+									"uri": "flowlink-async",
+									"options": {
+										"transport": "async"
+									},
+									"links": {
+										"link": {
+											"id": "dd19379d-6eec-4637-9dd6-f84fac4319a4",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dd19379d-6eec-4637-9dd6-f84fac4319a4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "dd19379d-6eec-4637-9dd6-f84fac4319a4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a0c8c59aa1408000c00001c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

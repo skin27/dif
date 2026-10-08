@@ -1,0 +1,141 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a4265dabbc9001000067a",
+						"name": "CB_AwsS3",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a87b283e-2c51-4445-be46-2e4359637aec",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_AwsS3",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "d0957996-e07a-4481-a742-e16e053233ce",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d0957996-e07a-4481-a742-e16e053233ce",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d0957996-e07a-4481-a742-e16e053233ce",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7bfd8631-fc92-4d21-8b97-64e2d69c7f68",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7bfd8631-fc92-4d21-8b97-64e2d69c7f68",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "id,name,description,category_id,category_name,currency,amount,vatIncluded,stock_amsterdam,stock_rotterdam,stock_eindhoven,width,height,depth,dimension_unit,weight,weight_unit,manufacturer,country,support_email,support_phone,tags,power,voltage,waterTank_capacity,waterTank_unit,programs,review_count,average_rating,online,stores,createdAt,updatedAt\nPRD-100245,\"UltraSmart Coffee Machine 5000\",\"Fully automatic bean-to-cup coffee machine\",12,\"Kitchen Appliances\",EUR,899.95,true,24,18,0,28.5,42.3,36.1,cm,8.75,kg,\"CoffeeTech Europe\",Netherlands,support@coffeetech.example,+31-20-1234567,\"coffee|espresso|automatic|premium\",\"1450W\",\"230V\",1.8,L,\"Espresso|Cappuccino|Latte|Hot Water\",2,4.5,true,\"Amsterdam|Rotterdam|Utrecht\",2026-07-17T10:15:30Z,2026-07-17T11:45:00Z"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7bfd8631-fc92-4d21-8b97-64e2d69c7f68",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e6c87d6d-c1a9-436a-8f3c-45473e5d9ec4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e6c87d6d-c1a9-436a-8f3c-45473e5d9ec4",
+									"type": "action",
+									"uri": "awss3",
+									"options": {
+										"autoCreateBucket": false,
+										"region": "eu-west-1",
+										"useDefaultCredentialsProvider": false,
+										"useProfileCredentialsProvider": false,
+										"useSessionCredentials": false,
+										"overrideEndpoint": false,
+										"forcePathStyle": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e6c87d6d-c1a9-436a-8f3c-45473e5d9ec4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a3233449-ed87-482b-9d49-bbb288b8a7ff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a3233449-ed87-482b-9d49-bbb288b8a7ff",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a3233449-ed87-482b-9d49-bbb288b8a7ff",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ebcb3dee-4894-4a23-bc09-92ef8835e89c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

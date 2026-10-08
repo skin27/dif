@@ -12,10 +12,11 @@
 								{
 									"id": "89d0e183-31a6-411b-814a-9a53a32e26fa",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/emailoutbound",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -51,16 +52,15 @@
 								{
 									"id": "fdd4e951-e2c4-407d-bd50-9b76e447916f",
 									"type": "action",
-									"uri": "smtp:smtp-relay.gmail.com:587",
+									"uri": "smtp:smtp.gmail.com:587",
 									"options": {
 										"to": "brunovg@gmail.com",
 										"subject": "test",
 										"exchangeBodyAs": "body",
-										"fromEmailPreference": "norman.hooghof@fluxygen.com",
-										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "brunovg@gmail.com",
+										"username": "brunovg@gmail.com",
 										"from": "norman.hooghof@fluxygen.com",
 										"authenticationType": "basic",
-										"password": "btfz onfr sial rmdg",
 										"tenantDbName": "_new2"
 									},
 									"links": {
@@ -105,7 +105,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

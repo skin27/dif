@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:queue-source",
+	"title": "queue source",
+	"description": "Consumes a named queue. Durable deliveries are acknowledged after terminal processing; memory storage remains the default.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Queue",
+			"description": "Name of the queue, from the URI (queue:<name>); defaults to the id of the flow",
+			"type": "string"
+		},
+		"transport": {
+			"title": "Transport",
+			"description": "Broker of the Java platform, such as activemq; informational only, as queues are in memory",
+			"type": "string",
+			"default": "activemq"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

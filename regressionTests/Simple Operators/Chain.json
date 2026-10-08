@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a9838400fe1e1000c00024a",
+						"name": "Chain",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0127011b-3ab9-4455-8d0e-885c4c6f705f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Chain",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "efdab766-3ca8-4cde-91f3-2d58f7538fc4",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "efdab766-3ca8-4cde-91f3-2d58f7538fc4",
+									"type": "action",
+									"uri": "setheaders:message:efdab766-3ca8-4cde-91f3-2d58f7538fc4",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "efdab766-3ca8-4cde-91f3-2d58f7538fc4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2f1a942d-f0bd-4782-b2a1-ebfd12bf5de4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2f1a942d-f0bd-4782-b2a1-ebfd12bf5de4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "2f1a942d-f0bd-4782-b2a1-ebfd12bf5de4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3a481d31-80e2-4cdb-915d-de76bc76dbdc",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "efdab766-3ca8-4cde-91f3-2d58f7538fc4",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "nameOriginal",
+								"value": "Norman         Hooghof NTJ"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "name",
+								"value": "${normalizeWhitespace(${header.nameOriginal})} ~> ${substring(-4)}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

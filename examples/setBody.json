@@ -12,10 +12,11 @@
 								{
 									"id": "7ca71afa-92e9-4c67-aea0-425059f2ccbf",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/setBody",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -30,7 +31,7 @@
 									"type": "sink",
 									"uri": "setbody",
 									"options": {
-										"language": "constant",
+										"language": "simple",
 										"expression": "${random(10)}"
 									},
 									"links": {
@@ -55,7 +56,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

@@ -1,0 +1,153 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b823d5329592001f000050",
+						"name": "ForceInboundSftp",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "827623cd-a22d-42f2-832f-88072c339c9a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ForceInboundSftp",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "332a70aa-03c6-4617-8475-700e0dab38be",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "332a70aa-03c6-4617-8475-700e0dab38be",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022//next/Regression Tests/test/out/",
+									"options": {
+										"fileName": "PraktizijnsAanwinstenlijst.xlsx",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "ENC(0voAZHWWb3XDI0CEDuKBQg==|3VGtMH4tdbGeDH52xQHASA==|Uk11LAuVGVZGR77Y0w1l/ZHWlq5w2btvrhOMQVQviYnG2l9XSnfRUdxx+hBdlR3ADPFRzvN12WV7l7MYdAd2dxWPIY4B+9RQHgDdKihnhARiwDKOdKW66tf8hewQVyCdm7aiVOiIXK6zIKH5C6tYVg==)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "332a70aa-03c6-4617-8475-700e0dab38be",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7db46bbb-988e-4739-ad00-c0b39187b2f9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7db46bbb-988e-4739-ad00-c0b39187b2f9",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022//next/Regression Tests/test/out",
+									"options": {
+										"recursive": false,
+										"fileName": "PraktizijnsAanwinstenlijst.xlsx",
+										"binary": true,
+										"charset": "utf-8",
+										"maxMessagesPerPoll": 1,
+										"delete": false,
+										"move": "RAW(.archive)",
+										"moveFailed": "RAW(.error)",
+										"autoCreate": true,
+										"readLock": "none",
+										"userName": "dovetail",
+										"password": "ENC(TqTc5utdMZxX5Qx1YMLVGA==|egpRRiJdFyXaL+21MIFUmQ==|6Y43WOAAcD3oZ6xYdnyOz54T5hxSat754sE2qKtR2Wr3nsuOXREc1p/YrEoBhEYkGfa8STjp3tR4e/uJw/xlbMGrTN9m1wap3FELawtzxlylu/oz5QsKXlXqNpSi8ZOgdl/Ynx6iCu9T8NIIaN4vqA==)",
+										"abortMode": false,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7db46bbb-988e-4739-ad00-c0b39187b2f9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "27a0fb19-7645-47f0-8e83-c0e31333b73e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "27a0fb19-7645-47f0-8e83-c0e31333b73e",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"language": "simple",
+										"expression": "${header.CamelFileLength} > 0"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "27a0fb19-7645-47f0-8e83-c0e31333b73e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c3db8c7-266b-4208-b9be-ea8a4eab2a5a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c3db8c7-266b-4208-b9be-ea8a4eab2a5a",
+									"type": "sink",
+									"uri": "exceltoxml",
+									"options": {
+										"rules": "[{\"name\":\"item\",\"worksheet\":\"Blad1\",\"cellRange\":\"a1:aq1000\",\"transpose\":false,\"headerRow\":true,\"discardEmpty\":false}]"
+									},
+									"links": {
+										"link": {
+											"id": "4c3db8c7-266b-4208-b9be-ea8a4eab2a5a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b823d5329592001f000052",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

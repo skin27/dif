@@ -1,0 +1,91 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69723e629e55ca000c000294",
+						"name": "Replace_text",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "2eaa3977-7cfb-4d0f-b58a-876366ec63bb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Replace_text",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "5403f2a0-92a6-45ac-a72e-262685407354",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5403f2a0-92a6-45ac-a72e-262685407354",
+									"type": "action",
+									"uri": "replace",
+									"options": {
+										"regex": "root",
+										"replaceWith": "carrot",
+										"group": 0
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5403f2a0-92a6-45ac-a72e-262685407354",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "426c9994-fe18-4aca-b6fd-686902db9c4a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "426c9994-fe18-4aca-b6fd-686902db9c4a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "426c9994-fe18-4aca-b6fd-686902db9c4a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c965ad98-a606-4542-9d64-74c8db27b65e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

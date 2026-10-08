@@ -1,0 +1,173 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a295c0f09d3e0000c000022",
+						"name": "InboundEmailFG2476",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "edc2397e-1621-46af-afdd-a3230970d49c",
+									"type": "source",
+									"uri": "imaps:imap.gmail.com:993",
+									"options": {
+										"content": "body",
+										"unseen": true,
+										"delay": "10000",
+										"searchSubject": "Errors because of wrong credentials",
+										"authenticationType": "oauth",
+										"username": "noreply@fluxygen.com",
+										"accessToken": "@{OauthTokenNotAvailable}",
+										"tenantDbName": "regressiontests"
+									},
+									"blocks": {
+										"block": {
+											"id": "edc2397e-1621-46af-afdd-a3230970d49c_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "a01d8093-fa67-4a0e-ae20-57c22f6370e6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a01d8093-fa67-4a0e-ae20-57c22f6370e6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a01d8093-fa67-4a0e-ae20-57c22f6370e6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a295c0f09d3e0000c000024",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "e48ad0ad-1ed5-455c-be37-d90da3617b20",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e48ad0ad-1ed5-455c-be37-d90da3617b20",
+									"type": "action",
+									"uri": "setheaders:message:e48ad0ad-1ed5-455c-be37-d90da3617b20",
+									"links": {
+										"link": [
+											{
+												"id": "e48ad0ad-1ed5-455c-be37-d90da3617b20",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bb5a85ca-25bf-4ff8-8369-7cf7ce1fe38c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bb5a85ca-25bf-4ff8-8369-7cf7ce1fe38c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Error"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bb5a85ca-25bf-4ff8-8369-7cf7ce1fe38c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1a75c2d7-c305-4629-9c54-07a29cf4b254",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1a75c2d7-c305-4629-9c54-07a29cf4b254",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": true
+									},
+									"links": {
+										"link": {
+											"id": "1a75c2d7-c305-4629-9c54-07a29cf4b254",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "e48ad0ad-1ed5-455c-be37-d90da3617b20",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "header",
+							"value": "expression"
+						}
+					}
+				}
+			},
+			"connections": {
+				"connection": {
+					"type": "imaps",
+					"keys": {
+						"host": "imap.gmail.com",
+						"port": "993",
+						"authenticationType": "oauth",
+						"username": "noreply@fluxygen.com",
+						"password": ""
+					},
+					"id": "edc2397e-1621-46af-afdd-a3230970d49c_connection",
+					"name": "imaps_connection"
+				}
+			}
+		}
+	}
+}

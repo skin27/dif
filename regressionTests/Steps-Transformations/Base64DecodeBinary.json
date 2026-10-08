@@ -1,0 +1,123 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6abba595b5cd100011000000",
+						"name": "Base64DecodeBinary",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c0fb5c6c-893f-4a37-90ca-b2cd123b0bb1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Base64DecodeBinary",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "01b1a6b3-ec4d-415e-a041-7e412acfa479",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "01b1a6b3-ec4d-415e-a041-7e412acfa479",
+									"type": "action",
+									"uri": "base64tobinary",
+									"links": {
+										"link": [
+											{
+												"id": "01b1a6b3-ec4d-415e-a041-7e412acfa479",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "277032c0-22ba-4ce9-961a-b32fda4e5c52",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "277032c0-22ba-4ce9-961a-b32fda4e5c52",
+									"type": "action",
+									"uri": "setheaders:message:277032c0-22ba-4ce9-961a-b32fda4e5c52",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "277032c0-22ba-4ce9-961a-b32fda4e5c52",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "72699e76-7128-43a1-8a37-3fe80fe567cc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "72699e76-7128-43a1-8a37-3fe80fe567cc",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "72699e76-7128-43a1-8a37-3fe80fe567cc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6abba595b5cd10001100000d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "277032c0-22ba-4ce9-961a-b32fda4e5c52",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "Content-Type",
+							"value": "image/png"
+						}
+					}
+				}
+			}
+		}
+	}
+}

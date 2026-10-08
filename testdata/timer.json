@@ -1,0 +1,103 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "timer",
+						"name": "timer",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "timer-source",
+									"type": "source",
+									"uri": "timer:tick",
+									"options": {
+										"period": 5000
+									},
+									"links": {
+										"link": {
+											"id": "timer-setbody",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "timer-setbody",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "tick ${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "timer-setbody",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "timer-setheader",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "timer-setheader",
+									"type": "action",
+									"uri": "setheader",
+									"options": {
+										"name": "source",
+										"language": "constant",
+										"value": "timer"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "timer-setheader",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "timer-log",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "timer-log",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "timer-log",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "timer-error",
+									"type": "error",
+									"uri": "failedexchange"
+								}
+							]
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,15 @@
+.git
+.idea
+.codex
+.agents
+security
+logs
+dif.exe*
+**/*_test.go
+**/testdata
+**/*.p12
+**/*.pfx
+**/*.key
+**/*.pem
+**/.env*
+steps/designer

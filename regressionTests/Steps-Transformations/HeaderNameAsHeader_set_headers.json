@@ -1,0 +1,177 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696f98f2c9b9a4001600013f",
+						"name": "HeaderNameAsHeader_set_headers",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cf8abbb6-d224-4111-8ac4-b8864c81370d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HeaderNameAsHeader_set_headers",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "5462aab1-3449-4aa7-8275-f69251483903",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5462aab1-3449-4aa7-8275-f69251483903",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5462aab1-3449-4aa7-8275-f69251483903",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ae660cee-39b8-45f2-b0e0-af92b993f356",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ae660cee-39b8-45f2-b0e0-af92b993f356",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Body"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ae660cee-39b8-45f2-b0e0-af92b993f356",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8a1830eb-ffbe-4ada-a9f2-0f3f36cf9b48",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8a1830eb-ffbe-4ada-a9f2-0f3f36cf9b48",
+									"type": "action",
+									"uri": "setheaders:message:8a1830eb-ffbe-4ada-a9f2-0f3f36cf9b48",
+									"links": {
+										"link": [
+											{
+												"id": "8a1830eb-ffbe-4ada-a9f2-0f3f36cf9b48",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "faa2128c-46cc-41a9-bfa4-024abd6928b4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "faa2128c-46cc-41a9-bfa4-024abd6928b4",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)} ${header.config}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "faa2128c-46cc-41a9-bfa4-024abd6928b4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ea1cf349-fa1c-4a15-bd7e-43e712502feb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ea1cf349-fa1c-4a15-bd7e-43e712502feb",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ea1cf349-fa1c-4a15-bd7e-43e712502feb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8ae7203b-d844-423b-8f37-e9b4873313be",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "8a1830eb-ffbe-4ada-a9f2-0f3f36cf9b48",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "name",
+								"value": "headerName"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "New_${header.name}",
+								"value": "Test"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

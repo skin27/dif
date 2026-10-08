@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ce86aa93e30015000239",
+						"name": "CB_XmlToEDI",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9d4eaf16-3ff3-4689-bcb2-c368cb9f3e0f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_XmlToEDI",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "88de5205-4844-4a45-a6ee-1e1727a68522",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "88de5205-4844-4a45-a6ee-1e1727a68522",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<edi-message>\n  <delimiters segment=\"LB\" field=\"~\" component=\"^\" sub-component=\"!\" />\n  <CUS>\n    <field.1>\n      <component.1>John</component.1>\n      <component.2>Doe</component.2>\n    </field.1>\n    <field.2>1901-01-07</field.2>\n    <field.3>john.doe@example.com</field.3>\n  </CUS>\n</edi-message>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "88de5205-4844-4a45-a6ee-1e1727a68522",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6161a62d-c8c9-441e-8990-614087240f08",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6161a62d-c8c9-441e-8990-614087240f08",
+									"type": "action",
+									"uri": "xmltoedi",
+									"links": {
+										"link": [
+											{
+												"id": "6161a62d-c8c9-441e-8990-614087240f08",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "37c0ce9a-0767-4007-9fc9-733ebabf4c0d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "37c0ce9a-0767-4007-9fc9-733ebabf4c0d",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "37c0ce9a-0767-4007-9fc9-733ebabf4c0d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9a29f260-638f-4b02-bc8d-1d92f2c99844",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

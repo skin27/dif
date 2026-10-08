@@ -1,0 +1,46 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xmltojson-action",
+	"title": "xmltojson action",
+	"description": "Converts an XML body to JSON as json-lib does: attributes as @name, text beside attributes or children as #text, repeated elements as arrays, the root element left out.",
+	"type": "object",
+	"properties": {
+		"forceTopLevelObject": {
+			"title": "Force top-level object",
+			"description": "Keep the root element: the result is {\"root\": ...}",
+			"type": "boolean",
+			"default": false
+		},
+		"skipWhitespace": {
+			"title": "Skip whitespace",
+			"description": "Text that is only whitespace becomes empty",
+			"type": "boolean",
+			"default": false
+		},
+		"trimSpaces": {
+			"title": "Trim spaces",
+			"description": "Trim the whitespace around text",
+			"type": "boolean",
+			"default": false
+		},
+		"skipNamespaces": {
+			"title": "Skip namespaces",
+			"description": "Leave out namespace declarations (xmlns attributes)",
+			"type": "boolean",
+			"default": false
+		},
+		"removeNamespacePrefixes": {
+			"title": "Remove namespace prefixes",
+			"description": "Name elements and attributes without their prefix",
+			"type": "boolean",
+			"default": false
+		},
+		"typeHints": {
+			"title": "Type hints",
+			"description": "A json_type attribute (number, boolean, string, null, array, object) sets the JSON type; otherwise all values are strings",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"additionalProperties": false
+}

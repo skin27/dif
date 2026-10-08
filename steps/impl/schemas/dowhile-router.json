@@ -1,0 +1,36 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:dowhile-router",
+	"title": "dowhile router",
+	"description": "Sends the message along the link with rule dowhile as long as the link's condition holds for it, checked before every round, with header loop.index; then along the other link, if any. As an action the rest of the flow is run once per round.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Language of the condition, when the dowhile link does not set one",
+			"type": "string",
+			"enum": ["simple", "xpath", "jsonpath"],
+			"default": "simple"
+		},
+		"expression": {
+			"title": "Condition",
+			"description": "The condition, when the dowhile link has none",
+			"type": "string",
+			"default": ""
+		},
+		"copy": {
+			"title": "Copy",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "boolean",
+			"default": false
+		},
+		"maxLoops": {
+			"title": "Maximum rounds",
+			"description": "The loop ends after this many rounds, even when the condition still holds",
+			"type": "integer",
+			"minimum": 1,
+			"default": 1000
+		}
+	},
+	"additionalProperties": false
+}

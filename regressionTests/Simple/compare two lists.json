@@ -1,0 +1,171 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a96fb2aa44b2e00160004dd",
+						"name": "compare two lists",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c2b4d70d-1638-4530-9b14-9f38ebfdc55a",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "27a432a0-ec77-4674-a0b0-8ea18cfeda52",
+											"bound": "out",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "27a432a0-ec77-4674-a0b0-8ea18cfeda52",
+									"type": "action",
+									"uri": "setheaders:message:27a432a0-ec77-4674-a0b0-8ea18cfeda52",
+									"links": {
+										"link": [
+											{
+												"id": "27a432a0-ec77-4674-a0b0-8ea18cfeda52",
+												"bound": "in",
+												"transport": "async"
+											},
+											{
+												"id": "d9046948-b0d4-4e07-bdf6-2e37c7d3f315",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d9046948-b0d4-4e07-bdf6-2e37c7d3f315",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "$init{\n  $originalCodesSet := ${header.originalCodes} ~> ${split()} ~> ${distinct()};\n  $incomingCodesSet := ${header.incomingCodes} ~> ${split()} ~> ${distinct()};\n  $ignore := ${variable.incomingCodesSet.removeAll(${variable.originalCodesSet})};\n  $diffResult := ${variable.incomingCodesSet} ~> ${join(',','')}\n}init$\n\n\n\n${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d9046948-b0d4-4e07-bdf6-2e37c7d3f315",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "63f7ec10-74d5-41bc-bdc6-643afc6b4388",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "63f7ec10-74d5-41bc-bdc6-643afc6b4388",
+									"type": "action",
+									"uri": "setheaders:message:63f7ec10-74d5-41bc-bdc6-643afc6b4388",
+									"links": {
+										"link": [
+											{
+												"id": "63f7ec10-74d5-41bc-bdc6-643afc6b4388",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f4ac64dc-90f1-4ba7-983a-509fafdb08bd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f4ac64dc-90f1-4ba7-983a-509fafdb08bd",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": true
+									},
+									"links": {
+										"link": {
+											"id": "f4ac64dc-90f1-4ba7-983a-509fafdb08bd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "75fc76de-1e35-4cf4-a54c-3ba555198e5e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "27a432a0-ec77-4674-a0b0-8ea18cfeda52",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "OriginalCodes",
+									"value": "123,234,345,345,345"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "IncomingCodes",
+									"value": "123,234,345,234,234,999,10001"
+								}
+							]
+						}
+					},
+					{
+						"name": "63f7ec10-74d5-41bc-bdc6-643afc6b4388",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "comparison",
+									"value": "${variable.diffResult}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "varOrgCodeSet",
+									"value": "${variable.originalCodesSet}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

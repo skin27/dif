@@ -1,0 +1,12 @@
+{
+  "dil": {
+    "integrations": {"integration": {"flows": {"flow": {
+      "id": "topic-producer",
+      "steps": {"step": [
+        {"id": "in", "type": "source", "uri": "message", "links": {"link": [{"id": "publish", "bound": "out"}]}},
+        {"id": "publish", "type": "sink", "uri": "topic:orders.received", "links": {"link": [{"id": "publish", "bound": "in"}]}}
+      ]}
+    }}}},
+    "core": {"messages": {"message": {"name": "order", "body": "Order received"}}}
+  }
+}

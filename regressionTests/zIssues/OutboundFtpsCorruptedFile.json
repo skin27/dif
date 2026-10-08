@@ -1,0 +1,134 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a55ffae38693b0011000097",
+						"name": "OutboundFtpsCorruptedFile",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "851b1046-539f-47f6-8e56-dfa5d99418eb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundFtpsCorruptedFile",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "1f28be8d-aba8-4dec-8dc8-ed404e7c8b72",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1f28be8d-aba8-4dec-8dc8-ed404e7c8b72",
+									"type": "action",
+									"uri": "ftps:api-testing.dovetail.world:2121/next/Regression Tests/test/out",
+									"options": {
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"implicit": false,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1f28be8d-aba8-4dec-8dc8-ed404e7c8b72",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8fd1cfa3-66a7-431f-b1a2-f3bb905a4777",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8fd1cfa3-66a7-431f-b1a2-f3bb905a4777",
+									"type": "action",
+									"uri": "setheaders:message:8fd1cfa3-66a7-431f-b1a2-f3bb905a4777",
+									"options": {
+										"expression": "${header.X-CamelFileName}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8fd1cfa3-66a7-431f-b1a2-f3bb905a4777",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6c4c7591-c7a2-40fd-9514-126a2f3bb9ff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6c4c7591-c7a2-40fd-9514-126a2f3bb9ff",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6c4c7591-c7a2-40fd-9514-126a2f3bb9ff",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4ba24046-f34d-4bbf-955e-43306e30675c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "8fd1cfa3-66a7-431f-b1a2-f3bb905a4777",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "CamelFileName",
+							"value": "${header.X-CamelFileName}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,323 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694be139da8dd5000c0002ae",
+						"name": "FileOutbound1",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8b0dc8fa-49cb-43cb-960e-b4476f31763c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FileOutbound1",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "86012be2-dace-44b0-a292-c2a7ca2c6e39",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "86012be2-dace-44b0-a292-c2a7ca2c6e39",
+									"type": "action",
+									"uri": "setheaders:message:86012be2-dace-44b0-a292-c2a7ca2c6e39",
+									"links": {
+										"link": [
+											{
+												"id": "86012be2-dace-44b0-a292-c2a7ca2c6e39",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8c4a9154-e41a-48c0-a87c-ecca998a7ae5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8c4a9154-e41a-48c0-a87c-ecca998a7ae5",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root>Test file</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8c4a9154-e41a-48c0-a87c-ecca998a7ae5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ec2850dc-b106-4f99-84f6-7ce091ab5a1b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ec2850dc-b106-4f99-84f6-7ce091ab5a1b",
+									"type": "action",
+									"uri": "setheaders:message:ec2850dc-b106-4f99-84f6-7ce091ab5a1b",
+									"links": {
+										"link": [
+											{
+												"id": "ec2850dc-b106-4f99-84f6-7ce091ab5a1b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fd1db11f-846a-4037-addc-2437933a3f87",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fd1db11f-846a-4037-addc-2437933a3f87",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "fd1db11f-846a-4037-addc-2437933a3f87",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4655e6b5-703a-4621-bd99-1685896fcf96",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "383fcd35-202e-4514-b995-619c65fc74a2",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4655e6b5-703a-4621-bd99-1685896fcf96",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound1.xml",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4655e6b5-703a-4621-bd99-1685896fcf96",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8816a882-6787-49bc-8d0c-b9f5f83cbfd8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8816a882-6787-49bc-8d0c-b9f5f83cbfd8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8816a882-6787-49bc-8d0c-b9f5f83cbfd8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "383fcd35-202e-4514-b995-619c65fc74a2",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileEnrich1.xml",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "383fcd35-202e-4514-b995-619c65fc74a2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "40c17200-87be-46be-9212-0e7ed81ab8f5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "40c17200-87be-46be-9212-0e7ed81ab8f5",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "40c17200-87be-46be-9212-0e7ed81ab8f5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e500cd10-3cbb-47aa-a926-a7ddde209b8b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "a17b61e9-44ba-4a1a-bb42-d1f3ade714a6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a17b61e9-44ba-4a1a-bb42-d1f3ade714a6",
+									"type": "action",
+									"uri": "setheaders:message:a17b61e9-44ba-4a1a-bb42-d1f3ade714a6",
+									"links": {
+										"link": [
+											{
+												"id": "a17b61e9-44ba-4a1a-bb42-d1f3ade714a6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a59dd14a-c765-4d37-be0a-0678c2cb6030",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a59dd14a-c765-4d37-be0a-0678c2cb6030",
+									"type": "sink",
+									"uri": "replace",
+									"options": {
+										"regex": "1234567890",
+										"replaceWith": "0987654321",
+										"group": 0
+									},
+									"links": {
+										"link": {
+											"id": "a59dd14a-c765-4d37-be0a-0678c2cb6030",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "86012be2-dace-44b0-a292-c2a7ca2c6e39",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_override_xml"
+							}
+						}
+					},
+					{
+						"name": "ec2850dc-b106-4f99-84f6-7ce091ab5a1b",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "CamelFileName",
+								"value": "FileOutbound1.xml"
+							}
+						}
+					},
+					{
+						"name": "a17b61e9-44ba-4a1a-bb42-d1f3ade714a6",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception",
+									"value": "${exception}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.class",
+									"value": " ${exception.class}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.message",
+									"value": "${exception.message}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.stacktrace",
+									"value": "${exception.stacktrace}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

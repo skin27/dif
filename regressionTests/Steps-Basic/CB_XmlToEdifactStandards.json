@@ -1,0 +1,91 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a69bcedf705b3001100006c",
+						"name": "CB_XmlToEdifactStandards",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1759148d-993b-4667-926b-009a0efa4b4b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_XmlToEdifactStandards",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "25ba9f5f-16d0-4483-b302-5f209e4b75f5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "25ba9f5f-16d0-4483-b302-5f209e4b75f5",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "CB_EdifactStandards2Xml has been removed."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "25ba9f5f-16d0-4483-b302-5f209e4b75f5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e3a9a0a4-e84f-4ddd-b8c9-c2822f38d87c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e3a9a0a4-e84f-4ddd-b8c9-c2822f38d87c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e3a9a0a4-e84f-4ddd-b8c9-c2822f38d87c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5441c9fd-8dee-4406-b7ca-52f4a780714e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

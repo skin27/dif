@@ -1,0 +1,276 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a96f606a44b2e000c0002b1",
+						"name": "Simple_length",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "49517730-f717-4428-adf5-5ea796b0ab87",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Simple_length",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "20bead11-50ae-4979-8ba6-9cbbd417b8e6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "20bead11-50ae-4979-8ba6-9cbbd417b8e6",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "20bead11-50ae-4979-8ba6-9cbbd417b8e6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3dc32027-7135-4384-8fc0-bbdfa2ca0a9c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3dc32027-7135-4384-8fc0-bbdfa2ca0a9c",
+									"type": "action",
+									"uri": "setheaders:message:3dc32027-7135-4384-8fc0-bbdfa2ca0a9c",
+									"links": {
+										"link": [
+											{
+												"id": "3dc32027-7135-4384-8fc0-bbdfa2ca0a9c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1416c0d1-b38b-4337-a830-efcfada0ede8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1416c0d1-b38b-4337-a830-efcfada0ede8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "you nique it"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1416c0d1-b38b-4337-a830-efcfada0ede8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "56714323-1c66-4fc4-9798-ad8bf27023a5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "56714323-1c66-4fc4-9798-ad8bf27023a5",
+									"type": "action",
+									"uri": "setheaders:message:56714323-1c66-4fc4-9798-ad8bf27023a5",
+									"links": {
+										"link": [
+											{
+												"id": "56714323-1c66-4fc4-9798-ad8bf27023a5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4e7c4739-1c2b-4d59-989d-a45b8b252e26",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4e7c4739-1c2b-4d59-989d-a45b8b252e26",
+									"type": "action",
+									"uri": "setheaders:message:4e7c4739-1c2b-4d59-989d-a45b8b252e26",
+									"links": {
+										"link": [
+											{
+												"id": "4e7c4739-1c2b-4d59-989d-a45b8b252e26",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c4f2207-d374-4850-a311-1656b71d8dcf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c4f2207-d374-4850-a311-1656b71d8dcf",
+									"type": "action",
+									"uri": "setheaders:message:4c4f2207-d374-4850-a311-1656b71d8dcf",
+									"links": {
+										"link": [
+											{
+												"id": "4c4f2207-d374-4850-a311-1656b71d8dcf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7bf4eae0-48ff-4575-ba0e-552fcb6c70d6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7bf4eae0-48ff-4575-ba0e-552fcb6c70d6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7bf4eae0-48ff-4575-ba0e-552fcb6c70d6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9785053d-8ee7-4f3f-8169-6f0a594e0d65",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "56714323-1c66-4fc4-9798-ad8bf27023a5",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "resultHeader1",
+								"value": "${length('${header.inputHeader1'})}"
+							}
+						}
+					},
+					{
+						"name": "3dc32027-7135-4384-8fc0-bbdfa2ca0a9c",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader1",
+									"value": " you nique it"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader2",
+									"value": "123456789012345"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader3",
+									"value": "     1     "
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader4",
+									"value": "you"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader5",
+									"value": "nique"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader6",
+									"value": "it"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "inputHeader7",
+									"value": "${header.inputHeader4}     ${header.inputHeader5}     ${header.inputHeader6}"
+								}
+							]
+						}
+					},
+					{
+						"name": "4e7c4739-1c2b-4d59-989d-a45b8b252e26",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "resultHeader2",
+								"value": "${length('${header.inputHeader2'})}"
+							}
+						}
+					},
+					{
+						"name": "4c4f2207-d374-4850-a311-1656b71d8dcf",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "resultHeader3",
+								"value": "${length('${body}')}"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

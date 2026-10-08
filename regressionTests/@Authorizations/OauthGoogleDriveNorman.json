@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698adfbb1c447a000d000004",
+						"name": "OauthGoogleDriveNorman",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ee31c681-de76-4bc1-9913-b73cf0a4729e",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": "-1",
+										"period": "15000"
+									},
+									"links": {
+										"link": {
+											"id": "76527f73-19ed-4402-8aa5-6b5ea0d0dc00",
+											"bound": "out",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "76527f73-19ed-4402-8aa5-6b5ea0d0dc00",
+									"type": "sink",
+									"uri": "oauth2token:76527f73-19ed-4402-8aa5-6b5ea0d0dc00",
+									"options": {
+										"expiryDelay": "15",
+										"tokenName": "OauthTokenGoogleDrive",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "76527f73-19ed-4402-8aa5-6b5ea0d0dc00",
+											"bound": "in",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "698adfbb1c447a000d000006",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

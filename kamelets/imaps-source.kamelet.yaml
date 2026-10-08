@@ -1,0 +1,111 @@
+apiVersion: "camel.apache.org/v1"
+kind: "Kamelet"
+metadata:
+  name: "imaps-source"
+  labels:
+    camel.apache.org/kamelet.type: "source"
+spec:
+  definition:
+    title: "imaps source"
+    description: "IMAPS (Internet Message Access Protocol over SSL) — to retrieve\
+      \ emails stored on a mail server."
+    type: "object"
+    properties:
+      scheme:
+        title: "scheme"
+        description: "scheme"
+        type: "string"
+      path:
+        title: "path"
+        description: "path"
+        type: "string"
+      username:
+        title: "Username"
+        description: "The username to access the mail box."
+        type: "string"
+        x-descriptors:
+        - "urn:camel:group:credentials"
+      password:
+        title: "Password"
+        description: "The password to access the mail box."
+        type: "string"
+        format: "password"
+        x-descriptors:
+        - "urn:camel:group:credentials"
+      fetchSize:
+        title: "Fetch Size"
+        description: "The number of messages fetched for each poll (-1 for no limits)."
+        type: "integer"
+        default: 10
+      delay:
+        title: "Delay"
+        description: "The delay between fetches in milliseconds."
+        type: "integer"
+        default: 60000
+      unseen:
+        title: "unseen"
+        description: "Whether to limit by unseen mails only."
+        type: "boolean"
+        default: true
+      searchSubject:
+        title: "searchSubject"
+        description: "The subject to search for."
+        type: "string"
+      searchBody:
+        title: "searchBody"
+        description: "The mail body to search for."
+        type: "string"
+      searchFrom:
+        title: "searchFrom"
+        description: "The from to search for."
+        type: "string"
+      searchTo:
+        title: "to"
+        description: "The to to search for."
+        type: "string"
+      in:
+        title: "Source Endpoint"
+        type: "string"
+        default: "kamelet:source"
+      out:
+        title: "Sink Endpoint"
+        type: "string"
+        default: "kamelet:sink"
+      routeId:
+        title: "Route ID"
+        type: "string"
+      stepId:
+        title: "Step ID"
+        type: "string"
+      routeConfigurationId:
+        title: "Route Configuration ID"
+        type: "string"
+        default: "0"
+      authenticator:
+        title: "mail authenticator"
+        description: "mail authenticator"
+        type: "string"
+      authMechanisms:
+        title: "mail auth mechanisms"
+        description: "SASL auth mechanisms"
+        type: "string"
+      authEnabled:
+        title: "mail auth enabled"
+        description: "Whether SASL auth is enabled"
+        type: "string"
+        default: "false"
+  dependencies:
+  - "camel:kamelet"
+  template:
+    route:
+      routeConfigurationId: "{{routeConfigurationId}}"
+      from:
+        uri: "imaps:{{path}}?username=RAW({{username}})&password=RAW({{?password}})&mail.imaps.auth.mechanisms={{?authMechanisms}}&mail.imaps.auth={{authEnabled}}&mail.imaps.sasl.enable={{authEnabled}}&mail.imaps.sasl.mechanisms={{?authMechanisms}}&fetchSize={{fetchSize}}&delay={{delay}}&searchTerm.subject={{?searchSubject}}&searchTerm.body={{?searchBody}}&searchTerm.from={{?searchFrom}}&searchTerm.to={{?searchTo}}&unseen={{unseen}}&bridgeErrorHandler=true&authenticator={{?authenticator}}"
+        steps:
+        - step:
+            id: "step-{{stepId}}"
+            steps:
+            - convertBodyTo:
+                type: "java.lang.String"
+            - to:
+                uri: "{{out}}"

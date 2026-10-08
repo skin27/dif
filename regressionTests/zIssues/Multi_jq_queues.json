@@ -1,0 +1,136 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a8daba254207f0010000709",
+						"name": "Multi_jq_queues",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "06e91dbe-8695-4a30-819b-c4fc817e6eb1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Multi_jq_queues",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "13c36fed-e825-47ef-8f29-ca7c7231f1d9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "13c36fed-e825-47ef-8f29-ca7c7231f1d9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\"noInvoiceRow\":48,\"uU_ID\":null,\"p_6A\":\"2026-07-31T00:00:00\",\"p_7\":\"590310600000387097 Opłata abonamentowa\",\"indeks\":null,\"gtin\":null,\"pkWiU\":null,\"cn\":null,\"pkob\":null,\"p_8A\":\"zł/mc\",\"p_8B\":1.0,\"p_9A\":10.0,\"p_9B\":null,\"p_10\":null,\"p_11\":10.0,\"p_11A\":null,\"p_11Vat\":null,\"p_12\":\"Rate23\",\"p_12_XII\":null,\"p_12_Att_15Marker\":null,\"exciseAmount\":0.0,\"gtu\":null,\"procedure\":null,\"exchangeRate\":null,\"conditionBeforeMarker\":null}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "13c36fed-e825-47ef-8f29-ca7c7231f1d9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a423b2a-aa1c-4d1e-a423-17654ee9fc9f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a423b2a-aa1c-4d1e-a423-17654ee9fc9f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${string:jq('\n((.p_11 // (((.p_11A // 0) - (.p_11Vat // 0)) * 100 | round) / 100 ))\n')}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6a423b2a-aa1c-4d1e-a423-17654ee9fc9f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "937b0254-87b3-420a-af22-c73e8a06d363",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "937b0254-87b3-420a-af22-c73e8a06d363",
+									"type": "sink",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq",
+										"targetQueueId": "6a8dabea54207f000b000862",
+										"exchangePattern": "InOnly",
+										"requestTimout": "20000"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "937b0254-87b3-420a-af22-c73e8a06d363",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a8daba254207f001000070b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"id": "activemq-connection",
+					"name": "activemq",
+					"type": "activemq",
+					"keys": {
+						"jmsprovider": "classic",
+						"pooled": "true",
+						"url": "tcp://assimbly-broker-test:61616",
+						"username": "admin",
+						"password": "admin"
+					}
+				}
+			}
+		}
+	}
+}

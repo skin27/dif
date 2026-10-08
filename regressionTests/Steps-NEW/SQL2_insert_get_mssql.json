@@ -1,0 +1,197 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69f99b5aec16aa0011000000",
+						"name": "SQL2_insert_get_mssql",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b516a9dc-a8ba-4b0c-9101-c8b443477382",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL2_insert_get_mssql",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1fc6db76-73d7-4999-ac90-4456620d2b9c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1fc6db76-73d7-4999-ac90-4456620d2b9c",
+									"type": "action",
+									"uri": "setheaders:message:1fc6db76-73d7-4999-ac90-4456620d2b9c",
+									"links": {
+										"link": [
+											{
+												"id": "1fc6db76-73d7-4999-ac90-4456620d2b9c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f",
+									"type": "action",
+									"uri": "sql2",
+									"options": {
+										"query": "INSERT into Employees (EmployeeID,FirstName,LastName,BirthDate,Email) VALUES (:#EmployeeID,'John','Doe','','john.doe@galaxy@milkyway.stars')",
+										"dataSource": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f_connection"
+									},
+									"blocks": {
+										"block": {
+											"id": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e",
+									"type": "action",
+									"uri": "sql2",
+									"options": {
+										"query": "SELECT * FROM Employees WHERE EmployeeID = :#EmployeeID",
+										"dataSource": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e_connection"
+									},
+									"blocks": {
+										"block": {
+											"id": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "674c04cf-0cd0-410e-93ac-3de8a4201486",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "674c04cf-0cd0-410e-93ac-3de8a4201486",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "674c04cf-0cd0-410e-93ac-3de8a4201486",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ad4fdfd7-3072-4adc-8afe-046593d4b094",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "1fc6db76-73d7-4999-ac90-4456620d2b9c",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "EmployeeID",
+								"value": "${random(100000)}"
+							}
+						]
+					}
+				}
+			},
+			"connections": {
+				"connection": [
+					{
+						"type": "jdbc",
+						"keys": {
+							"dbtype": "sqlserver",
+							"dbname": "tempdb",
+							"host": "api-testing.dovetail.world",
+							"port": "1433",
+							"username": "SA",
+							"password": "$Ytn4BmT"
+						},
+						"id": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f_connection",
+						"name": "sqlserver"
+					},
+					{
+						"type": "jdbc",
+						"keys": {
+							"dbtype": "sqlserver",
+							"dbname": "tempdb",
+							"host": "api-testing.dovetail.world",
+							"port": "1433",
+							"username": "SA",
+							"password": "$Ytn4BmT"
+						},
+						"id": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e_connection",
+						"name": "sqlserver"
+					}
+				]
+			}
+		}
+	}
+}

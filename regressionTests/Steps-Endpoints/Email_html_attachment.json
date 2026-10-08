@@ -1,0 +1,232 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694b99edda8dd5000c000062",
+						"name": "Email_html_attachment",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "042af45d-2502-4b29-be23-cbcc8a6959a6",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Email_html_attachment",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8a11d6c5-5b3c-47a2-abd6-d56d1028c277",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8a11d6c5-5b3c-47a2-abd6-d56d1028c277",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "config"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8a11d6c5-5b3c-47a2-abd6-d56d1028c277",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7758bf38-1b19-4813-b081-c849afa01d36",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7758bf38-1b19-4813-b081-c849afa01d36",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<html>\n   <div>\n      <span class=\"rubriek\"\n            style=\"font-family: Open sans; font-size: 16px; font-weight: bold; letter-spacing: 0.4px; line-height: 0px; color: #354684;\">Arbeidsrecht / Sociaal recht</span>\n      <span><BR><BR></span>\n      <table style=\"height: 80px;\" width=\"550px\">\n         <tbody>\n            <tr>\n               <td style=\"55px\">\n                  <img src=\"https://lms1.bibis.nl/praktizijn/covers/0000/Praktizijnslogo.jpg\"\n                       alt=\"\"\n                       width=\"50px\"\n                       height=\"80px\"/>\n               </td>\n               <td style=\"495px\">\n                  <span class=\"titel\"\n                        style=\"font-family: Open sans; font-size: 13px; font-weight: bold;\"> Just transition  naar een klimaatneutrale economie | :  de mogelijkheden en beperkingen voor de Nederlandse sociale dialoog</span>\n                  <span class=\"auteurs\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"> / Dijk, S. van [Saar]</span>\n                  <span><BR></span>\n                  <span class=\"isbn\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\">Tijdschrift Recht en Arbeid TRA 2025, afl. 2,                                                             </span>\n                  <span><BR></span>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/24/79215\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Vraag aan | </a>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/24/79215\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Informatie</a>\n               </td>\n            </tr>\n            <tr>\n               <td style=\"width: 55px;\">&nbsp;</td>\n               <td style=\"width: 495px;\">&nbsp;</td>\n            </tr>\n         </tbody>\n         <tbody>\n            <tr>\n               <td style=\"55px\">\n                  <img src=\"https://lms1.bibis.nl/praktizijn/covers/0000/Praktizijnslogo.jpg\"\n                       alt=\"\"\n                       width=\"50px\"\n                       height=\"80px\"/>\n               </td>\n               <td style=\"495px\">\n                  <span class=\"titel\"\n                        style=\"font-family: Open sans; font-size: 13px; font-weight: bold;\">Arbeidsrecht over de datum | : over de houdbaarheid van ons arbeidsbestel nu en in de nabije toekomst</span>\n                  <span class=\"auteurs\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"> / Houweling, A.R. [Ruben]</span>\n                  <span><BR></span>\n                  <span class=\"isbn\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\">Tijdschrift Arbeidsrecht Praktijk TAP 2025, afl. 1,                                                             </span>\n                  <span><BR></span>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/24/79242\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Vraag aan | </a>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/24/79242\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Informatie</a>\n               </td>\n            </tr>\n            <tr>\n               <td style=\"width: 55px;\">&nbsp;</td>\n               <td style=\"width: 495px;\">&nbsp;</td>\n            </tr>\n         </tbody>\n         <tbody>\n            <tr>\n               <td style=\"55px\">\n                  <img src=\"https://lms1.bibis.nl/praktizijn/covers/0000/Praktizijnslogo.jpg\"\n                       alt=\"\"\n                       width=\"50px\"\n                       height=\"80px\"/>\n               </td>\n               <td style=\"495px\">\n                  <span class=\"titel\"\n                        style=\"font-family: Open sans; font-size: 13px; font-weight: bold;\">De civiele rechter in tijden van crisis: adaptiviteit en rechtszekerheid in het handelsverkeer</span>\n                  <span class=\"auteurs\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"> / Bauw, E. [Eddy] | Baaij, C.J.W. [Jaap]</span>\n                  <span><BR></span>\n                  <span class=\"isbn\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\">Rechtsgeleerd Magazijn Themis RMT 2025, afl.1,                                                             </span>\n                  <span><BR></span>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/13/79331\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Vraag aan | </a>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/13/79331\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Informatie</a>\n               </td>\n            </tr>\n            <tr>\n               <td style=\"width: 55px;\">&nbsp;</td>\n               <td style=\"width: 495px;\">&nbsp;</td>\n            </tr>\n         </tbody>\n         <tbody>\n            <tr>\n               <td style=\"55px\">\n                  <img src=\"https://lms1.bibis.nl/praktizijn/covers/0000/Praktizijnslogo.jpg\"\n                       alt=\"\"\n                       width=\"50px\"\n                       height=\"80px\"/>\n               </td>\n               <td style=\"495px\">\n                  <span class=\"titel\"\n                        style=\"font-family: Open sans; font-size: 13px; font-weight: bold;\">De rechtspositie van ingeleende werknemers in grensoverschrijdende driehoeksrelaties</span>\n                  <span class=\"auteurs\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"> / Koster, S.R.</span>\n                  <span><BR></span>\n                  <span class=\"isbn\"\n                        style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\">Tijdschrift Recht en Arbeid TRA 2025, afl. 2,                                                             </span>\n                  <span><BR></span>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/24/79216\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Vraag aan | </a>\n                  <a style=\"font-family: Open sans; font-size: 11px; font-weight: 400;\"\n                     href=\"https://bibliotheek.praktizijn.nl/pages/home?configObject=27756328&amp;openDocument=AV/24/79216\"\n                     target=\"_blank\"\n                     rel=\"noopener noreferrer\">Informatie</a>\n               </td>\n            </tr>\n            <tr>\n               <td style=\"width: 55px;\">&nbsp;</td>\n               <td style=\"width: 495px;\">&nbsp;</td>\n            </tr>\n         </tbody>\n      </table>\n   </div>\n</html>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7758bf38-1b19-4813-b081-c849afa01d36",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "05f5be57-6cda-4c41-ade3-d74aa3767b42",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "05f5be57-6cda-4c41-ade3-d74aa3767b42",
+									"type": "action",
+									"uri": "setheaders:message:05f5be57-6cda-4c41-ade3-d74aa3767b42",
+									"links": {
+										"link": [
+											{
+												"id": "05f5be57-6cda-4c41-ade3-d74aa3767b42",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "208ca751-a346-42c0-b5ce-37c506f4dccf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "208ca751-a346-42c0-b5ce-37c506f4dccf",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@fluxygen.com",
+										"subject": "Dummy",
+										"exchangeBodyAs": "attachment",
+										"emailBody": "Body",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "oauth2",
+										"accessToken": "ENC(JPZ7/BNZvWtDgUvfEhVlcg==|Ct7eokSDQtyXrdjthrQHGg==|1pt5+c8PMx56LKOpFpMYXA==)",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "208ca751-a346-42c0-b5ce-37c506f4dccf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "447066c3-908c-40d4-ba95-73a72ad2f3ab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "447066c3-908c-40d4-ba95-73a72ad2f3ab",
+									"type": "action",
+									"uri": "setheaders:message:447066c3-908c-40d4-ba95-73a72ad2f3ab",
+									"links": {
+										"link": [
+											{
+												"id": "447066c3-908c-40d4-ba95-73a72ad2f3ab",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d2c0cf6f-681f-4272-8309-53e1ddecfd93",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d2c0cf6f-681f-4272-8309-53e1ddecfd93",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d2c0cf6f-681f-4272-8309-53e1ddecfd93",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f8f24133-1d96-420d-8d1e-c89ed1a363a5",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "05f5be57-6cda-4c41-ade3-d74aa3767b42",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "subject",
+									"value": "Aanwinsten_boeken.html next test"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "CamelFileName",
+									"value": "Aanwinsten_boeken.html"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "Content-Type",
+									"value": "text/html"
+								}
+							]
+						}
+					},
+					{
+						"name": "447066c3-908c-40d4-ba95-73a72ad2f3ab",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessageId",
+									"value": "${header.CamelMailMessageId}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessage",
+									"value": "${header.mailMessageId.replaceAll('<.*@|>','')}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,140 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6957da3ff71686000b000202",
+						"name": "ScriptGroovyScript_sleep",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9e2e0239-b1a6-4697-a1d3-4da2c0e72e97",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_sleep",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d5095332-8b84-4576-acd9-8d9bf234fb8f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d5095332-8b84-4576-acd9-8d9bf234fb8f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Before script"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d5095332-8b84-4576-acd9-8d9bf234fb8f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fbc25617-3eb6-45fe-817a-757db6ab8641",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fbc25617-3eb6-45fe-817a-757db6ab8641",
+									"type": "action",
+									"uri": "groovy:ref:92400408-5712-423f-a4d1-dfae3a868188",
+									"links": {
+										"link": [
+											{
+												"id": "fbc25617-3eb6-45fe-817a-757db6ab8641",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0063e30a-da89-416c-b7e6-9fc7596e1d56",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0063e30a-da89-416c-b7e6-9fc7596e1d56",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "After script\nComponentResponseTime = ${exchangeProperty.ResponseTime}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0063e30a-da89-416c-b7e6-9fc7596e1d56",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "14cb21a8-90e1-4208-8194-2f1b6ab959ad",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "14cb21a8-90e1-4208-8194-2f1b6ab959ad",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "14cb21a8-90e1-4208-8194-2f1b6ab959ad",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "da595169-dabe-43cc-8f28-ed8dde02c941",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "92400408-5712-423f-a4d1-dfae3a868188",
+					"content": "sleep(3000)\nresult = \"Script with sleep\"\nresult = request.body"
+				}
+			}
+		}
+	}
+}

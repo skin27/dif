@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:reply-source",
+  "title": "reply-source",
+  "description": "Matches responses and emits results or timeouts. Requires memory storage.",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "Reply queue name"
+    },
+    "unmatchedQueue": {
+      "type": "string",
+      "default": "",
+      "description": "Unmatched destination; defaults to <reply queue>.unmatched"
+    }
+  },
+  "required": [
+    "path"
+  ],
+  "additionalProperties": false
+}

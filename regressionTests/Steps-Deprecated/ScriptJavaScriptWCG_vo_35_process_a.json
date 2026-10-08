@@ -1,0 +1,167 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bda6bf71686000b00030d",
+						"name": "ScriptJavaScriptWCG_vo_35_process_a",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "34ccac52-a54c-4b69-80c9-0db24d80bacf",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_vo_35_process_a",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "b465412b-1df8-4563-802e-5186d01e4521",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b465412b-1df8-4563-802e-5186d01e4521",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Text"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b465412b-1df8-4563-802e-5186d01e4521",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "96911b15-4090-4ca9-ad96-0c0e7f84a4f4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "96911b15-4090-4ca9-ad96-0c0e7f84a4f4",
+									"type": "action",
+									"uri": "setheaders:message:96911b15-4090-4ca9-ad96-0c0e7f84a4f4",
+									"links": {
+										"link": [
+											{
+												"id": "96911b15-4090-4ca9-ad96-0c0e7f84a4f4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "84300e83-8344-4438-815a-fbc9548968ee",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "84300e83-8344-4438-815a-fbc9548968ee",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Javascript step has been removed."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "84300e83-8344-4438-815a-fbc9548968ee",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1fec6700-c992-4be7-9ec0-03075b10b251",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1fec6700-c992-4be7-9ec0-03075b10b251",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1fec6700-c992-4be7-9ec0-03075b10b251",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "514f4d0b-61cd-4abc-9efb-b99713d96610",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "96911b15-4090-4ca9-ad96-0c0e7f84a4f4",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Contactpersoon",
+								"value": "Pier Tol"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "defaultContactId",
+								"value": "67"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "CountContacts",
+								"value": "23"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "MessageContactId",
+								"value": "OK"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,101 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953c53cda8dd500110002b7",
+						"name": "HttpDefault_options",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b2bc97e8-5718-441c-94da-70cdad375504",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpDefault_options",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6550ef46-21c7-4d57-91f5-f477c48243f6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6550ef46-21c7-4d57-91f5-f477c48243f6",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test//inbound_http/regressiontests/HttpCatchCalls",
+									"options": {
+										"httpMethod": "OPTIONS",
+										"authMethod": "None",
+										"authenticationPreemptive": false,
+										"useErrorRoute": true,
+										"useCustomDateHeader": false,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"mutualTls": false,
+										"retryInterval": 30000,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6550ef46-21c7-4d57-91f5-f477c48243f6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7a190c2f-b963-4ef8-9e8f-e511c35f7be1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7a190c2f-b963-4ef8-9e8f-e511c35f7be1",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7a190c2f-b963-4ef8-9e8f-e511c35f7be1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8409f6a7-e9f9-4ad5-b647-605af1641ec4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

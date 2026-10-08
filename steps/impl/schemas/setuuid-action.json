@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setuuid-action",
+	"title": "setuuid action",
+	"description": "Sets a header to a new random UUID (version 4).",
+	"type": "object",
+	"properties": {
+		"headerName": {
+			"title": "Header name",
+			"description": "Name of the header",
+			"type": "string",
+			"default": "UUID"
+		},
+		"generator": {
+			"title": "Generator",
+			"description": "Accepted for compatibility; DIF always generates a random UUID",
+			"type": "string",
+			"default": "default"
+		}
+	},
+	"additionalProperties": false
+}

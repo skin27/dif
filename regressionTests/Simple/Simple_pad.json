@@ -1,0 +1,238 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "699dd3007b0d3100110001c7",
+						"name": "Simple_pad",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7eff6253-d50b-4ea5-b197-7ee8c89d52b2",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Simple_pad",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "06e8a003-baa3-47ee-87c4-55df6111c789",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "06e8a003-baa3-47ee-87c4-55df6111c789",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "06e8a003-baa3-47ee-87c4-55df6111c789",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cd6b60d6-7507-431b-95b0-3d26991bf821",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cd6b60d6-7507-431b-95b0-3d26991bf821",
+									"type": "action",
+									"uri": "setheaders:message:cd6b60d6-7507-431b-95b0-3d26991bf821",
+									"links": {
+										"link": [
+											{
+												"id": "cd6b60d6-7507-431b-95b0-3d26991bf821",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "264d4a03-7868-4da5-8224-008dc667c23f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "264d4a03-7868-4da5-8224-008dc667c23f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "you nique it"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "264d4a03-7868-4da5-8224-008dc667c23f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ba76abcb-993b-41da-99cc-fbde6764b072",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ba76abcb-993b-41da-99cc-fbde6764b072",
+									"type": "action",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "ba76abcb-993b-41da-99cc-fbde6764b072",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "29608f07-207e-467f-a3ba-44faf047ecde",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "29608f07-207e-467f-a3ba-44faf047ecde",
+									"type": "action",
+									"uri": "setheaders:message:29608f07-207e-467f-a3ba-44faf047ecde",
+									"options": {
+										"expression": "${capitalize('${header.variable1}')}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "29608f07-207e-467f-a3ba-44faf047ecde",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6941c3e8-d083-4644-b5ce-5cb2390c82ef",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6941c3e8-d083-4644-b5ce-5cb2390c82ef",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${pad(${body},30,'=')}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6941c3e8-d083-4644-b5ce-5cb2390c82ef",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "89fe7f22-46a3-40e9-b296-4d2441319db1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "89fe7f22-46a3-40e9-b296-4d2441319db1",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "89fe7f22-46a3-40e9-b296-4d2441319db1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3eb2f4e8-bbcc-4d77-81c5-d1646f0beb45",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "29608f07-207e-467f-a3ba-44faf047ecde",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader1",
+									"value": "${pad('Hello world',20,'+')}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader2",
+									"value": "${pad(${header.inputHeader1},20,'=')}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader3",
+									"value": "${pad(${body},20,'=')}"
+								}
+							]
+						}
+					},
+					{
+						"name": "cd6b60d6-7507-431b-95b0-3d26991bf821",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "inputHeader1",
+								"value": "hello world"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

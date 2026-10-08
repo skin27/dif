@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:wiretap-router",
+	"title": "wiretap router",
+	"description": "Sends a copy of the message to the outbound link with rule wiretap; the message continues on the other link.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6968e1c6633fc000170000c7",
+						"name": "XmlToJsonSimple_special_characters",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "75af6c8e-93ff-4f12-8818-c089a1c0d288",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToJsonSimple_special_characters",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "026c7ff9-d082-45ec-9cf5-d609963c16ab",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "026c7ff9-d082-45ec-9cf5-d609963c16ab",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<r>\n<e>\n    <city>KOELN 90 (PORZ-EIL)</city>\n    <country_id>DE</country_id>\n    <firstname>Deko Festartikel Schmitt - Köln</firstname>\n</e>\n<e>\n    <city>KOELN 90 (PORZ-EIL)</city>\n    <country_id>DE</country_id>\n    <firstname>éëêèęėēíïìîįīúüìîįīóöôòõœøōçáäâàæãåāûùū</firstname>\n</e>\n</r>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "026c7ff9-d082-45ec-9cf5-d609963c16ab",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "66ffd1b1-6cfb-4529-bef9-0c5f5bec7cfb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "66ffd1b1-6cfb-4529-bef9-0c5f5bec7cfb",
+									"type": "action",
+									"uri": "xmltojsonsimple",
+									"options": {
+										"removeRoot": false,
+										"removeNamespaces": true,
+										"keepStrings": false,
+										"hasTypes": false,
+										"typeValueMismatch": "original"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "66ffd1b1-6cfb-4529-bef9-0c5f5bec7cfb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4580cc3b-1ddb-48dd-85a2-8a2f7fc21a0d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4580cc3b-1ddb-48dd-85a2-8a2f7fc21a0d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4580cc3b-1ddb-48dd-85a2-8a2f7fc21a0d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6968e1c6633fc000170000c9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -12,10 +12,11 @@
 								{
 									"id": "6c8447c3-3cdc-4a60-b868-10b093e5e87b",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/velocity",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -70,7 +71,7 @@
 								{
 									"id": "6147f44e-7430-4e69-9496-9bccfc30d61f",
 									"type": "action",
-									"uri": "velocity:ref:27d8b445-511e-44a7-9c87-1f360dc6f01f",
+									"uri": "velocity:ref:dcdc2cdb-e877-407b-96bb-051f86aa1e23",
 									"links": {
 										"link": [
 											{
@@ -113,7 +114,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}
@@ -122,7 +123,7 @@
 		"core": {
 			"resources": {
 				"resource": {
-					"name": "27d8b445-511e-44a7-9c87-1f360dc6f01f",
+					"name": "dcdc2cdb-e877-407b-96bb-051f86aa1e23",
 					"content": "Dear ${headers.firstName} ${headers.lastName}\n\nThe magic number is:\n\n${body}"
 				}
 			},

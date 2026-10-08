@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:jsonvalidator-action",
+	"title": "jsonvalidator action",
+	"description": "Validates a JSON body against a JSON Schema, a DIL resource (jsonvalidator:ref:<name>); an invalid message fails with every problem found.",
+	"type": "object",
+	"properties": {
+		"resource": {
+			"title": "Schema",
+			"description": "The JSON Schema: the content of the resource the URI refers to, from dil.core.resources",
+			"type": "string"
+		}
+	},
+	"required": ["resource"],
+	"additionalProperties": false
+}

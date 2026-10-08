@@ -1,0 +1,161 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bd6ecf71686000b0001ac",
+						"name": "ScriptJavaScriptWCG_if_11getpdf_mai",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c58ac1e3-af14-45ca-b55b-6be6f52ec778",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_if_11getpdf_mai",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1627014c-5ab3-4ff8-b767-8c3638943d89",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1627014c-5ab3-4ff8-b767-8c3638943d89",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Text"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1627014c-5ab3-4ff8-b767-8c3638943d89",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "88a461f1-43cf-4a60-80d6-779f391f34e6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "88a461f1-43cf-4a60-80d6-779f391f34e6",
+									"type": "action",
+									"uri": "setheaders:message:88a461f1-43cf-4a60-80d6-779f391f34e6",
+									"links": {
+										"link": [
+											{
+												"id": "88a461f1-43cf-4a60-80d6-779f391f34e6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "69d434bc-9fec-4b65-a419-c4b0c69c2268",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "69d434bc-9fec-4b65-a419-c4b0c69c2268",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Javascript step has been removed."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "69d434bc-9fec-4b65-a419-c4b0c69c2268",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0d7e9d51-46f0-4701-a4c5-b07ea536065a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0d7e9d51-46f0-4701-a4c5-b07ea536065a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0d7e9d51-46f0-4701-a4c5-b07ea536065a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "56968771-4b06-4104-a33b-1b872a6a3790",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "88a461f1-43cf-4a60-80d6-779f391f34e6",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "=?UTF-8?Q?ERIKS_bv_Ordernummer_4502587648.pdf?="
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "From",
+								"value": "\"mi.gan@abc.com\" <mi.gan@abc.com>"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Source-Email",
+								"value": "mi.gan@abc.com"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

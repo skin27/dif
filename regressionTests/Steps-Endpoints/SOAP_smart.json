@@ -1,0 +1,149 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69774ad2f624bf000e000083",
+						"name": "SOAP_smart",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7e2b3e76-fdb7-444d-ada0-4282df7ad60d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SOAP_smart",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "39391e76-6969-44eb-a8d2-da2de3ef9799",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "39391e76-6969-44eb-a8d2-da2de3ef9799",
+									"type": "action",
+									"uri": "setheaders:message:39391e76-6969-44eb-a8d2-da2de3ef9799",
+									"links": {
+										"link": [
+											{
+												"id": "39391e76-6969-44eb-a8d2-da2de3ef9799",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "46b6defe-438d-4277-9e20-618973469296",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "46b6defe-438d-4277-9e20-618973469296",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<ListOfCountryNamesByName/>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "46b6defe-438d-4277-9e20-618973469296",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "628f13fb-ab98-470f-ab1a-061b98e0dd5d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "628f13fb-ab98-470f-ab1a-061b98e0dd5d",
+									"type": "action",
+									"uri": "soap:http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso",
+									"options": {
+										"extract": false,
+										"smart": true,
+										"action": "ListOfCountryNamesByName",
+										"params": "wsdl"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "628f13fb-ab98-470f-ab1a-061b98e0dd5d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "374abcac-4739-4658-a839-855af03a89f2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "374abcac-4739-4658-a839-855af03a89f2",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "374abcac-4739-4658-a839-855af03a89f2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d18d5ffc-fe38-4776-9c2d-ca12354e6c2d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "39391e76-6969-44eb-a8d2-da2de3ef9799",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "Content-Type",
+							"value": "Application/Xml"
+						}
+					}
+				}
+			}
+		}
+	}
+}

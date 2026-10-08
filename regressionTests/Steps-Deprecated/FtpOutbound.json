@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a799a4f705d91000c000001",
+						"name": "FtpOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c01d19ba-9da3-4aca-8a6e-deb0b672339e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FtpOutbound",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "ffcf9ebd-081f-472e-afb0-5678da3deb7e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ffcf9ebd-081f-472e-afb0-5678da3deb7e",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "FTP is a deprecated step\n\nBody matches strings:\nFile already exist\nFtpOutbound5.txt. Cannot write new"
+									},
+									"links": {
+										"link": {
+											"id": "ffcf9ebd-081f-472e-afb0-5678da3deb7e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a799a4f705d91000c000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

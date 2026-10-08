@@ -12,10 +12,11 @@
 								{
 									"id": "f085139d-6dc3-44d0-a43e-9e643ce57c28",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/deadletter",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -62,9 +63,15 @@
 								{
 									"id": "68513f81-1b54-4b2b-ac98-50b65c979014",
 									"type": "sink",
-									"uri": "unknown",
+									"uri": "deadletter",
 									"options": {
 										"deadLetterQueue": "DLQ:68c7aed81e33920007000002"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
 									},
 									"links": {
 										"link": {
@@ -79,9 +86,25 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"type": "activemq",
+					"keys": {
+						"jmsprovider": "classic",
+						"pooled": "true",
+						"url": "tcp://localhost:61616",
+						"username": "admin",
+						"password": "admin"
+					},
+					"id": "activemq-connection",
+					"name": "activemq"
 				}
 			}
 		}

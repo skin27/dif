@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:recipient-router",
+	"title": "recipient router",
+	"description": "Sends a copy of the message to every outbound link, in order.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

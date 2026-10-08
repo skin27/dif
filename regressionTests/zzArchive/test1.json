@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b4296efbdb4c0011000270",
+						"name": "test1",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "bab3ca40-61df-4a53-b50e-edf61a9eb9d3",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/test1",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "7c14c521-3455-4720-a0f7-abf8b69f3fb8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7c14c521-3455-4720-a0f7-abf8b69f3fb8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7c14c521-3455-4720-a0f7-abf8b69f3fb8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b4296efbdb4c0011000272",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

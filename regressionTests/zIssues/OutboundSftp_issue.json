@@ -1,0 +1,95 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a2a5ac0ccb6f6001600001b",
+						"name": "OutboundSftp_issue",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "246e163f-f003-459c-b83c-4b9212b491a1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSftp_issue",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "f4ea96d5-71a5-450c-941a-1fd34ded405c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f4ea96d5-71a5-450c-941a-1fd34ded405c",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022//next/Regression Tests/test/out",
+									"options": {
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f4ea96d5-71a5-450c-941a-1fd34ded405c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8a6918f2-c53d-4dea-9e6e-2760835c12a5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8a6918f2-c53d-4dea-9e6e-2760835c12a5",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8a6918f2-c53d-4dea-9e6e-2760835c12a5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "59cfd68e-05f9-47e3-8bbc-3e49fba840b6",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

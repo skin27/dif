@@ -1,0 +1,90 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b8188f3295920024000005",
+						"name": "OauthGmailNorman",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d6397d36-1f9b-4972-a804-ad6c6deced7f",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": "-1",
+										"period": "15000"
+									},
+									"links": {
+										"link": {
+											"id": "f26cb449-7edc-44ef-ae99-a6f176f371e6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f26cb449-7edc-44ef-ae99-a6f176f371e6",
+									"type": "action",
+									"uri": "oauth2token:f26cb449-7edc-44ef-ae99-a6f176f371e6",
+									"options": {
+										"expiryDelay": "15",
+										"tokenName": "accessToken_StaticTenantVariable,OauthTokenGMailNorman",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f26cb449-7edc-44ef-ae99-a6f176f371e6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4ed77e75-fca4-4c97-902a-94fe5ffa0810",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4ed77e75-fca4-4c97-902a-94fe5ffa0810",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4ed77e75-fca4-4c97-902a-94fe5ffa0810",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8c740e7f-2238-4efe-b662-2403c8597331",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

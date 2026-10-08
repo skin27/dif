@@ -1,0 +1,174 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69f20e7409deca0011000745",
+						"name": "XmlToJsonLarge",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1df514bd-fef4-4090-8ad0-8306c3777932",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToJsonLarge",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "858dd7a5-56fa-4367-84c4-f93860b2fe00",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "858dd7a5-56fa-4367-84c4-f93860b2fe00",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"language": "simple",
+										"expression": "${header.token} == 'Hump2007'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "858dd7a5-56fa-4367-84c4-f93860b2fe00",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "755b3638-1899-4bcb-96e0-a4f90ccd3377",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "755b3638-1899-4bcb-96e0-a4f90ccd3377",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "755b3638-1899-4bcb-96e0-a4f90ccd3377",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2179b5ff-4a84-4efc-ad35-a35b34af878a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2179b5ff-4a84-4efc-ad35-a35b34af878a",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022/next/Regression Tests/production/out",
+									"options": {
+										"recursive": false,
+										"fileName": "LargeXmlToJson.xml",
+										"binary": false,
+										"charset": "utf-8",
+										"maxMessagesPerPoll": "1",
+										"delete": false,
+										"moveFailed": "RAW(.error)",
+										"autoCreate": true,
+										"readLock": "none",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"abortMode": false,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2179b5ff-4a84-4efc-ad35-a35b34af878a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c74289b-64e9-4324-aee0-d43001dadaa6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c74289b-64e9-4324-aee0-d43001dadaa6",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4c74289b-64e9-4324-aee0-d43001dadaa6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d63ac33b-ff8b-4d29-94b1-68d35d427268",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d63ac33b-ff8b-4d29-94b1-68d35d427268",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d63ac33b-ff8b-4d29-94b1-68d35d427268",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69f20e7409deca0011000747",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a59f1badabbc9000c00004e",
+						"name": "CB_Repeater",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "bd069a0c-964e-4491-9f95-273ccece5626",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": "10",
+										"period": "10000"
+									},
+									"links": {
+										"link": {
+											"id": "4f6963c2-261c-4ef7-a75c-b3882690582b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4f6963c2-261c-4ef7-a75c-b3882690582b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4f6963c2-261c-4ef7-a75c-b3882690582b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5952591c-75b5-47a6-8eeb-51a6a94000b8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5952591c-75b5-47a6-8eeb-51a6a94000b8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "5952591c-75b5-47a6-8eeb-51a6a94000b8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b13f8ce9-9334-4c0a-8b16-7eb9ff83a063",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

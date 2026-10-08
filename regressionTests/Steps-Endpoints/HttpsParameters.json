@@ -1,0 +1,169 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953cdc8da8dd5001100034c",
+						"name": "HttpsParameters",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a5945a4a-6b16-4d35-88d1-d071e405da6f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpsParameters",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8ae854f1-d0a2-4346-b687-e61a32fa0117",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8ae854f1-d0a2-4346-b687-e61a32fa0117",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8ae854f1-d0a2-4346-b687-e61a32fa0117",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "29331c13-30ca-45b7-aa5f-37c13c5c209e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "29331c13-30ca-45b7-aa5f-37c13c5c209e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"args\": {\n    \"age\": 30, \n    \"name\": \"Alice\"\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "29331c13-30ca-45b7-aa5f-37c13c5c209e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "82a8b6d1-6760-4e9c-bbcc-7697ae98a0a1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "82a8b6d1-6760-4e9c-bbcc-7697ae98a0a1",
+									"type": "action",
+									"uri": "setheaders:message:82a8b6d1-6760-4e9c-bbcc-7697ae98a0a1",
+									"links": {
+										"link": [
+											{
+												"id": "82a8b6d1-6760-4e9c-bbcc-7697ae98a0a1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "29589388-eeb5-4401-8271-e0f4dbab368b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "29589388-eeb5-4401-8271-e0f4dbab368b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.NewBody}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "29589388-eeb5-4401-8271-e0f4dbab368b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "15d044ef-d9c7-49b3-9830-46112b591db6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "15d044ef-d9c7-49b3-9830-46112b591db6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "15d044ef-d9c7-49b3-9830-46112b591db6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6953cdc8da8dd5001100034e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "82a8b6d1-6760-4e9c-bbcc-7697ae98a0a1",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "jsonpath",
+							"name": "NewBody",
+							"value": "$.args"
+						}
+					}
+				}
+			}
+		}
+	}
+}

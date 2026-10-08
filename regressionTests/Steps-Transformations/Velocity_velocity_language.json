@@ -1,0 +1,94 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "697396a4f624bf00160000ef",
+						"name": "Velocity_velocity_language",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "000142cb-8af4-4439-b495-64d061162a5b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Velocity_velocity_language",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "cd0c0d8c-b568-4ed2-9a3a-c10f624772a7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cd0c0d8c-b568-4ed2-9a3a-c10f624772a7",
+									"type": "action",
+									"uri": "velocity:ref:6c81c15b-8f5b-4758-8b15-35d26f3881d2",
+									"links": {
+										"link": [
+											{
+												"id": "cd0c0d8c-b568-4ed2-9a3a-c10f624772a7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "82bdd54c-3257-4f36-ac15-cf4f8f2fc3da",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "82bdd54c-3257-4f36-ac15-cf4f8f2fc3da",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "82bdd54c-3257-4f36-ac15-cf4f8f2fc3da",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "697396a4f624bf00160000f1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "6c81c15b-8f5b-4758-8b15-35d26f3881d2",
+					"content": "#if($headers.YourHeaderName == \"A\")\n    #set($messageBody = \"A\")\n#else\n    #set($messageBody = \"B\")\n#end\n$messageBody"
+				}
+			}
+		}
+	}
+}

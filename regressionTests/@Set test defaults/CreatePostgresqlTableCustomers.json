@@ -1,0 +1,97 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698f5330e9d4cd00230000b5",
+						"name": "CreatePostgresqlTableCustomers",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5be03e48-15d7-4c67-999b-f6eeba938eb8",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "58e7f41b-cecb-42aa-b448-91fa306d0298",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "58e7f41b-cecb-42aa-b448-91fa306d0298",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "CREATE TABLE customers_next (\n    id SERIAL PRIMARY KEY,\n    firstname TEXT,\n    lastname TEXT,\n    email TEXT,\n    createdat DATE,\n    updatedat DATE\n); ",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "HD9z#cpt"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "58e7f41b-cecb-42aa-b448-91fa306d0298",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b79717c8-d5d2-4f18-9d19-61dbab53cc97",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b79717c8-d5d2-4f18-9d19-61dbab53cc97",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b79717c8-d5d2-4f18-9d19-61dbab53cc97",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1423573a-3439-41cf-ad9f-106802388d3a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

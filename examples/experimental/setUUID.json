@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69c2c0d1b01dfe000b00001b",
+						"name": "setUUID",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1f958750-e5b0-4470-8e5d-21763006d1ff",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/setUUID",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1229125a-1f8a-412c-a0ab-336ef46ac166",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1229125a-1f8a-412c-a0ab-336ef46ac166",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Check the header for the UUID"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1229125a-1f8a-412c-a0ab-336ef46ac166",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e8d26eff-ecc2-4365-8514-1a04000a211a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e8d26eff-ecc2-4365-8514-1a04000a211a",
+									"type": "action",
+									"uri": "setuuid",
+									"links": {
+										"link": [
+											{
+												"id": "e8d26eff-ecc2-4365-8514-1a04000a211a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "90d189e1-2622-4586-860c-90fd0e0a8547",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "90d189e1-2622-4586-860c-90fd0e0a8547",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "90d189e1-2622-4586-860c-90fd0e0a8547",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69c2c0d1b01dfe000b00001d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

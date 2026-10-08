@@ -1,0 +1,97 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4e60ce2f74a00015000162",
+						"name": "OutboundSftpCorruptedFile",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3cedfb2b-a13d-4737-b86e-0050b8330b5b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSftpCorruptedFile",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "47b1bf7b-bc8e-4310-82ce-f6ead30bc84d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "47b1bf7b-bc8e-4310-82ce-f6ead30bc84d",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022//next/Regression Tests/test/out",
+									"options": {
+										"fileName": "OauthGmailNoreply.jpg",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "47b1bf7b-bc8e-4310-82ce-f6ead30bc84d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d14cbb30-055c-4338-b4c4-ad645dcb3d20",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d14cbb30-055c-4338-b4c4-ad645dcb3d20",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d14cbb30-055c-4338-b4c4-ad645dcb3d20",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8a5fb9fd-d0a2-49e5-a161-479874da42c8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

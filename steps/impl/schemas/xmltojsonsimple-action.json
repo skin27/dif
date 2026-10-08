@@ -1,0 +1,41 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xmltojsonsimple-action",
+	"title": "xmltojsonsimple action",
+	"description": "Converts an XML body to JSON as org.json does: {\"root\": ...}, attributes and children by name, text beside them as content, repeated elements as arrays.",
+	"type": "object",
+	"properties": {
+		"keepStrings": {
+			"title": "Keep strings",
+			"description": "Keep all values strings; otherwise numbers, true, false and null become JSON values",
+			"type": "boolean",
+			"default": false
+		},
+		"removeNamespaces": {
+			"title": "Remove namespaces",
+			"description": "Name elements and attributes without their prefix and leave out namespace declarations",
+			"type": "boolean",
+			"default": false
+		},
+		"removeRoot": {
+			"title": "Remove root",
+			"description": "Leave out the root element: the result is its value",
+			"type": "boolean",
+			"default": false
+		},
+		"hasTypes": {
+			"title": "Has types",
+			"description": "A type attribute (string, number, integer, double, boolean, null) sets the JSON type of an element's text",
+			"type": "boolean",
+			"default": false
+		},
+		"typeValueMismatch": {
+			"title": "Type value mismatch",
+			"description": "With hasTypes, text that does not fit its type becomes null (NULL) or stays a string (ORIGINAL)",
+			"type": "string",
+			"enum": ["NULL", "ORIGINAL"],
+			"default": "ORIGINAL"
+		}
+	},
+	"additionalProperties": false
+}

@@ -1,0 +1,118 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ce74aa93e3000c000245",
+						"name": "CB_XmlToCsv",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "681dc972-82bc-46be-87f7-295b7e9ff30f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_XmlToCsv",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8b73bc98-a1d2-4ccd-8386-cb1d59cdd653",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8b73bc98-a1d2-4ccd-8386-cb1d59cdd653",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<breakfast_menu>\n<food>\n\t<id>1</id>\n    <name>Belgian Waffles</name>\n    <price>$5.95</price>\n    <description>\n   Two of our famous Belgian Waffles with plenty of real maple syrup\n   </description>\n    <calories>650</calories>\n</food>\n<food>\n\t<id>2</id>\n    <name>Strawberry Belgian Waffles</name>\n    <price>$7.95</price>\n    <description>\n    Light Belgian waffles covered with strawberries and whipped cream\n    </description>\n    <calories>900</calories>\n</food>\n<food>\n\t<id>3</id>\n    <name>Berry-Berry Belgian Waffles</name>\n    <price>$8.95</price>\n    <description>\n    Belgian waffles covered with assorted fresh berries and whipped cream\n    </description>\n    <calories>900</calories>\n</food>\n<food>\n\t<id>4</id>\n    <name>French Toast</name>\n    <price>$4.50</price>\n    <description>\n    Thick slices made from our homemade sourdough bread\n    </description>\n    <calories>600</calories>\n</food>\n<food>\n\t<id>5</id>\n    <name>Homestyle Breakfast</name>\n    <price>$6.95</price>\n    <description>\n    Two eggs, bacon or sausage, toast, and our ever-popular hash browns\n    </description>\n    <calories>950</calories>\n</food>\n<food>\n\t<id>6</id>\n    <name>Homestyle Breakfast</name>\n    <price>$6.95</price>\n    <description>\n    Two eggs, bacon or sausage, toast, and our ever-popular hash browns\n    </description>\n    <calories>950</calories>\n</food>\n</breakfast_menu>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8b73bc98-a1d2-4ccd-8386-cb1d59cdd653",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "216fcd39-1967-4102-baea-125f50899519",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "216fcd39-1967-4102-baea-125f50899519",
+									"type": "action",
+									"uri": "xmltocsv",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"delimiter": ",",
+										"lineSeparator": "linefeed",
+										"orderHeaders": "unordered",
+										"quoteFields": "all_fields"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "216fcd39-1967-4102-baea-125f50899519",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dfcca163-9076-4065-86cf-114655bf927c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dfcca163-9076-4065-86cf-114655bf927c",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "dfcca163-9076-4065-86cf-114655bf927c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d7acafd9-1c23-4164-ad1f-2d183101237f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,157 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6abb5b307f02780011000001",
+						"name": "Enrich_bodyType_xml_ns",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "59caffef-0f12-4f7c-bb4c-3b8760388d76",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_bodyType_xml_ns",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "fffeeb5a-7773-4a85-92ba-61da716f8d8d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fffeeb5a-7773-4a85-92ba-61da716f8d8d",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fffeeb5a-7773-4a85-92ba-61da716f8d8d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "83cd628c-d1d3-4c0e-a689-ea3646e75cac",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "83cd628c-d1d3-4c0e-a689-ea3646e75cac",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version='1.0' encoding='UTF-8'?>\n<articles xmlns=\"http://wms.blujaysolutions.net/api/article-wms\" type=\"tag\">\n    <ediCustomerNumber>34840</ediCustomerNumber>\n    <article type=\"tag\">\n        <articleCode>LDY-L01-SP303</articleCode>\n    </article>\n</articles>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "83cd628c-d1d3-4c0e-a689-ea3646e75cac",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "89e5b635-0eac-40e1-8aa9-1075ddb72a03",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "89e5b635-0eac-40e1-8aa9-1075ddb72a03",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "xml",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "89e5b635-0eac-40e1-8aa9-1075ddb72a03",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "08d945de-1161-45d0-a2cb-e81690ad3e68",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "d3f557c0-0bf4-45b7-bfeb-ae8762792b91",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "08d945de-1161-45d0-a2cb-e81690ad3e68",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "08d945de-1161-45d0-a2cb-e81690ad3e68",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d3f557c0-0bf4-45b7-bfeb-ae8762792b91",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<extractResponse xmlns=\"http://www.kewill.com/cwksb/extract/messages\">\n    <data name=\"lf_article_check\">\n        <status>\n            <code>ok</code>\n            <message>Data successfully extracted</message>\n            <output type=\"message\"/>\n        </status>\n    </data>\n</extractResponse>"
+									},
+									"links": {
+										"link": {
+											"id": "d3f557c0-0bf4-45b7-bfeb-ae8762792b91",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6abb5b307f02780011000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

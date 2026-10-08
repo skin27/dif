@@ -1,0 +1,141 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b3f6a8fbdb4c000c0000f0",
+						"name": "jsonvalidator",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "127c26ac-1441-4b7e-8dfd-070739c8134b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/jsonvalidator",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d48b0dbf-365b-4e54-a900-dab1425b1748",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d48b0dbf-365b-4e54-a900-dab1425b1748",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"age\": 21\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d48b0dbf-365b-4e54-a900-dab1425b1748",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "15fa3910-efd3-466c-99ba-adf620b1c01b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "15fa3910-efd3-466c-99ba-adf620b1c01b",
+									"type": "action",
+									"uri": "jsonvalidator:ref:09f0f585-1ba8-4a95-80ee-5e435f0596b0",
+									"links": {
+										"link": [
+											{
+												"id": "15fa3910-efd3-466c-99ba-adf620b1c01b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f1ad08f7-ae39-4de8-b059-9f9a456e949b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f1ad08f7-ae39-4de8-b059-9f9a456e949b",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "Doesn't reach the errorhandler"
+									},
+									"links": {
+										"link": {
+											"id": "f1ad08f7-ae39-4de8-b059-9f9a456e949b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b3f6a8fbdb4c000c0000f2",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "fc55cb6a-5436-4b6f-84ea-8e982a11729b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fc55cb6a-5436-4b6f-84ea-8e982a11729b",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "Reaches the errorHandler"
+									},
+									"links": {
+										"link": {
+											"id": "fc55cb6a-5436-4b6f-84ea-8e982a11729b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "09f0f585-1ba8-4a95-80ee-5e435f0596b0",
+					"content": "{\n  \"$id\": \"https://example.com/person.schema.json\",\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"title\": \"Person\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"firstName\": {\n      \"type\": \"boolean\",\n      \"description\": \"The person's first name.\"\n    },\n    \"lastName\": {\n      \"type\": \"string\",\n      \"description\": \"The person's last name.\"\n    },\n    \"age\": {\n      \"description\": \"Age in years which must be equal to or greater than zero.\",\n      \"type\": \"integer\",\n      \"minimum\": 0\n    }\n  }\n}"
+				}
+			}
+		}
+	}
+}

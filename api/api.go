@@ -5,17 +5,26 @@ import (
 	"os"
 
 	"dif/engine"
-	flowdef "dif/flows/definition"
 	flowimpl "dif/flows/impl"
 	"dif/message"
+	stepdef "dif/steps/definition"
 	stepimpl "dif/steps/impl"
+	"dif/steps/registry"
 )
 
 type (
-	Message = message.Message
-	Result  = engine.Result
-	State   = engine.State
+	Message        = message.Message
+	Result         = engine.Result
+	State          = engine.State
+	Engine         = engine.Engine
+	FlowStatus     = engine.FlowStatus
+	StepDefinition = stepdef.Definition
+	StepInfo       = registry.StepInfo
+	OptionInfo     = registry.OptionInfo
 )
+
+// Body is the message key of the body.
+const Body = message.Body
 
 const (
 	Stopped = engine.Stopped
@@ -23,39 +32,52 @@ const (
 	Paused  = engine.Paused
 )
 
+// steps is the processor registry used by Load, holding the built-in steps.
+var steps = func() *registry.Registry {
+	r := registry.New()
+	if err := stepimpl.Register(r); err != nil {
+		panic(err) // the built-in schemas are embedded, so this is a programming error
+	}
+	return r
+}()
+
+// RegisterStep adds a step processor that flows loaded afterwards can use.
+func RegisterStep(d StepDefinition) error { return steps.Register(d) }
+
+// StepCatalog returns the steps flows can use: the built-in steps and those
+// added with RegisterStep, sorted by name and kind.
+func StepCatalog() []StepInfo { return steps.Steps() }
+
+// NewEngine returns an engine without flows; register loaded flows with Add.
+func NewEngine() *Engine { return engine.New() }
+
 // Flow is a loaded flow with lifecycle methods (Start, Pause, Resume, Stop,
-// State, Wait) and Send to hand it a message while it runs.
+// State, Wait), Send to hand it a message while it runs (one-way), Request to
+// call it like a function and get its reply (request-reply), and NewMessage
+// to build its configured message.
 type Flow struct {
 	*engine.Runner
-	input flowdef.InputMessage
 }
 
-// Load reads a DIL flow from path and builds it. The flow is Stopped until
-// Start is called; onResult is called for every message it processes.
+// Load reads a DIL flow from path and builds it. Every step's options are
+// validated against its schema; a flow with an unknown or invalid step is
+// not loaded. The flow is Stopped until Start is called; onResult is called
+// for every message it processes.
 func Load(path string, onResult func(*Result, error)) (*Flow, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := flowimpl.Parse(data, stepimpl.New)
-	if err != nil {
-		return nil, err
-	}
-
-	src, err := stepimpl.NewSource(f.Source)
-	if err != nil {
-		return nil, err
-	}
-	return &Flow{Runner: engine.NewRunner(f, src, onResult), input: f.Input}, nil
+	return LoadBytes(data, onResult)
 }
 
-// NewMessage returns a new message built from the flow's configured message
-// (the first dil.core.messages.message), or an empty message if there is none.
-func (f *Flow) NewMessage() *Message {
-	m := message.New(f.input.Body)
-	for k, v := range f.input.Headers {
-		m.Headers[k] = v
+// LoadBytes builds a flow from an already resolved document. Relative resource
+// paths retain their existing meaning: relative to the process working directory.
+func LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, error) {
+	f, err := flowimpl.Parse(data, steps.Processor)
+	if err != nil {
+		return nil, err
 	}
-	return m
+	return &Flow{Runner: engine.NewRunner(f, onResult)}, nil
 }

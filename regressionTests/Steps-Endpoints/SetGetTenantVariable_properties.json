@@ -1,0 +1,175 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7aef9fb55b6d00160000ea",
+						"name": "SetGetTenantVariable_properties",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c476c383-e0a7-4344-b17c-7fc9746e2c9e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetGetTenantVariable_properties",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "c7196d8f-16ee-4fd4-b0fe-a6d5ba620ab5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c7196d8f-16ee-4fd4-b0fe-a6d5ba620ab5",
+									"type": "action",
+									"uri": "setheaders:message:c7196d8f-16ee-4fd4-b0fe-a6d5ba620ab5",
+									"links": {
+										"link": [
+											{
+												"id": "c7196d8f-16ee-4fd4-b0fe-a6d5ba620ab5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d0245397-1cd0-4ce9-9f4b-c529ee2ede41",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d0245397-1cd0-4ce9-9f4b-c529ee2ede41",
+									"type": "action",
+									"uri": "settenantvariable:SetGetTenantVariable_properties",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "simple",
+										"value": "T2F1dGhHbWFpbE5vcmVwbHlfJHtoZWFkZXIudmFsdWV9",
+										"flowName": "SetGetTenantVariable_properties",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d0245397-1cd0-4ce9-9f4b-c529ee2ede41",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3338fa0f-9f9f-4346-8bf1-dcb2586321d1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3338fa0f-9f9f-4346-8bf1-dcb2586321d1",
+									"type": "action",
+									"uri": "gettenantvariable:SetGetTenantVariable_properties",
+									"options": {
+										"headerName": "tenantVar",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3338fa0f-9f9f-4346-8bf1-dcb2586321d1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7c9cf557-36f6-487d-8215-84e2dadab1bb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7c9cf557-36f6-487d-8215-84e2dadab1bb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.tenantVar}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7c9cf557-36f6-487d-8215-84e2dadab1bb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ea348bfa-81ae-4a70-ac47-e04db3495b4d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ea348bfa-81ae-4a70-ac47-e04db3495b4d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ea348bfa-81ae-4a70-ac47-e04db3495b4d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fadb0f1e-95d0-4740-8d71-0ea17bf9d8e9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "c7196d8f-16ee-4fd4-b0fe-a6d5ba620ab5",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "value",
+							"value": "1234567890"
+						}
+					}
+				}
+			}
+		}
+	}
+}

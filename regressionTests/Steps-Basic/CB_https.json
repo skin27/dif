@@ -1,0 +1,124 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50f0632a8184000c000125",
+						"name": "CB_https",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "388c7e5b-c59e-4781-a147-82f5eb0b9a13",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_https",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "df0aa36d-c85b-43af-91d5-fa9d9bdf938d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "df0aa36d-c85b-43af-91d5-fa9d9bdf938d",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "df0aa36d-c85b-43af-91d5-fa9d9bdf938d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e3432835-a4b7-4ca4-84a8-6ac886c02d64",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e3432835-a4b7-4ca4-84a8-6ac886c02d64",
+									"type": "action",
+									"uri": "https:https://www.w3schools.com/xml/note.xml",
+									"options": {
+										"httpMethod": "GET",
+										"excludeHeaders": "hello|goodbey",
+										"useErrorRoute": false,
+										"retryRequests": true,
+										"retryAttempts": "3",
+										"retryInterval": "10000",
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "None",
+										"authenticationPreemptive": false,
+										"sslContextParameters": "#sslContext"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e3432835-a4b7-4ca4-84a8-6ac886c02d64",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "43ff4fcc-1fb3-4451-8208-7c0b488cf94a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "43ff4fcc-1fb3-4451-8208-7c0b488cf94a",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "43ff4fcc-1fb3-4451-8208-7c0b488cf94a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a50f0632a8184000c000127",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

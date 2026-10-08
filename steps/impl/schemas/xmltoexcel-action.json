@@ -1,0 +1,54 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xmltoexcel-action",
+	"title": "xmltoexcel action",
+	"description": "Converts an XML body into an xlsx workbook: each child of the root is a row, each of its children a cell, as xmltocsv does for CSV. Numbers become numeric cells, all else text.",
+	"type": "object",
+	"properties": {
+		"includeHeader": {
+			"title": "Include header",
+			"description": "Start with a row of column names",
+			"type": "boolean",
+			"default": false
+		},
+		"includeIndexColumn": {
+			"title": "Include index column",
+			"description": "Start every row with its number (1, 2, ...)",
+			"type": "boolean",
+			"default": false
+		},
+		"indexColumnName": {
+			"title": "Index column name",
+			"description": "Header of the index column",
+			"type": "string",
+			"default": "line"
+		},
+		"orderHeaders": {
+			"title": "Order headers",
+			"description": "Columns in the order they first appear (unordered) or alphabetically (ordered)",
+			"type": "string",
+			"enum": ["unordered", "ordered"],
+			"default": "unordered"
+		},
+		"excelFormat": {
+			"title": "Format",
+			"description": "xlsx is the only format",
+			"type": "string",
+			"enum": ["xlsx"],
+			"default": "xlsx"
+		},
+		"useCustomWorksheets": {
+			"title": "Custom worksheets",
+			"description": "Make a worksheet of each entry of worksheets instead of one worksheet of the root's children",
+			"type": "boolean",
+			"default": false
+		},
+		"worksheets": {
+			"title": "Worksheets",
+			"description": "JSON list of {\"name\": \"Sheet\", \"xPathExpression\": \"/a/b\"}, optionally as RAW(<base64>); the rows of a worksheet are the elements the path selects, the root's children if it is empty. Used only with useCustomWorksheets",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

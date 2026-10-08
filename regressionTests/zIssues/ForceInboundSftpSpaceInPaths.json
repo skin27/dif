@@ -1,0 +1,103 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4e5f602f74a000110000fc",
+						"name": "ForceInboundSftpSpaceInPaths",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "73b4b0a4-95ff-43a2-bc15-62bf8ef6e669",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/pigsinspace6a4e5f602f74a000110000fc",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5e4c0bd8-3021-4cd2-b75a-f843f40858ae",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5e4c0bd8-3021-4cd2-b75a-f843f40858ae",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022//next/Regression Tests/test/out/pigs in spaces",
+									"options": {
+										"recursive": false,
+										"fileName": "PigsInSpace.jpg",
+										"binary": true,
+										"charset": "utf-8",
+										"maxMessagesPerPoll": "1",
+										"delete": false,
+										"moveFailed": "RAW(.error)",
+										"autoCreate": true,
+										"readLock": "none",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"abortMode": true,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5e4c0bd8-3021-4cd2-b75a-f843f40858ae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7ad7a9c4-473e-4763-a1c3-fb41db16e892",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7ad7a9c4-473e-4763-a1c3-fb41db16e892",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7ad7a9c4-473e-4763-a1c3-fb41db16e892",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "580abb2b-682a-4bb3-9096-4a509b8b69f2",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

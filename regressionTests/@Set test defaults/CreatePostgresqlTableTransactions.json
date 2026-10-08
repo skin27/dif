@@ -1,0 +1,97 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698f54e0e9d4cd0028000062",
+						"name": "CreatePostgresqlTableTransactions",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "900edaa7-9474-40eb-8dd0-d919aba7437a",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "156c9710-222b-4d1e-b0eb-2f64ef95eea8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "156c9710-222b-4d1e-b0eb-2f64ef95eea8",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "CREATE TABLE transactions_next (\n    id SERIAL PRIMARY KEY,   -- Automatisch incrementerende primary key\n    timestamp TIMESTAMP,     -- Kolom voor tijdstempel\n    breadcrumb_id TEXT,      -- Breadcrumb ID\n    server TEXT,             -- Server\n    tenant TEXT,             -- Tenant\n    environment TEXT,        -- Environment\n    flow_id TEXT,            -- Flow ID\n    flow_name TEXT,          -- Flow naam\n    name TEXT,               -- Naam\n    value TEXT               -- Waarde\n);",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "HD9z#cpt"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "156c9710-222b-4d1e-b0eb-2f64ef95eea8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b02d0a94-c660-4842-ade8-d905aaf9cf8f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b02d0a94-c660-4842-ade8-d905aaf9cf8f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b02d0a94-c660-4842-ade8-d905aaf9cf8f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b2f6b8e4-df04-4dea-a34e-4c23d5ac6582",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

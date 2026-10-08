@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50c5612a81840015000050",
+						"name": "CB_Flv",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ada7c39b-2ed4-4e57-8834-abc46008180b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Flv",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "fdc32da0-61c8-4e75-872d-26f90fba92c5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fdc32da0-61c8-4e75-872d-26f90fba92c5",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "YAYthing"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fdc32da0-61c8-4e75-872d-26f90fba92c5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ffd58cc6-b1cc-4adc-b8b6-4ff6e6c74dea",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ffd58cc6-b1cc-4adc-b8b6-4ff6e6c74dea",
+									"type": "action",
+									"uri": "flv",
+									"options": {
+										"YAY": "header[3]body[5]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ffd58cc6-b1cc-4adc-b8b6-4ff6e6c74dea",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9b13e1f2-86d0-4bd5-94ff-201b620b969d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9b13e1f2-86d0-4bd5-94ff-201b620b969d",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "9b13e1f2-86d0-4bd5-94ff-201b620b969d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4872158c-62a7-486f-bf7b-61971e364c97",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

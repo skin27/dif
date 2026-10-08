@@ -1,0 +1,206 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695be757f71686000b0003a3",
+						"name": "Aggregate_XmlCount",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "72d77d8b-ade0-4c72-81ce-d4b9718b236a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Aggregate_XmlCount",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "54103d4d-4b8f-4625-9d8e-24ed06bbaf30",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "54103d4d-4b8f-4625-9d8e-24ed06bbaf30",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "54103d4d-4b8f-4625-9d8e-24ed06bbaf30",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b8af57f1-db80-4b52-9de1-b614013b287f",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "86159e92-1570-4101-bbf6-91cc19ede463",
+												"bound": "out",
+												"expression": "//line",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b8af57f1-db80-4b52-9de1-b614013b287f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b8af57f1-db80-4b52-9de1-b614013b287f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "86159e92-1570-4101-bbf6-91cc19ede463",
+									"type": "action",
+									"uri": "setheaders:message:86159e92-1570-4101-bbf6-91cc19ede463",
+									"links": {
+										"link": [
+											{
+												"id": "86159e92-1570-4101-bbf6-91cc19ede463",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "42e5955a-998f-4fd7-925b-b26474fd7900",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "42e5955a-998f-4fd7-925b-b26474fd7900",
+									"type": "action",
+									"uri": "aggregate",
+									"options": {
+										"aggregateType": "xml",
+										"completionSize": "3",
+										"completionTimeout": "1000"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "42e5955a-998f-4fd7-925b-b26474fd7900",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cac4f27d-b049-46a8-af30-96893046d026",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cac4f27d-b049-46a8-af30-96893046d026",
+									"type": "action",
+									"uri": "setheaders:message:cac4f27d-b049-46a8-af30-96893046d026",
+									"links": {
+										"link": [
+											{
+												"id": "cac4f27d-b049-46a8-af30-96893046d026",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "484fef47-c0e0-442a-b788-21a50c90dce6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "484fef47-c0e0-442a-b788-21a50c90dce6",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "484fef47-c0e0-442a-b788-21a50c90dce6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "43b40bfd-36cb-449b-9637-4f017faab0f9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "86159e92-1570-4101-bbf6-91cc19ede463",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_${header.CamelSplitIndex}"
+							}
+						}
+					},
+					{
+						"name": "cac4f27d-b049-46a8-af30-96893046d026",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_${random(100)}"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

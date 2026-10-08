@@ -1,0 +1,95 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698ae9ef1c447a0017000036",
+						"name": "InboundGoogleDrive_XLSX",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f89a06d9-c0bb-4b64-b2b5-67189e83ce88",
+									"type": "source",
+									"uri": "googledrive:1xb-SpV4oQLe1EXY9VARnoqH0Jk7ncFtq",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"filterFiles": ".*xlsx",
+										"moveTo": "processed",
+										"initialDelay": 1000,
+										"delay": 1000,
+										"gSuiteFiles": "Ignore",
+										"flowId": "698ae9ef1c447a0017000036",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "0a99d387-556c-4c1b-933f-d9e695b5befd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0a99d387-556c-4c1b-933f-d9e695b5befd",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "CamelFileName|Filename"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0a99d387-556c-4c1b-933f-d9e695b5befd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2ecd1351-95be-4408-9f34-ecee51b6c870",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2ecd1351-95be-4408-9f34-ecee51b6c870",
+									"type": "sink",
+									"uri": "googledrive:1TsU98EGfXyyoPAlm3WXkPqTgNzq58Wh3",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"flowId": "698ae9ef1c447a0017000036",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "2ecd1351-95be-4408-9f34-ecee51b6c870",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "698ae9ef1c447a0017000038",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

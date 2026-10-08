@@ -1,0 +1,63 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:googledrive-action",
+	"title": "googledrive action",
+	"description": "Writes the body to a file in a Google Drive folder and passes the message on with the header googledrive.id set to the file's id. The file name is the fileName option, else the header file.name, else CamelFileName.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Folder id",
+			"description": "Id of the Drive folder, from the URI (googledrive:<folderId>)",
+			"type": "string"
+		},
+		"accessToken": {
+			"title": "Access token",
+			"description": "OAuth2 access token; @{name} is replaced by the tenant variable name (see oauth2token)",
+			"type": "string"
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Name of the file; the headers name it if not set",
+			"type": "string"
+		},
+		"fileExist": {
+			"title": "If the file exists",
+			"description": "Override: replace its content; Fail: fail the message; Ignore: pass the message on without writing",
+			"type": "string",
+			"enum": ["Override", "Fail", "Ignore"],
+			"default": "Override"
+		},
+		"tenant": {
+			"title": "Tenant",
+			"description": "Tenant of the variables in accessToken",
+			"type": "string",
+			"default": "default"
+		},
+		"flowId": {
+			"title": "Flow id",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds one call to Drive may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"required": ["path", "accessToken"],
+	"additionalProperties": false
+}

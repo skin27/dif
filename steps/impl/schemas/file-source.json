@@ -1,0 +1,60 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:file-source",
+	"title": "file source",
+	"description": "Polls a directory and produces a message for every file. The body is the file content; the header file.name is the file's path relative to the directory. A consumed file is deleted or moved to the .done subdirectory.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Directory",
+			"description": "Directory to poll, from the URI (file:<directory>)",
+			"type": "string"
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Only consume files with exactly this name",
+			"type": "string"
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the files",
+			"type": "string",
+			"enum": ["utf-8", "UTF-8"],
+			"default": "utf-8"
+		},
+		"autoCreate": {
+			"title": "Auto create",
+			"description": "Create the directory if it does not exist",
+			"type": "boolean",
+			"default": true
+		},
+		"recursive": {
+			"title": "Recursive",
+			"description": "Also consume files in subdirectories (except those starting with a dot)",
+			"type": "boolean",
+			"default": false
+		},
+		"delete": {
+			"title": "Delete",
+			"description": "Delete a consumed file instead of moving it to .done",
+			"type": "boolean",
+			"default": false
+		},
+		"initialDelay": {
+			"title": "Initial delay",
+			"description": "Milliseconds before the first poll",
+			"type": "integer",
+			"minimum": 0,
+			"default": 1000
+		},
+		"delay": {
+			"title": "Delay",
+			"description": "Milliseconds between two polls",
+			"type": "integer",
+			"minimum": 1,
+			"default": 500
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

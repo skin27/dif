@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b3fa3ffbdb4c00110001f8",
+						"name": "logger",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "61c07707-444d-422f-a078-50914b8ed18b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/logger",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "5001c12b-4bf7-4fca-b24e-45efa0f4b21f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5001c12b-4bf7-4fca-b24e-45efa0f4b21f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"age\": 21\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5001c12b-4bf7-4fca-b24e-45efa0f4b21f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d617f575-1cb9-45fe-868d-632ce5f1f7dc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d617f575-1cb9-45fe-868d-632ce5f1f7dc",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"language": "simple",
+										"expression": "This is the log of a body:\n\n${body}"
+									},
+									"links": {
+										"link": {
+											"id": "d617f575-1cb9-45fe-868d-632ce5f1f7dc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b3fa3ffbdb4c00110001fa",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

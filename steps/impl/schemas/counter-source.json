@@ -1,0 +1,34 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:counter-source",
+	"title": "counter source",
+	"description": "Produces a message every period with a counter as body (start, start+1, ...) and Content-Type text/plain.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Name",
+			"description": "Name of the counter, from the URI (counter:<name>); informational only",
+			"type": "string"
+		},
+		"start": {
+			"title": "Start",
+			"description": "The first number",
+			"type": "integer",
+			"default": 1
+		},
+		"numbers": {
+			"title": "Numbers",
+			"description": "Number of messages to produce; 0 or less means unlimited",
+			"type": "integer",
+			"default": 1
+		},
+		"period": {
+			"title": "Period",
+			"description": "Milliseconds between two messages",
+			"type": "integer",
+			"minimum": 1,
+			"default": 10000
+		}
+	},
+	"additionalProperties": false
+}

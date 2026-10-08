@@ -1,0 +1,91 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6960fac5bf1e3b0018000093",
+						"name": "FlowlinkAsyncOutRR10sec",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "aa5243b7-de7c-4656-8676-789042125480",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlowlinkAsyncOutRR10sec",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6cbcb424-cc21-4130-9ab1-34b84c5f6ebf",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6cbcb424-cc21-4130-9ab1-34b84c5f6ebf",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "OauthGmailNoreply"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6cbcb424-cc21-4130-9ab1-34b84c5f6ebf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d52204df-ec8e-47e0-8f7b-c21a7be6be0c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d52204df-ec8e-47e0-8f7b-c21a7be6be0c",
+									"type": "sink",
+									"uri": "flowlink-async",
+									"options": {
+										"transport": "async",
+										"targetFlowId": "6960fa64bf1e3b0018000069",
+										"exchangePattern": "InOut",
+										"requestTimout": "10000"
+									},
+									"links": {
+										"link": {
+											"id": "d52204df-ec8e-47e0-8f7b-c21a7be6be0c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "43fdf3dc-db0a-4666-aa60-fce6e65964b0",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

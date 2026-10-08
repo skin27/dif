@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:topic-action",
+  "title": "topic action",
+  "description": "Enqueues a copy for every active topic subscription, or fails without delivering when any buffer is full. Never waits for processing.",
+  "type": "object",
+  "properties": {
+    "path": {
+      "description": "Logical topic name from topic:<name>",
+      "type": "string"
+    },
+    "overflow": {
+      "description": "Admission policy when the channel is full",
+      "default": "fail",
+      "type": "string",
+      "enum": [
+        "fail",
+        "block"
+      ]
+    },
+    "enqueueTimeout": {
+      "minimum": 0,
+      "description": "Admission timeout in milliseconds; positive value required with overflow block",
+      "default": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "path"
+  ],
+  "additionalProperties": false
+}

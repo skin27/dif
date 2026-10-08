@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e76bef71686000c0001d1",
+						"name": "SplitXml_xml_aggr_rr",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7db4c62b-105e-47d5-9305-4ded9387d5a8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitXml_xml_aggr_rr",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "96a39e70-3307-4f66-be02-00fe8c4dff25",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "96a39e70-3307-4f66-be02-00fe8c4dff25",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "96a39e70-3307-4f66-be02-00fe8c4dff25",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "479a5a51-9bd3-4953-b8a6-ab1df884a8ec",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "7ccf4c0d-caac-430c-872a-aef0005e5b86",
+												"bound": "out",
+												"expression": "//filmsoptv/film",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "479a5a51-9bd3-4953-b8a6-ab1df884a8ec",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "479a5a51-9bd3-4953-b8a6-ab1df884a8ec",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7ccf4c0d-caac-430c-872a-aef0005e5b86",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "7ccf4c0d-caac-430c-872a-aef0005e5b86",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bd0f7f5f-7842-4ba3-86c7-003a73116ab4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

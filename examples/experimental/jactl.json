@@ -1,0 +1,96 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6aa9094493920f0016000078",
+						"name": "jactl",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "38e2546c-1bb9-421f-a346-410d39ef56ae",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/jactl",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "2a681c07-be5a-48cc-914d-156dea11638b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2a681c07-be5a-48cc-914d-156dea11638b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Hello Jactl"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2a681c07-be5a-48cc-914d-156dea11638b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9cc7c462-c1c0-4ea6-80d6-b725207f83be",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9cc7c462-c1c0-4ea6-80d6-b725207f83be",
+									"type": "sink",
+									"uri": "jactl:ref:fc097d21-5dcf-497a-a499-a18288466f28",
+									"options": {
+										"expression": "body"
+									},
+									"links": {
+										"link": {
+											"id": "9cc7c462-c1c0-4ea6-80d6-b725207f83be",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6aa9094493920f001600007a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "fc097d21-5dcf-497a-a499-a18288466f28",
+					"content": "body"
+				}
+			}
+		}
+	}
+}

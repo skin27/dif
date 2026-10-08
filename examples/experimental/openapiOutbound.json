@@ -1,0 +1,85 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b3fa4bfbdb4c0011000210",
+						"name": "openapiOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3e412245-8526-495b-a160-66a90f4f17cf",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/openapiOutbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ab081a52-58b5-4ac0-9982-df1fb6cc6369",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ab081a52-58b5-4ac0-9982-df1fb6cc6369",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"age\": 21\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ab081a52-58b5-4ac0-9982-df1fb6cc6369",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b521bcff-43c0-4856-b78c-508d6c89f77b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b521bcff-43c0-4856-b78c-508d6c89f77b",
+									"type": "sink",
+									"uri": "unknown",
+									"links": {
+										"link": {
+											"id": "b521bcff-43c0-4856-b78c-508d6c89f77b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b3fa4bfbdb4c0011000212",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

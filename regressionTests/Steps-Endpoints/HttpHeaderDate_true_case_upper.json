@@ -1,0 +1,157 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953af20da8dd500150000f3",
+						"name": "HttpHeaderDate_true_case_upper",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b3acde98-2822-4323-b960-35cbaf9e5292",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpHeaderDate_true_case_upper",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "146a3cb5-b090-4755-bf57-754348ce8963",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "146a3cb5-b090-4755-bf57-754348ce8963",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "146a3cb5-b090-4755-bf57-754348ce8963",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "20eb2cc1-eed2-4890-8fb6-3031aa252957",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "20eb2cc1-eed2-4890-8fb6-3031aa252957",
+									"type": "action",
+									"uri": "setheaders:message:20eb2cc1-eed2-4890-8fb6-3031aa252957",
+									"links": {
+										"link": [
+											{
+												"id": "20eb2cc1-eed2-4890-8fb6-3031aa252957",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "42920b9a-adbe-4107-b189-7cf970b4d3bb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "42920b9a-adbe-4107-b189-7cf970b4d3bb",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test/inbound_http/regressiontests/HttpHeaderDateReceive",
+									"options": {
+										"httpMethod": "GET",
+										"authMethod": "None",
+										"authenticationPreemptive": false,
+										"useErrorRoute": true,
+										"useCustomDateHeader": true,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"mutualTls": false,
+										"retryInterval": 30000,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000
+									},
+									"links": {
+										"link": [
+											{
+												"id": "42920b9a-adbe-4107-b189-7cf970b4d3bb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "909c7eb4-b53a-4362-be7d-8e86ead9658c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "909c7eb4-b53a-4362-be7d-8e86ead9658c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "909c7eb4-b53a-4362-be7d-8e86ead9658c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a7cc1a9b-28d0-4e61-b31c-786635035ff2",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "20eb2cc1-eed2-4890-8fb6-3031aa252957",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "Date",
+							"value": "01-01-1980"
+						}
+					}
+				}
+			}
+		}
+	}
+}

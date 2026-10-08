@@ -1,0 +1,108 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696a19cd633fc0000c00001a",
+						"name": "FlowPropertiesTransformations_08",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "83a6368b-4401-4970-ad72-1015771edf0e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlowPropertiesTransformations_08",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9e902c33-9dc2-45bc-91aa-d104fe36b73d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9e902c33-9dc2-45bc-91aa-d104fe36b73d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9e902c33-9dc2-45bc-91aa-d104fe36b73d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f259747a-3ca1-4996-87b5-5d530b4dec86",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f259747a-3ca1-4996-87b5-5d530b4dec86",
+									"type": "action",
+									"uri": "editoxml",
+									"links": {
+										"link": [
+											{
+												"id": "f259747a-3ca1-4996-87b5-5d530b4dec86",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5b8b6863-ff8f-4c65-b693-4d006e30dafe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5b8b6863-ff8f-4c65-b693-4d006e30dafe",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "5b8b6863-ff8f-4c65-b693-4d006e30dafe",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "696a19cd633fc0000c00001c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

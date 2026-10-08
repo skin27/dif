@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:removecookie-action",
+	"title": "removecookie action",
+	"description": "Removes the cookies with a name and domain from the cookie store.",
+	"type": "object",
+	"properties": {
+		"name": {
+			"title": "Name",
+			"description": "Name of the cookie",
+			"type": "string"
+		},
+		"domain": {
+			"title": "Domain",
+			"description": "Domain of the cookie",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"required": ["name"],
+	"additionalProperties": false
+}

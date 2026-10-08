@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:gettenantvariable-action",
+	"title": "gettenantvariable action",
+	"description": "Sets a header to the value of a tenant variable, or to \"\" when it is not set.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Variable",
+			"description": "Name of the variable, from the URI (<step>:<name>)",
+			"type": "string"
+		},
+		"tenantDbName": {
+			"title": "Tenant",
+			"description": "Tenant the variable belongs to",
+			"type": "string",
+			"default": "default"
+		},
+		"headerName": {
+			"title": "Header name",
+			"description": "Header to set",
+			"type": "string"
+		}
+	},
+	"required": ["headerName"],
+	"additionalProperties": false
+}

@@ -1,0 +1,152 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6957dd2bf71686000e000197",
+						"name": "ScriptGroovyScript_unixdate_to_time",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0df87bba-ecdc-448d-8426-b36f4c924f36",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_unixdate_to_time",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ebb3d0ea-ef9e-4e20-bd7f-25b58ea515f0",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ebb3d0ea-ef9e-4e20-bd7f-25b58ea515f0",
+									"type": "action",
+									"uri": "setheaders:message:ebb3d0ea-ef9e-4e20-bd7f-25b58ea515f0",
+									"links": {
+										"link": [
+											{
+												"id": "ebb3d0ea-ef9e-4e20-bd7f-25b58ea515f0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d8172ac7-249b-4e18-bfcf-7959fcf5ef3a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d8172ac7-249b-4e18-bfcf-7959fcf5ef3a",
+									"type": "action",
+									"uri": "groovy:ref:8caceb33-53f1-4acb-8c3b-8bb4c21a3f2a",
+									"options": {
+										"strictSecureMode": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d8172ac7-249b-4e18-bfcf-7959fcf5ef3a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "95bb2551-aa84-4355-b673-e82f73edfa42",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "95bb2551-aa84-4355-b673-e82f73edfa42",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.value3}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "95bb2551-aa84-4355-b673-e82f73edfa42",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cb168e7e-4f2e-4fe7-8c3d-44e77f303ea0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cb168e7e-4f2e-4fe7-8c3d-44e77f303ea0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "cb168e7e-4f2e-4fe7-8c3d-44e77f303ea0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7575c34f-6bc5-48c3-8c04-6812dbfa8f5f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "8caceb33-53f1-4acb-8c3b-8bb4c21a3f2a",
+					"content": "Long unixDate = Long.valueOf(request.getHeader('value3'))\nDate date = new Date(unixDate)\nString currentDate = date.format( \"yyyy-MM-dd'T'HH:mm:ss.SSSZ\" )\nrequest.setHeader('value3', currentDate)"
+				}
+			},
+			"messages": {
+				"message": {
+					"name": "ebb3d0ea-ef9e-4e20-bd7f-25b58ea515f0",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "value3",
+							"value": "1541759458"
+						}
+					}
+				}
+			}
+		}
+	}
+}

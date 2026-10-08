@@ -1,0 +1,40 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:jsontoxml-action",
+	"title": "jsontoxml action",
+	"description": "Converts a JSON body to XML as json-lib does: members become elements, @name members attributes, #text text, and array items elements named elementName.",
+	"type": "object",
+	"properties": {
+		"elementName": {
+			"title": "Element name",
+			"description": "Name of the element for each array item",
+			"type": "string",
+			"default": "e"
+		},
+		"arrayName": {
+			"title": "Array name",
+			"description": "Name of the root element when the JSON is an array",
+			"type": "string",
+			"default": "a"
+		},
+		"rootName": {
+			"title": "Root name",
+			"description": "Name of the root element when the JSON is an object or a value",
+			"type": "string",
+			"default": "o"
+		},
+		"namespaceLenient": {
+			"title": "Namespace lenient",
+			"description": "Accepted for compatibility; has no effect (prefixed keys are written as they are)",
+			"type": "boolean",
+			"default": false
+		},
+		"typeHints": {
+			"title": "Type hints",
+			"description": "Give every element a json_type attribute with its JSON type",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"additionalProperties": false
+}

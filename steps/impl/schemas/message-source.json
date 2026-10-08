@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:message-source",
+	"title": "message source",
+	"description": "Produces no messages by itself; messages are sent to the flow (the CLI's send command uses the flow's configured message).",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Message name",
+			"description": "Name of the configured message, from the URI (message:<name>); informational only",
+			"type": "string"
+		}
+	},
+	"additionalProperties": false
+}

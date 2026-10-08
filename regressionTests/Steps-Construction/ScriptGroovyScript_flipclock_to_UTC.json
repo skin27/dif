@@ -1,0 +1,97 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6980b97607da32001600004f",
+						"name": "ScriptGroovyScript_flipclock_to_UTC",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "32dd43e8-954c-4dec-8037-69fb280e6369",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_flipclock_to_UTC",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "57d0285c-76eb-4cea-9c36-b75db9bd121e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "57d0285c-76eb-4cea-9c36-b75db9bd121e",
+									"type": "action",
+									"uri": "groovy:ref:a227d371-3a28-4b96-ba57-516b12245b1f",
+									"options": {
+										"strictSecureMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "57d0285c-76eb-4cea-9c36-b75db9bd121e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f3b61aab-8f0f-4adb-a974-80ef80e6ffb6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f3b61aab-8f0f-4adb-a974-80ef80e6ffb6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f3b61aab-8f0f-4adb-a974-80ef80e6ffb6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d39de626-dc5d-494b-9bb7-2ad26f40e2d9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "a227d371-3a28-4b96-ba57-516b12245b1f",
+					"content": "TimeZone.setDefault(TimeZone.getTimeZone(\"UTC\"))"
+				}
+			}
+		}
+	}
+}

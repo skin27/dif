@@ -1,0 +1,104 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6aa2c52e879ca2000d000e0b",
+						"name": "3_flow_JsonToXml_FL_sync",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "be19130c-1618-44e7-a8e4-ce0114e31cee",
+									"type": "source",
+									"uri": "flowlink",
+									"options": {
+										"transport": "sync"
+									},
+									"links": {
+										"link": {
+											"id": "596c1569-8ad7-43c1-b0f1-b900e96cfaec",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "596c1569-8ad7-43c1-b0f1-b900e96cfaec",
+									"type": "action",
+									"uri": "jsontoxml",
+									"options": {
+										"elementName": "e",
+										"arrayName": "a",
+										"rootName": "thisistheresponse",
+										"namespaceLenient": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "596c1569-8ad7-43c1-b0f1-b900e96cfaec",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c5e5dff8-67ca-4223-bebb-df679c20be53",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c5e5dff8-67ca-4223-bebb-df679c20be53",
+									"type": "sink",
+									"uri": "setheaders:message:c5e5dff8-67ca-4223-bebb-df679c20be53",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": {
+											"id": "c5e5dff8-67ca-4223-bebb-df679c20be53",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6aa2c52e879ca2000d000e0d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "c5e5dff8-67ca-4223-bebb-df679c20be53",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "dummy",
+							"value": "dummy"
+						}
+					}
+				}
+			}
+		}
+	}
+}

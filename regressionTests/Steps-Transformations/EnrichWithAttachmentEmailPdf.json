@@ -1,0 +1,246 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69cce6b9a3f00d001a000003",
+						"name": "EnrichWithAttachmentEmailPdf",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d62487ac-1425-4bc8-8d0b-879fa8b18e67",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/EnrichWithAttachmentEmailPdf",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "13bcb232-a6c5-422b-ba35-3c6ef9ad3958",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "13bcb232-a6c5-422b-ba35-3c6ef9ad3958",
+									"type": "action",
+									"uri": "texttobase64",
+									"links": {
+										"link": [
+											{
+												"id": "13bcb232-a6c5-422b-ba35-3c6ef9ad3958",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "65ab14c2-135c-4c27-b18f-6b6dcbc8ecd6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "65ab14c2-135c-4c27-b18f-6b6dcbc8ecd6",
+									"type": "action",
+									"uri": "setheaders:message:65ab14c2-135c-4c27-b18f-6b6dcbc8ecd6",
+									"links": {
+										"link": [
+											{
+												"id": "65ab14c2-135c-4c27-b18f-6b6dcbc8ecd6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "531b8060-f9b4-471c-97f9-267254f90f13",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "531b8060-f9b4-471c-97f9-267254f90f13",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "New body"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "531b8060-f9b4-471c-97f9-267254f90f13",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "214ad4df-69e7-40ee-baa8-b7417af514c0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "214ad4df-69e7-40ee-baa8-b7417af514c0",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichMethod": "attachment",
+										"useErrorRoute": true,
+										"enrichType": "attachment"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "214ad4df-69e7-40ee-baa8-b7417af514c0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8ec53552-7143-4c58-b1de-41329106d6d2",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "b6cd29e5-be5d-4112-815f-d109b81d500f",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8ec53552-7143-4c58-b1de-41329106d6d2",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman@fluxygen.com",
+										"subject": "next test OauthGmailNoreply pdf in attachment",
+										"exchangeBodyAs": "body",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "oauth2",
+										"accessToken": "ENC(TwXiThthhIsvhAaHL8ZTEA==|j6CN2aV9hp7EP/exoHjVLQ==|K9hxscBmrQJ8LSzNnQbybg==)",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8ec53552-7143-4c58-b1de-41329106d6d2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3fe6d42e-0a78-4700-935e-09a47023217b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3fe6d42e-0a78-4700-935e-09a47023217b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "3fe6d42e-0a78-4700-935e-09a47023217b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b6cd29e5-be5d-4112-815f-d109b81d500f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.base64Body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b6cd29e5-be5d-4112-815f-d109b81d500f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c5b24129-036f-4e12-9930-e8c164403b91",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c5b24129-036f-4e12-9930-e8c164403b91",
+									"type": "sink",
+									"uri": "base64totext",
+									"links": {
+										"link": {
+											"id": "c5b24129-036f-4e12-9930-e8c164403b91",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69cce6b9a3f00d001a000005",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "65ab14c2-135c-4c27-b18f-6b6dcbc8ecd6",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "base64Body",
+								"value": "${body}"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "attachment.pdf"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

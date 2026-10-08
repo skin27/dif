@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:flowlink-action",
+  "title": "flowlink action",
+  "description": "Sends a copy of the message to another flow in this dif process, whose source is a flowlink source.",
+  "type": "object",
+  "properties": {
+    "targetFlowId": {
+      "title": "Target flow ID",
+      "description": "Id of the flow to send the message to",
+      "type": "string"
+    },
+    "transport": {
+      "title": "Transport",
+      "description": "sync (also direct, vm): wait until the target flow has processed the message; async (also seda): do not wait, unless exchangePattern is InOut",
+      "type": "string",
+      "enum": [
+        "sync",
+        "direct",
+        "vm",
+        "async",
+        "seda"
+      ],
+      "default": "sync"
+    },
+    "exchangePattern": {
+      "title": "Exchange pattern",
+      "description": "InOut: the target flow's outcome replaces the message; InOnly: the message passes on unchanged",
+      "type": "string",
+      "enum": [
+        "InOnly",
+        "InOut"
+      ],
+      "default": "InOut"
+    },
+    "requestTimeout": {
+      "title": "Request timeout",
+      "description": "Milliseconds to wait for the target flow",
+      "type": "integer",
+      "minimum": 1,
+      "default": 20000
+    },
+    "overflow": {
+      "description": "Admission policy when the channel is full",
+      "default": "fail",
+      "type": "string",
+      "enum": [
+        "fail",
+        "block"
+      ]
+    },
+    "enqueueTimeout": {
+      "minimum": 0,
+      "description": "Admission timeout in milliseconds; positive value required with overflow block",
+      "default": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "targetFlowId"
+  ],
+  "additionalProperties": false
+}

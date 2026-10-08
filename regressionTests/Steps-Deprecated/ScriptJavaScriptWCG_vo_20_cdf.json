@@ -1,0 +1,161 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bda14f71686000b0002e0",
+						"name": "ScriptJavaScriptWCG_vo_20_cdf",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e46461df-b481-4eb8-b7f2-aba1d4deb419",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_vo_20_cdf",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "05ad1675-ab07-4a57-9274-35400424a707",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "05ad1675-ab07-4a57-9274-35400424a707",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<root>abc</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "05ad1675-ab07-4a57-9274-35400424a707",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "209ef4e3-a7e8-4dd7-8961-34255a38c879",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "209ef4e3-a7e8-4dd7-8961-34255a38c879",
+									"type": "action",
+									"uri": "setheaders:message:209ef4e3-a7e8-4dd7-8961-34255a38c879",
+									"links": {
+										"link": [
+											{
+												"id": "209ef4e3-a7e8-4dd7-8961-34255a38c879",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d9fecfa1-df06-4572-b6eb-c2b07d6aee80",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d9fecfa1-df06-4572-b6eb-c2b07d6aee80",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Javascript step has been removed."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d9fecfa1-df06-4572-b6eb-c2b07d6aee80",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "04be0c9e-0103-4c07-8556-84c3a3c217a6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "04be0c9e-0103-4c07-8556-84c3a3c217a6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "04be0c9e-0103-4c07-8556-84c3a3c217a6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "06d5f454-6828-41d8-a68e-0d74e707ed71",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "209ef4e3-a7e8-4dd7-8961-34255a38c879",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Filename",
+								"value": "Filename.xml"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "CamelFileName.xml"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "FileNameExtension",
+								"value": "xml"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

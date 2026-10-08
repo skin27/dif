@@ -12,10 +12,11 @@
 								{
 									"id": "9ac70b89-c08c-4acc-817a-836c05773f4d",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/setTenantVariable",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -55,7 +56,8 @@
 									"options": {
 										"language": "simple",
 										"value": "TXlWYWx1ZQ==",
-										"encrypt": false,
+										"encrypt": true,
+										"protectedValue": false,
 										"flowName": "setTenantVariable",
 										"tenantDbName": "_new2"
 									},
@@ -105,7 +107,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

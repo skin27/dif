@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:simplereplace-action",
+	"title": "simplereplace action",
+	"description": "Evaluates the body as a simple expression: ${body} and ${header.name} in the body are replaced by their values.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

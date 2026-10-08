@@ -1,0 +1,107 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:sftp-sink",
+	"title": "sftp sink",
+	"description": "Writes the message body to a file in a directory of an SFTP server.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address",
+			"description": "From the URI: sftp:[//][user@]host[:port]/directory. The directory is below the login directory; after a double slash (host//dir) it is absolute",
+			"type": "string"
+		},
+		"userName": {
+			"title": "User name",
+			"description": "User to log in as",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Password",
+			"description": "Password; env DIF_SFTP_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"disconnect": {
+			"title": "Disconnect",
+			"description": "Close the connection after each use; false keeps it open between uses, until it is idle for 30 seconds",
+			"type": "boolean",
+			"default": true
+		},
+		"passiveMode": {
+			"title": "Passive mode",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "boolean",
+			"default": true
+		},
+		"privateKey": {
+			"title": "Private key",
+			"description": "File with the private key to log in with; instead of or besides the password",
+			"type": "string",
+			"default": ""
+		},
+		"privateKeyPassphrase": {
+			"title": "Key passphrase",
+			"description": "Passphrase of an encrypted private key; env DIF_SFTP_PRIVATE_KEY_PASSPHRASE (or its _FILE companion)",
+			"type": "string"
+		},
+		"knownHostsFile": {
+			"title": "Known hosts",
+			"description": "known_hosts file to check the server key against; \"\" for ~/.ssh/known_hosts",
+			"type": "string",
+			"default": ""
+		},
+		"strictHostKeyChecking": {
+			"title": "Check host key",
+			"description": "false trusts any server, which leaves the connection open to impersonation",
+			"type": "boolean",
+			"default": true
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to connect and log in",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Name of the file; the header file.name or CamelFileName, else the trace id, if empty",
+			"type": "string",
+			"default": ""
+		},
+		"binary": {
+			"title": "Binary",
+			"description": "Write the body as it is instead of in charset",
+			"type": "boolean",
+			"default": false
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the file: UTF-8, ISO-8859-1 or US-ASCII",
+			"type": "string",
+			"default": "utf-8"
+		},
+		"autoCreate": {
+			"title": "Auto create",
+			"description": "Create missing directories",
+			"type": "boolean",
+			"default": true
+		},
+		"fileExist": {
+			"title": "If the file exists",
+			"description": "Override, Append, Fail (fail the message) or Ignore (write nothing)",
+			"type": "string",
+			"enum": [
+				"Override",
+				"Append",
+				"Fail",
+				"Ignore"
+			],
+			"default": "Override"
+		}
+	},
+	"required": [
+		"path"
+	],
+	"additionalProperties": false
+}

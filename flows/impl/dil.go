@@ -17,6 +17,9 @@ type dilDoc struct {
 			Messages struct {
 				Message oneOrMany[dilMessage] `json:"message"`
 			} `json:"messages"`
+			Resources struct {
+				Resource oneOrMany[dilResource] `json:"resource"`
+			} `json:"resources"`
 		} `json:"core"`
 	} `json:"dil"`
 }
@@ -46,8 +49,11 @@ type dilStep struct {
 }
 
 type dilLink struct {
-	ID    string `json:"id"`
-	Bound string `json:"bound"`
+	ID         string `json:"id"`
+	Bound      string `json:"bound"`
+	Rule       string `json:"rule"`       // a router's outbound link: its role, such as "wiretap"
+	Language   string `json:"language"`   // a router's outbound link: language of expression
+	Expression string `json:"expression"` // a router's outbound link: its condition
 }
 
 type dilMessage struct {
@@ -58,9 +64,17 @@ type dilMessage struct {
 	} `json:"headers"`
 }
 
+// dilResource is a named text, such as a JSON Schema or a template, that steps
+// refer to as <scheme>:ref:<name>.
+type dilResource struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
+}
+
 type dilHeader struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name     string `json:"name"`
+	Value    string `json:"value"`
+	Language string `json:"language"`
 }
 
 // oneOrMany decodes either a single JSON object or an array of them.

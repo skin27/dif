@@ -1,0 +1,213 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695be8f2f71686000b0003d7",
+						"name": "Aggregate_XmlSplitlessCount",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "28bc52aa-fd35-4599-932e-9a5ba0bf60e2",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Aggregate_XmlSplitlessCount",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "121e60bc-38ec-4ebd-889f-f5a44d015d88",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "121e60bc-38ec-4ebd-889f-f5a44d015d88",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "121e60bc-38ec-4ebd-889f-f5a44d015d88",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "54ad2dc8-955c-4a0d-b0c4-d1c5b420dc20",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "31d7b45e-0cd8-4a15-928d-683ddff655c0",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "4113ab29-3958-4375-8dfe-4fae5013b942",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "54ad2dc8-955c-4a0d-b0c4-d1c5b420dc20",
+									"type": "sink",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq",
+										"targetQueueId": "695bdc7ef71686000d00021f",
+										"exchangePattern": "InOut"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "54ad2dc8-955c-4a0d-b0c4-d1c5b420dc20",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "31d7b45e-0cd8-4a15-928d-683ddff655c0",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<root>\n    <line>2</line>\n</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "31d7b45e-0cd8-4a15-928d-683ddff655c0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b6c007f0-c381-4498-83a5-570ea985138f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b6c007f0-c381-4498-83a5-570ea985138f",
+									"type": "sink",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq",
+										"targetQueueId": "695bdc7ef71686000d00021f",
+										"exchangePattern": "InOut"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "b6c007f0-c381-4498-83a5-570ea985138f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4113ab29-3958-4375-8dfe-4fae5013b942",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<root>\n    <line>3</line>\n</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4113ab29-3958-4375-8dfe-4fae5013b942",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e5a14241-9017-4c3b-8fa5-90bd017a59b5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e5a14241-9017-4c3b-8fa5-90bd017a59b5",
+									"type": "sink",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq",
+										"targetQueueId": "695bdc7ef71686000d00021f",
+										"exchangePattern": "InOut"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "e5a14241-9017-4c3b-8fa5-90bd017a59b5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695be8f2f71686000b0003d9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"id": "activemq-connection",
+					"name": "activemq",
+					"type": "activemq",
+					"keys": {
+						"jmsprovider": "classic",
+						"pooled": "true",
+						"url": "tcp://assimbly-broker-test:61616",
+						"username": "admin",
+						"password": "admin"
+					}
+				}
+			}
+		}
+	}
+}

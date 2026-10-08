@@ -1,0 +1,62 @@
+{
+  "dil": {
+    "core": {
+      "messages": {
+        "message": {
+          "body": "Hello from DIF",
+          "name": "hello"
+        }
+      }
+    },
+    "integrations": {
+      "integration": {
+        "flows": {
+          "flow": {
+            "id": "test88",
+            "name": "test88",
+            "steps": {
+              "step": [
+                {
+                  "id": "test88-source",
+                  "type": "source",
+                  "uri": "message:hello",
+                  "options": null,
+                  "links": {
+                    "link": [
+                      {
+                        "id": "test88-link",
+                        "bound": "out",
+                        "rule": "",
+                        "language": "",
+                        "expression": ""
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "test88-sink",
+                  "type": "sink",
+                  "uri": "log",
+                  "options": {
+                    "showBody": true
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "test88-link",
+                        "bound": "in",
+                        "rule": "",
+                        "language": "",
+                        "expression": ""
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

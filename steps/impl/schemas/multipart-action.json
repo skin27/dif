@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:multipart-action",
+	"title": "multipart action",
+	"description": "Wraps the body in a multipart/form-data body, to post it as a form: a part named fname holds the body, followed by the text fields of formFields.",
+	"type": "object",
+	"properties": {
+		"fname": {
+			"title": "Field name",
+			"description": "Name of the part that holds the body",
+			"type": "string"
+		},
+		"formFields": {
+			"title": "Form fields",
+			"description": "JSON object of extra text fields (name: value); \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"contentType": {
+			"title": "Content-Type",
+			"description": "Accepted for compatibility; the body is always multipart/form-data",
+			"type": "string",
+			"default": "multipart/form-data"
+		}
+	},
+	"required": ["fname"],
+	"additionalProperties": false
+}

@@ -1,0 +1,147 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e781466577570048000160",
+						"name": "OutboundGoogleDrive",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5c2f35e4-b0b6-42a8-b54f-b2e49889889a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundGoogleDrive",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "21eedcda-2742-4d7d-8411-ff9221a21526",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "21eedcda-2742-4d7d-8411-ff9221a21526",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test\nhttps://next.dovetail.world\ntest\nRegression Tests\nOauthGmailNoreply\n694aca3eda8dd5001600023e"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "21eedcda-2742-4d7d-8411-ff9221a21526",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b6350633-4fa1-4b86-9250-71f3a5292dde",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b6350633-4fa1-4b86-9250-71f3a5292dde",
+									"type": "action",
+									"uri": "setheaders:message:b6350633-4fa1-4b86-9250-71f3a5292dde",
+									"links": {
+										"link": [
+											{
+												"id": "b6350633-4fa1-4b86-9250-71f3a5292dde",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9e8623cb-d5ea-4b74-9d76-b0e7e8daa7f7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9e8623cb-d5ea-4b74-9d76-b0e7e8daa7f7",
+									"type": "action",
+									"uri": "googledrive:1zhyCHtGEO0Ti9dglDWHoCVi8_dTKc5ZJ",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"flowId": "69e781466577570048000160",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9e8623cb-d5ea-4b74-9d76-b0e7e8daa7f7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "151756ab-ccba-4506-acf4-f93b1b1d4039",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "151756ab-ccba-4506-acf4-f93b1b1d4039",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${headers}"
+									},
+									"links": {
+										"link": {
+											"id": "151756ab-ccba-4506-acf4-f93b1b1d4039",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69e781466577570048000162",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "b6350633-4fa1-4b86-9250-71f3a5292dde",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "CamelFileName",
+							"value": "OauthGmailNoreply.txt"
+						}
+					}
+				}
+			}
+		}
+	}
+}

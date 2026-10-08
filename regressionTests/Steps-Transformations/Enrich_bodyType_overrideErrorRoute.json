@@ -1,0 +1,172 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695fd343f71686000c0001b1",
+						"name": "Enrich_bodyType_overrideErrorRoute",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c2d5dbc9-d1ed-442c-8ef0-e8fb4bd66b01",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_bodyType_overrideErrorRoute",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "3652872d-1eba-47c9-947b-987ceb57a2a8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3652872d-1eba-47c9-947b-987ceb57a2a8",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "override",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3652872d-1eba-47c9-947b-987ceb57a2a8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "73852ed7-f74c-4ccc-88f4-53eb29256599",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "cc56c8ec-2e84-48a5-8266-6d474be38086",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "73852ed7-f74c-4ccc-88f4-53eb29256599",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "73852ed7-f74c-4ccc-88f4-53eb29256599",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cc56c8ec-2e84-48a5-8266-6d474be38086",
+									"type": "sink",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022/test/abc/abc",
+									"options": {
+										"fileName": "123.txt",
+										"charset": "utf-8",
+										"userName": "dovetail",
+										"password": "ENC(TWHunt2w6Ix0SHpUJJMfsQ==|ftNEvZE4ttEcpp4Mrypqsw==|HYOCw1vCf0Al8KrlKgvoPEdz8MlqIdBQOLy6bJA1WMYuflxIOGWapV7ri7SAe8iGaVCSahiH9j/m0det8PTX1aRZboTpL3vOELgGnOxaO60u+yRSInyY6NFM+l+DGX/4VeFqf/ZsbOXy3HRzdA9q5Q==)",
+										"disconnect": true,
+										"autoCreate": true,
+										"passiveMode": true,
+										"recursive": false,
+										"delete": false,
+										"binary": false,
+										"abortMode": true,
+										"maxMessagesPerPoll": 1,
+										"move": "RAW(processed)",
+										"moveFailed": "RAW(error)",
+										"readLock": "none"
+									},
+									"links": {
+										"link": {
+											"id": "cc56c8ec-2e84-48a5-8266-6d474be38086",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0c477889-2933-4b4d-96f0-eaedce305c02",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "e7821929-d34c-4601-b100-ea050997f31b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e7821929-d34c-4601-b100-ea050997f31b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${exception.message}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e7821929-d34c-4601-b100-ea050997f31b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b2009738-37ce-4aaa-a163-34867cf64d3a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b2009738-37ce-4aaa-a163-34867cf64d3a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b2009738-37ce-4aaa-a163-34867cf64d3a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

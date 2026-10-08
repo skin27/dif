@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bd752f71686000b00020d",
+						"name": "ScriptJavaScriptWCG_if_35_u4invoice",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "606aa493-74a5-4437-98f0-51c3859f8c60",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_if_35_u4invoice",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "b76cd808-1d8c-4b2b-93a8-9c58a666a678",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b76cd808-1d8c-4b2b-93a8-9c58a666a678",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<u4invoice xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n    <ttIncomingInvoice>\n        <incomingInvoice-ID>0</incomingInvoice-ID>\n        <action>B</action>\n        <admin>10</admin>\n        <amount-invoice>328.52</amount-invoice>\n        <amount-goods>271.5</amount-goods>\n        <creditor>1053</creditor>\n        <dailyjournal>950</dailyjournal>\n        <date-entry>2024-01-17</date-entry>\n        <date-invoice>2024-01-16</date-invoice>\n        <description>93994AB/93990/94030DV</description>\n        <finyear>2024</finyear>\n        <invoice />\n        <journalentry />\n        <period>1</period>\n        <reference>BZ8084-A</reference>\n        <url>\\BZ8084A20240117T112112.pdf</url>\n        <ttVAT>\n            <incomingInvoice-ID>0</incomingInvoice-ID>\n            <VAT-ID>1</VAT-ID>\n            <amount-base>271.5</amount-base>\n            <amount-VAT>57.02</amount-VAT>\n            <VAT>HOO</VAT>\n        </ttVAT>\n        <ttJournalEntryLine>\n            <incomingInvoice-ID>0</incomingInvoice-ID>\n            <admin-journal />\n            <account />\n            <branch-journal />\n            <date-currency />\n            <VAT />\n            <VAT-type />\n        </ttJournalEntryLine>\n        <ttJournalEntryLine>\n            <incomingInvoice-ID>0</incomingInvoice-ID>\n            <admin-journal />\n            <account />\n            <branch-journal />\n            <date-currency />\n            <VAT />\n            <VAT-type />\n        </ttJournalEntryLine>\n        <ttJournalEntryLine>\n            <incomingInvoice-ID>0</incomingInvoice-ID>\n            <admin-journal />\n            <account />\n            <branch-journal />\n            <date-currency />\n            <VAT />\n            <VAT-type />\n        </ttJournalEntryLine>\n    </ttIncomingInvoice>\n    <dpGoodsLines>\n        <dpGoodsLine>\n            <lineno>1</lineno>\n            <amount>98</amount>\n            <purchase_order />\n        </dpGoodsLine>\n        <dpGoodsLine>\n            <lineno>2</lineno>\n            <amount>63.5</amount>\n            <purchase_order />\n        </dpGoodsLine>\n        <dpGoodsLine>\n            <lineno>3</lineno>\n            <amount>110</amount>\n            <purchase_order />\n        </dpGoodsLine>\n    </dpGoodsLines>\n</u4invoice>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b76cd808-1d8c-4b2b-93a8-9c58a666a678",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6363938e-f851-4df2-9e00-d759e91fdafe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6363938e-f851-4df2-9e00-d759e91fdafe",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Javascript step has been removed.\n\n<description>93994AB/93990/94030DV</description>\n<incomingInvoice-ID>0</incomingInvoice-ID>"
+									},
+									"links": {
+										"link": {
+											"id": "6363938e-f851-4df2-9e00-d759e91fdafe",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "01fecd62-1e17-432f-9cf7-184c30b81f04",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

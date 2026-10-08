@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6967c178633fc0001400004a",
+						"name": "FlowPropertiesTransformations_01",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "70322cb6-b471-4fde-8456-d2de57ad79b4",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlowPropertiesTransformations_01",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6854c442-ba45-48d0-b6b8-728e92cd07c2",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6854c442-ba45-48d0-b6b8-728e92cd07c2",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "nr, name\n1,calvin klein"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6854c442-ba45-48d0-b6b8-728e92cd07c2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "33595b30-b1fd-41d9-aab7-83fb3e97fe53",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "33595b30-b1fd-41d9-aab7-83fb3e97fe53",
+									"type": "action",
+									"uri": "csvtoxml",
+									"options": {
+										"useHeader": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "33595b30-b1fd-41d9-aab7-83fb3e97fe53",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1a0e6b71-b546-4873-9076-2c58c15c661e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1a0e6b71-b546-4873-9076-2c58c15c661e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1a0e6b71-b546-4873-9076-2c58c15c661e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6967c178633fc0001400004c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

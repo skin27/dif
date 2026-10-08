@@ -1,0 +1,42 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:split-router",
+	"title": "split router",
+	"description": "Splits the body into parts and sends each part along the outbound link with rule split; the message itself continues on the other link.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Language of the expression: xpath (/a/b) or jsonpath ($.a[*])",
+			"type": "string",
+			"enum": ["xpath", "jsonpath"],
+			"default": "xpath"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "Selects the parts",
+			"type": "string"
+		},
+		"streaming": {
+			"title": "Streaming",
+			"description": "Accepted for compatibility; has no effect yet",
+			"type": "boolean",
+			"default": false
+		},
+		"parallelProcessing": {
+			"title": "Parallel processing",
+			"description": "Accepted for compatibility; has no effect yet (parts are processed one after another)",
+			"type": "boolean",
+			"default": false
+		},
+		"exchangePattern": {
+			"title": "Exchange pattern",
+			"description": "Accepted for compatibility; has no effect yet",
+			"type": "string",
+			"enum": ["InOnly", "InOut"],
+			"default": "InOut"
+		}
+	},
+	"required": ["expression"],
+	"additionalProperties": false
+}

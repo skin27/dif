@@ -1,0 +1,119 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694a9abfda8dd50016000053",
+						"name": "CreateMysqlTableTransactions",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3ec122e9-1f94-43b2-b17e-ed10cf81c9aa",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "d18b4215-6b31-4633-aba6-879850d7c9fb",
+											"bound": "out",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "d18b4215-6b31-4633-aba6-879850d7c9fb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "CREATE TABLE transactions_next (\n    id SERIAL PRIMARY KEY,   -- Automatisch incrementerende primary key\n    timestamp TIMESTAMP,   -- Kolom voor tijdstempel\n    breadcrumb_id TEXT,       -- Breadcrumb ID\n    server TEXT,                          -- Server\n    tenant TEXT,                          -- Tenant\n    environment TEXT,             -- Environment\n    flow_id TEXT,                        -- Flow ID\n    flow_name TEXT,                -- Flow naam\n    name TEXT,                            -- Naam\n    value TEXT                             -- Waarde\n); "
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d18b4215-6b31-4633-aba6-879850d7c9fb",
+												"bound": "in",
+												"transport": "async"
+											},
+											{
+												"id": "f5abd2ae-5eff-4f64-9f94-058d9fe603f9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f5abd2ae-5eff-4f64-9f94-058d9fe603f9",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"connectionType": "mysql8",
+										"database": "dovetail",
+										"host": "api-testing.dovetail.world",
+										"port": "3306",
+										"username": "root",
+										"password": "ENC(SGEeaC+MynkG0xmWpS95Ww==|R1WZYO2KS5jX3BVtgU8b4w==|+6V0ssMdbf4DrFVjpPz+tdgsZ6731rq63ud3DjbsiSKouyW5oNP5YBtX8yOU5m4OOI3f7kZf4v6Jegv43e4/XYAirgYP7FnctHbXTlBpuCc=)",
+										"useSSL": false,
+										"tlsVersion": "TLSv1"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f5abd2ae-5eff-4f64-9f94-058d9fe603f9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "97e13760-6bf3-4611-9360-e7d21010160e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "97e13760-6bf3-4611-9360-e7d21010160e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "97e13760-6bf3-4611-9360-e7d21010160e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f3abe2ad-752d-463d-97b7-c11f63adc544",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,93 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696fa8bec9b9a40016000225",
+						"name": "JsonToXmlSimple_root_filter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a0fc97fd-a9e6-438c-80b1-18b0a288e773",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/JsonToXmlSimple_root_filter",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9f1eb5fd-b77b-4bfb-9637-a441f547f588",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9f1eb5fd-b77b-4bfb-9637-a441f547f588",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": true,
+										"rootTag": "root",
+										"checkJsonKeys": true,
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9f1eb5fd-b77b-4bfb-9637-a441f547f588",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "85bd621c-4aa4-44ff-9ec5-43e2f3c5b653",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "85bd621c-4aa4-44ff-9ec5-43e2f3c5b653",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "85bd621c-4aa4-44ff-9ec5-43e2f3c5b653",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bc3680f3-fba1-41af-afc9-be067b3ed03b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

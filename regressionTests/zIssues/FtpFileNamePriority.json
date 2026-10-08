@@ -1,0 +1,131 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5645fd38693b00160001c2",
+						"name": "FtpFileNamePriority",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ad670195-99fe-4565-9866-3cc948c549f5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FtpFileNamePriority",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5567d07b-9f8b-46c9-a9d1-484ff75c1a70",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5567d07b-9f8b-46c9-a9d1-484ff75c1a70",
+									"type": "action",
+									"uri": "setheaders:message:5567d07b-9f8b-46c9-a9d1-484ff75c1a70",
+									"links": {
+										"link": [
+											{
+												"id": "5567d07b-9f8b-46c9-a9d1-484ff75c1a70",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a168d1c-9e2e-4fc5-9c0a-2fb07b6c2738",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a168d1c-9e2e-4fc5-9c0a-2fb07b6c2738",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022//next/Regression Tests/test/out",
+									"options": {
+										"fileName": "PigsInSpace_NHO.jpg",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6a168d1c-9e2e-4fc5-9c0a-2fb07b6c2738",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f3d49dda-49bd-46a2-817f-63e8fc31d0ef",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f3d49dda-49bd-46a2-817f-63e8fc31d0ef",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f3d49dda-49bd-46a2-817f-63e8fc31d0ef",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "29f11854-c2fc-4523-b008-b01e94b8505e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "5567d07b-9f8b-46c9-a9d1-484ff75c1a70",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelFileName",
+							"value": "PigsInSpace_BVG.jpg"
+						}
+					}
+				}
+			}
+		}
+	}
+}

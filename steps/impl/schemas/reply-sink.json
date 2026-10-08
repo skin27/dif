@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:reply-sink",
+  "title": "reply-sink",
+  "description": "Publishes a response to the message's Reply-To queue.",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error"
+      ],
+      "default": "success",
+      "description": "Response status"
+    },
+    "overflow": {
+      "type": "string",
+      "enum": [
+        "fail",
+        "block"
+      ],
+      "default": "fail",
+      "description": "Admission policy when the queue is full"
+    },
+    "enqueueTimeout": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Admission timeout in milliseconds; required with block"
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

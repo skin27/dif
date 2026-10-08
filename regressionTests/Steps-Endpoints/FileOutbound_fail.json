@@ -1,0 +1,323 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "697c6a77dd51ca001200003a",
+						"name": "FileOutbound_fail",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "dd5ffdd4-8af2-4c40-949e-254aa94fd8d5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FileOutbound_fail",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "c5a2009f-1595-47aa-a8df-3f54ab39af37",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c5a2009f-1595-47aa-a8df-3f54ab39af37",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test file"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c5a2009f-1595-47aa-a8df-3f54ab39af37",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4e8fefa4-9293-44d5-baff-560985769757",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4e8fefa4-9293-44d5-baff-560985769757",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "4e8fefa4-9293-44d5-baff-560985769757",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b97cf74e-8405-42c9-90f6-8100993a7f24",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "13915ceb-437a-4c2a-aa4a-3cf89b64de3d",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b97cf74e-8405-42c9-90f6-8100993a7f24",
+									"type": "action",
+									"uri": "setheaders:message:b97cf74e-8405-42c9-90f6-8100993a7f24",
+									"links": {
+										"link": [
+											{
+												"id": "b97cf74e-8405-42c9-90f6-8100993a7f24",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "796ae342-dd98-4d6a-afca-78691d6b1163",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "796ae342-dd98-4d6a-afca-78691d6b1163",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound4.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Fail"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "796ae342-dd98-4d6a-afca-78691d6b1163",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "98cdfdad-ca37-4124-b628-413f896636b4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "98cdfdad-ca37-4124-b628-413f896636b4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "98cdfdad-ca37-4124-b628-413f896636b4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "13915ceb-437a-4c2a-aa4a-3cf89b64de3d",
+									"type": "action",
+									"uri": "setheaders:message:13915ceb-437a-4c2a-aa4a-3cf89b64de3d",
+									"links": {
+										"link": [
+											{
+												"id": "13915ceb-437a-4c2a-aa4a-3cf89b64de3d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "441ae143-5a18-46d5-bdd0-4ed4948453e6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "441ae143-5a18-46d5-bdd0-4ed4948453e6",
+									"type": "action",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/test/regressionTests/",
+									"options": {
+										"fileName": "FileOutbound4.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Fail"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "441ae143-5a18-46d5-bdd0-4ed4948453e6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "851de2b8-129f-4a44-bccd-5cb89a94a954",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "851de2b8-129f-4a44-bccd-5cb89a94a954",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "851de2b8-129f-4a44-bccd-5cb89a94a954",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d73d9113-890c-45fb-9eff-6eb638da9e5e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "75c38426-9de3-43b4-b441-afa9f4dfbe03",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "75c38426-9de3-43b4-b441-afa9f4dfbe03",
+									"type": "action",
+									"uri": "setheaders:message:75c38426-9de3-43b4-b441-afa9f4dfbe03",
+									"links": {
+										"link": [
+											{
+												"id": "75c38426-9de3-43b4-b441-afa9f4dfbe03",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "34fa5b04-7dc4-4609-be2e-05cdc573cc24",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "34fa5b04-7dc4-4609-be2e-05cdc573cc24",
+									"type": "sink",
+									"uri": "replace",
+									"options": {
+										"regex": "1234567890",
+										"replaceWith": "0987654321",
+										"group": 0
+									},
+									"links": {
+										"link": {
+											"id": "34fa5b04-7dc4-4609-be2e-05cdc573cc24",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "b97cf74e-8405-42c9-90f6-8100993a7f24",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_1"
+							}
+						}
+					},
+					{
+						"name": "13915ceb-437a-4c2a-aa4a-3cf89b64de3d",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_2"
+							}
+						}
+					},
+					{
+						"name": "75c38426-9de3-43b4-b441-afa9f4dfbe03",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception",
+									"value": "${exception}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.class",
+									"value": " ${exception.class}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.message",
+									"value": "${exception.message}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "exception.stacktrace",
+									"value": "${exception.stacktrace}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

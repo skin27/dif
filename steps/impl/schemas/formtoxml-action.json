@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:formtoxml-action",
+	"title": "formtoxml action",
+	"description": "Converts a form-urlencoded body (a=1&b=2) into XML: <form><a>1</a><b>2</b></form>, one element per field in the order of the body.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

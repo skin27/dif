@@ -1,0 +1,163 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7edde5ee15e200150001ab",
+						"name": "SQL_MySql8_Escape",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8aa20f5f-79a7-4069-abd2-aed28378f5b1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_MySql8_Escape",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "3ccdd97f-7e13-4650-bda1-8da399e17655",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3ccdd97f-7e13-4650-bda1-8da399e17655",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": true,
+										"connectionType": "mysql8",
+										"database": "dovetail",
+										"host": "api-testing.dovetail.world",
+										"port": "3306",
+										"username": "root",
+										"password": "ENC(K8Yqwk/jUrte7QbhXYHB1Q==|6LzFNsDWRg3yce9HSucbnw==|hiEzmKm9S0+U5sEiJxYs4JcZnEJT23fUml+2YEqH4/6gsBhlnuTz/985fpkNqOvp1xsfo3x4MbO2xuYcbdwhKsmkzp9e9/T+bVVTWlJikbU=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3ccdd97f-7e13-4650-bda1-8da399e17655",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c19f1e1a-4e14-4605-a725-59c58a418379",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c19f1e1a-4e14-4605-a725-59c58a418379",
+									"type": "action",
+									"uri": "setheaders:message:c19f1e1a-4e14-4605-a725-59c58a418379",
+									"links": {
+										"link": [
+											{
+												"id": "c19f1e1a-4e14-4605-a725-59c58a418379",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dd61ae3e-a4b8-462f-87de-950a4b436dd2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dd61ae3e-a4b8-462f-87de-950a4b436dd2",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "SELECT * FROM  transactions WHERE id = ${header.id}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "mysql8",
+										"database": "dovetail",
+										"host": "api-testing.dovetail.world",
+										"port": "3306",
+										"username": "root",
+										"password": "ENC(C6SW4TO8HqO/tSkAwtQpyg==|jEy5TE1CA12mtUMLDZuHcA==|QcV8kWkVazri5I43/MV9oUgqmxhZt99pUfJgQfUlZIRHWXCehT4wJ18G8OyJ+rzM9Xx/PNHU1KbrmB9VR/7V6zpjJN+kCtI7wqtwlHVQny4=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dd61ae3e-a4b8-462f-87de-950a4b436dd2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "75995a92-80fc-49a2-b872-dc267fc0d4fe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "75995a92-80fc-49a2-b872-dc267fc0d4fe",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "75995a92-80fc-49a2-b872-dc267fc0d4fe",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a7edde5ee15e200150001ad",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "c19f1e1a-4e14-4605-a725-59c58a418379",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "xpath",
+							"name": "id",
+							"value": "//generatedKey/text()"
+						}
+					}
+				}
+			}
+		}
+	}
+}

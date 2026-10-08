@@ -1,0 +1,39 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setcookie-action",
+	"title": "setcookie action",
+	"description": "Adds a cookie to the cookie store, so the https and rest actions send it to the domain.",
+	"type": "object",
+	"properties": {
+		"name": {
+			"title": "Name",
+			"description": "Name of the cookie",
+			"type": "string"
+		},
+		"value": {
+			"title": "Value",
+			"description": "Value of the cookie",
+			"type": "string",
+			"default": ""
+		},
+		"domain": {
+			"title": "Domain",
+			"description": "Domain the cookie is sent to, and its subdomains",
+			"type": "string"
+		},
+		"path": {
+			"title": "Path",
+			"description": "Path the cookie is sent to, and the paths below it",
+			"type": "string",
+			"default": "/"
+		},
+		"isSecure": {
+			"title": "Secure",
+			"description": "Send the cookie over https only",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"required": ["name", "domain"],
+	"additionalProperties": false
+}

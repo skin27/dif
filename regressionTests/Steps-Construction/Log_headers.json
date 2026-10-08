@@ -1,0 +1,124 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6957c970f7168600150000a9",
+						"name": "Log_headers",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "bf688904-2c0a-4652-8692-5a2a89dd7628",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Log_headers",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d0f85254-8087-4f36-afbf-ab672558a23a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d0f85254-8087-4f36-afbf-ab672558a23a",
+									"type": "action",
+									"uri": "setheaders:message:d0f85254-8087-4f36-afbf-ab672558a23a",
+									"links": {
+										"link": [
+											{
+												"id": "d0f85254-8087-4f36-afbf-ab672558a23a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6e95ebb8-da76-4344-9e3d-b5a239108e28",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6e95ebb8-da76-4344-9e3d-b5a239108e28",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "This is the message body"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6e95ebb8-da76-4344-9e3d-b5a239108e28",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5ac18868-caaa-4913-bccb-1d4f16d5017c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5ac18868-caaa-4913-bccb-1d4f16d5017c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "5ac18868-caaa-4913-bccb-1d4f16d5017c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "58ff13e2-bc75-41ab-a936-a560e95c4f5a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "d0f85254-8087-4f36-afbf-ab672558a23a",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "VerySpecialHeader",
+							"value": "WithAVerySpecialValue"
+						}
+					}
+				}
+			}
+		}
+	}
+}

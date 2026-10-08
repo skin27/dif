@@ -1,0 +1,127 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ce4faa93e3000c0001e5",
+						"name": "CB_Velocity",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "92b83a43-3c3b-41df-b437-9dc65e7958b1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Velocity",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "cbc497cf-e2ed-4596-ad32-907f09c7c6dd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cbc497cf-e2ed-4596-ad32-907f09c7c6dd",
+									"type": "action",
+									"uri": "setheaders:message:cbc497cf-e2ed-4596-ad32-907f09c7c6dd",
+									"links": {
+										"link": [
+											{
+												"id": "cbc497cf-e2ed-4596-ad32-907f09c7c6dd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "85538dc7-a424-4abc-b3b4-ba749cab3c4b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "85538dc7-a424-4abc-b3b4-ba749cab3c4b",
+									"type": "action",
+									"uri": "velocity:ref:2a81f4e5-813d-4b39-b063-a3530ede7964",
+									"links": {
+										"link": [
+											{
+												"id": "85538dc7-a424-4abc-b3b4-ba749cab3c4b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "77670da8-38c6-4b3b-bdad-8e619d3e6c72",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "77670da8-38c6-4b3b-bdad-8e619d3e6c72",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "77670da8-38c6-4b3b-bdad-8e619d3e6c72",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1c6531a9-5e9a-495a-a571-43de73221674",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "cbc497cf-e2ed-4596-ad32-907f09c7c6dd",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "YourHeaderName",
+							"value": "A"
+						}
+					}
+				}
+			},
+			"resources": {
+				"resource": {
+					"name": "2a81f4e5-813d-4b39-b063-a3530ede7964",
+					"content": "#if($headers.YourHeaderName == \"A\")\n    #set($messageBody = \"A\")\n#else\n    #set($messageBody = \"B\")\n#end\n$messageBody"
+				}
+			}
+		}
+	}
+}

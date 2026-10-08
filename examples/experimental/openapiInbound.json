@@ -1,0 +1,62 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b3fa5cfbdb4c000c000122",
+						"name": "openapiInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a16cc2c7-9792-40a4-9132-55e8a0755aae",
+									"type": "source",
+									"uri": "unknown",
+									"links": {
+										"link": {
+											"id": "1f2bfe7f-552d-4e70-be75-511ec26b09fa",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1f2bfe7f-552d-4e70-be75-511ec26b09fa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1f2bfe7f-552d-4e70-be75-511ec26b09fa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b3fa5cfbdb4c000c000124",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

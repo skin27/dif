@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e7660f71686000c00018b",
+						"name": "SplitXml_xml_aggr_ow",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a475db73-1bec-4e51-b7ee-38224198b568",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitXml_xml_aggr_ow",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d757e2f1-1846-449c-8f9e-c30b3668ab13",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d757e2f1-1846-449c-8f9e-c30b3668ab13",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOnly"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d757e2f1-1846-449c-8f9e-c30b3668ab13",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "24d6aa0a-4a66-4c4f-927f-203d935d5f82",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "0985b54c-cc00-4fa8-b058-ad30eb62c4ba",
+												"bound": "out",
+												"expression": "//filmsoptv/film",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "24d6aa0a-4a66-4c4f-927f-203d935d5f82",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "24d6aa0a-4a66-4c4f-927f-203d935d5f82",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0985b54c-cc00-4fa8-b058-ad30eb62c4ba",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "0985b54c-cc00-4fa8-b058-ad30eb62c4ba",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dac4f107-ec00-4b66-af98-e8e6ed8e0276",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

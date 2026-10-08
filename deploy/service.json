@@ -1,0 +1,9 @@
+{
+  "dirs": ["/etc/dif/flows"],
+  "monitorAddress": "0.0.0.0:9090",
+  "startupTimeout": "30s",
+  "shutdownTimeout": "25s",
+  "fetchTimeout": "10s",
+  "maxBytes": 4194304,
+  "logFormat": "json"
+}

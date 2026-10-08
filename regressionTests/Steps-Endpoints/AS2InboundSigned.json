@@ -1,0 +1,75 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694abf28da8dd5001600012f",
+						"name": "AS2InboundSigned",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "560f53d0-4be0-46dd-b234-2b6722c64be0",
+									"type": "source",
+									"uri": "as2",
+									"options": {
+										"flowNameAsEndpoint": true,
+										"as2From": "DOVETAIL_INBOUND",
+										"as2To": "DOVETAIL_INBOUND",
+										"as2MessageStructure": "SIGNED",
+										"alias": "Key3",
+										"serverPortNumber": "9002",
+										"requestUriPattern": "/AS2InboundSigned",
+										"serverFqdn": "dovetail.world",
+										"signingPrivateKey": "http://nginx:8080/private_keys/694abf28da8dd5001600012f?version=0&tenant=regressiontests&step=560f53d0-4be0-46dd-b234-2b6722c64be0&key=privateKey",
+										"signingCertificateChain": "http://nginx:8080/private_keys/694abf28da8dd5001600012f?version=0&tenant=regressiontests&step=560f53d0-4be0-46dd-b234-2b6722c64be0&key=privateKey",
+										"validateSigningCertificateChain": "http://nginx:8080/private_keys/694abf28da8dd5001600012f?version=0&tenant=regressiontests&step=560f53d0-4be0-46dd-b234-2b6722c64be0&key=publicCertificate"
+									},
+									"links": {
+										"link": {
+											"id": "9dc50395-0c80-44da-aff6-45be2b792499",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9dc50395-0c80-44da-aff6-45be2b792499",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "9dc50395-0c80-44da-aff6-45be2b792499",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "694abf28da8dd50016000131",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

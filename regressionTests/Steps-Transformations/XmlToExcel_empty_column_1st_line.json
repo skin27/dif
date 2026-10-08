@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6973a26af624bf000f0002db",
+						"name": "XmlToExcel_empty_column_1st_line",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "96f9e74a-4318-4f7a-9219-7b55404bfadb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToExcel_empty_column_1st_line",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "a5902887-85b9-48c1-afcb-bd4e0ab175fa",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a5902887-85b9-48c1-afcb-bd4e0ab175fa",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"orderHeaders": "unordered",
+										"excelFormat": "xls",
+										"useCustomWorksheets": false,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJcIixcInhQYXRoRXhwcmVzc2lvblwiOlwiXCJ9Il0=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a5902887-85b9-48c1-afcb-bd4e0ab175fa",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "29dc76e2-5cd6-41c0-8108-c435ed073891",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "29dc76e2-5cd6-41c0-8108-c435ed073891",
+									"type": "action",
+									"uri": "exceltoxml",
+									"options": {
+										"rules": "[{\"name\":\"Products\",\"worksheet\":\"Producten\",\"cellRange\":\"A1:k3\",\"transpose\":false,\"headerRow\":true,\"discardEmpty\":false}]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "29dc76e2-5cd6-41c0-8108-c435ed073891",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a27d9474-bcba-4a9b-b06a-d280574859d7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a27d9474-bcba-4a9b-b06a-d280574859d7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a27d9474-bcba-4a9b-b06a-d280574859d7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "951cad93-1ce0-4e78-9dfe-d2631db001ac",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

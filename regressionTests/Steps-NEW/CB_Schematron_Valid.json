@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a9ac4dfd13b900011000001",
+						"name": "CB_Schematron_Valid",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "96335201-485d-4230-817c-ea153b6c6f4c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Schematron_Valid",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "7e47a10f-936e-45ca-bf6f-6a5a3b368815",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7e47a10f-936e-45ca-bf6f-6a5a3b368815",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<document>\n    <section>\n        <title>De titel.</title>\n        <para>Dit is de tekst van de eerste alinea.</para>\n    </section>\n</document>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7e47a10f-936e-45ca-bf6f-6a5a3b368815",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1316feff-3a3f-405e-8474-ecb57aec0a37",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1316feff-3a3f-405e-8474-ecb57aec0a37",
+									"type": "action",
+									"uri": "schematron:ref:cd40db0a-cdbf-49f0-bc63-33ddad81604b",
+									"links": {
+										"link": [
+											{
+												"id": "1316feff-3a3f-405e-8474-ecb57aec0a37",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9fe4a3aa-26c2-4a97-b3b8-e92ff04ce0b8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9fe4a3aa-26c2-4a97-b3b8-e92ff04ce0b8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "9fe4a3aa-26c2-4a97-b3b8-e92ff04ce0b8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a9ac4dfd13b900011000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "cd40db0a-cdbf-49f0-bc63-33ddad81604b",
+					"content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\">\n   <title>Check Sections 12/07</title>\n   <pattern id=\"section-check\">\n      <rule context=\"section\">\n         <assert test=\"title\">This section has no title</assert>\n         <assert test=\"para\">This section has no paragraphs</assert>\n      </rule>\n   </pattern>\n</schema>"
+				}
+			}
+		}
+	}
+}

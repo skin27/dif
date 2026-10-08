@@ -1,0 +1,83 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:googledrive-source",
+	"title": "googledrive source",
+	"description": "Polls a Google Drive folder and produces a message for every file. The body is the file content; the headers are file.name and googledrive.id. Subfolders and Google's own formats (Docs, Sheets, ...) are skipped. A consumed file is moved to the subfolder moveTo of the folder, which is created if needed. A failed poll is logged and tried again.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Folder id",
+			"description": "Id of the Drive folder, from the URI (googledrive:<folderId>)",
+			"type": "string"
+		},
+		"accessToken": {
+			"title": "Access token",
+			"description": "OAuth2 access token; @{name} is replaced by the tenant variable name (see oauth2token)",
+			"type": "string"
+		},
+		"filterFiles": {
+			"title": "File name",
+			"description": "Only consume files with exactly this name",
+			"type": "string"
+		},
+		"moveTo": {
+			"title": "Move to",
+			"description": "Subfolder a consumed file is moved to",
+			"type": "string",
+			"default": ".done"
+		},
+		"gSuiteFiles": {
+			"title": "Google formats",
+			"description": "What to do with Docs, Sheets and the like; Ignore is the only choice",
+			"type": "string",
+			"enum": ["Ignore"],
+			"default": "Ignore"
+		},
+		"initialDelay": {
+			"title": "Initial delay",
+			"description": "Milliseconds before the first poll",
+			"type": "integer",
+			"minimum": 0,
+			"default": 1000
+		},
+		"delay": {
+			"title": "Delay",
+			"description": "Milliseconds between two polls",
+			"type": "integer",
+			"minimum": 1,
+			"default": 5000
+		},
+		"tenant": {
+			"title": "Tenant",
+			"description": "Tenant of the variables in accessToken",
+			"type": "string",
+			"default": "default"
+		},
+		"flowId": {
+			"title": "Flow id",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds one call to Drive may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"required": ["path", "accessToken"],
+	"additionalProperties": false
+}

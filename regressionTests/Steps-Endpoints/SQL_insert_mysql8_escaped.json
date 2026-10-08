@@ -1,0 +1,277 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b2d886dd4df80017000085",
+						"name": "SQL_insert_mysql8_escaped",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "29369d67-ca81-4019-9ced-f6ab481787dc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_insert_mysql8_escaped",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1b530e1c-1565-4858-a5f1-6baf55737f22",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1b530e1c-1565-4858-a5f1-6baf55737f22",
+									"type": "action",
+									"uri": "setheaders:message:1b530e1c-1565-4858-a5f1-6baf55737f22",
+									"links": {
+										"link": [
+											{
+												"id": "1b530e1c-1565-4858-a5f1-6baf55737f22",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c03d4436-622e-452a-a0a6-b3e0616d9063",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c03d4436-622e-452a-a0a6-b3e0616d9063",
+									"type": "action",
+									"uri": "settenantvariable:IP_ADDRESS_ENDPOINT_TEST_SERVER",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "simple",
+										"value": "SVBfQUREUkVTU19FTkRQT0lOVF9URVNUX1NFUlZFUg==",
+										"flowName": "SQL_insert_mysql8_escaped",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c03d4436-622e-452a-a0a6-b3e0616d9063",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1495ea29-9fb6-460a-be12-5359d5f6db1f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1495ea29-9fb6-460a-be12-5359d5f6db1f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT into _next (timestamp,breadcrumb_id,server,tenant,environment,flow_id,flow_name,name,value) VALUES ('${header.timestamp}','${header.breadcrumbId}','https://next.dovetail.world','Regression Tests','test','694aca3eda8dd5001600023e','OauthGmailNoreply','${header.name}','${header.value}')"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1495ea29-9fb6-460a-be12-5359d5f6db1f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b43875b9-5659-4294-95c7-3818fe969c54",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b43875b9-5659-4294-95c7-3818fe969c54",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": true,
+										"connectionType": "mysql8",
+										"database": "dovetail",
+										"host": "api-testing.dovetail.world",
+										"port": "3306",
+										"username": "root",
+										"password": "ENC(l1p0T1YCvVnRoZaiYnypwg==|h2D/bvFod+kH8bJj9dlvvA==|osm/ALa5NxT0jTmXtzH1dtpJInU00VC1W88tnfu1y0RvQLt0huHIPxppxLgTjHqvTAfW/3z6Y0ELexYwJJ9gMkV4/cJglluFvDrBfxrCVXY=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b43875b9-5659-4294-95c7-3818fe969c54",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "35feeea2-570d-49ed-b765-e83205ae60f4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "35feeea2-570d-49ed-b765-e83205ae60f4",
+									"type": "action",
+									"uri": "setheaders:message:35feeea2-570d-49ed-b765-e83205ae60f4",
+									"links": {
+										"link": [
+											{
+												"id": "35feeea2-570d-49ed-b765-e83205ae60f4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9773af3c-14df-4b02-84f2-fe3cde418a5e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9773af3c-14df-4b02-84f2-fe3cde418a5e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT * FROM  _next WHERE id = ${header.id}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9773af3c-14df-4b02-84f2-fe3cde418a5e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2d131255-568d-4f90-94db-a55277764a51",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2d131255-568d-4f90-94db-a55277764a51",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "mysql8",
+										"database": "dovetail",
+										"host": "api-testing.dovetail.world",
+										"port": "3306",
+										"username": "root",
+										"password": "ENC(o+324uzkEqfVBUJg1YOtXA==|I3opspa6bsBjmBY7K8EbBw==|fh0yJP1c00icAb5LcITalXzL3VToRH2VZIhyy1ZRMvWLh+pXkssAkSDoeoG6V2NCjYO2wbnMEZGf4+0eHk+hYpS+g4kBNoLXLMBHTZDM3q0=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2d131255-568d-4f90-94db-a55277764a51",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1dd9cedc-a37e-4fdd-a37b-d7dbae4b48b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1dd9cedc-a37e-4fdd-a37b-d7dbae4b48b0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1dd9cedc-a37e-4fdd-a37b-d7dbae4b48b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1bc62ee7-7f34-4788-9a84-4c262faf1d49",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "1b530e1c-1565-4858-a5f1-6baf55737f22",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "timestamp",
+									"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "name",
+									"value": "body"
+								}
+							]
+						}
+					},
+					{
+						"name": "35feeea2-570d-49ed-b765-e83205ae60f4",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "id",
+								"value": "//generatedKey/text()"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

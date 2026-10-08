@@ -1,0 +1,125 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a69f13ef705b300160000cd",
+						"name": "ErrorRouteLoadAsynchronous",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a5268b88-84c6-4427-a888-b0e4e50c0e34",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ErrorRouteLoadAsynchronous",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "413b2e77-f606-465e-abc5-8258b7831953",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "413b2e77-f606-465e-abc5-8258b7831953",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "ErrorRouteLoadAsynchronous has been removed"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "413b2e77-f606-465e-abc5-8258b7831953",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "def13562-fa97-4df0-a4aa-e6a36b81e790",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "def13562-fa97-4df0-a4aa-e6a36b81e790",
+									"type": "action",
+									"uri": "setheaders:message:def13562-fa97-4df0-a4aa-e6a36b81e790",
+									"links": {
+										"link": [
+											{
+												"id": "def13562-fa97-4df0-a4aa-e6a36b81e790",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fcd924d6-503b-4255-b3d6-d6116cb331e8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fcd924d6-503b-4255-b3d6-d6116cb331e8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "fcd924d6-503b-4255-b3d6-d6116cb331e8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "97e2416c-304f-4233-a099-ba4faa1ce54a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "def13562-fa97-4df0-a4aa-e6a36b81e790",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelHttpResponseCode",
+							"value": "500"
+						}
+					}
+				}
+			}
+		}
+	}
+}

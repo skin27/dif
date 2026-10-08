@@ -1,0 +1,187 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a25a3dabbc90014000384",
+						"name": "CB_XmlValidatorValid",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "af282a6b-969c-4004-8372-7ce1845299f5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_XmlValidatorValid",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "0a73e2ff-824f-42a9-9a86-ecf17ada1608",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0a73e2ff-824f-42a9-9a86-ecf17ada1608",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0a73e2ff-824f-42a9-9a86-ecf17ada1608",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "63f34d4e-7739-4825-962a-0b9a516f4070",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "63f34d4e-7739-4825-962a-0b9a516f4070",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<product>\n    <id>PRD-100245</id>\n    <name>UltraSmart Coffee Machine 5000</name>\n    <description>Fully automatic bean-to-cup coffee machine</description>\n\n    <category>\n        <id>12</id>\n        <name>Kitchen Appliances</name>\n    </category>\n\n    <price>\n        <currency>EUR</currency>\n        <amount>899.95</amount>\n        <vatIncluded>true</vatIncluded>\n    </price>\n\n    <stock>\n        <warehouse>\n            <location>Amsterdam</location>\n            <quantity>24</quantity>\n        </warehouse>\n        <warehouse>\n            <location>Rotterdam</location>\n            <quantity>18</quantity>\n        </warehouse>\n        <warehouse>\n            <location>Eindhoven</location>\n            <quantity>0</quantity>\n        </warehouse>\n    </stock>\n\n    <dimensions>\n        <width>28.5</width>\n        <height>42.3</height>\n        <depth>36.1</depth>\n        <unit>cm</unit>\n    </dimensions>\n\n    <weight>\n        <value>8.75</value>\n        <unit>kg</unit>\n    </weight>\n\n    <manufacturer>\n        <name>CoffeeTech Europe</name>\n        <country>Netherlands</country>\n        <support>\n            <email>support@coffeetech.example</email>\n            <phone>+31-20-1234567</phone>\n        </support>\n    </manufacturer>\n\n    <tags>\n        <tag>coffee</tag>\n        <tag>espresso</tag>\n        <tag>automatic</tag>\n        <tag>premium</tag>\n    </tags>\n\n    <specifications>\n        <power>1450W</power>\n        <voltage>230V</voltage>\n        <waterTank>\n            <capacity>1.8</capacity>\n            <unit>L</unit>\n        </waterTank>\n        <programs>\n            <program>Espresso</program>\n            <program>Cappuccino</program>\n            <program>Latte</program>\n            <program>Hot Water</program>\n        </programs>\n    </specifications>\n\n    <reviews>\n        <review>\n            <user>john.doe</user>\n            <rating>5</rating>\n            <comment>Excellent coffee!</comment>\n        </review>\n        <review>\n            <user>jane.smith</user>\n            <rating>4</rating>\n            <comment>Very good, but a bit noisy.</comment>\n        </review>\n    </reviews>\n\n    <availability>\n        <online>true</online>\n        <stores>\n            <store>Amsterdam</store>\n            <store>Rotterdam</store>\n            <store>Utrecht</store>\n        </stores>\n    </availability>\n\n    <createdAt>2026-07-17T10:15:30Z</createdAt>\n    <updatedAt>2026-07-17T11:45:00Z</updatedAt>\n</product>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "63f34d4e-7739-4825-962a-0b9a516f4070",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "823770ae-9332-4800-9127-9a86e1b3f2df",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "823770ae-9332-4800-9127-9a86e1b3f2df",
+									"type": "action",
+									"uri": "xmlvalidator:ref:51d6402e-e2e2-46f0-8f60-2aca06de1df6",
+									"links": {
+										"link": [
+											{
+												"id": "823770ae-9332-4800-9127-9a86e1b3f2df",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "825b30ea-b037-4aab-9b49-378602f458d8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "825b30ea-b037-4aab-9b49-378602f458d8",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "825b30ea-b037-4aab-9b49-378602f458d8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b6b901de-1f01-4ce0-bc76-7e3f97f38443",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "6ce3996f-44db-42ae-8fc6-948a439c8961",
+												"bound": "out",
+												"expression": "${bodyAs(String)} contains 'SchemaValidationException'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "non_valid",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b6b901de-1f01-4ce0-bc76-7e3f97f38443",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "JSON valid"
+									},
+									"links": {
+										"link": {
+											"id": "b6b901de-1f01-4ce0-bc76-7e3f97f38443",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6ce3996f-44db-42ae-8fc6-948a439c8961",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "JSON not valid"
+									},
+									"links": {
+										"link": {
+											"id": "6ce3996f-44db-42ae-8fc6-948a439c8961",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "16ebaec5-a433-458d-89ba-99d13b98a695",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "51d6402e-e2e2-46f0-8f60-2aca06de1df6",
+					"content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xs:schema \n    xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n    elementFormDefault=\"qualified\">\n\n    <xs:element name=\"product\">\n        <xs:complexType>\n            <xs:sequence>\n\n                <xs:element name=\"id\">\n                    <xs:simpleType>\n                        <xs:restriction base=\"xs:string\">\n                            <xs:pattern value=\"PRD-[0-9]+\"/>\n                        </xs:restriction>\n                    </xs:simpleType>\n                </xs:element>\n\n                <xs:element name=\"name\" type=\"xs:string\"/>\n                <xs:element name=\"description\" type=\"xs:string\"/>\n\n                <xs:element name=\"category\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"id\" type=\"xs:int\"/>\n                            <xs:element name=\"name\" type=\"xs:string\"/>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"price\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"currency\">\n                                <xs:simpleType>\n                                    <xs:restriction base=\"xs:string\">\n                                        <xs:pattern value=\"[A-Z]{3}\"/>\n                                    </xs:restriction>\n                                </xs:simpleType>\n                            </xs:element>\n\n                            <xs:element name=\"amount\">\n                                <xs:simpleType>\n                                    <xs:restriction base=\"xs:decimal\">\n                                        <xs:minInclusive value=\"0\"/>\n                                    </xs:restriction>\n                                </xs:simpleType>\n                            </xs:element>\n\n                            <xs:element name=\"vatIncluded\" type=\"xs:boolean\"/>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"stock\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"warehouse\" maxOccurs=\"unbounded\">\n                                <xs:complexType>\n                                    <xs:sequence>\n                                        <xs:element name=\"location\" type=\"xs:string\"/>\n                                        <xs:element name=\"quantity\">\n                                            <xs:simpleType>\n                                                <xs:restriction base=\"xs:integer\">\n                                                    <xs:minInclusive value=\"0\"/>\n                                                </xs:restriction>\n                                            </xs:simpleType>\n                                        </xs:element>\n                                    </xs:sequence>\n                                </xs:complexType>\n                            </xs:element>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"dimensions\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"width\" type=\"xs:decimal\"/>\n                            <xs:element name=\"height\" type=\"xs:decimal\"/>\n                            <xs:element name=\"depth\" type=\"xs:decimal\"/>\n                            <xs:element name=\"unit\" type=\"xs:string\"/>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"weight\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"value\" type=\"xs:decimal\"/>\n                            <xs:element name=\"unit\" type=\"xs:string\"/>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"manufacturer\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"name\" type=\"xs:string\"/>\n                            <xs:element name=\"country\" type=\"xs:string\"/>\n\n                            <xs:element name=\"support\">\n                                <xs:complexType>\n                                    <xs:sequence>\n                                        <xs:element name=\"email\" type=\"xs:string\"/>\n                                        <xs:element name=\"phone\" type=\"xs:string\"/>\n                                    </xs:sequence>\n                                </xs:complexType>\n                            </xs:element>\n\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"tags\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"tag\" type=\"xs:string\" maxOccurs=\"unbounded\"/>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"specifications\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"power\" type=\"xs:string\"/>\n                            <xs:element name=\"voltage\" type=\"xs:string\"/>\n\n                            <xs:element name=\"waterTank\">\n                                <xs:complexType>\n                                    <xs:sequence>\n                                        <xs:element name=\"capacity\" type=\"xs:decimal\"/>\n                                        <xs:element name=\"unit\" type=\"xs:string\"/>\n                                    </xs:sequence>\n                                </xs:complexType>\n                            </xs:element>\n\n                            <xs:element name=\"programs\">\n                                <xs:complexType>\n                                    <xs:sequence>\n                                        <xs:element name=\"program\" type=\"xs:string\" maxOccurs=\"unbounded\"/>\n                                    </xs:sequence>\n                                </xs:complexType>\n                            </xs:element>\n\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"reviews\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"review\" maxOccurs=\"unbounded\">\n                                <xs:complexType>\n                                    <xs:sequence>\n                                        <xs:element name=\"user\" type=\"xs:string\"/>\n                                        <xs:element name=\"rating\">\n                                            <xs:simpleType>\n                                                <xs:restriction base=\"xs:integer\">\n                                                    <xs:minInclusive value=\"1\"/>\n                                                    <xs:maxInclusive value=\"5\"/>\n                                                </xs:restriction>\n                                            </xs:simpleType>\n                                        </xs:element>\n                                        <xs:element name=\"comment\" type=\"xs:string\"/>\n                                    </xs:sequence>\n                                </xs:complexType>\n                            </xs:element>\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"availability\">\n                    <xs:complexType>\n                        <xs:sequence>\n                            <xs:element name=\"online\" type=\"xs:boolean\"/>\n\n                            <xs:element name=\"stores\">\n                                <xs:complexType>\n                                    <xs:sequence>\n                                        <xs:element name=\"store\" type=\"xs:string\" maxOccurs=\"unbounded\"/>\n                                    </xs:sequence>\n                                </xs:complexType>\n                            </xs:element>\n\n                        </xs:sequence>\n                    </xs:complexType>\n                </xs:element>\n\n                <xs:element name=\"createdAt\" type=\"xs:dateTime\"/>\n                <xs:element name=\"updatedAt\" type=\"xs:dateTime\"/>\n\n            </xs:sequence>\n        </xs:complexType>\n    </xs:element>\n\n</xs:schema>"
+				}
+			}
+		}
+	}
+}

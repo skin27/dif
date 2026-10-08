@@ -1,0 +1,91 @@
+apiVersion: "camel.apache.org/v1"
+kind: "Kamelet"
+metadata:
+  name: "sql2-action"
+  labels:
+    camel.apache.org/kamelet.type: "action"
+spec:
+  definition:
+    title: "sql2 action"
+    description: "SQL (Default Camel component) to connect to a database and execute\
+      \ queries"
+    type: "object"
+    properties:
+      query:
+        title: "SQL Query"
+        description: "SQL Query"
+        type: "string"
+      dataSource:
+        title: "DataSource"
+        description: "DataSource, ID of the connection"
+        type: "string"
+      outputHeader:
+        title: "OutputHeader"
+        description: "Set query output to a header"
+      contentType:
+        title: "Content-Type"
+        type: "string"
+        default: "text/xml"
+      in:
+        title: "Source Endpoint"
+        type: "string"
+        default: "kamelet:source"
+      out:
+        title: "Sink Endpoint"
+        type: "string"
+        default: "mock:sink"
+      sink:
+        title: "Sink"
+        type: "boolean"
+        default: false
+      routeId:
+        title: "Route ID"
+        type: "string"
+      stepId:
+        title: "Step ID"
+        type: "string"
+      routeConfigurationId:
+        title: "Route Configuration ID"
+        type: "string"
+        default: "0"
+  dependencies:
+  - "camel:kamelet"
+  template:
+    route:
+      routeConfigurationId: "{{routeConfigurationId}}"
+      from:
+        uri: "{{in}}"
+        steps:
+        - step:
+            id: "step-{{stepId}}"
+            steps:
+            - doTry:
+                steps:
+                - setHeader:
+                    name: "Content-Type"
+                    constant: "{{contentType}}"
+                - setHeader:
+                   name: "CamelSqlRetrieveGeneratedKeys"
+                   constant: true
+                - toD:
+                    uri: "sql:{{query}}?dataSource=#{{dataSource}}&outputHeader={{?outputHeader}}"
+                - setHeader:
+                    name: "hasErrors"
+                    constant: false
+                - doCatch:
+                    exception:
+                      - java.lang.Exception
+                    steps:
+                    - setHeader:
+                        name: "hasErrors"
+                        constant: true
+                    - setHeader:
+                        name: "errorMessage"
+                        simple: "${exception.message}"
+                - doFinally:
+                    steps:
+                    - process:
+                        ref: "SqlProcessor"
+            - to:
+                disabled: "{{sink}}"
+                uri: "{{out}}"

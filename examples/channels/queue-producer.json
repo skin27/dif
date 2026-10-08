@@ -1,0 +1,12 @@
+{
+  "dil": {
+    "integrations": {"integration": {"flows": {"flow": {
+      "id": "queue-producer",
+      "steps": {"step": [
+        {"id": "in", "type": "source", "uri": "message", "links": {"link": [{"id": "send", "bound": "out"}]}},
+        {"id": "send", "type": "sink", "uri": "queue:orders.received", "options": {"delivery": "enqueue"}, "links": {"link": [{"id": "send", "bound": "in"}]}}
+      ]}
+    }}}},
+    "core": {"messages": {"message": {"name": "order", "body": "Order received"}}}
+  }
+}

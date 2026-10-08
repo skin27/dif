@@ -1,0 +1,75 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69539fa5da8dd5000c000098",
+						"name": "InboundSamba",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "4a30b882-57be-48d6-9722-59d6569f4bb4",
+									"type": "source",
+									"uri": "smb://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"recursive": false,
+										"fileName": "InboundSamba.txt",
+										"charset": "utf-8",
+										"delay": 500,
+										"initialDelay": 1000,
+										"delete": false,
+										"move": "RAW(.archive)",
+										"moveFailed": ".error",
+										"autoCreate": true,
+										"readLock": "none",
+										"password": "ENC(nPe47Y52D3Rc4Podo7PkMA==|AKqZD5NyYMTR8lREUknVjQ==|UGKeCQWWq7OVJGQYJmfgzq+sPvY5FRLiD2EIjb7vdTu0uSZyunft+VrBARYNib4XJdGKafScFuRsyTLngBWSc1cHcdZaHDPJqNmkSKOGQVk=)"
+									},
+									"links": {
+										"link": {
+											"id": "42e42627-a5fc-486a-8fab-4b6da05d70a7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "42e42627-a5fc-486a-8fab-4b6da05d70a7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "42e42627-a5fc-486a-8fab-4b6da05d70a7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8dec7503-52f9-4ce6-b13c-a640ac6e7415",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

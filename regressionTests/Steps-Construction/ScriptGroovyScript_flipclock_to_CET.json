@@ -1,0 +1,97 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6980b90d07da32001100001e",
+						"name": "ScriptGroovyScript_flipclock_to_CET",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5ec990fc-70f9-426e-a5e9-c053ad0246ad",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_flipclock_to_CET",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "f990b352-d452-490e-a35d-a25ca02fde1a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f990b352-d452-490e-a35d-a25ca02fde1a",
+									"type": "action",
+									"uri": "groovy:ref:4b811198-0e19-4058-97c9-ad08511a3377",
+									"options": {
+										"strictSecureMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f990b352-d452-490e-a35d-a25ca02fde1a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d824459a-e6dd-4c08-9947-da3168fd37c9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d824459a-e6dd-4c08-9947-da3168fd37c9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d824459a-e6dd-4c08-9947-da3168fd37c9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6980b90d07da320011000020",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "4b811198-0e19-4058-97c9-ad08511a3377",
+					"content": "TimeZone.setDefault(TimeZone.getTimeZone(\"ETC\"))"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4e33352f74a0000c000000",
+						"name": "pedroteste",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "98798762-5158-4b16-b7e9-1cd4295a311d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/pedroteste",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "e8dc8862-9f88-4e5b-ba6d-df026d38b291",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e8dc8862-9f88-4e5b-ba6d-df026d38b291",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "test ok"
+									},
+									"links": {
+										"link": {
+											"id": "e8dc8862-9f88-4e5b-ba6d-df026d38b291",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a4e33352f74a0000c000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

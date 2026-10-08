@@ -1,0 +1,135 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a3a2bdabbc9000c00053e",
+						"name": "CB_DocConverterYamlToJson",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "66feb07f-7702-47ee-a093-6dcc89f1917a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_DocConverterYamlToJson",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "e6f25e92-07b8-4243-bf1e-8e98c0bf0dee",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e6f25e92-07b8-4243-bf1e-8e98c0bf0dee",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e6f25e92-07b8-4243-bf1e-8e98c0bf0dee",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "572b43ee-28f7-42b3-a25e-1f877c66df5b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "572b43ee-28f7-42b3-a25e-1f877c66df5b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "---\nrows:\n  row:\n  - item:\n    - \"id\"\n    - \"name\"\n    - \"description\"\n    - \"category_id\"\n    - \"category_name\"\n    - \"currency\"\n    - \"amount\"\n    - \"vatIncluded\"\n    - \"stock_amsterdam\"\n    - \"stock_rotterdam\"\n    - \"stock_eindhoven\"\n    - \"width\"\n    - \"height\"\n    - \"depth\"\n    - \"dimension_unit\"\n    - \"weight\"\n    - \"weight_unit\"\n    - \"manufacturer\"\n    - \"country\"\n    - \"support_email\"\n    - \"support_phone\"\n    - \"tags\"\n    - \"power\"\n    - \"voltage\"\n    - \"waterTank_capacity\"\n    - \"waterTank_unit\"\n    - \"programs\"\n    - \"review_count\"\n    - \"average_rating\"\n    - \"online\"\n    - \"stores\"\n    - \"createdAt\"\n    - \"updatedAt\"\n  - item:\n    - \"PRD-100245\"\n    - \"UltraSmart Coffee Machine 5000\"\n    - \"Fully automatic bean-to-cup coffee machine\"\n    - 12\n    - \"Kitchen Appliances\"\n    - \"EUR\"\n    - 899.95\n    - true\n    - 24\n    - 18\n    - 0\n    - 28.5\n    - 42.3\n    - 36.1\n    - \"cm\"\n    - 8.75\n    - \"kg\"\n    - \"CoffeeTech Europe\"\n    - \"Netherlands\"\n    - \"support@coffeetech.example\"\n    - \"+31-20-1234567\"\n    - \"coffee|espresso|automatic|premium\"\n    - \"1450W\"\n    - \"230V\"\n    - 1.8\n    - \"L\"\n    - \"Espresso|Cappuccino|Latte|Hot Water\"\n    - 2\n    - 4.5\n    - true\n    - \"Amsterdam|Rotterdam|Utrecht\"\n    - \"2026-07-17T10:15:30Z\"\n    - \"2026-07-17T11:45:00Z\"\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "572b43ee-28f7-42b3-a25e-1f877c66df5b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "159a6d8b-7ca5-44ec-83d7-b9fdea28a2fd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "159a6d8b-7ca5-44ec-83d7-b9fdea28a2fd",
+									"type": "action",
+									"uri": "docconverter",
+									"options": {
+										"convert": "yamltojson"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "159a6d8b-7ca5-44ec-83d7-b9fdea28a2fd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7f995e50-5f8f-4f46-b3aa-39593aa32ccc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7f995e50-5f8f-4f46-b3aa-39593aa32ccc",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "7f995e50-5f8f-4f46-b3aa-39593aa32ccc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f1308e0d-d482-4c53-918e-7f11992a0257",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,155 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4fb21fd751da001200006c",
+						"name": "CB_Email",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "fe499af0-067e-4e8e-842d-180259e0aa05",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Email",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "870f3f18-1a0f-4494-a184-abf84c35cc65",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "870f3f18-1a0f-4494-a184-abf84c35cc65",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "870f3f18-1a0f-4494-a184-abf84c35cc65",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ee19712c-18df-4a87-9f8a-c811161a2045",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ee19712c-18df-4a87-9f8a-c811161a2045",
+									"type": "action",
+									"uri": "setheaders:message:ee19712c-18df-4a87-9f8a-c811161a2045",
+									"links": {
+										"link": [
+											{
+												"id": "ee19712c-18df-4a87-9f8a-c811161a2045",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "099a1558-7261-442d-8bbc-19bfa4e26eb4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "099a1558-7261-442d-8bbc-19bfa4e26eb4",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@dovetail.world,${headers.email2}",
+										"subject": "next Regression Tests test Testing email component CB",
+										"exchangeBodyAs": "body",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "basic",
+										"password": "ENC(SApl3FvsN8G6dYdNnREqgA==|L4zwtledYGMiY99f3rWIgA==|WDSDNxJ7iUt2LPdNZgBqy6j86HnwbesU1iDcG5MFEH0=)",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "099a1558-7261-442d-8bbc-19bfa4e26eb4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1ffb0823-c82d-4992-91eb-56a01e8f9496",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1ffb0823-c82d-4992-91eb-56a01e8f9496",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1ffb0823-c82d-4992-91eb-56a01e8f9496",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a4fb21fd751da001200006e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "ee19712c-18df-4a87-9f8a-c811161a2045",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "email2",
+							"value": "noreply@fluxygen.com"
+						}
+					}
+				}
+			}
+		}
+	}
+}

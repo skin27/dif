@@ -1,0 +1,86 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e8971f71686000c00030a",
+						"name": "Base64DecodeText",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d4ceb27f-0014-480c-b4b5-49f6fcb67a28",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Base64DecodeText",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6b8f2170-bddc-4991-a90a-8cc753f5a462",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6b8f2170-bddc-4991-a90a-8cc753f5a462",
+									"type": "action",
+									"uri": "base64totext",
+									"links": {
+										"link": [
+											{
+												"id": "6b8f2170-bddc-4991-a90a-8cc753f5a462",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "52eaba01-567d-41de-ae6e-8f4c17c44bf7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "52eaba01-567d-41de-ae6e-8f4c17c44bf7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "52eaba01-567d-41de-ae6e-8f4c17c44bf7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f8013e2d-7433-48a3-b711-e72e0471fd2a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

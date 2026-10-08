@@ -1,0 +1,197 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e8ef8d19cee600160001ae",
+						"name": "OutboundSamba_binary",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c22d5aba-8410-41e4-8c38-d0d3a017f9c1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSamba_binary",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "453aebd4-8485-419f-a49f-f8d77f93dba0",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "453aebd4-8485-419f-a49f-f8d77f93dba0",
+									"type": "action",
+									"uri": "setheaders:message:453aebd4-8485-419f-a49f-f8d77f93dba0",
+									"links": {
+										"link": [
+											{
+												"id": "453aebd4-8485-419f-a49f-f8d77f93dba0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "401b50be-14e3-4cc2-b0dd-d306411011ca",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "401b50be-14e3-4cc2-b0dd-d306411011ca",
+									"type": "action",
+									"uri": "smb://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"password": "ENC(SBupQliSMnhxF+6Vhg9CNg==|Yt9HWaLY7UR+VzZiZ5XbsQ==|NBEAX8QXJo52HEbFoLrZfHenYCL/EHSnXjc9KwP2MPIu6FCzznhq25v9G9rxZbL1VRFLEYvo21qeueSrr9Hu8T8yuWLYS4Ct9mye2FYPHGc=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "401b50be-14e3-4cc2-b0dd-d306411011ca",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "984a0f35-f61e-403c-9228-46ce0367126a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "984a0f35-f61e-403c-9228-46ce0367126a",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "984a0f35-f61e-403c-9228-46ce0367126a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "317de884-daf5-468d-9d3a-a5de8e6367ff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "317de884-daf5-468d-9d3a-a5de8e6367ff",
+									"type": "action",
+									"uri": "smbenrich://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"recursive": false,
+										"fileName": "dt-ipaas.jpg",
+										"charset": "utf-8",
+										"delete": false,
+										"move": "RAW(archive)",
+										"moveFailed": ".error",
+										"autoCreate": true,
+										"readLock": "none",
+										"password": "ENC(+6xte82mkzmjnfZ+sUWQIQ==|RdE2TjM1FLKuql45VOEQAw==|LEuBU5DblAkfIcRym/BVt/439fPo2AGhg+w8DkHsj83SNnisrkjf9FmWlrasiPXSxExMBbY0kTwOfxW3/2UlXuvNCYiLCNYzMMZClSPgTaM=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "317de884-daf5-468d-9d3a-a5de8e6367ff",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c4bec7e0-31c4-4df3-b9d8-4d9db6487ff5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c4bec7e0-31c4-4df3-b9d8-4d9db6487ff5",
+									"type": "action",
+									"uri": "texttobase64",
+									"links": {
+										"link": [
+											{
+												"id": "c4bec7e0-31c4-4df3-b9d8-4d9db6487ff5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4f634ecc-56da-47de-aa6b-7cba20194fbe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4f634ecc-56da-47de-aa6b-7cba20194fbe",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4f634ecc-56da-47de-aa6b-7cba20194fbe",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "db58ed0b-34a2-48eb-b04b-2cf30d17bd8a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "453aebd4-8485-419f-a49f-f8d77f93dba0",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelFileName",
+							"value": "dt-ipaas.jpg"
+						}
+					}
+				}
+			}
+		}
+	}
+}

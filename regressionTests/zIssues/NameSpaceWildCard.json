@@ -1,0 +1,77 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695cc4c5f7168600130000d9",
+						"name": "NameSpaceWildCard",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "912c8404-923a-4c6b-adf9-1805424e250d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/NameSpaceWildCard",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "c58ca0aa-282c-4b2b-86d6-743e368dad88",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c58ca0aa-282c-4b2b-86d6-743e368dad88",
+									"type": "sink",
+									"uri": "setheaders:message:c58ca0aa-282c-4b2b-86d6-743e368dad88",
+									"links": {
+										"link": {
+											"id": "c58ca0aa-282c-4b2b-86d6-743e368dad88",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695cc4c5f7168600130000db",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "c58ca0aa-282c-4b2b-86d6-743e368dad88",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "xpath",
+							"name": "test",
+							"value": "//*:test/text()"
+						}
+					}
+				}
+			}
+		}
+	}
+}

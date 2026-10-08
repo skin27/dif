@@ -1,0 +1,154 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a96cd5ea44b2e000c00014d",
+						"name": "Simple_substring_negative",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3d5e2223-e62b-45fb-9a3c-f8d8a6362782",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Simple_substring_negative",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "2e58ebf8-7ec2-49e7-9d6e-28898ebf24a7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2e58ebf8-7ec2-49e7-9d6e-28898ebf24a7",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2e58ebf8-7ec2-49e7-9d6e-28898ebf24a7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a9f0168a-a1ae-4f8a-bce3-11d1290994fa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a9f0168a-a1ae-4f8a-bce3-11d1290994fa",
+									"type": "action",
+									"uri": "setheaders:message:a9f0168a-a1ae-4f8a-bce3-11d1290994fa",
+									"links": {
+										"link": [
+											{
+												"id": "a9f0168a-a1ae-4f8a-bce3-11d1290994fa",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "03bf2e95-c18a-464c-8d69-e7c42ca90c5f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "03bf2e95-c18a-464c-8d69-e7c42ca90c5f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${substring(0,-2,${header.inputHeader1})}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "03bf2e95-c18a-464c-8d69-e7c42ca90c5f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9e381839-3e7a-42e3-a38a-8bb687306f53",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9e381839-3e7a-42e3-a38a-8bb687306f53",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "9e381839-3e7a-42e3-a38a-8bb687306f53",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1583a2b0-bc3e-4f98-8ffb-bcfe3e569744",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "a9f0168a-a1ae-4f8a-bce3-11d1290994fa",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "inputHeader1",
+								"value": "HelloWorld"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "smallValue",
+								"value": "${substring(0,-2,${header.inputHeader1})}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,171 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a3fe5dabbc9000c0005be",
+						"name": "CB_RestOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7aadb387-bf77-4fbb-b616-35de12efb58a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_RestOutbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "617460a3-fbf4-4e59-aa4f-791c77e186f4",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "617460a3-fbf4-4e59-aa4f-791c77e186f4",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "config|country"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "617460a3-fbf4-4e59-aa4f-791c77e186f4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1d4017ca-d72b-462e-8614-070f8ccd6495",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1d4017ca-d72b-462e-8614-070f8ccd6495",
+									"type": "action",
+									"uri": "setheaders:message:1d4017ca-d72b-462e-8614-070f8ccd6495",
+									"links": {
+										"link": [
+											{
+												"id": "1d4017ca-d72b-462e-8614-070f8ccd6495",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "001c61e3-5853-49d6-b91c-904d062e9b3e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "001c61e3-5853-49d6-b91c-904d062e9b3e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<ListOfCountryNamesByName/>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "001c61e3-5853-49d6-b91c-904d062e9b3e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0649d440-4f34-49b9-83a0-74d1b2a30659",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0649d440-4f34-49b9-83a0-74d1b2a30659",
+									"type": "action",
+									"uri": "rest",
+									"options": {
+										"method": "post",
+										"produces": "text/xml",
+										"path": "http://www.oorsprong.org/websamples.countryinfo"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0649d440-4f34-49b9-83a0-74d1b2a30659",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "62811186-c413-4ed8-b712-6b1efd0d184f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "62811186-c413-4ed8-b712-6b1efd0d184f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "62811186-c413-4ed8-b712-6b1efd0d184f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "21c1dee8-b7cc-4b84-b5d3-d3bc72afa4b5",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "1d4017ca-d72b-462e-8614-070f8ccd6495",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "Content-Type",
+							"value": "application/Xml"
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:loop-router",
+	"title": "loop router",
+	"description": "Sends the message along the link with rule loop a number of times (the link's expression), each round with the message the round before produced, and headers loop.index and loop.size; then along the other link, if any. As an action the rest of the flow is run once per round.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Language of the number of rounds, when the loop link does not set one",
+			"type": "string",
+			"enum": ["simple", "constant"],
+			"default": "simple"
+		},
+		"expression": {
+			"title": "Number of rounds",
+			"description": "Number of rounds, when the loop link has no expression; default 1",
+			"type": "string",
+			"default": ""
+		},
+		"copy": {
+			"title": "Copy",
+			"description": "Give every round a copy of the message as it entered, instead of the message the round before produced",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"additionalProperties": false
+}

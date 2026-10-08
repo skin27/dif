@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695d2bcbf7168600130002a9",
+						"name": "Filter_jpath",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7e6397ff-8916-42a8-91e0-ebdca5fa6d69",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Filter_jpath",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "77bd5b7f-06a8-4b47-960b-3fc01a2858be",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "77bd5b7f-06a8-4b47-960b-3fc01a2858be",
+									"type": "action",
+									"uri": "filter",
+									"options": {
+										"language": "jsonpath",
+										"expression": "$.store.book[?(@.price < 10)]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "77bd5b7f-06a8-4b47-960b-3fc01a2858be",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b1a960b2-7e55-4c99-bcff-e5922842275e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b1a960b2-7e55-4c99-bcff-e5922842275e",
+									"type": "action",
+									"uri": "setbodyasstring",
+									"links": {
+										"link": [
+											{
+												"id": "b1a960b2-7e55-4c99-bcff-e5922842275e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0f12fd67-7a61-409e-a66c-c0bdfef845dc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0f12fd67-7a61-409e-a66c-c0bdfef845dc",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0f12fd67-7a61-409e-a66c-c0bdfef845dc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695d2bcbf7168600130002ab",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

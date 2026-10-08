@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7ebc6aee15e200150000cb",
+						"name": "WiretapQueues",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d8337a15-be39-4bfd-b5da-85d2121b6d7a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/WiretapQueues",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "64de0e21-4eaa-4252-af22-3c51fb4decda",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "64de0e21-4eaa-4252-af22-3c51fb4decda",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "https://environment.fluxygen.com/test/inbound_http/regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "64de0e21-4eaa-4252-af22-3c51fb4decda",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d751e193-8b2c-4c5b-9290-f889506ec115",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

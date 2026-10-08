@@ -1,0 +1,65 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a87fbfe3ef6c2000c00002d",
+						"name": "LoadingFlowlinks2",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "686c2514-eedc-4428-bcaf-af008bd32eb1",
+									"type": "source",
+									"uri": "flowlink",
+									"options": {
+										"transport": "sync"
+									},
+									"links": {
+										"link": {
+											"id": "e24596d1-7fac-44ef-aa46-e583cd43e6b6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e24596d1-7fac-44ef-aa46-e583cd43e6b6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e24596d1-7fac-44ef-aa46-e583cd43e6b6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a87fbfe3ef6c2000c00002f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

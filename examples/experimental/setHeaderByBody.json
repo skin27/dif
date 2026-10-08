@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69c2bf85b01dfe000b000001",
+						"name": "setHeaderByBody",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "23ea4d26-1e31-4835-9f33-0bee29f6751a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/setHeaderByBody",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "5f1613fe-6164-4bce-bd18-89003de529f2",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5f1613fe-6164-4bce-bd18-89003de529f2",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "blabla"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5f1613fe-6164-4bce-bd18-89003de529f2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6caa866d-08ec-423e-811e-29edda36bf1d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6caa866d-08ec-423e-811e-29edda36bf1d",
+									"type": "action",
+									"uri": "setheaderbybody",
+									"options": {
+										"headerName": "foo"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6caa866d-08ec-423e-811e-29edda36bf1d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c6e8dc8-2592-4105-87be-69715dbcadd8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c6e8dc8-2592-4105-87be-69715dbcadd8",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "WARN",
+										"language": "simple",
+										"expression": "Some text with header: ${header.foo}"
+									},
+									"links": {
+										"link": {
+											"id": "4c6e8dc8-2592-4105-87be-69715dbcadd8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69c2bf85b01dfe000b000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

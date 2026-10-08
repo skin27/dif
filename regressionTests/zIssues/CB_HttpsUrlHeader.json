@@ -1,0 +1,157 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a59ebcadabbc9001400001b",
+						"name": "CB_HttpsUrlHeader",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8820383a-1d95-4bb8-8af1-cdaf79a15218",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_HttpsUrlHeader",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5bb5a638-e6d5-4e93-b962-4da1bff46380",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5bb5a638-e6d5-4e93-b962-4da1bff46380",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5bb5a638-e6d5-4e93-b962-4da1bff46380",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "916bdfe7-8684-433d-b3c0-6d7dde19cd93",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "916bdfe7-8684-433d-b3c0-6d7dde19cd93",
+									"type": "action",
+									"uri": "setheaders:message:916bdfe7-8684-433d-b3c0-6d7dde19cd93",
+									"links": {
+										"link": [
+											{
+												"id": "916bdfe7-8684-433d-b3c0-6d7dde19cd93",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3ac5ff93-e75f-4038-8285-a0695d0a87f6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3ac5ff93-e75f-4038-8285-a0695d0a87f6",
+									"type": "action",
+									"uri": "https:${header.url}",
+									"options": {
+										"httpMethod": "GET",
+										"excludeHeaders": "hello|goodbey",
+										"useErrorRoute": false,
+										"retryRequests": true,
+										"retryAttempts": "3",
+										"retryInterval": "10000",
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "None",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3ac5ff93-e75f-4038-8285-a0695d0a87f6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "78fd29b6-9013-46d5-88a7-9af892ad5848",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "78fd29b6-9013-46d5-88a7-9af892ad5848",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "78fd29b6-9013-46d5-88a7-9af892ad5848",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0d1535d9-8804-4ab3-a896-34e04246e5b7",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "916bdfe7-8684-433d-b3c0-6d7dde19cd93",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "url",
+							"value": "https://www.w3schools.com/xml/note.xml"
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,30 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:logger-action",
+	"title": "logger action",
+	"description": "Writes an expression, such as ${body}, to the flow's log at a level, and passes the message on.",
+	"type": "object",
+	"properties": {
+		"loggingLevel": {
+			"title": "Level",
+			"description": "Level written before the text; OFF writes nothing",
+			"type": "string",
+			"enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF"],
+			"default": "INFO"
+		},
+		"language": {
+			"title": "Language",
+			"description": "Language of the expression",
+			"type": "string",
+			"enum": ["constant", "simple"],
+			"default": "simple"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "What to write",
+			"type": "string",
+			"default": "${body}"
+		}
+	},
+	"additionalProperties": false
+}

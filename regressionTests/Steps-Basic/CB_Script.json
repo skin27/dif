@@ -1,0 +1,94 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cd78aa93e300150000e9",
+						"name": "CB_Script",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b19904e8-cb8f-468f-b303-2a332e72dd17",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Script",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "3a1d878e-5529-42a4-b8e1-58429baf254b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3a1d878e-5529-42a4-b8e1-58429baf254b",
+									"type": "action",
+									"uri": "groovy:ref:e6a39ac0-f7ba-47e0-94e5-8c7e6b1e37e6",
+									"links": {
+										"link": [
+											{
+												"id": "3a1d878e-5529-42a4-b8e1-58429baf254b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4e29464c-a775-4403-88d6-1376ac9daf41",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4e29464c-a775-4403-88d6-1376ac9daf41",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "4e29464c-a775-4403-88d6-1376ac9daf41",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f7737031-6cbe-4f53-9e24-66550d12fc31",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "e6a39ac0-f7ba-47e0-94e5-8c7e6b1e37e6",
+					"content": "// Setting the body of the message\nresult = \"My new body\""
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,141 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4fc8ccd751da000d0000b8",
+						"name": "CB_ContentRouter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cef19da1-e651-48c0-ab25-b626552cda7b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_ContentRouter",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "cd0a4639-4391-43bd-9963-23916327b31a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cd0a4639-4391-43bd-9963-23916327b31a",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"namespace": "urn:ifsworld-com:schemas:handle_inbound_order",
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cd0a4639-4391-43bd-9963-23916327b31a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "099bbabd-1329-43fa-9bd1-0cd8c29a317a",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "1ab93ad5-4103-483b-8a24-6ab409fbf8e1",
+												"bound": "out",
+												"expression": "/ns:some/xpath",
+												"language": "xpath",
+												"pattern": "InOut",
+												"rule": "234",
+												"transport": "sync"
+											},
+											{
+												"id": "8c5ca51e-db87-4917-bca4-d16d4f74c808",
+												"bound": "out",
+												"expression": "${bodyAs(String)} == '123'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "123",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "099bbabd-1329-43fa-9bd1-0cd8c29a317a",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body Otherwise:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "099bbabd-1329-43fa-9bd1-0cd8c29a317a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1ab93ad5-4103-483b-8a24-6ab409fbf8e1",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body 123:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "1ab93ad5-4103-483b-8a24-6ab409fbf8e1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8c5ca51e-db87-4917-bca4-d16d4f74c808",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body 234 (xpath):\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "8c5ca51e-db87-4917-bca4-d16d4f74c808",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a4fc8ccd751da000d0000ba",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

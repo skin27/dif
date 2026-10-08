@@ -1,0 +1,112 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:smtp-action",
+	"title": "smtp action",
+	"description": "Sends the message as an email over TLS (smtp: STARTTLS, required; smtps: TLS from the start) and passes it on unchanged. The body is the email's text, or an attachment to emailBody.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Server",
+			"description": "From the URI: smtp:<host>:<port>",
+			"type": "string"
+		},
+		"to": {
+			"title": "To",
+			"description": "Recipients, separated by commas or semicolons",
+			"type": "string"
+		},
+		"from": {
+			"title": "From",
+			"description": "Sender; defaults to username",
+			"type": "string",
+			"default": ""
+		},
+		"replyTo": {
+			"title": "Reply-To",
+			"description": "Address replies go to; \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"subject": {
+			"title": "Subject",
+			"description": "Subject; the message's header subject overrides it",
+			"type": "string",
+			"default": ""
+		},
+		"exchangeBodyAs": {
+			"title": "Send body as",
+			"description": "body: the body is the email's text; attachment: the body is attached to the text emailBody",
+			"type": "string",
+			"enum": ["body", "attachment"],
+			"default": "body"
+		},
+		"emailBody": {
+			"title": "Email text",
+			"description": "Text of an email whose body goes as attachment; setting it attaches the body",
+			"type": "string",
+			"default": ""
+		},
+		"contentType": {
+			"title": "Content-Type",
+			"description": "Content-Type of the body; defaults to the message's, else text/plain",
+			"type": "string",
+			"default": ""
+		},
+		"username": {
+			"title": "Username",
+			"description": "User to log in as",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Password",
+			"description": "PLAIN password; env DIF_SMTP_PASSWORD (or its _FILE companion). No password or token means no login",
+			"type": "string",
+			"default": ""
+		},
+		"accessToken": {
+			"title": "Access token",
+			"description": "OAuth2 access token (XOAUTH2 login); \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"timeout": {
+			"title": "Timeout",
+			"description": "Milliseconds the whole exchange with the server may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"authenticationType": {
+			"title": "Authentication",
+			"description": "Accepted for compatibility; the login follows from password or accessToken",
+			"type": "string",
+			"default": ""
+		},
+		"fromEmailPreference": {
+			"title": "From preference",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		},
+		"tenantDbName": {
+			"title": "Tenant",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"required": ["path", "to"],
+	"additionalProperties": false
+}
