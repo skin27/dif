@@ -21,7 +21,8 @@ import (
 // httpsSource receives HTTPS requests on host:port/path and replies with the
 // outcome of the flow (request-reply). The body of a request is the message
 // body and its headers are message headers; the reply is the final body with
-// its Content-Type and identity headers. A one-way (InOnly) source replies at once with the
+// the message's headers (see writeMessageHeaders), its Content-Type and its
+// identity headers. A one-way (InOnly) source replies at once with the
 // request instead.
 type httpsSource struct {
 	addr, path          string
@@ -181,8 +182,46 @@ func addQueryHeaders(m message.Message, query url.Values) {
 	}
 }
 
-// writeReply writes the body of m with its Content-Type, else produces, else text.
+// notReturned are the message headers a reply never carries, besides those
+// notForwarded names: the credentials of the request, which a flow that keeps
+// the request's headers would otherwise send back (and into every log on the
+// way), and the date, which the server writes itself.
+var notReturned = map[string]bool{"Authorization": true, "Cookie": true, "Date": true}
+
+// writeMessageHeaders adds the headers of m to h, as Camel's HTTP consumers
+// return the headers of the message. Not returned are the body, metadata,
+// the http.* and error.* headers (internal to DIF), the headers of one HTTP
+// hop and the credentials (see notForwarded and notReturned), Content-Type
+// (writeReply decides it), and anything that is no valid HTTP header or has
+// no text form (maps, slices and bytes).
+func writeMessageHeaders(h http.Header, m message.Message) {
+	for k, v := range m {
+		name := http.CanonicalHeaderKey(k)
+		if k == message.Body || message.IsMetadata(k) || strings.HasPrefix(k, "http.") || strings.HasPrefix(k, "error.") ||
+			name == "Content-Type" || notForwarded[name] || notReturned[name] {
+			continue
+		}
+		if s, ok := headerText(v); ok && validHeader(k, s) {
+			h.Set(k, s)
+		}
+	}
+}
+
+// headerText renders a header value that has a plain text form.
+func headerText(v any) (string, bool) {
+	switch x := v.(type) {
+	case string:
+		return x, true
+	case bool, int, int64, float64:
+		return fmt.Sprint(x), true
+	}
+	return "", false
+}
+
+// writeReply writes the body of m with its headers (see writeMessageHeaders),
+// its Content-Type, else produces, else text.
 func writeReply(w http.ResponseWriter, m message.Message, produces string) {
+	writeMessageHeaders(w.Header(), m)
 	writeIdentityHeaders(w.Header(), m)
 	ct, _ := m[message.ContentType].(string)
 	if ct == "" {

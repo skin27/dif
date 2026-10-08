@@ -968,7 +968,15 @@ parameters = message headers too, so `?config=A` sets the header `config`, unles
 request header has that name, and `body` and `metadata.*` are never set from the
 query; plus `http.method`, `http.path`, `http.query` and `http.uri` with
 `preserveHttpHeaders`), and the caller gets the final message body back, with
-its `Content-Type` header (default `text/plain; charset=utf-8`).
+its `Content-Type` header (default `text/plain; charset=utf-8`) and the other
+headers of the message, as Camel's HTTP consumers return them. Not returned
+are `body`, `metadata.*`, `http.*` and `error.*`, the headers of one HTTP hop
+(`Connection`, `Content-Length`, `Host`, `Transfer-Encoding`, ...), the
+credentials `Authorization`, `Proxy-Authorization` and `Cookie`, and `Date`;
+neither are values that are no valid HTTP header value (line breaks) or have no
+text form (maps, lists, bytes). A flow that wants a header out of the reply
+sets it; one that wants to keep the request's headers private starts with
+`removeheaders`.
 
 | Outcome | Response |
 |---|---|
