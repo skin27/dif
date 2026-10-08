@@ -92,9 +92,11 @@ func TestXMLToJSONSimple(t *testing.T) {
 		want string
 	}{
 		{"root and types", nil, `<menu><food id="1">a</food><food>2</food><x>true</x><y>null</y><z>007</z></menu>`,
-			`{"menu":{"food":[{"id":1,"content":"a"},2],"x":true,"y":null,"z":"007"}}`},
+			`{"menu":{"food":[{"@id":1,"jsonContent":"a"},2],"x":true,"y":null,"z":"007"}}`},
 		{"keep strings, remove root", map[string]any{"keepStrings": true, "removeRoot": true}, `<menu><food> 2 </food></menu>`, `{"food":"2"}`},
 		{"remove namespaces", map[string]any{"removeNamespaces": true}, `<p:a xmlns:p="urn:p"><p:b/></p:a>`, `{"a":{"b":""}}`},
+		{"attributes are marked with @", nil, `<p:a xmlns:p="urn:p" p:id="7" x="y">t<b k="1"/></p:a>`, `{"p:a":{"@xmlns:p":"urn:p","@p:id":7,"@x":"y","b":{"@k":1},"jsonContent":"t"}}`},
+		{"attributes without namespaces", map[string]any{"removeNamespaces": true}, `<p:a xmlns:p="urn:p" p:id="7" x="y">t</p:a>`, `{"a":{"@id":7,"@x":"y","jsonContent":"t"}}`},
 		{"types", map[string]any{"hasTypes": true, "keepStrings": true},
 			`<a><i type="integer">12</i><d type="double">1.5</d><b type="boolean">false</b><s type="string">3</s><n type="null">x</n><bad type="integer">1.5</bad></a>`,
 			`{"a":{"i":12,"d":1.5,"b":false,"s":"3","n":null,"bad":"1.5"}}`},

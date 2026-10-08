@@ -11,13 +11,14 @@ import (
 	stepdef "dif/steps/definition"
 )
 
-// xmlToJSONSimpleAction converts an XML body to JSON the way org.json does:
+// xmlToJSONSimpleAction converts an XML body to JSON the way the Java platform's
+// xmltojsonsimple does, which is org.json's conversion with the attributes marked:
 //
 //   - the result is an object with the root element, unless removeRoot
 //   - an element with only text becomes its trimmed text, an empty one ""
 //   - an element with attributes or children becomes an object: attributes
-//     and children by name (repeated names become an array) and its text, if
-//     any, as "content"
+//     as "@name", children by name (repeated names become an array) and its
+//     text, if any, as "jsonContent"
 //   - text that is a number, true, false or null becomes that JSON value,
 //     unless keepStrings
 //
@@ -88,7 +89,7 @@ func (a xmlToJSONSimpleAction) value(e *xmlElem) (any, error) {
 
 	o := jsonObject{}
 	for _, at := range attrs {
-		o.add(a.name(at.name), a.scalar(at.value))
+		o.add("@"+a.name(at.name), a.scalar(at.value))
 	}
 	for _, c := range e.children {
 		v, err := a.value(c)
@@ -98,7 +99,7 @@ func (a xmlToJSONSimpleAction) value(e *xmlElem) (any, error) {
 		o.add(a.name(c.name), v)
 	}
 	if text != "" {
-		o.add("content", a.scalar(text))
+		o.add("jsonContent", a.scalar(text))
 	}
 	return o, nil
 }
