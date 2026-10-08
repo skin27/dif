@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -215,20 +216,72 @@ func compileExpressionIn(flow *flowProperties, language, expr string) (expressio
 }
 
 // compileValue compiles the value of a header or variable, which is written in
-// language constant, simple or xpath (the text of the first item the XPath 2.0
-// expression selects in the body, "" if it selects none).
-func compileValue(flow *flowProperties, language, expr string) (expression, error) {
+// language constant, simple, xpath or jsonpath:
+//
+//   - xpath: the text of the first item the XPath 2.0 expression selects in the
+//     body, "" if it selects none
+//   - jsonpath: what the path selects in the body: nothing is "", one value is
+//     that value, several are a list written [a, b]. With asJSON the value is
+//     written as JSON, so that a text has its quotes.
+func compileValue(flow *flowProperties, language, expr string, asJSON bool) (expression, error) {
 	switch language {
 	case "xpath":
-		q, err := compileXPath(expr)
+		get, err := perMessage(flow, expr, compileXPath)
 		if err != nil {
 			return expression{}, err
 		}
-		return expression{fn: func(e *env) (any, error) { return q.value(bytesOf(e.bodyValue())) }}, nil
+		return expression{fn: func(e *env) (any, error) {
+			q, err := get(e.m)
+			if err != nil {
+				return nil, err
+			}
+			return q.value(bytesOf(e.bodyValue()))
+		}}, nil
+	case "jsonpath":
+		get, err := perMessage(flow, expr, compileJSONPath)
+		if err != nil {
+			return expression{}, err
+		}
+		return expression{fn: func(e *env) (any, error) {
+			p, err := get(e.m)
+			if err != nil {
+				return nil, err
+			}
+			doc, err := decodeJSON(e.bodyValue())
+			if err != nil {
+				return nil, err
+			}
+			var v any
+			switch res := p.eval(doc); len(res) {
+			case 0:
+				return "", nil
+			case 1:
+				v = res[0]
+			default:
+				v = res
+			}
+			if asJSON {
+				b, err := json.Marshal(v)
+				return string(b), err
+			}
+			return javaValue(v), nil
+		}}, nil
 	case "constant", "simple":
 		return compileExpressionIn(flow, language, expr)
 	}
-	return expression{}, fmt.Errorf("language %q is not supported; use constant, simple or xpath", language)
+	return expression{}, fmt.Errorf("language %q is not supported; use constant, simple, xpath or jsonpath", language)
+}
+
+// javaValue makes decoded JSON a value a template writes as Java does: a list as
+// [a, b], an object as {k=v}.
+func javaValue(v any) any {
+	switch x := v.(type) {
+	case []any:
+		return jlist(x)
+	case map[string]any:
+		return jmap(x)
+	}
+	return v
 }
 
 // compileTemplate compiles text that is to be used as it is, such as the body of

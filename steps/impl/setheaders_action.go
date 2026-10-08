@@ -29,6 +29,7 @@ func newSetHeadersAction(_ string, p stepdef.Params) (stepdef.Processor, error) 
 		return nil, fmt.Errorf("option headers: want a JSON array of {name, value, language}: %w", err)
 	}
 
+	writeAsString, _ := p["writeAsString"].(bool)
 	a := setHeadersAction{headers: make([]headerExpr, 0, len(defs))}
 	for _, d := range defs {
 		if err := checkHeaderName(d.Name); err != nil {
@@ -38,7 +39,7 @@ func newSetHeadersAction(_ string, p stepdef.Params) (stepdef.Processor, error) 
 		if lang == "" {
 			lang = "simple"
 		}
-		value, err := compileValue(flowOf(p), lang, d.Value)
+		value, err := compileValue(flowOf(p), lang, d.Value, writeAsString)
 		if err != nil {
 			return nil, fmt.Errorf("header %s: %w", d.Name, err)
 		}

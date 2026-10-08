@@ -88,7 +88,7 @@ func newSplitAndAggregateRouter(_ string, p stepdef.Params) (stepdef.Processor, 
 	if expr == "" {
 		return nil, fmt.Errorf("needs an expression: the option expression or the split link's")
 	}
-	s, err := newSplitter(links, p["language"].(string), expr)
+	s, err := newSplitter(flowOf(p), links, p["language"].(string), expr)
 	if err != nil {
 		return nil, err
 	}
@@ -103,6 +103,9 @@ func (r splitAndAggregateRouter) Route(_ context.Context, m message.Message) ([]
 }
 
 func (r splitAndAggregateRouter) Gather(_ context.Context, m message.Message, outcomes []stepdef.Outcome) ([]stepdef.Route, error) {
+	if len(outcomes) == 0 { // nothing was split: the message goes on as it is
+		return []stepdef.Route{{Next: r.main, Message: m}}, nil
+	}
 	bodies := make([]any, len(outcomes))
 	for i, o := range outcomes {
 		if o.Err != nil {

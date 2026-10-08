@@ -191,7 +191,7 @@ func TestSplitInvalid(t *testing.T) {
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}, {Rule: "split"}}, "needs one outbound link with rule split and at most one other"},
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}, {}, {}}, "needs one outbound link with rule split and at most one other"},
 		{map[string]any{"expression": "//a["}, []stepdef.Link{{Rule: "split"}}, `option expression: xpath "//a["`},
-		{map[string]any{"language": "simple", "expression": "${body}"}, []stepdef.Link{{Rule: "split"}}, `option language: "simple" is not one of`},
+		{map[string]any{"language": "groovy", "expression": "x"}, []stepdef.Link{{Rule: "split"}}, `option language: "groovy" is not one of`},
 		{nil, []stepdef.Link{{Rule: "split"}}, "missing required option expression"},
 	} {
 		if _, err := newRouter(stepdef.Router, "split", tt.opts, tt.links...); err == nil || !strings.Contains(err.Error(), tt.want) {

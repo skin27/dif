@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -443,6 +444,36 @@ func TestParseFlowProperties(t *testing.T) {
 				break
 			}
 			n = n.Next[0]
+		}
+	}
+}
+
+// DIL carries the value of settenantvariable in base64; a value that is no
+// base64 text is taken as it is.
+func TestParseTenantVariableValue(t *testing.T) {
+	for value, want := range map[string]string{
+		"dGVzdA==":                 "test",
+		"JHtoZWFkZXIudmFyVmFsdWV9": "${header.varValue}",
+		"TXlWYWx1ZQ==":             "MyValue",
+		"token-${header.user}":     "token-${header.user}", // not base64
+		"Constant":                 "Constant",             // base64, but not text
+		"":                         "",
+		"AAEC":                     "AAEC", // decodes to control characters
+	} {
+		doc := flow(src + `,{"id":"b","type":"action","uri":"settenantvariable:v","options":{"value":` + strconv.Quote(value) +
+			`},"links":{"link":[{"id":"b","bound":"in"},{"id":"c","bound":"out"}]}},{"id":"c","type":"sink","links":{"link":{"id":"c","bound":"in"}}}`)
+		var got string
+		_, err := Parse([]byte(doc), func(n *flowdef.Node) (stepdef.Processor, error) {
+			if n.URI == "settenantvariable:v" {
+				got, _ = n.Options["value"].(string)
+			}
+			return noop{}, nil
+		})
+		if err != nil {
+			t.Fatalf("%q: %v", value, err)
+		}
+		if got != want {
+			t.Errorf("value %q = %q, want %q", value, got, want)
 		}
 	}
 }
