@@ -1,0 +1,89 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:soap-action",
+	"title": "soap action",
+	"description": "Calls a SOAP 1.1 web service: the body, the payload of the operation, goes in a SOAP envelope in a POST to the address of the step, and the response replaces the body (with extract, only the first element of the SOAP body). With smart, the WSDL gives the namespace of the payload and the SOAPAction of the operation.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address",
+			"description": "From the URI: http(s)://<host>[:<port>]/<path>, the address of the service",
+			"type": "string"
+		},
+		"action": {
+			"title": "SOAP action",
+			"description": "The operation, such as GetPhoneTypes; default the name of the first element of the body. With smart the WSDL tells its SOAPAction, else this is the SOAPAction header",
+			"type": "string",
+			"default": ""
+		},
+		"extract": {
+			"title": "Extract",
+			"description": "Replace the body with the first element of the SOAP body of the response, after an XML declaration, instead of the whole response; a SOAP fault fails the message",
+			"type": "boolean",
+			"default": false
+		},
+		"smart": {
+			"title": "Smart",
+			"description": "Read the WSDL (once; the address with ?wsdl) to give the payload the namespace of the operation, when it has none, and to find its SOAPAction",
+			"type": "boolean",
+			"default": true
+		},
+		"params": {
+			"title": "Parameters",
+			"description": "wsdl (any case): the query that fetches the WSDL, ?wsdl by default. Anything else, such as a=1&b=2, is added to the address of every call",
+			"type": "string",
+			"default": ""
+		},
+		"headers": {
+			"title": "SOAP headers",
+			"description": "JSON array of header elements for the SOAP envelope: [{\"name\": \"Token\", \"value\": \"text\", \"attrs\": [{\"name\": \"User\", \"value\": \"me\"}]}]. An attribute without a value is left out. With smart they get the namespace of the operation",
+			"type": "string",
+			"default": ""
+		},
+		"httpHeaders": {
+			"title": "HTTP headers",
+			"description": "JSON array of HTTP headers to send: [{\"name\": \"ApiToken\", \"value\": \"123\"}]",
+			"type": "string",
+			"default": ""
+		},
+		"auth": {
+			"title": "Basic credentials",
+			"description": "Base64 of user:password, sent as Authorization: Basic",
+			"type": "string",
+			"default": ""
+		},
+		"token": {
+			"title": "Token",
+			"description": "Sent as Authorization: Bearer, unless auth is set",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust for https; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds a call, and the fetch of the WSDL, may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"connectTimeout": {
+			"title": "Connect timeout",
+			"description": "Milliseconds the connection may take to set up",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}
