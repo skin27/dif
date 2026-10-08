@@ -610,7 +610,7 @@ using anything else fails registration.
 | `dowhile` | router or action | `language` simple\|xpath\|jsonpath (simple), `expression`, `maxLoops` (1000), `copy` (no effect); the link with rule `dowhile` may set the condition | Sends the message along the `dowhile` link as long as the condition holds for it (checked before every round, at most `maxLoops` times), with header `loop.index`; then along the other link, if any |
 
 Aggregates are, for XML, the parts' root elements in `<Aggregated>…</Aggregated>`
-and, for JSON, an array of the parts.
+after an XML declaration and, for JSON, an array of the parts.
 
 Camel keeps the round of a loop in the exchange property `CamelLoopIndex`, so
 `${header.CamelLoopIndex}` in `examples/experimental/loop.json` is empty there

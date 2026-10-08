@@ -7,7 +7,7 @@
 	"properties": {
 		"aggregateType": {
 			"title": "Aggregate type",
-			"description": "XML: the parts' root elements in <Aggregated>; JSON: an array of the parts",
+			"description": "XML: the parts' root elements in <Aggregated>, after an XML declaration; JSON: an array of the parts",
 			"type": "string",
 			"enum": ["xml", "text/xml", "application/xml", "json", "application/json"],
 			"default": "xml"
