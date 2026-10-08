@@ -192,8 +192,10 @@ var notReturned = map[string]bool{"Authorization": true, "Cookie": true, "Date":
 // return the headers of the message. Not returned are the body, metadata,
 // the http.* and error.* headers (internal to DIF), the headers of one HTTP
 // hop and the credentials (see notForwarded and notReturned), Content-Type
-// (writeReply decides it), and anything that is no valid HTTP header or has
-// no text form (maps, slices and bytes).
+// (writeReply decides it), and anything whose name is no valid HTTP header
+// name or whose value has no text form (maps, slices and bytes). Line breaks
+// in a value become spaces, as servlet containers such as Jetty write them,
+// so a value can never start another header.
 func writeMessageHeaders(h http.Header, m message.Message) {
 	for k, v := range m {
 		name := http.CanonicalHeaderKey(k)
@@ -201,10 +203,21 @@ func writeMessageHeaders(h http.Header, m message.Message) {
 			name == "Content-Type" || notForwarded[name] || notReturned[name] {
 			continue
 		}
-		if s, ok := headerText(v); ok && validHeader(k, s) {
-			h.Set(k, s)
+		if s, ok := headerText(v); ok && validHeader(k, "") {
+			h.Set(k, singleLine(s))
 		}
 	}
+}
+
+// singleLine replaces the control characters of a header value, such as line
+// breaks, by spaces.
+func singleLine(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r < ' ' && r != '\t' || r == 0x7f {
+			return ' '
+		}
+		return r
+	}, s)
 }
 
 // headerText renders a header value that has a plain text form.

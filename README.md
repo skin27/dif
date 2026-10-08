@@ -973,8 +973,8 @@ headers of the message, as Camel's HTTP consumers return them. Not returned
 are `body`, `metadata.*`, `http.*` and `error.*`, the headers of one HTTP hop
 (`Connection`, `Content-Length`, `Host`, `Transfer-Encoding`, ...), the
 credentials `Authorization`, `Proxy-Authorization` and `Cookie`, and `Date`;
-neither are values that are no valid HTTP header value (line breaks) or have no
-text form (maps, lists, bytes). A flow that wants a header out of the reply
+neither are values that have no text form (maps, lists, bytes). Line breaks in a
+value become spaces. A flow that wants a header out of the reply
 sets it; one that wants to keep the request's headers private starts with
 `removeheaders`.
 

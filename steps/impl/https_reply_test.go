@@ -54,7 +54,6 @@ func TestReplyKeepsInternalsAndCredentialsOut(t *testing.T) {
 		"raw":                 []byte("x"),
 		"nothing":             nil,
 		"bad name":            "x",
-		"injected":            "a\r\nSet-Cookie: x=y",
 	} {
 		m[k] = v
 	}
@@ -64,7 +63,7 @@ func TestReplyKeepsInternalsAndCredentialsOut(t *testing.T) {
 
 	h := w.Header()
 	for _, name := range []string{"Authorization", "Cookie", "Proxy-Authorization", "Host", "Connection", "Transfer-Encoding", "Date",
-		"Http.method", "Error.message", "Error.step", "Metadata.secret", "Tags", "Data", "Raw", "Nothing", "Bad name", "Injected"} {
+		"Http.method", "Error.message", "Error.step", "Metadata.secret", "Tags", "Data", "Raw", "Nothing", "Bad name"} {
 		if v, ok := h[name]; ok {
 			t.Errorf("header %s = %q was returned", name, v)
 		}
@@ -77,6 +76,26 @@ func TestReplyKeepsInternalsAndCredentialsOut(t *testing.T) {
 	}
 	if strings.Contains(w.Body.String(), "secret") {
 		t.Errorf("body = %q", w.Body.String())
+	}
+}
+
+// A line break in a value never starts another header: it becomes a space.
+func TestReplyHeaderValuesHaveOneLine(t *testing.T) {
+	m := message.New("answer")
+	m["Resultheader4"] = "\"'Hey Netherlands'\nHey Netherlands\""
+	m["injected"] = "a\r\nSet-Cookie: x=y"
+	w := httptest.NewRecorder()
+	writeReply(w, m, "")
+
+	h := w.Header()
+	if got, want := h.Get("Resultheader4"), "\"'Hey Netherlands' Hey Netherlands\""; got != want {
+		t.Errorf("Resultheader4 = %q, want %q", got, want)
+	}
+	if got, want := h.Get("Injected"), "a  Set-Cookie: x=y"; got != want {
+		t.Errorf("Injected = %q, want %q", got, want)
+	}
+	if h.Get("Set-Cookie") != "" {
+		t.Errorf("a value started the header Set-Cookie: %v", h)
 	}
 }
 
