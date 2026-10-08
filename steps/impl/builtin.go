@@ -93,6 +93,7 @@ func Register(r *registry.Registry) error {
 		{"docconverter", stepdef.Action, messageTranslator, newDocConverterAction, nil},
 		{"xslt", stepdef.Action, messageTranslator, newXSLTAction, nil},
 		{"velocity", stepdef.Action, messageTranslator, newVelocityAction, nil},
+		{"xmlvalidator", stepdef.Action, "", newXMLValidatorAction, nil},
 		{"formtoxml", stepdef.Action, messageTranslator, newFormToXMLAction, nil},
 		{"flv", stepdef.Action, messageTranslator, newFlvAction, nil},
 		{"exceltoxml", stepdef.Action, messageTranslator, newExcelToXMLAction, nil},

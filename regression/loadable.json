@@ -276,6 +276,8 @@
   "regressionTests/Steps-NEW/CB_RestOutbound.json",
   "regressionTests/Steps-NEW/CB_SetUuid.json",
   "regressionTests/Steps-NEW/CB_WasteBin.json",
+  "regressionTests/Steps-NEW/CB_XmlValidatorNonValid.json",
+  "regressionTests/Steps-NEW/CB_XmlValidatorValid.json",
   "regressionTests/Steps-Routing/Aggregate-FL.json",
   "regressionTests/Steps-Routing/Aggregate_JsonCount.json",
   "regressionTests/Steps-Routing/Aggregate_JsonEmpty.json",

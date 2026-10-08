@@ -188,7 +188,7 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 			"step h: setheader: missing required option name"},
 		{"unknown source", []step{{"src", "source", "carrierpigeon://example.com/in", nil}, logSink}, `step src: no processor for "carrierpigeon" (source)`},
 		{"keystore missing", []step{{"src", "source", "https://0.0.0.0:9001/in", map[string]any{"serverIdentityFile": "nope.p12"}}, logSink}, "step src: https: server identity: open nope.p12"},
-		{"unknown action", []step{timer(nil), {"x", "action", "xslt", nil}, logSink}, `step x: no processor for "xslt" (action)`},
+		{"unknown action", []step{timer(nil), {"x", "action", "jolt", nil}, logSink}, `step x: no processor for "jolt" (action)`},
 		{"unknown core message", []step{timer(nil), {"x", "action", "setheaders:message:x", nil}, logSink}, `step x: message "x" not found`},
 		{"timer as sink", []step{timer(nil), {"t", "sink", "timer:t", nil}}, `step t: no processor for "timer" (sink)`},
 		{"unknown placeholder", []step{timer(nil), {"x", "action", "unknown", map[string]any{"stylesheet": "<xsl/>"}}, logSink}, `step x: no processor for "unknown" (action)`},
@@ -346,14 +346,14 @@ func TestExamplesThatLoad(t *testing.T) {
 		"fileEnrich.json fileInbound.json fileOutbound.json filter.json flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json flv.json formToXml.json getTenantVariable.json " +
 		"googleDriveOutbound.json googledriveInbound.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json multipart.json pedroteste.json queueAsynchronousOutbound.json queueInbound.json queueOutbound.json recipient.json " +
 		"removeCookie.json removeHeaders.json removeTenantVariable.json repeater.json replace.json scheduler.json setBody.json setCookie.json setOneWay.json setRequestReply.json " +
-		"setTenantVariable.json sftpEnrich.json sftpInbound.json sftpOutbound.json simplereplace.json split.json splitAndAggregate.json test.json textToBase64.json throttle.json unzip.json wiretap.json xmltocsv.json xmltoedi.json xmltoedifact.json xmltoexcel.json " +
+		"setTenantVariable.json sftpEnrich.json sftpInbound.json sftpOutbound.json simplereplace.json split.json splitAndAggregate.json test.json textToBase64.json throttle.json unzip.json velocity.json wiretap.json xmltocsv.json xmltoedi.json xmltoedifact.json xmltoexcel.json " +
 		"xmltojson.json xmltojsonsimple.json zip.json"
 	if got := loading(examples); got != want {
 		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)
 	}
 
 	want = "counter.json delay.json doWhile.json graphql.json ifelse.json jsonvalidator.json logger.json loop.json restInbound.json restOutbound.json setBodyByHeader.json " +
-		"setHeaderByBody.json setUUID.json simplevalidator.json wastebin.json"
+		"setHeaderByBody.json setUUID.json simplevalidator.json wastebin.json xmlvalidator.json"
 	if got := loading(filepath.Join(examples, "experimental")); got != want {
 		t.Errorf("experimental examples that load:\n%s\nwant\n%s", got, want)
 	}
