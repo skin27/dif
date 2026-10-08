@@ -1,6 +1,0 @@
-$kind: http-request
-name: CB_InboundHttpsMutualSsl
-description: ""
-url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/CB_InboundHttpsMutualSsl"
-method: POST
-order: 3739669940198751

@@ -1,9 +1,0 @@
-$kind: http-request
-url: "{{HOST}}://{{INSTANCE}}.{{BASE_URI}}/{{ENVIRONMENT}}/{{PATH}}/XmlToJsonSi\
-  mple_unexpect_encoding_1"
-method: POST
-body:
-  type: file
-  content:
-    src: utf-16LE.xml
-order: 129000

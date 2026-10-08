@@ -88,7 +88,7 @@ func TestQueueFlowEnqueueBeforeConsumerStarts(t *testing.T) {
 }
 
 func TestChannelExamplesLoad(t *testing.T) {
-	files, err := filepath.Glob("../examples/channels/*.json")
+	files, err := filepath.Glob("../testdata/examples/channels/*.json")
 	if err != nil || len(files) != 8 {
 		t.Fatalf("examples = %v, %v", files, err)
 	}
@@ -102,11 +102,11 @@ func TestChannelExamplesLoad(t *testing.T) {
 }
 
 func TestQueuedTapContinuesWhileConsumerPaused(t *testing.T) {
-	consumer, results := start(t, "../examples/channels/tap-consumer.json", nil)
+	consumer, results := start(t, "../testdata/examples/channels/tap-consumer.json", nil)
 	if err := consumer.Pause(); err != nil {
 		t.Fatal(err)
 	}
-	publisher, _ := start(t, "../examples/channels/tap-producer.json", nil)
+	publisher, _ := start(t, "../testdata/examples/channels/tap-producer.json", nil)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	out, err := publisher.Request(ctx, Message{Body: "audit me"})

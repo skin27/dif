@@ -19,7 +19,7 @@ import (
 
 func TestReliableExamplePersistsDuplicateSuppression(t *testing.T) {
 	root := filepath.Join("..", "..")
-	o, err := ParseOptions([]string{"--config", filepath.Join(root, "examples", "reliable", "service.json")}, func(string) string { return "" }, false)
+	o, err := ParseOptions([]string{"--config", filepath.Join(root, "testdata", "reliable", "service.json")}, func(string) string { return "" }, false)
 	if err != nil {
 		t.Fatal(err)
 	}

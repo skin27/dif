@@ -52,7 +52,7 @@ durable storage; topics and flowlinks remain volatile. A storage directory has
 one owning process and is not a shared broker. Mount a writable persistent volume
 at `channels.directory`, owned by UID 65532, even when the root filesystem is
 read-only. Use one replica per storage directory. See the runnable
-[reliable-channel example](../examples/reliable/README.md).
+[reliable-channel example](../testdata/reliable/README.md).
 
 In-memory producer targets need consumers in the service group. Durable queues
 can retain messages without a live consumer. Drain is bounded; cycles or blocked

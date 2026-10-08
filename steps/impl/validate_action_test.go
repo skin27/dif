@@ -117,7 +117,7 @@ func TestSetBodyRestoresOriginalBody(t *testing.T) {
 }
 
 func TestJSONValidator(t *testing.T) {
-	// As in examples/experimental/jsonvalidator.json: firstName must be a boolean.
+	// As in testdata/examples/experimental/jsonvalidator.json: firstName must be a boolean.
 	schema := `{"$id": "https://example.com/person.schema.json", "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Person", "type": "object",
 		"properties": {"firstName": {"type": "boolean", "description": "x"}, "age": {"type": "integer", "minimum": 0}}}`
 	p := mustProcessor(t, stepdef.Action, "jsonvalidator", map[string]any{"resource": schema}).(stepdef.ActionProcessor)

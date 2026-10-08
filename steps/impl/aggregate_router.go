@@ -245,8 +245,7 @@ func (r splitAndAggregateRouter) Gather(_ context.Context, m message.Message, ou
 func isXMLType(t string) bool { return strings.Contains(t, "xml") }
 
 // aggregateStart opens an XML aggregate: the declaration with no line break
-// after it, as the platform writes it (the Postman request Split Aggregate
-// compares the text exactly).
+// after it, as the platform writes it (its flows compare the text exactly).
 const aggregateStart = `<?xml version="1.0" encoding="UTF-8"?><Aggregated>`
 
 // aggregateBodies returns the aggregate of bodies: as XML, their root

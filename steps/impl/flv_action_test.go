@@ -8,7 +8,7 @@ import (
 	stepdef "dif/steps/definition"
 )
 
-// exampleFlvRules are the rules of examples/flv.json, as the parser passes them.
+// exampleFlvRules are the rules of testdata/examples/flv.json, as the parser passes them.
 const exampleFlvRules = `[{"group":true,"matchOn":"HDR","subcollection":[{"field":"header","length":3},{"_id":"c0f03f5f","field":"body","length":"5"}]}]`
 
 func flv(t *testing.T, opts map[string]any, body string) string {

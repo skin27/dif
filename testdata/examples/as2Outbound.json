@@ -1,0 +1,125 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69456f55da8dd5001b000000",
+						"name": "as2Outbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "912effdc-029b-411a-a89f-39f9fb1cf140",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/as2Outbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "5ca189ff-01bb-4d93-a7f7-76f95dfcd94e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5ca189ff-01bb-4d93-a7f7-76f95dfcd94e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "UNA:+.? 'UNB+UNOC:2+8002030000205:14+8714252011517:14+250527:0801+19542++DESADV'UNH+1954200001+DESADV:D:96B:UN'BGM+351+0102133548+9'DTM+2:20250605:102'DTM+137:20250527:102'MEA+WT+AAD+AAD::14359.176'MEA+WT+AAC+AAD::13182.371'MEA+WT+ADZ+AAD::15659.176'MEA+AAU++EA::9100'RFF+IL:4302314588'RFF+AAN:0020647918'RFF+AAP:5631128'RFF+AAQ:CLDU9706572'RFF+AAU:0102133548'RFF+VA:GB922955114'NAD+GG+6490'NAD+VN+1442407'NAD+DP+5013546181770++EXEL EUROPE LTD+UNIT 1, SHERLOCK BUSINESS PARK+WORKSOP++S80 3FY+GB'TDT+11+++31:TS Standard'CPS+1'FTX+PAC+++PX'FTX+AAI+++Consignment and item information are complete'FTX+AAH+++C - Union Goods - free circulation'LIN+10++05000204503883:EN'PIA+1+358849:SA+50204649:EN+05000204503883:EN'IMD+F++:::Gld Sld Gel Lvndr 150g/8 UK.'MEA+AAI+AAB:::14359.176'MEA+AAI+AAA:::13182.371'QTY+46:9048:MCS'QTY+189:174'QTY+59:8'HAN+:169::33074900'LIN+900001++05000204503883:EN'PIA+1+STD CHEP:SA+50204649:EN+05000204503883:EN'IMD+F++:::EU STD CHEP PALLET 100x120'MEA+AAI+AAB:::1300.000'MEA+AAI+AAA:::1300.000'QTY+46:52'QTY+189:1'QTY+59:0'HAN+:169::44152020'UNT+41+1954200001'UNZ+1+19542'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5ca189ff-01bb-4d93-a7f7-76f95dfcd94e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c",
+									"type": "action",
+									"uri": "as2",
+									"options": {
+										"hostName": "development.dovetail.world",
+										"port": "443",
+										"uri": "/test/inbound_as2/testbvg1/inboundAS2SignedAndEncryptedMendel",
+										"as2From": "DOVETAIL_OUTBOUND",
+										"as2To": "DOVETAIL_INBOUND",
+										"subject": "TestFromNext",
+										"messageContentType": "application/edi-x12",
+										"signingAlgorithm": "SHA512WITHRSA",
+										"keyAlias": "bruno",
+										"password": "dummy-password-14",
+										"encryptingAlgorithm": "DES_EDE3_CBC",
+										"certificateForSigning": "http://nginx:8080/private_keys/69456f55da8dd5001b000000?version=0&tenant=_new2&step=12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c&key=privateKey",
+										"certificateForEncrypt": "http://nginx:8080/private_keys/69456f55da8dd5001b000000?version=0&tenant=_new2&step=12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c&key=publicCertificate",
+										"sslContext": "#sslContextObj"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "92821cbb-fb68-4100-b62c-e2d73ee169c2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "92821cbb-fb68-4100-b62c-e2d73ee169c2",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "92821cbb-fb68-4100-b62c-e2d73ee169c2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69456f55da8dd5001b000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

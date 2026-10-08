@@ -263,7 +263,7 @@ func TestAggregateReleaseWithoutTimersReturns(t *testing.T) {
 }
 
 func TestSplitAndAggregate(t *testing.T) {
-	// As in examples/splitAndAggregate.json: the expression is on the split link.
+	// As in testdata/examples/splitAndAggregate.json: the expression is on the split link.
 	links := []stepdef.Link{{}, {Rule: "split", Expression: "/persons/*[local-name() = 'person']"}}
 	r, err := newRouter(stepdef.Router, "splitandaggregate", map[string]any{"language": "xpath", "aggregateType": "xml", "exchangePattern": "InOut"}, links...)
 	if err != nil {

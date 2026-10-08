@@ -141,7 +141,7 @@ func TestLoopInvalid(t *testing.T) {
 }
 
 func TestIf(t *testing.T) {
-	links := []stepdef.Link{ // as in examples/experimental/ifelse.json
+	links := []stepdef.Link{ // as in testdata/examples/experimental/ifelse.json
 		{Rule: "if", Language: "simple", Expression: "${body} contains 'Test'"},
 		{},
 	}

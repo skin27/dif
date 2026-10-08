@@ -250,7 +250,7 @@ Options:
   period        integer   1000      no         Milliseconds between two ticks
   repeatCount   integer   0         no         Number of messages to produce; 0 or less (as -1) means unlimited
 
-> load examples/scheduler.json
+> load testdata/examples/scheduler.json
 Error: flow 68b70775aaa512000600033b: step 8943a4b2-…: no processor for "quartz" (source)
 > exit
 exit: 3 messages processed, 0 failed
@@ -504,7 +504,7 @@ error route.
 
 An error route can end in a **dead letter queue**: the `deadletter` step puts
 the message, with its `error.*` headers, on an in-memory queue, and another
-flow can read it with the source `queue:<name>`. `examples/deadletter.json` fails
+flow can read it with the source `queue:<name>`. `testdata/examples/deadletter.json` fails
 every message (`${bodyAs(BlaBla)}`), retries 3 times 10 seconds apart, then
 sends it to the queue `DLQ:68c7aed81e33920007000002`; the caller gets 200 with
 the message as it failed. A flow of your own with the source
@@ -633,7 +633,7 @@ Aggregates are, for XML, the parts' root elements in `<Aggregated>…</Aggregate
 after an XML declaration and, for JSON, an array of the parts.
 
 Camel keeps the round of a loop in the exchange property `CamelLoopIndex`, so
-`${header.CamelLoopIndex}` in `examples/experimental/loop.json` is empty there
+`${header.CamelLoopIndex}` in `testdata/examples/experimental/loop.json` is empty there
 and in DIF alike; DIF has no exchange properties and sets the headers
 `loop.index` and `loop.size` instead, as `split` sets `split.index`.
 
@@ -695,7 +695,7 @@ message as it is then. The flow goes on without the sender. A step that fails
 after that no longer reaches the sender; it goes to the error route and the
 log. `setrequestreply` (or `settwoways`, `setrequestandreply`) keeps the
 default, InOut. It cannot take back a reply that `setoneway` already sent. In
-`examples/setOneWay.json` the https caller gets `1234`, the body at
+`testdata/examples/setOneWay.json` the https caller gets `1234`, the body at
 `setoneway`; in `setRequestReply.json` it gets `last step`.
 
 ### Asynchronous request/reply
@@ -767,7 +767,7 @@ restarts. Durable conversations require a separate atomic journal extension.
 Run the four-flow demonstration with:
 
 ```sh
-go run ./cmd/dif run --dir examples/request-reply
+go run ./cmd/dif run --dir testdata/examples/request-reply
 ```
 
 The timer submits a document every five seconds, the worker processes it after a
@@ -795,7 +795,7 @@ The action's `delivery` option selects the handoff:
 
 The legacy `targetQueueId` option remains an alternative to the URI name;
 specifying both with different names is rejected. A bare `queue` source still
-defaults to its flow ID. In `examples/queueOutbound.json` the HTTPS caller gets
+defaults to its flow ID. In `testdata/examples/queueOutbound.json` the HTTPS caller gets
 the reply of `queueInbound.json`. `transport` remains informational: it does
 not connect to ActiveMQ or any other broker.
 
@@ -851,7 +851,7 @@ and the existing capacity. No external broker or dependency is required.
 
 ```json
 {
-  "files": ["examples/reliable/producer.json", "examples/reliable/consumer.json"],
+  "files": ["testdata/reliable/producer.json", "testdata/reliable/consumer.json"],
   "channels": {
     "directory": "data/channels",
     "maxDiskBytes": 268435456,
@@ -938,7 +938,7 @@ These features provide **at-least-once delivery**, not exactly-once external
 effects. A crash between an external side effect and local completion can repeat
 the effect. Pass a stable business idempotency key to external systems that
 support it, and use separate namespaces for separate business operations.
-Runnable examples are in [examples/reliable](examples/reliable/README.md).
+Runnable examples are in [testdata/reliable](testdata/reliable/README.md).
 
 ### Queued wire taps
 
@@ -950,7 +950,7 @@ out a tap to several active consumers.
 
 Detached taps retain their error isolation: a full buffer logs an enqueue error
 and the main path continues, losing that tap copy. Work elsewhere on the tap
-branch still runs sequentially. See [channel examples](examples/channels/README.md)
+branch still runs sequentially. See [channel examples](testdata/examples/channels/README.md)
 for competing consumers, fan-out and a slow audit consumer.
 
 ### Flow links
@@ -1098,7 +1098,7 @@ trusts only the trust store's certificates.
 
 ```text
 $ DIF_SERVER_IDENTITY_PASSWORD=… DIF_TRUSTSTORE_PASSWORD=… go run ./cmd/dif
-> run examples/httpsInbound.json
+> run testdata/examples/httpsInbound.json
 $ curl -k -d hello https://localhost:9001/_new2/httpsInbound
 12345
 ```
@@ -1188,28 +1188,16 @@ steps do on a local one, and are the same apart from the connection:
   `socketTimeout` bounds connecting and logging in; an operation on an open SFTP
   connection ends when the flow stops.
 
-### Examples that load
+### Example flows
 
-71 of the examples in `examples/` load (given the keystores): aggregate,
-as2Inbound, as2Outbound, base64ToText, contentrouter, csvtoxml, deadletter, editoxml, emailinbound, emailoutbound,
-encoder, enrich, errorHandler, exceltoxml, fileEnrich, fileInbound, fileOutbound, filter,
-flowLinkInbound, flowLinkOutbound, flowlinkAsynInbound, flowlinkAsyncOutbound,
-flv, formToXml, getTenantVariable, googleDriveOutbound, googledriveInbound, httpsInbound, jsontoxml, jsontoxmlsimple, log, multipart,
-pedroteste, queueAsynchronousOutbound, queueInbound, queueOutbound, recipient,
-removeCookie, removeHeaders, removeTenantVariable, repeater, replace,
-sambaEnrich, sambaInbound, sambaOutbound, scheduler, setBody, setCookie, setOneWay, setRequestReply, setTenantVariable,
-sftpEnrich, sftpInbound, sftpOutbound, simplereplace, split, splitAndAggregate, sqlOutbound, test, textToBase64, throttle, unzip,
-velocity, wiretap, xmltocsv, xmltoedi, xmltoedifact, xmltoexcel, xmltojson, xmltojsonsimple and zip. `setoauth2-CustomForBVG` and `setoauth2-GoogleDrive` validate but need an
-endpoint and a client, in the options or the environment (see `oauth2token`). The others use steps without a processor
-yet (rabbitmq, …; `examples/experimental/` holds more of them) or
-expressions such as `groovy`; `httpsOutbound.json` has no steps but its error
-step. The flows `testdata/hello.json` and `testdata/timer.json` are DIF's own,
-used by the tests and the examples in this README.
-
-Of `examples/experimental/`, these load: counter, delay, doWhile, graphql,
-ifelse, jsonvalidator, logger, loop, restInbound, restOutbound,
-setBodyByHeader, setHeaderByBody, setUUID, simplevalidator, wastebin and xmlvalidator.
-
+`testdata/examples/` holds the example flows and `testdata/regression/` the flows
+of real use cases, grouped as in the designer. Every flow in them builds, which
+`go test ./test/dil` checks (given the keystores that test sets up); flows that
+need a step DIF does not have yet (rabbitmq, groovy, ...) are not kept.
+`setoauth2-CustomForBVG` and `setoauth2-GoogleDrive` need an endpoint and a
+client, in the options or the environment (see `oauth2token`). The flows
+`testdata/hello.json` and `testdata/timer.json` are DIF's own, used by the tests
+and the examples in this README.
 
 ## Packages
 
@@ -1261,15 +1249,14 @@ steps plug in through the registry without touching the engine.
   are scalar. An `unknown` action with no options at all is `formtoxml`. Other
   `unknown` steps stay unknown and are rejected.
 
-## Regression tests
+## Tests
 
-`regressionTests/` holds 672 flows of real use cases and `postman/` the Postman
-requests that state what each flow must answer. `go test ./regression` builds the
-flows and `go test ./regression -postman` also runs the requests against DIF; the
-results are recorded in `regression/loadable.json` and
-`regression/postman-passing.json`, so that a regression fails the test. Groovy
-flows, custom steps and broken fixtures are skipped. See
-[regression/README.md](regression/README.md).
+`go test ./...` runs everything. Unit tests sit beside the code they test
+(`*_test.go`), since Go compiles a package's tests with the package and they can
+reach what it does not export. Tests that use only the exported API of a package
+are in `test/<package>`, and `test/dil` builds every DIL flow in `testdata/` and
+checks that the fixtures hold no credentials. The fixtures are in `testdata/`.
+See [test/README.md](test/README.md).
 
 ## Future work
 

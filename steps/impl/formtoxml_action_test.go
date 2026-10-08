@@ -9,7 +9,7 @@ import (
 
 func TestFormToXML(t *testing.T) {
 	for body, want := range map[string]string{
-		// examples/formToXml.json
+		// testdata/examples/formToXml.json
 		"first-name=Joe&last-name=Foo&age=21": "<form><first-name>Joe</first-name><last-name>Foo</last-name><age>21</age></form>",
 		"":                                    "<form></form>",
 		"  \n":                                "<form></form>",
