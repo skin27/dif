@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:base64tobinary-action",
+	"title": "base64tobinary action",
+	"description": "Decodes a base64 body to bytes, which stay the body as they are.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}
