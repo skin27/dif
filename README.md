@@ -477,8 +477,13 @@ It works like Camel's dead letter channel:
    failing). A forced stop ends the wait.
 2. **Error route.** If the step keeps failing and the error step has an
    outbound link, the message goes along that route, with the headers
-   `error.message` (what went wrong) and `error.step` (the step's id). The
-   error is then handled: the message counts as processed, the error route's
+   `error.message` (what went wrong), `error.step` (the step's id),
+   `error.class` (the Go type of the error at the bottom of the chain) and
+   `error.stacktrace` (the error with every step and cause it wraps). They
+   are what `${exception.message}`, `${exception.class}`,
+   `${exception.stacktrace}` and `${exception}` (class and message) read in a
+   simple expression; on any other message there is no exception. The https
+   source does not return them. The error is then handled: the message counts as processed, the error route's
    outcome is what an https source replies (200), and the trail shows
    `error:<id>` before the error route's steps. The flow log adds
    `(error route handled: <error>)`.
@@ -623,6 +628,9 @@ Camel's DSL does; the body of a message that `simplereplace` evaluates is not.
 | `${join(sep,prefix,x)}`, `${split(x,regex)}`, `${distinct(...)}`, `${reverse(...)}`, `${sort(x,reverse)}`, `${range(min,max)}` | lists; a list is written `[a, b]`, as Java does |
 | `${hash(x,alg)}` | lower case hexadecimal digest; MD5, SHA-1, SHA-224/256/384/512 (default SHA-256), SHA3-224/256/384/512 |
 | `${jsonpath(path)}`, `${jsonpath(path,Integer)}` | on the body: the value, or a list for a path with `*` |
+| `${flowId}`, `${flowName}`, `${flowVersion}`, `${tenant}`, `${environment}`, and `${variable:group:<id>:MetaData.FlowID}` (also `FlowName`, `FlowVersion`, `TenantName`, `EnvironmentName`) | the flow's own properties; a DIL flow has them in its `options` (`tenant`, `environment`, `version`) |
+| `${exception}`, `${exception.message}`, `${exception.class}`, `${exception.stacktrace}` | the error on a message that goes along the error route |
+| `${headers}`, `${variable.<name>}`, `${variables}` | all headers, written `{a=1, b=2}`; variables, which an `$init` block sets and which stay on the message |
 | `${empty(String)}`, `${iif(cond,a,b)}`, `${not(cond)}`, `${isEmpty(x)}`, `${isNumeric(x)}`, `${uuid}`, `${null}` | |
 | `${int:...}`, `${long:...}`, `${boolean:...}`, `${string:...}` | the value as that type |
 
@@ -634,9 +642,11 @@ function on the right); after a value `++` and `--`; in a function
 `!~~`, `regex`, `!regex`, `in`, `!in`, `is`, `!is`, `range`, `!range`,
 `startsWith`, `endsWith`, `!startsWith`, `!endsWith`, joined by `&&` and `||`;
 the operators have a space on both sides, and numbers are compared as numbers.
-Not (yet) supported: the `$init{...}init$` block, `${variable...}`,
-`${exception...}`, `${jq(...)}`, `${xpath(...)}`, and the functions that need
-the Camel exchange (`${exchangeId}`, `${routeId}`, `exchangeProperty`, ...).
+An expression may start with an init block that sets variables, as in Camel:
+`$init{ $limit := 18; $who := ${uppercase(${body})}; }init$` and then
+`$who is over $limit`. Not (yet) supported: `${jq(...)}`, `${xpath(...)}`, and the
+functions that need the Camel exchange (`${exchangeId}`, `${routeId}`,
+`exchangeProperty`, ...).
 Other `${...}` expressions are rejected when the flow is loaded.
 
 ### Exchange patterns

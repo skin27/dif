@@ -13,7 +13,7 @@ type setBodyAction struct {
 }
 
 func newSetBodyAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
-	expr, err := compileExpression(p["language"].(string), p["expression"].(string))
+	expr, err := compileExpressionIn(flowOf(p), p["language"].(string), p["expression"].(string))
 	if err != nil {
 		return nil, err
 	}

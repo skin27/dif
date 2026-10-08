@@ -416,3 +416,33 @@ func TestFlowLinkAsyncSourceGetsItsFlowID(t *testing.T) {
 		t.Errorf("source = %+v, want flowlink-async with the flow id flow-1", source)
 	}
 }
+
+// The options of a flow (its tenant, environment and version, a number in DIL)
+// are the properties of the flow and of every step in it.
+func TestParseFlowProperties(t *testing.T) {
+	for options, want := range map[string]flowdef.Flow{
+		`{"tenant":"acme","environment":"test","version":9}`: {Tenant: "acme", Environment: "test", Version: "9"},
+		`{"tenant":"acme","version":"2.1"}`:                  {Tenant: "acme", Version: "2.1"},
+		`{"version":1.5}`:                                    {Version: "1.5"},
+		`{}`:                                                 {},
+	} {
+		doc := `{"dil":{"integrations":{"integration":{"flows":{"flow":{"id":"f","name":"n","options":` + options +
+			`,"steps":{"step":[` + src + `,` + sink + `]}}}}}}}`
+		f, err := Parse([]byte(doc), newNoop)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if f.ID != "f" || f.Name != "n" || f.Tenant != want.Tenant || f.Environment != want.Environment || f.Version != want.Version {
+			t.Errorf("%s: flow = %+v, want %+v", options, f, want)
+		}
+		for n := f.Source; n != nil; {
+			if n.Flow != f {
+				t.Errorf("%s: step %s does not know its flow", options, n.ID)
+			}
+			if len(n.Next) == 0 {
+				break
+			}
+			n = n.Next[0]
+		}
+	}
+}

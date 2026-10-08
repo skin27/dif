@@ -198,28 +198,32 @@ type expression struct {
 }
 
 // compileExpression compiles expr in language "constant" (literal text) or
-// "simple", the language of Camel (see simple_funcs.go for the functions). The
-// expression of a flow is trimmed first, as Camel's DSL does by default: its
-// leading and trailing spaces and line breaks are no part of it.
+// "simple", the language of Camel (see simple_funcs.go for the functions).
 func compileExpression(language, expr string) (expression, error) {
-	return compileExpressionIn(nil, language, strings.TrimSpace(expr))
+	return compileExpressionIn(nil, language, expr)
 }
 
-// compileTemplate compiles text that is to be used as it is, such as the body of
-// a message: a simple template, not trimmed.
-func compileTemplate(text string) (expression, error) {
-	return compileExpressionIn(nil, "simple", text)
-}
-
-// compileExpressionIn compiles expr for a flow with the given properties.
+// compileExpressionIn compiles the expression of a flow, which may refer to the
+// properties of the flow. It is trimmed first, as Camel's DSL does by default:
+// its leading and trailing spaces and line breaks are no part of it.
 func compileExpressionIn(flow *flowProperties, language, expr string) (expression, error) {
+	expr = strings.TrimSpace(expr)
 	if language == "constant" {
 		return expression{text: expr, isText: true}, nil
 	}
 	return (&compiler{flow: flow}).compile(expr)
 }
 
+// compileTemplate compiles text that is to be used as it is, such as the body of
+// a message: a simple template, not trimmed.
+func compileTemplate(text string) (expression, error) {
+	return (&compiler{}).compile(text)
+}
+
 func (c *compiler) compile(expr string) (expression, error) {
+	if strings.HasPrefix(expr, initStart) {
+		return c.compileInit(expr)
+	}
 	items, err := parseTemplate(expr)
 	if err != nil {
 		return expression{}, err
@@ -439,6 +443,8 @@ func empty(v any) bool {
 	case []any:
 		return len(x) == 0
 	case map[string]any:
+		return len(x) == 0
+	case jmap:
 		return len(x) == 0
 	}
 	return false

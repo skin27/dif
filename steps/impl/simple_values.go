@@ -18,6 +18,10 @@ import (
 // JSON) is written as JSON.
 type jlist []any
 
+// jmap is a map a simple function produced (headers, variables): a template
+// writes it as Java does, {k=v, k2=v2}, with the keys in order.
+type jmap map[string]any
+
 // render is the text of a value in a template: nothing for nil, Java's form for
 // a jlist, and text (JSON for decoded JSON) for the rest.
 func render(v any) string {
@@ -26,7 +30,7 @@ func render(v any) string {
 		return ""
 	case string:
 		return x
-	case jlist:
+	case jlist, jmap:
 		return javaString(x)
 	case int:
 		return strconv.Itoa(x)
@@ -46,6 +50,8 @@ func javaString(v any) string {
 		return javaList([]any(x))
 	case []any:
 		return javaList(x)
+	case jmap:
+		return javaString(map[string]any(x))
 	case map[string]any:
 		keys := make([]string, 0, len(x))
 		for k := range x {

@@ -44,7 +44,7 @@ func newLoopRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if lang != "simple" && lang != "constant" {
 		return nil, fmt.Errorf("language %q is not supported for the number of rounds; use simple or constant", lang)
 	}
-	e, err := compileExpression(lang, expr)
+	e, err := compileExpressionIn(flowOf(p), lang, expr)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func newDoWhileRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if expr == "" {
 		return nil, fmt.Errorf("no condition: set it on the dowhile link or as option expression")
 	}
-	if r.while, err = compilePredicate(lang, expr); err != nil {
+	if r.while, err = compilePredicateIn(flowOf(p), lang, expr); err != nil {
 		return nil, err
 	}
 	r.max = p["maxLoops"].(int)

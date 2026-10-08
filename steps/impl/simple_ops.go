@@ -417,8 +417,11 @@ func valueIs(v any, typ string) (bool, error) {
 		}
 		return false, nil
 	case "Map", "LinkedHashMap", "HashMap":
-		_, ok := v.(map[string]any)
-		return ok, nil
+		switch v.(type) {
+		case map[string]any, jmap:
+			return true, nil
+		}
+		return false, nil
 	case "byte[]":
 		_, ok := v.([]byte)
 		return ok, nil
@@ -444,12 +447,12 @@ func inRange(v any, spec string) (bool, error) {
 }
 
 // compileSimplePredicate compiles expr as a condition of the simple language.
-func compileSimplePredicate(expr string) (predicate, error) {
+func compileSimplePredicate(flow *flowProperties, expr string) (predicate, error) {
 	b, err := pseudoBlock(strings.TrimSpace(expr))
 	if err != nil {
 		return nil, err
 	}
-	f, err := (&compiler{}).condition(b, b.body)
+	f, err := (&compiler{flow: flow}).condition(b, b.body)
 	if err != nil {
 		return nil, err
 	}

@@ -35,7 +35,7 @@ func newContentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		if lang == "" {
 			lang = "simple"
 		}
-		cond, err := compilePredicate(lang, l.Expression)
+		cond, err := compilePredicateIn(flowOf(p), lang, l.Expression)
 		if err != nil {
 			return nil, fmt.Errorf("outbound link %d (rule %s): %w", i, l.Rule, err)
 		}

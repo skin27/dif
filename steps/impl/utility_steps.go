@@ -55,7 +55,7 @@ type loggerAction struct {
 }
 
 func newLoggerAction(stepID string, p stepdef.Params) (stepdef.Processor, error) {
-	expr, err := compileExpression(p["language"].(string), p["expression"].(string))
+	expr, err := compileExpressionIn(flowOf(p), p["language"].(string), p["expression"].(string))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func newSimpleValidator(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if expr == "" {
 		return nil, fmt.Errorf("option expression: empty condition")
 	}
-	cond, err := compilePredicate("simple", expr)
+	cond, err := compilePredicateIn(flowOf(p), "simple", expr)
 	if err != nil {
 		return nil, fmt.Errorf("option expression: %w", err)
 	}

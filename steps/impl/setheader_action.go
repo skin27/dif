@@ -19,7 +19,7 @@ func newSetHeaderAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if err := checkHeaderName(name); err != nil {
 		return nil, err
 	}
-	value, err := compileExpression(p["language"].(string), p["value"].(string))
+	value, err := compileExpressionIn(flowOf(p), p["language"].(string), p["value"].(string))
 	if err != nil {
 		return nil, err
 	}

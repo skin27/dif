@@ -185,6 +185,8 @@ func (st ognlStep) apply(e *env, v any) (any, error) {
 	}
 
 	switch x := v.(type) {
+	case jmap:
+		return mapMethod(x, st, args)
 	case map[string]any:
 		return mapMethod(x, st, args)
 	case jlist:
@@ -198,6 +200,8 @@ func (st ognlStep) apply(e *env, v any) (any, error) {
 // indexValue is v[k]: an element of a list, a value of a map, a character of a text.
 func indexValue(v any, k string) (any, error) {
 	switch x := v.(type) {
+	case jmap:
+		return x[k], nil
 	case map[string]any:
 		return x[k], nil
 	case jlist:

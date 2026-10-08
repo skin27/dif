@@ -18,7 +18,7 @@ func newFilterRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if n := len(p[stepdef.Links].([]stepdef.Link)); n != 1 {
 		return nil, fmt.Errorf("needs one outbound link, has %d", n)
 	}
-	cond, err := compilePredicate(p["language"].(string), p["expression"].(string))
+	cond, err := compilePredicateIn(flowOf(p), p["language"].(string), p["expression"].(string))
 	if err != nil {
 		return nil, fmt.Errorf("option expression: %w", err)
 	}

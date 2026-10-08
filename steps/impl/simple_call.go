@@ -46,6 +46,12 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 		}
 	}
 
+	// ${variable:group:<id>:MetaData.FlowVersion}: what the platform knows of the flow.
+	if rest, ok := strings.CutPrefix(ref, "variable:group:"); ok {
+		_, name, _ := strings.Cut(rest, ":")
+		return c.metaData(b, name)
+	}
+
 	// Functions of the platform that are written with a colon.
 	if fn, ok, err := simpleFunction(ref); ok || err != nil {
 		if err != nil {
@@ -61,7 +67,11 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 	case "bodyAs", "mandatoryBodyAs":
 		return c.bodyAs(b, head, rest)
 	case "header", "headers", "in.header", "in.headers":
-		return c.header(b, head, rest)
+		return c.named(b, head, rest, headerValue, func(m message.Message) any { return headersOf(m) })
+	case "variable", "variables":
+		return c.named(b, head, rest, variableValue, func(m message.Message) any { return variablesOf(m) })
+	case "exception":
+		return c.exception(b, rest)
 	}
 
 	if strings.HasPrefix(rest, "(") {
@@ -167,24 +177,31 @@ func (c *compiler) bodyAs(b *block, name, rest string) (evalFn, error) {
 	return c.ognl(b, fn, after)
 }
 
-// header compiles ${header.name} and the other ways to write it: header:name,
-// header[name], headers.name; with a method or property after the name, as in
-// ${header.name.trim()}. A message key that holds dots, such as file.name, is a
-// header name as a whole.
-func (c *compiler) header(b *block, head, rest string) (evalFn, error) {
+// named compiles ${header.name} and the other ways to write it: header:name,
+// header[name], headers.name; the same for variables. A method or property may
+// follow the name, as in ${header.name.trim()}. A message key that holds dots,
+// such as file.name, is a header name as a whole. get finds the value of a
+// name, all is the value of the plural (${headers}).
+func (c *compiler) named(b *block, head, rest string, get func(message.Message, string) any, all func(message.Message) any) (evalFn, error) {
+	plural := strings.HasSuffix(head, "s")
+	lookup := func(e *env, key evalFn) (any, error) {
+		k, err := key(e)
+		if err != nil {
+			return nil, err
+		}
+		return get(e.m, render(k)), nil
+	}
 	if rest == "" {
-		if strings.HasSuffix(head, "headers") {
-			return func(e *env) (any, error) { return headersOf(e.m), nil }, nil
+		if plural {
+			return func(e *env) (any, error) { return all(e.m), nil }, nil
 		}
 		return nil, unsupported(b, "")
 	}
 	switch rest[0] {
 	case '.', ':', '?':
 		rest = rest[1:]
-		if rest == "headers" || rest == "size" || rest == "length" || rest == "size()" || rest == "length()" {
-			if strings.HasSuffix(head, "headers") && rest != "headers" {
-				return func(e *env) (any, error) { return int64(len(headersOf(e.m))), nil }, nil
-			}
+		if plural && (rest == "size" || rest == "length" || rest == "size()" || rest == "length()") {
+			return func(e *env) (any, error) { return int64(len(elementsOfMap(all(e.m)))), nil }, nil
 		}
 	case '[':
 		inside, after, ok := matchBracket(rest)
@@ -208,7 +225,7 @@ func (c *compiler) header(b *block, head, rest string) (evalFn, error) {
 		return nil, err
 	}
 	// The name is up to the first dot or bracket that starts a method, property or
-	// index, when no header has the whole text for a name.
+	// index, when nothing has the whole text for a name.
 	name, suffix := splitHeaderName(rest)
 	if suffix == "" {
 		return func(e *env) (any, error) { return lookup(e, whole) }, nil
@@ -223,12 +240,23 @@ func (c *compiler) header(b *block, head, rest string) (evalFn, error) {
 	}
 	return func(e *env) (any, error) {
 		if k, _ := whole(e); k != nil {
-			if v := headerValue(e.m, render(k)); v != nil {
+			if v := get(e.m, render(k)); v != nil {
 				return v, nil
 			}
 		}
 		return steps(e)
 	}, nil
+}
+
+// elementsOfMap is the map a plural reference gives.
+func elementsOfMap(v any) map[string]any {
+	switch x := v.(type) {
+	case jmap:
+		return x
+	case map[string]any:
+		return x
+	}
+	return nil
 }
 
 // keyName compiles a header name, which may hold blocks: ${header.${header.which}}.
@@ -237,15 +265,6 @@ func (c *compiler) keyName(b *block, s string) (evalFn, error) {
 	// ${header.x'} name the header x.
 	s = strings.NewReplacer("'", "", `"`, "").Replace(strings.TrimSpace(s))
 	return c.template(b, s)
-}
-
-// lookup returns the header whose name is the value of key.
-func lookup(e *env, key evalFn) (any, error) {
-	k, err := key(e)
-	if err != nil {
-		return nil, err
-	}
-	return headerValue(e.m, render(k)), nil
 }
 
 // headerValue returns the header of m with the given name. Names are not told
@@ -280,8 +299,8 @@ func splitHeaderName(s string) (name, suffix string) {
 }
 
 // headersOf is the headers of a message: its keys without the body and metadata.
-func headersOf(m message.Message) map[string]any {
-	h := make(map[string]any, len(m))
+func headersOf(m message.Message) jmap {
+	h := make(jmap, len(m))
 	for k, v := range m {
 		if k != message.Body && !message.IsMetadata(k) {
 			h[k] = v

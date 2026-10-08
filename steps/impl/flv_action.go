@@ -103,8 +103,8 @@ func newFlvAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 
 	var options []flvRule
 	for name, v := range p {
-		if name == "rules" {
-			continue
+		if name == "rules" || strings.HasPrefix(name, internalPrefix) {
+			continue // not a rule: the rules, or what the loader binds to every step
 		}
 		spec, ok := v.(string)
 		if !ok || !flvFieldSpec.MatchString(spec) {

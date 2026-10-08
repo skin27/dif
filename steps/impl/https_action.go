@@ -62,7 +62,7 @@ func newHTTPSAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	}
 	var err error
 	if target := p["path"].(string); strings.Contains(target, "${") {
-		x, err := compileExpression("simple", target)
+		x, err := compileExpressionIn(flowOf(p), "simple", target)
 		if err != nil {
 			return nil, fmt.Errorf("uri: %w", err)
 		}

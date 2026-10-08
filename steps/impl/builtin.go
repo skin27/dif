@@ -131,10 +131,11 @@ func Register(r *registry.Registry) error {
 		{"sftp", stepdef.Sink, "", newRemoteSink(sftpProtocol), nil},
 	}
 	for _, b := range builtins {
-		var bindings []string
+		// Every built-in step may refer to its flow in an expression.
+		bindings := []string{FlowRuntimeKey}
 		switch b.name {
 		case "queue", "topic", "flowlink", "deadletter", "idempotent", "request", "reply":
-			bindings = []string{ChannelRuntimeKey}
+			bindings = append(bindings, ChannelRuntimeKey)
 		}
 		schema, err := schemas.ReadFile("schemas/" + b.name + "-" + b.kind + ".json")
 		if err != nil {

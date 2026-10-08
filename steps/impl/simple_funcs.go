@@ -84,6 +84,7 @@ func init() {
 			return func(*env) (any, error) { return nil, nil }, nil
 		},
 	}
+	registerStateRefs(simpleRefs)
 }
 
 // removeQuotes takes every quote out of s, as Camel's StringHelper.removeQuotes does.

@@ -18,9 +18,14 @@ type predicate func(message.Message) (bool, error)
 //   - xpath: a path, or a path = or != 'literal' (see xpathPredicate)
 //   - jsonpath: a path, true when it selects a value other than null or false
 func compilePredicate(language, expr string) (predicate, error) {
+	return compilePredicateIn(nil, language, expr)
+}
+
+// compilePredicateIn compiles a condition for a flow with the given properties.
+func compilePredicateIn(flow *flowProperties, language, expr string) (predicate, error) {
 	switch language {
 	case "simple":
-		return compileSimplePredicate(expr)
+		return compileSimplePredicate(flow, expr)
 	case "xpath":
 		p, err := compileXPathPredicate(expr)
 		if err != nil {

@@ -23,8 +23,10 @@ type Result struct {
 
 // Headers the engine sets on a message it sends along the error route.
 const (
-	ErrorMessage = "error.message" // what went wrong
-	ErrorStep    = "error.step"    // id of the step that failed
+	ErrorMessage    = message.ErrorMessage
+	ErrorStep       = message.ErrorStep
+	ErrorClass      = message.ErrorClass
+	ErrorStackTrace = message.ErrorStackTrace
 )
 
 // StepError is the failure of a step, with the message the step got.
@@ -128,6 +130,7 @@ func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
 	}
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
+	m[ErrorClass], m[ErrorStackTrace] = errorClass(se.Err), err.Error()
 	r.trail = append(r.trail, "error:"+r.errh.ID)
 	addTrail(m, "error:"+r.errh.ID)
 	out, routeErr := r.path(ctx, r.errh.Route, m)
@@ -135,6 +138,18 @@ func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
 		return nil, fmt.Errorf("%w; error route: %w", err, routeErr)
 	}
 	return out, nil
+}
+
+// errorClass is the type of the error at the bottom of the chain of errors
+// that err wraps, such as *fs.PathError.
+func errorClass(err error) string {
+	for {
+		next := errors.Unwrap(err)
+		if next == nil {
+			return fmt.Sprintf("%T", err)
+		}
+		err = next
+	}
 }
 
 // path passes msg through step n and the steps after it, to the end of the

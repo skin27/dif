@@ -68,6 +68,8 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		outLinks = map[*flowdef.Node][]dilLink{} // node -> outbound links
 		errh     *flowdef.ErrorHandler
 		errLink  string // outbound link of the error step: the start of the error route
+		flow     = &flowdef.Flow{ID: df.ID, Name: df.Name, Version: versionText(df.Options.Version),
+			Tenant: df.Options.Tenant, Environment: df.Options.Environment}
 	)
 
 	for _, s := range df.Steps.Step {
@@ -90,7 +92,7 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
-		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts}
+		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Flow: flow}
 		if n.Kind == flowdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") && opts["flowId"] == nil {
 			// A flow link source listens for its own flow, which DIL leaves out.
 			n.Options = maps.Clone(opts)
@@ -198,7 +200,21 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		n.Processor = p
 	}
 
-	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source, Error: errh}, nil
+	flow.Source, flow.Error = source, errh
+	return flow, nil
+}
+
+// versionText is the version of a flow as text: DIL writes it as a number.
+func versionText(v any) string {
+	switch x := v.(type) {
+	case nil:
+		return ""
+	case float64:
+		return strconv.FormatFloat(x, 'f', -1, 64)
+	case string:
+		return x
+	}
+	return fmt.Sprint(v)
 }
 
 // unknownSteps names the steps that DIL exports with the URI "unknown", by
