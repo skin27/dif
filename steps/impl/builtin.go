@@ -97,6 +97,7 @@ func Register(r *registry.Registry) error {
 		{"xslt", stepdef.Action, messageTranslator, newXSLTAction, nil},
 		{"velocity", stepdef.Action, messageTranslator, newVelocityAction, nil},
 		{"xmlvalidator", stepdef.Action, "", newXMLValidatorAction, nil},
+		{"schematron", stepdef.Action, "", newSchematronAction, nil},
 		{"soap", stepdef.Action, requestReply, newSOAPAction, nil},
 		{"as2", stepdef.Action, requestReply, newAS2Action, nil},
 		{"sql", stepdef.Action, "", newSQLAction, nil},

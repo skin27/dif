@@ -314,6 +314,8 @@
   "regressionTests/Steps-NEW/CB_If.json",
   "regressionTests/Steps-NEW/CB_Logger.json",
   "regressionTests/Steps-NEW/CB_RestOutbound.json",
+  "regressionTests/Steps-NEW/CB_Schematron_Invalid.json",
+  "regressionTests/Steps-NEW/CB_Schematron_Valid.json",
   "regressionTests/Steps-NEW/CB_SetUuid.json",
   "regressionTests/Steps-NEW/CB_WasteBin.json",
   "regressionTests/Steps-NEW/CB_XmlValidatorNonValid.json",
