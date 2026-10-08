@@ -20,8 +20,10 @@ import (
 //     members, which become attributes, and "#text", which becomes text
 //   - an array becomes an element holding an element elementName per item
 //
-// With typeHints every element gets a json_type attribute (object, array,
-// string, number, boolean or null), so xmltojson can restore the types.
+// With typeHints every element gets the hints of json-lib: class="object" or
+// class="array", type="string", type="number" or type="boolean" (null is
+// class="object" null="true"), so that xmltojson with typeHints can restore the
+// types.
 type jsonToXMLAction struct {
 	elementName, arrayName, rootName string
 	typeHints                        bool
@@ -68,7 +70,7 @@ func (a jsonToXMLAction) write(b *strings.Builder, name string, v any) error {
 	}
 	b.WriteString("<" + name)
 	if a.typeHints {
-		b.WriteString(` json_type="` + jsonType(v) + `"`)
+		b.WriteString(typeHintAttrs(v))
 	}
 
 	var content strings.Builder
@@ -113,21 +115,21 @@ func (a jsonToXMLAction) write(b *strings.Builder, name string, v any) error {
 	return nil
 }
 
-// jsonType names the JSON type of v for type hints.
-func jsonType(v any) string {
+// typeHintAttrs returns the attributes that say what type v is, as json-lib writes them.
+func typeHintAttrs(v any) string {
 	switch v.(type) {
 	case jsonObject:
-		return "object"
+		return ` class="object"`
 	case []any:
-		return "array"
+		return ` class="array"`
 	case json.Number:
-		return "number"
+		return ` type="number"`
 	case bool:
-		return "boolean"
+		return ` type="boolean"`
 	case nil:
-		return "null"
+		return ` class="object" null="true"`
 	}
-	return "string"
+	return ` type="string"`
 }
 
 // scalarText returns a JSON value as text: null is empty, an object or
