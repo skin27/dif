@@ -255,7 +255,10 @@ func (f *fakeFTP) handle(c net.Conn) {
 				continue
 			}
 			for _, e := range entries {
-				fi, _ := e.Info()
+				fi, err := e.Info()
+				if err != nil { // the entry was deleted since the directory was read
+					continue
+				}
 				fmt.Fprint(dc, f.listLine(verb, fi), "\r\n")
 			}
 			dc.Close()
