@@ -20,7 +20,7 @@
 										"searchSubject": "Email body and attachment next test",
 										"authenticationType": "oauth",
 										"username": "noreply@fluxygen.com",
-										"accessToken": "ENC(IHncCK9ho251LqzV1pXqkw==|3s+7SQ16V0Fg5bf/P6OcBg==|CnM1GJ2BAQQiBaOwn/GMhhS4hq9L55WrYmN3zQeZrtWWSQz2yR8qUX/b/Tz4A+75LHn/Zqhg/Hcw4VtnLhLAZXoG8IQW5X4AYYPzyNBnjJPJ5/bJBeg2i4y6A2i5NS7BwuEPlHpCldl8uyKlwHVy8w==)",
+										"accessToken": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"tenantDbName": "regressiontests"
 									},
 									"blocks": {

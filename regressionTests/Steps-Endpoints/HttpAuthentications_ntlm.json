@@ -98,7 +98,7 @@
 										"httpMethod": "GET",
 										"authMethod": "Basic",
 										"authUsername": "harry",
-										"authPassword": "potter",
+										"authPassword": "dummy-password-13",
 										"authenticationPreemptive": false,
 										"useErrorRoute": true,
 										"useCustomDateHeader": false,

@@ -60,7 +60,7 @@
 										"autoCreate": true,
 										"fileExist": "Append",
 										"userName": "dovetail",
-										"password": "ENC(3mKBa5+n/8f63ndTw6Pp5w==|7YRcP/2U/eoqgdLW9g+cjQ==|znO0BiPZH2JlMNJkiXg2EgE29ayHKZjrg+dQXu1tDZP8xxHPupmwLUHEHa5dlrH4HApFAXBwTOqSDdll4zPgJxHKzzk6oxUKY3uDiYDre1OSjKEnZrPBkmWapZikSreYXY9jDWFnVQux4GWZZ2RZgQ==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"disconnect": true,
 										"passiveMode": true
 									},
@@ -115,7 +115,7 @@
 										"autoCreate": true,
 										"readLock": "none",
 										"userName": "dovetail",
-										"password": "ENC(3gHvvF7HG/Uvy/khSy5CBQ==|wEwkmKJ2CRvasFvLqYs8Rw==|/jv0SG6xNr9T22+GwVWItTJBRmxLhIpv7JxhdV0BGEziucA8qizG3BT1GJMw3wr9bW8+C2hzjMIB6wt+fbde72eHQD0qff+c7rzhHXc8ICbZf8fXafi05PnSjEVLUQUtp7tMxbYR+2tXMQQGr/BWig==)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"abortMode": true,
 										"disconnect": true,
 										"passiveMode": true

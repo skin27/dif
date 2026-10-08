@@ -242,7 +242,7 @@
 							"host": "",
 							"port": "",
 							"username": "",
-							"password": "ENC(n5DqCTDcpwC2M1ViuHvHbw==|SlPQnIKGFaWHVdunebPdRw==|Lyjaxb1z7vVLLKze75eLkw==)"
+							"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 						},
 						"id": "91e38b29-ae99-4af8-9401-3f5bc3285fb9_connection",
 						"name": "postgres"
@@ -255,7 +255,7 @@
 							"host": "",
 							"port": "",
 							"username": "",
-							"password": "ENC(5IYndolkCnVs+JuoCdAPwA==|xChxFwhFp726D2bfs8fmLQ==|shUMzLDzeMX5mZ5PeFqHuQ==)"
+							"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 						},
 						"id": "d4465e82-45d6-408c-aa3d-47e7264aee0c_connection",
 						"name": "postgres"

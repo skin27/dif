@@ -11,5 +11,5 @@ values:
   - key: PATH
     value: ''
   - key: HC_token
-    value: rJ7Tllm3gFNYEl5ZkXxOGwZeVt7ErwJT
+    value: "dummy-token-5"
 color: 180

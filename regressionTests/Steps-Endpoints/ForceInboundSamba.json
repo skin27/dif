@@ -55,7 +55,7 @@
 									"options": {
 										"fileName": "abcdef.xyz",
 										"charset": "utf-8",
-										"password": "dovetail",
+										"password": "dummy-password-7",
 										"autoCreate": true,
 										"recursive": false,
 										"delete": false,
@@ -302,7 +302,7 @@
 								"type": "header",
 								"language": "simple",
 								"name": "password",
-								"value": "dovetail"
+								"value": "dummy-password-7"
 							}
 						]
 					}

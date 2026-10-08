@@ -101,9 +101,9 @@
 										"action": "GetPhoneTypes",
 										"httpHeaders": "[{\"_id\":\"1d1ab78a-bc08-45ed-9e27-4b003dc715e3\",\"name\":\"ApiToken\",\"value\":\"302f58f8-d348-4bb3-81e4-8a7c4cf12e2f\"}]",
 										"headers": "[{\"_id\":\"dc228543-ff8f-4dcf-82ce-71302903203d\",\"name\":\"Retail3000AuthenticateToken\",\"attrs\":[{\"_id\":\"1169f584-c8c0-42c8-8281-f5e01d606eef\",\"name\":\"Username\",\"value\":\"system_beeyond\"},{\"_id\":\"8e985169-6926-474b-9cff-dd89a6883564\",\"name\":\"Password\",\"value\":\"4q6si98p\"},{\"_id\":\"e10ff6c4-d9b5-47d1-9b76-f514ec43e9f8\",\"name\":\"CompanyNumber\",\"value\":\"2\"},{\"_id\":\"7a7482d7-243e-495e-b61d-7058c398ab60\",\"name\":\"StoreNumber\",\"value\":null},{\"_id\":\"86e32ee6-8ddc-43c2-b362-e44ee800f03c\",\"name\":\"ClientIp\",\"value\":null},{\"_id\":\"ad5556d9-0bae-4680-80f2-ab30b297205c\",\"name\":\"LanguageCode\",\"value\":null},{\"_id\":\"0877b0ff-278a-4114-903e-e2addf166756\",\"name\":\"ScannerNumber\",\"value\":null},{\"_id\":\"a3960b44-63ac-4762-af85-8a4a7ca46369\",\"name\":\"ClientApplicationCode\",\"value\":null},{\"_id\":\"04bacefc-c06d-4af3-a403-03368c489467\",\"name\":\"ClientAppVersion\",\"value\":null},{\"_id\":\"75dac8a4-0da1-4ca6-a57e-323e31b7a56b\",\"name\":\"MobileDeviceNumber\",\"value\":null},{\"_id\":\"8daff2f5-184a-41a9-84a0-db6111f4c4ed\",\"name\":\"TwoFactorCode\",\"value\":null},{\"_id\":\"ff2306f6-35ca-44f7-a75a-db30533998c0\",\"name\":\"CompanyUrlTag\",\"value\":null}]}]",
-										"token": "302f58f8-d348-4bb3-81e4-8a7c4cf12e2f",
+										"token": "dummy-token-8",
 										"params": "wsdl",
-										"auth": "c3lzdGVtX2JlZXlvbmQ6NHE2c2k5OHA="
+										"auth": "c3lzdGVtX2JlZXlvbmQ6ZHVtbXktcGFzc3dvcmQtMTQ="
 									},
 									"links": {
 										"link": [

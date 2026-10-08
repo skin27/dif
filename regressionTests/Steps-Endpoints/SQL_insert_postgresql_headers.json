@@ -82,7 +82,7 @@
 										"host": "${header.DB_Host}",
 										"port": "${header.DB_Port}",
 										"username": "${header.DB_Username}",
-										"password": "ENC(wG0/z9Iohg+hxQ/A2aebsg==|rjbk2YAIesK5CdHC8+Wy+w==|FEfDKLTk1u4SoRBnrkPoWSQsmv213lDVgL2IiTpmaecerY5W4ZI71bSmuVAUv/9ckEAHtzA1PfhArQgnxndph88yyXXW1OrHd5lKXq4HcSxyuAks0cq2p91iiGYfXUAY7t3Vqx6b8JQn3MKbV5d4Yg==)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [
@@ -155,7 +155,7 @@
 										"host": "${header.DB_Host}",
 										"port": "${header.DB_Port}",
 										"username": "${header.DB_Username}",
-										"password": "ENC(vyihWduB3lycfLlJ5ks+9A==|gSkvTpgVTjMCCQ8wA4JW4w==|zZrfv75xycUvM9URr8ghkMTDB3TLvMW0W0Zum5xXz5CjdWx4pvM7ta6BJuXOhYb54z6ChI+uTxsYH1Nb4e3powP1vCIP83HX5AygJI9U/yN+dYnoBU6DPlQMjKKDmvGgrotoY9nS3lWMRnXwiHCAew==)"
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)"
 									},
 									"links": {
 										"link": [

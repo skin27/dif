@@ -59,7 +59,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "3306",
 										"username": "root",
-										"password": "ENC(SGEeaC+MynkG0xmWpS95Ww==|R1WZYO2KS5jX3BVtgU8b4w==|+6V0ssMdbf4DrFVjpPz+tdgsZ6731rq63ud3DjbsiSKouyW5oNP5YBtX8yOU5m4OOI3f7kZf4v6Jegv43e4/XYAirgYP7FnctHbXTlBpuCc=)",
+										"password": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"useSSL": false,
 										"tlsVersion": "TLSv1"
 									},

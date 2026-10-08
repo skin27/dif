@@ -82,7 +82,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "1433",
 										"username": "SA",
-										"password": "$Ytn4BmT"
+										"password": "dummy-password-2"
 									},
 									"links": {
 										"link": [
@@ -136,7 +136,7 @@
 										"host": "api-testing.dovetail.world",
 										"port": "1433",
 										"username": "SA",
-										"password": "$Ytn4BmT"
+										"password": "dummy-password-2"
 									},
 									"links": {
 										"link": [

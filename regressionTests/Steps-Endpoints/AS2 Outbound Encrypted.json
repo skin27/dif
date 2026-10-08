@@ -63,7 +63,7 @@
 										"messageContentType": "application/edi-x12",
 										"signingAlgorithm": "SHA256WITHRSA",
 										"keyAlias": "bruno",
-										"password": "1234",
+										"password": "dummy-password-10",
 										"encryptingAlgorithm": "DES_EDE3_CBC",
 										"targetPortNumber": "443",
 										"requestUri": "/test/inbound_as2/regressiontests/AS2InboundEncrypted",

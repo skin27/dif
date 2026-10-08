@@ -310,7 +310,7 @@
 						"pooled": "true",
 						"url": "tcp://assimbly-broker-test:61616",
 						"username": "admin",
-						"password": "admin"
+						"password": "dummy-password-6"
 					}
 				}
 			},

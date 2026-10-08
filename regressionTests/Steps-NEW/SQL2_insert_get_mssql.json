@@ -172,7 +172,7 @@
 							"host": "api-testing.dovetail.world",
 							"port": "1433",
 							"username": "SA",
-							"password": "$Ytn4BmT"
+							"password": "dummy-password-2"
 						},
 						"id": "eb1baade-dca6-4ed2-b7dc-3b3f6506313f_connection",
 						"name": "sqlserver"
@@ -185,7 +185,7 @@
 							"host": "api-testing.dovetail.world",
 							"port": "1433",
 							"username": "SA",
-							"password": "$Ytn4BmT"
+							"password": "dummy-password-2"
 						},
 						"id": "aaabca6c-2ac1-4d82-9f96-1ee2bcb9495e_connection",
 						"name": "sqlserver"

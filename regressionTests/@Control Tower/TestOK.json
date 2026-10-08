@@ -41,7 +41,7 @@
 										"socketTimeout": 180000,
 										"authMethod": "Basic",
 										"authUsername": "tester",
-										"authPassword": "ENC(W88h20W6Q7JYFR4xQEhsww==|bbfAKW8sVr1d+S4M8NI6kQ==|mQ0iYOJ/ToJYxU4e55ylEjtVc2chLZj6DaNUMFhsomIc5QB5pfeXDjGweO1t7wfidUVvX2nOWJHVjokvdl6Bl+fC3Y+irpAt4W48NWVlCwhu6530WSBv5SX4m1LjeVrzt7iouqjypTz1HQAfLSEcxCmbcdZuDsaF82jFKAOrRsw=)",
+										"authPassword": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"authenticationPreemptive": false,
 										"sslContextParameters": "#sslContext"
 									},

@@ -100,7 +100,7 @@
 						"pooled": "true",
 						"url": "tcp://localhost:61616",
 						"username": "admin",
-						"password": "admin"
+						"password": "dummy-password-6"
 					},
 					"id": "activemq-connection",
 					"name": "activemq"

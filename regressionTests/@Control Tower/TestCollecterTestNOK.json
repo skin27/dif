@@ -115,7 +115,7 @@
 										"socketTimeout": 180000,
 										"authMethod": "Basic",
 										"authUsername": "tester",
-										"authPassword": "ENC(wjq4L3AwptbxsWTS81IERA==|qTHTkJ5tNCkgsXfzjOhQKw==|02dJx3Nz+oJHhyF8/A5gCs4+C5PeRJZiLlU8ctnuM3PMB7/iD2wFcJu5MbCWFj6hIe2p8tT504ndnmvk9sgu8OWqh8jKbVNcj1Fp3sg4+MPDtb2TyOtauA+EBXIJYbWIXqTZNBqvZKsXTddHT6KlBXoGrbxkee/bZIhHHhVOZ2Q=)",
+										"authPassword": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"authenticationPreemptive": false,
 										"sslContextParameters": "#sslContext"
 									},
@@ -204,7 +204,7 @@
 										"socketTimeout": 180000,
 										"authMethod": "Basic",
 										"authUsername": "tester",
-										"authPassword": "ENC(p8cQDxodMHLh3K/yTviI/g==|xFNftPH/vBnaeqfOvBXrkg==|FHOe0atoFjkL9id11vBr97lyEY+9uXP56qGjXVLeOA+A4/gAG0C+wn3e+2bNQjtMmTCBkl8Zg3ce7cPTsJAEd3vc8LTu4lo8OkBg9acpdiPzBFzFg/pYJhrViU8BAZkccJzwBoLkT7YBjCwAS3jc3nL6X5nlMb1Qyasgc229oBg=)",
+										"authPassword": "ENC(ZGlmLXJlZ3Itc2FsdC0xNg==|ZGlmLXJlZ3ItaXYtMDAxNg==|Q4VTGi7fiR+UFayeEcTiUw==)",
 										"authenticationPreemptive": false,
 										"sslContextParameters": "#sslContext"
 									},
