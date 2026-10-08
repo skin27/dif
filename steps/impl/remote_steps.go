@@ -36,6 +36,7 @@ var (
 	ftpProtocol  = remoteProtocol{"ftp", "21"}
 	ftpsProtocol = remoteProtocol{"ftps", "21"} // 990 with implicit TLS
 	sftpProtocol = remoteProtocol{"sftp", "22"}
+	smbProtocol  = remoteProtocol{"smb", "445"}
 )
 
 // rawOpt returns the string option without its RAW(...) marker.
@@ -56,9 +57,25 @@ func newRemoteTarget(proto remoteProtocol, p stepdef.Params) (*remoteTarget, err
 	if proto.scheme == "ftps" && p["implicit"] == true {
 		port = "990"
 	}
-	u, err := parseRemoteURI(p["path"].(string), port)
+	uri := p["path"].(string)
+	if proto.scheme == "smb" {
+		uri = strings.ReplaceAll(uri, `\`, "/") // Windows paths
+	}
+	if strings.Contains(uri, "${") {
+		return nil, fmt.Errorf("uri: %q: ${...} in the address is not supported; the address of a step is fixed when the flow is built", uri)
+	}
+	u, err := parseRemoteURI(uri, port)
 	if err != nil {
 		return nil, fmt.Errorf("uri: %w", err)
+	}
+	share := ""
+	if proto.scheme == "smb" {
+		// The first part of the path is the share; the rest is below it.
+		share, u.dir, _ = strings.Cut(strings.Trim(u.dir, "/"), "/")
+		if share == "" || share == "." { // no directory is "."
+			share = ""
+			return nil, fmt.Errorf("uri: want smb://[user@]host[:port]/<share>[/<directory>]; the first part of the path is the share")
+		}
 	}
 	user := rawOpt(p, "userName")
 	if user == "" {
@@ -102,6 +119,18 @@ func newRemoteTarget(proto remoteProtocol, p stepdef.Params) (*remoteTarget, err
 			}
 			return c, nil
 		}
+	case "smb":
+		login := smbLogin{user: user, password: password}
+		if domain, name, ok := strings.Cut(user, `\`); ok { // DOMAIN\user
+			login.domain, login.user = domain, name
+		}
+		if d := rawOpt(p, "domain"); d != "" {
+			login.domain = d
+		}
+		if login.user == "" {
+			return nil, fmt.Errorf("option userName: required for smb; or give it in the URI: smb://user@host/share")
+		}
+		dial = func(ctx context.Context) (remoteFS, error) { return smbDial(ctx, u.addr(), share, login, timeout) }
 	case "sftp":
 		s := sshSettings{
 			user: user, password: password, timeout: timeout,

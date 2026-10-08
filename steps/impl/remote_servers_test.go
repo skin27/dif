@@ -60,13 +60,15 @@ func (e remoteEnv) opts(extra map[string]any) map[string]any {
 
 func (e remoteEnv) local(p string) string { return filepath.Join(e.root, filepath.FromSlash(p)) }
 
-// forEachProtocol runs the test against an ftp and an sftp server.
+// forEachProtocol runs the test against an ftp, an ftps, an sftp server and a
+// fake SMB share (see fakeSMBShare).
 func forEachProtocol(t *testing.T, test func(t *testing.T, e remoteEnv)) {
 	t.Helper()
 	t.Run("ftp", func(t *testing.T) { test(t, newFTPEnv(t, nil)) })
 	t.Run("ftps", func(t *testing.T) { test(t, newFTPSEnv(t, false, nil)) })
 	t.Run("ftps-implicit", func(t *testing.T) { test(t, newFTPSEnv(t, true, nil)) })
 	t.Run("sftp", func(t *testing.T) { test(t, newSFTPEnv(t)) })
+	t.Run("smb", func(t *testing.T) { test(t, newSMBEnv(t)) })
 }
 
 func newFTPEnv(t *testing.T, configure func(*fakeFTP)) remoteEnv {

@@ -53,6 +53,7 @@ func Register(r *registry.Registry) error {
 		{"ftp", stepdef.Source, pollingConsumer, newRemoteSource(ftpProtocol), nil},
 		{"ftps", stepdef.Source, pollingConsumer, newRemoteSource(ftpsProtocol), nil},
 		{"sftp", stepdef.Source, pollingConsumer, newRemoteSource(sftpProtocol), nil},
+		{"smb", stepdef.Source, pollingConsumer, newRemoteSource(smbProtocol), nil},
 		{"flowlink", stepdef.Source, "", newFlowLinkSource, []string{"flowlink-async"}},
 		{"repeater", stepdef.Source, "", newTimerSource, nil},
 		{"quartz", stepdef.Source, "", newQuartzSource, nil},
@@ -108,6 +109,8 @@ func Register(r *registry.Registry) error {
 		{"ftpenrich", stepdef.Action, contentEnricher, newRemoteEnrich(ftpProtocol), nil},
 		{"ftpsenrich", stepdef.Action, contentEnricher, newRemoteEnrich(ftpsProtocol), nil},
 		{"sftpenrich", stepdef.Action, contentEnricher, newRemoteEnrich(sftpProtocol), nil},
+		{"smb", stepdef.Action, "", sinkAsAction(newRemoteSink(smbProtocol)), nil},
+		{"smbenrich", stepdef.Action, contentEnricher, newRemoteEnrich(smbProtocol), nil},
 		{"settenantvariable", stepdef.Action, "", newSetTenantVariableAction, nil},
 		{"gettenantvariable", stepdef.Action, "", newGetTenantVariableAction, nil},
 		{"removetenantvariable", stepdef.Action, "", newRemoveTenantVariableAction, nil},
@@ -143,6 +146,7 @@ func Register(r *registry.Registry) error {
 		{"ftp", stepdef.Sink, "", newRemoteSink(ftpProtocol), nil},
 		{"ftps", stepdef.Sink, "", newRemoteSink(ftpsProtocol), nil},
 		{"sftp", stepdef.Sink, "", newRemoteSink(sftpProtocol), nil},
+		{"smb", stepdef.Sink, "", newRemoteSink(smbProtocol), nil},
 	}
 	for _, b := range builtins {
 		// Every built-in step may refer to its flow in an expression.

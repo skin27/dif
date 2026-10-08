@@ -594,6 +594,9 @@ using anything else fails registration.
 | `ftps:<host>[:<port>]/<dir>` | source | as the `ftp` source, and `implicit` (false), `trustStoreFile`, `trustStorePassword` | The `ftp` source over TLS; env `DIF_FTPS_PASSWORD` |
 | `ftps:<host>[:<port>]/<dir>` | sink | as the `ftp` sink with `implicit`, and `trustStoreFile`, `trustStorePassword` | The `ftp` sink over TLS |
 | `ftpsenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, and `implicit`, `trustStoreFile`, `trustStorePassword` | `ftpenrich` over TLS |
+| `smb://[<user>@]<host>[:<port>]/<share>[/<dir>]` | source | as the `sftp` source without the key and host key options (`passiveMode` too); and `domain`, `userName` (or `DOMAIN\user`, or the user of the URI), `password` (env `DIF_SMB_PASSWORD`) | The `sftp` source on a share of a Windows (SMB 2/3) file server, by `github.com/hirochachacha/go-smb2` (pure Go): the first part of the path is the share, a backslash is a slash. Login is NTLM. `readLock` `changed` only takes a file that has not changed since the last poll. An address with `${...}` in it, such as `smb://${header.User}@${header.Host}/…`, is not supported: the address is fixed when the flow is built |
+| `smb://[<user>@]<host>[:<port>]/<share>[/<dir>]` | action or sink | as the `sftp` sink without the key and host key options; and `domain` | Writes the body to a file, as the `sftp` sink does; as an action (the platform's flows have it so) it passes the message on unchanged. The go-smb2 wire code is not tested against a server (none exists in Go); the steps' logic is tested through a fake share on the local disk, with the same tests as ftp and sftp |
+| `smbenrich://[<user>@]<host>[:<port>]/<share>[/<dir>]` | action | as `sftpenrich` without the key and host key options; and `domain` | `sftpenrich` on an SMB share |
 | `sftp:<host>[:<port>]/<dir>` | source | as `ftp`, and `privateKey` (a file), `privateKeyPassphrase` (env `DIF_SFTP_PRIVATE_KEY_PASSPHRASE`), `knownHostsFile`, `strictHostKeyChecking` (true); `passiveMode` has no effect | Polls an SFTP directory |
 | `sftp:<host>[:<port>]/<dir>` | sink | as the `ftp` sink, with the `sftp` connection options | Writes the body to a file |
 | `sftpenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, with the `sftp` connection options | Replaces the body with the content of the first file |
@@ -1183,14 +1186,14 @@ steps do on a local one, and are the same apart from the connection:
 
 ### Examples that load
 
-65 of the examples in `examples/` load (given the keystores): aggregate,
+68 of the examples in `examples/` load (given the keystores): aggregate,
 base64ToText, contentrouter, csvtoxml, deadletter, editoxml, emailoutbound,
 encoder, enrich, errorHandler, exceltoxml, fileEnrich, fileInbound, fileOutbound, filter,
 flowLinkInbound, flowLinkOutbound, flowlinkAsynInbound, flowlinkAsyncOutbound,
 flv, formToXml, getTenantVariable, googleDriveOutbound, googledriveInbound, httpsInbound, jsontoxml, jsontoxmlsimple, log, multipart,
 pedroteste, queueAsynchronousOutbound, queueInbound, queueOutbound, recipient,
 removeCookie, removeHeaders, removeTenantVariable, repeater, replace,
-scheduler, setBody, setCookie, setOneWay, setRequestReply, setTenantVariable,
+sambaEnrich, sambaInbound, sambaOutbound, scheduler, setBody, setCookie, setOneWay, setRequestReply, setTenantVariable,
 sftpEnrich, sftpInbound, sftpOutbound, simplereplace, split, splitAndAggregate, sqlOutbound, test, textToBase64, throttle, unzip,
 velocity, wiretap, xmltocsv, xmltoedi, xmltoedifact, xmltoexcel, xmltojson, xmltojsonsimple and zip. `setoauth2-CustomForBVG` and `setoauth2-GoogleDrive` validate but need an
 endpoint and a client, in the options or the environment (see `oauth2token`). The others use steps without a processor
