@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50ab532a8184000c000025",
+						"name": "CB_ExcelToXml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "03cb3128-bc1e-41f5-bc33-9c4c06251319",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_ExcelToXml",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "031f6774-3b89-45bd-87f5-0a1d414102ac",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "031f6774-3b89-45bd-87f5-0a1d414102ac",
+									"type": "action",
+									"uri": "exceltoxml",
+									"options": {
+										"rules": "[{\"name\":\"Simple\",\"worksheet\":\"Sheet1\",\"cellRange\":\"A2:C4\",\"transpose\":false,\"headerRow\":false,\"discardEmpty\":false}]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "031f6774-3b89-45bd-87f5-0a1d414102ac",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "02eeda20-e449-40fd-8084-5739e731cdff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "02eeda20-e449-40fd-8084-5739e731cdff",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "02eeda20-e449-40fd-8084-5739e731cdff",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "77bec410-dd3a-4b05-a72e-5fbd07ec3cb1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

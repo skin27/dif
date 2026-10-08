@@ -1,0 +1,163 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7ee75cee15e200100003ca",
+						"name": "SQL_Postgresql_NonEscape",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5742f062-2f0e-4613-acd0-579a0c4b73b7",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_Postgresql_NonEscape",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "de0e0cda-3dae-4d90-817e-4c62d06f5621",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "de0e0cda-3dae-4d90-817e-4c62d06f5621",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "ENC(YjAt55lytJmWL8r3Dd1gXA==|3hu+WoM4j9YwHH+OEUeU1Q==|zzaFEI7M3Gvp5JXnLHdQpVFqkEbO9P/m6oBTJtiuZ1Un3uRxGJDNzBzG9B9eG7Q+JhxMqM96Ts9rfSrDD8Ze5fLqXmpd9JsaaQBtkx3pKYc=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "de0e0cda-3dae-4d90-817e-4c62d06f5621",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "80e5f762-0121-472a-a288-2d0e264ebebb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "80e5f762-0121-472a-a288-2d0e264ebebb",
+									"type": "action",
+									"uri": "setheaders:message:80e5f762-0121-472a-a288-2d0e264ebebb",
+									"links": {
+										"link": [
+											{
+												"id": "80e5f762-0121-472a-a288-2d0e264ebebb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "32dbc412-8b93-4436-9ac4-bf8781c6dade",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "32dbc412-8b93-4436-9ac4-bf8781c6dade",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "SELECT * FROM  transactions WHERE id = ${header.id}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "ENC(K5t/61OhRP0UxQMgfXXSuQ==|rFBYZvXB0SWqvIpf2Za2WQ==|n8x3wAdVIl9gxP2H9eBTnX1rKn6I1H5jkl+iAQti1R+4LL0Linb5qpx+Un+3TYMGITVrPdkVvk2GIQVDh/NbUXPZL/Gx5i9K+D/2J5RlNJE=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "32dbc412-8b93-4436-9ac4-bf8781c6dade",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f7cb2a79-474b-42a0-b522-1661639a81bb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f7cb2a79-474b-42a0-b522-1661639a81bb",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f7cb2a79-474b-42a0-b522-1661639a81bb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a5e211eb-3205-4661-9d0f-af303a8cd214",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "80e5f762-0121-472a-a288-2d0e264ebebb",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "xpath",
+							"name": "id",
+							"value": "//generatedKey/text()"
+						}
+					}
+				}
+			}
+		}
+	}
+}

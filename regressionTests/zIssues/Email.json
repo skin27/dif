@@ -1,0 +1,121 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4fb319d751da00170000de",
+						"name": "Email",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "795d1371-7917-44dc-9d89-0c6e500fb171",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Email_issue",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "cd0aeedc-fef1-4e5f-a56f-e8ec2f295ad6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cd0aeedc-fef1-4e5f-a56f-e8ec2f295ad6",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\nTest"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cd0aeedc-fef1-4e5f-a56f-e8ec2f295ad6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d4ac5de1-e5c2-4e86-bec0-8bc426b6513b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d4ac5de1-e5c2-4e86-bec0-8bc426b6513b",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@fluxygen.com",
+										"subject": "next Regression Tests test Testing email component CB",
+										"exchangeBodyAs": "body",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "oauth2",
+										"accessToken": "@{accessToken}",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d4ac5de1-e5c2-4e86-bec0-8bc426b6513b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f35bbc6e-d41e-4a2b-bdaa-1aad4f826383",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f35bbc6e-d41e-4a2b-bdaa-1aad4f826383",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f35bbc6e-d41e-4a2b-bdaa-1aad4f826383",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b71c36ef-e058-4001-8fc3-b1c5ff894239",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

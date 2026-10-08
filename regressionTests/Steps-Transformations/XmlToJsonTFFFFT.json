@@ -1,0 +1,71 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6aa268fc879ca2001200008b",
+						"name": "XmlToJsonTFFFFT",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5b7404d4-b67f-4c3d-a7ea-e86539a0efb8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToJsonTFFFFT",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"matchOnUriPrefix": false
+									},
+									"links": {
+										"link": {
+											"id": "12399bd5-054e-4c28-ba5c-f823ecbe9b70",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "12399bd5-054e-4c28-ba5c-f823ecbe9b70",
+									"type": "sink",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": {
+											"id": "12399bd5-054e-4c28-ba5c-f823ecbe9b70",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a30e4e82-81e9-47f7-9cec-34f94bc5fad8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

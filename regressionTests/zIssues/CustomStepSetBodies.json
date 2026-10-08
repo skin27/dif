@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7f2fabee15e20015000391",
+						"name": "CustomStepSetBodies",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7dc07cd1-9dcf-4fcb-a7d9-ea36fb6cdeb8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CustomStepSetBodies",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "0e20a02e-6b1f-480a-8674-60b38f09a050",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0e20a02e-6b1f-480a-8674-60b38f09a050",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0e20a02e-6b1f-480a-8674-60b38f09a050",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a7f2fabee15e20015000393",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

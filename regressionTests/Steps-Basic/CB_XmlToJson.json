@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cec6aa93e3000c000275",
+						"name": "CB_XmlToJson",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9b24602a-0506-465c-9bf2-d34985eac830",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_XmlToJson",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8fa0cf79-4199-48c7-9478-f71f63ca66fb",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8fa0cf79-4199-48c7-9478-f71f63ca66fb",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<persons>\n      <person>\n\t<name>John Doe</name>\n   </person>\n  <person>\n\t<name>Jane Doe</name>\n  </person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8fa0cf79-4199-48c7-9478-f71f63ca66fb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a6bdb99e-c412-4ef0-b5a0-15b0f6e20d7f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a6bdb99e-c412-4ef0-b5a0-15b0f6e20d7f",
+									"type": "action",
+									"uri": "xmltojsonsimple",
+									"options": {
+										"removeRoot": false,
+										"removeNamespaces": false,
+										"keepStrings": false,
+										"hasTypes": false,
+										"typeValueMismatch": "original"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a6bdb99e-c412-4ef0-b5a0-15b0f6e20d7f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "425bbf76-7b7e-4aa1-b74f-0a0f465609f7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "425bbf76-7b7e-4aa1-b74f-0a0f465609f7",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "425bbf76-7b7e-4aa1-b74f-0a0f465609f7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b50134b2-0036-45f8-9cee-d853e76d887d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

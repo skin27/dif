@@ -65,6 +65,31 @@ func TestProcessor(t *testing.T) {
 	}
 }
 
+func TestRuntimeBindingsRequireConstructorOptIn(t *testing.T) {
+	r := testRegistry(t)
+	p, err := r.ProcessorWithParams(&flowdef.Node{ID: "custom", Kind: stepdef.Action, URI: "rec"}, stepdef.Params{"runtime": 123})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := p.(recorder).params["runtime"]; ok {
+		t.Fatal("injected runtime leaked into custom processor options")
+	}
+	if err := r.Register(stepdef.Definition{Name: "bound", Kind: stepdef.Action, Schema: []byte(pathSchema), RuntimeBindings: []string{"runtime"}, New: newRecorder}); err != nil {
+		t.Fatal(err)
+	}
+	p, err = r.ProcessorWithParams(&flowdef.Node{ID: "bound", Kind: stepdef.Action, URI: "bound"}, stepdef.Params{"runtime": 123, "other": 456})
+	if err != nil {
+		t.Fatal(err)
+	}
+	params := p.(recorder).params
+	if params["runtime"] != 123 {
+		t.Fatal(params)
+	}
+	if _, ok := params["other"]; ok {
+		t.Fatal("unrequested binding injected")
+	}
+}
+
 func TestProcessorKindFallback(t *testing.T) {
 	r := testRegistry(t)
 	if p, err := r.Processor(&flowdef.Node{Kind: flowdef.Sink, URI: "rec"}); err != nil {

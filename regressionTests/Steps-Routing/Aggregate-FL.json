@@ -1,0 +1,111 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bdc7ef71686000d00021f",
+						"name": "Aggregate-FL",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d218ee17-f881-404e-b10e-70ff0be0609f",
+									"type": "source",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "f3b2fbc5-91ec-46e7-b90e-7e481d7679c3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f3b2fbc5-91ec-46e7-b90e-7e481d7679c3",
+									"type": "action",
+									"uri": "aggregate",
+									"options": {
+										"aggregateType": "xml",
+										"completionSize": "2",
+										"completionTimeout": "1000"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f3b2fbc5-91ec-46e7-b90e-7e481d7679c3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c673f3e9-7143-43b2-a099-f82183cec054",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c673f3e9-7143-43b2-a099-f82183cec054",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c673f3e9-7143-43b2-a099-f82183cec054",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695bdc7ef71686000d000221",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"id": "activemq-connection",
+					"name": "activemq",
+					"type": "activemq",
+					"keys": {
+						"jmsprovider": "classic",
+						"pooled": "true",
+						"url": "tcp://assimbly-broker-test:61616",
+						"username": "admin",
+						"password": "admin"
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,148 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5493eda2c33d0011000002",
+						"name": "CB_OutboundGoogleDrive",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ef5ec351-dfef-4a74-9c95-a88932d33127",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_OutboundGoogleDrive",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "06cd19cc-e0ec-40f4-b934-b9984b45d257",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "06cd19cc-e0ec-40f4-b934-b9984b45d257",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "test from dovetail"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "06cd19cc-e0ec-40f4-b934-b9984b45d257",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "40037cb0-e5ff-4a40-8a71-869fa6315991",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "40037cb0-e5ff-4a40-8a71-869fa6315991",
+									"type": "action",
+									"uri": "setheaders:message:40037cb0-e5ff-4a40-8a71-869fa6315991",
+									"links": {
+										"link": [
+											{
+												"id": "40037cb0-e5ff-4a40-8a71-869fa6315991",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "59d459c5-2bb0-4026-93d9-c1c403e5f534",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "59d459c5-2bb0-4026-93d9-c1c403e5f534",
+									"type": "action",
+									"uri": "googledrive:1HYnwLTICJPLGbPL4AUcUJC-cRuGeTrG3",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"flowId": "6a5493eda2c33d0011000002",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "59d459c5-2bb0-4026-93d9-c1c403e5f534",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d8bfa62a-c065-44f3-b931-dff8f1c9fd45",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d8bfa62a-c065-44f3-b931-dff8f1c9fd45",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "d8bfa62a-c065-44f3-b931-dff8f1c9fd45",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a5493eda2c33d0011000004",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "40037cb0-e5ff-4a40-8a71-869fa6315991",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "CamelFileName",
+							"value": "juca_test.txt"
+						}
+					}
+				}
+			}
+		}
+	}
+}

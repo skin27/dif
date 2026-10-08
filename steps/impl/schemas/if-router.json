@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:if-router",
+	"title": "if router",
+	"description": "Sends the message along the link with rule if when its condition (the link's language and expression) holds, else along the link without a condition; as an action, without one, the message stops.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

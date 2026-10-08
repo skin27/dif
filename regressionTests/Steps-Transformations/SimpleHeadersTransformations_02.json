@@ -1,0 +1,150 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69738ad7f624bf0016000020",
+						"name": "SimpleHeadersTransformations_02",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "877cb7b3-876f-4a74-827d-038c1c13197f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersTransformations_02",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "4ce97f68-921a-4c93-b35b-e6c98c35d770",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4ce97f68-921a-4c93-b35b-e6c98c35d770",
+									"type": "action",
+									"uri": "setheaders:message:4ce97f68-921a-4c93-b35b-e6c98c35d770",
+									"links": {
+										"link": [
+											{
+												"id": "4ce97f68-921a-4c93-b35b-e6c98c35d770",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "29fc0d1c-fee6-483b-b200-b70ac26baf1d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "29fc0d1c-fee6-483b-b200-b70ac26baf1d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\"nr\":1,\"name\":\"Calvin Klein\"\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "29fc0d1c-fee6-483b-b200-b70ac26baf1d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c0af70f-3aef-41f7-85ba-ce587baadd7d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c0af70f-3aef-41f7-85ba-ce587baadd7d",
+									"type": "action",
+									"uri": "jsontoxml",
+									"options": {
+										"elementName": "element",
+										"arrayName": "array",
+										"rootName": "root",
+										"namespaceLenient": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4c0af70f-3aef-41f7-85ba-ce587baadd7d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1b06d052-64ce-4c4f-84ea-5ca55dee7311",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1b06d052-64ce-4c4f-84ea-5ca55dee7311",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1b06d052-64ce-4c4f-84ea-5ca55dee7311",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3a2ba0bf-6e61-457e-a0b6-26ad3b799928",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "4ce97f68-921a-4c93-b35b-e6c98c35d770",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "breadcrumbId",
+							"value": "${header.breadcrumbId}_${header.number}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

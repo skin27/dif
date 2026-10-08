@@ -1,0 +1,186 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6957dad2f71686001500017c",
+						"name": "CB_Delay",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "96f92821-3661-4d08-8c5c-84a89279189f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Delay",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "feeb8190-041d-436a-be99-7868eeca2464",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "feeb8190-041d-436a-be99-7868eeca2464",
+									"type": "action",
+									"uri": "setheaders:message:feeb8190-041d-436a-be99-7868eeca2464",
+									"links": {
+										"link": [
+											{
+												"id": "feeb8190-041d-436a-be99-7868eeca2464",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bcf7a3be-9899-4013-9858-739eea2d46e3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bcf7a3be-9899-4013-9858-739eea2d46e3",
+									"type": "action",
+									"uri": "delay",
+									"options": {
+										"milliseconds": "2000"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bcf7a3be-9899-4013-9858-739eea2d46e3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "59a4c345-f286-4e7c-80bf-aed1df7a6f69",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "59a4c345-f286-4e7c-80bf-aed1df7a6f69",
+									"type": "action",
+									"uri": "setheaders:message:59a4c345-f286-4e7c-80bf-aed1df7a6f69",
+									"links": {
+										"link": [
+											{
+												"id": "59a4c345-f286-4e7c-80bf-aed1df7a6f69",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6ce3128d-cf58-405a-988c-628dddc63ba8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6ce3128d-cf58-405a-988c-628dddc63ba8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Delay: ${header.delaySeconds}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6ce3128d-cf58-405a-988c-628dddc63ba8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "41b7f017-73c1-481f-b04f-e465089b5409",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "41b7f017-73c1-481f-b04f-e465089b5409",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "41b7f017-73c1-481f-b04f-e465089b5409",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6957dad2f71686001500017e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "feeb8190-041d-436a-be99-7868eeca2464",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "timeBefore",
+								"value": "${date:now:ss}"
+							}
+						}
+					},
+					{
+						"name": "59a4c345-f286-4e7c-80bf-aed1df7a6f69",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "timeAfter",
+									"value": "${date:now:ss}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "delaySeconds",
+									"value": "${sum(${header.timeAfter},-${header.timeBefore})}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

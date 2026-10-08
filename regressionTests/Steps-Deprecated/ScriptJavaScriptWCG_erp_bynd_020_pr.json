@@ -1,0 +1,167 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bd40bf7168600110000c5",
+						"name": "ScriptJavaScriptWCG_erp_bynd_020_pr",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "42903690-641a-4b89-bb0f-8304dc255618",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_erp_bynd_020_pr",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "6f95e128-5074-46b4-8385-5140018b0917",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6f95e128-5074-46b4-8385-5140018b0917",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<root>abc</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6f95e128-5074-46b4-8385-5140018b0917",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "183a1d8b-b990-4267-9536-0bfd94941872",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "183a1d8b-b990-4267-9536-0bfd94941872",
+									"type": "action",
+									"uri": "setheaders:message:183a1d8b-b990-4267-9536-0bfd94941872",
+									"links": {
+										"link": [
+											{
+												"id": "183a1d8b-b990-4267-9536-0bfd94941872",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f9bb5df8-4bfb-4dd8-9008-44ad2cfa0ad2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f9bb5df8-4bfb-4dd8-9008-44ad2cfa0ad2",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Javascript step has been removed."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f9bb5df8-4bfb-4dd8-9008-44ad2cfa0ad2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1984cfe3-9b34-42a5-baf0-3e1cf7314900",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1984cfe3-9b34-42a5-baf0-3e1cf7314900",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1984cfe3-9b34-42a5-baf0-3e1cf7314900",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "03110246-8f8d-4240-ae25-6becbe8c1c01",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "183a1d8b-b990-4267-9536-0bfd94941872",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "AantalOpgehaald",
+								"value": "42"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "limit",
+								"value": "10"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "offset",
+								"value": "20"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "totaalOpgehaald",
+								"value": "61"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

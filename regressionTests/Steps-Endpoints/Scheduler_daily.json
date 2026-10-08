@@ -1,0 +1,33 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6960f02fbf1e3b001800000c",
+						"name": "Scheduler_daily",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6960f02fbf1e3b001800000e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

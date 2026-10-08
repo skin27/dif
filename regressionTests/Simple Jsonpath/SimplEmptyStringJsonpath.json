@@ -1,0 +1,132 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a967d0ea44b2e00160000dd",
+						"name": "SimplEmptyStringJsonpath",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "63508e5e-0510-4c0d-a387-b4c96df96db8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimplEmptyStringJsonpath",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "b9d14755-69ca-4493-b61a-9af2bce22d1b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b9d14755-69ca-4493-b61a-9af2bce22d1b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\"FinancialPeriod\":11,\"FinancialYear\":2025,\"JournalCode\":\"43\",\"Currency\":\"EUR\",\"GeneralJournalEntryLines\":[{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-92.64,\"Date\":\"2025-11-02T00:00:00\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"801001\",\"GLAccountDescription\":\"Doorlopende provisie volmacht\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-130.6,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW230\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":558.84,\"Date\":\"2025-11-02T00:00:00\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"130000\",\"GLAccountDescription\":\"Debiteuren ANVA\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-233.53,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW217\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-35.97,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW237\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-16.13,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW227\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-16.13,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW239\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"},{\"__metadata\":{\"Type\":\"Exact.Web.Api.Models.Financial.GeneralJournalEntryLine\"},\"AmountFC\":-33.84,\"Date\":\"2025-11-02T00:00:00\",\"Description\":\"SW208\",\"Division\":\"4182780\",\"GLAccount\":\"4182780\",\"GLAccountCode\":\"122001\",\"GLAccountDescription\":\"RC Groepsmaatschappij SWSV02\"}]}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b9d14755-69ca-4493-b61a-9af2bce22d1b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a7569e16-611d-46a3-b9c6-080993c5fffd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a7569e16-611d-46a3-b9c6-080993c5fffd",
+									"type": "action",
+									"uri": "setheaders:message:a7569e16-611d-46a3-b9c6-080993c5fffd",
+									"links": {
+										"link": [
+											{
+												"id": "a7569e16-611d-46a3-b9c6-080993c5fffd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4d4e308d-7801-44ee-9b8e-670c3b8c827b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4d4e308d-7801-44ee-9b8e-670c3b8c827b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4d4e308d-7801-44ee-9b8e-670c3b8c827b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a967d0ea44b2e00160000df",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "a7569e16-611d-46a3-b9c6-080993c5fffd",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "EntryGLAccountCodes_JP_empty_string",
+								"value": "${empty(String)}${jsonpath($.GeneralJournalEntryLines.[*].GLAccountCode)}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "EntryDescriptions_JP_result",
+								"value": "result=${jsonpath($.GeneralJournalEntryLines.[*].Description)}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,231 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e88a3d19cee6000c0000f8",
+						"name": "SQL_insert_postgresql_flowprop",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "52578435-2ebe-4928-a9e6-e9d9544897ed",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_insert_postgresql_flowprop",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "3727a4ce-cc08-407c-876a-927cc195131c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3727a4ce-cc08-407c-876a-927cc195131c",
+									"type": "action",
+									"uri": "setheaders:message:3727a4ce-cc08-407c-876a-927cc195131c",
+									"links": {
+										"link": [
+											{
+												"id": "3727a4ce-cc08-407c-876a-927cc195131c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "166d7c27-4e02-46e7-845a-e819a45bce73",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "166d7c27-4e02-46e7-845a-e819a45bce73",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT into transactions_next (timestamp,breadcrumb_id,server,tenant,environment,flow_id,flow_name,name,value) VALUES ('${header.timestamp}','${header.breadcrumbId}','https://next.dovetail.world','Regression Tests','test','694aca3eda8dd5001600023e','OauthGmailNoreply','${header.name}','${header.value}')"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "166d7c27-4e02-46e7-845a-e819a45bce73",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ca6b5caf-a1e2-470e-9995-43f33d63abef",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ca6b5caf-a1e2-470e-9995-43f33d63abef",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ca6b5caf-a1e2-470e-9995-43f33d63abef",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d818d6e0-c1cc-4e81-adf0-5b36c34a5134",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d818d6e0-c1cc-4e81-adf0-5b36c34a5134",
+									"type": "action",
+									"uri": "setheaders:message:d818d6e0-c1cc-4e81-adf0-5b36c34a5134",
+									"links": {
+										"link": [
+											{
+												"id": "d818d6e0-c1cc-4e81-adf0-5b36c34a5134",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1b7e4270-447f-4f5d-8551-f0d3a3fa675a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1b7e4270-447f-4f5d-8551-f0d3a3fa675a",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT * FROM  transactions_next WHERE id = ${header.id}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1b7e4270-447f-4f5d-8551-f0d3a3fa675a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "638fdfa0-4b74-400d-a564-a95032c632d6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "638fdfa0-4b74-400d-a564-a95032c632d6",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "638fdfa0-4b74-400d-a564-a95032c632d6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "41a28028-3bbc-4a63-bfab-02f75c6e2fe9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "41a28028-3bbc-4a63-bfab-02f75c6e2fe9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "41a28028-3bbc-4a63-bfab-02f75c6e2fe9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eea83fba-f892-458e-8cbe-a6c52f00b725",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "3727a4ce-cc08-407c-876a-927cc195131c",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							}
+						}
+					},
+					{
+						"name": "d818d6e0-c1cc-4e81-adf0-5b36c34a5134",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "id",
+								"value": "//generatedKey/text()"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

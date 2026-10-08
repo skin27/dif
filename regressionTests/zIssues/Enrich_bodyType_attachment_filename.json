@@ -1,0 +1,231 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698b543dd814970012000023",
+						"name": "Enrich_bodyType_attachment_filename",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "94206915-dab3-4b80-a04a-c73608e1ad5c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_bodyType_attachment_filename",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ea6956da-935b-41bf-ba27-6f934fc49e28",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ea6956da-935b-41bf-ba27-6f934fc49e28",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bicycle_brands>\n    <brand>\n        <name>Trek</name>\n        <country>United States</country>\n        <founded>1976</founded>\n        <website>www.trekbikes.com</website>\n    </brand>\n    <brand>\n        <name>Giant</name>\n        <country>Taiwan</country>\n        <founded>1972</founded>\n        <website>www.giant-bicycles.com</website>\n    </brand>\n    <brand>\n        <name>Cannondale</name>\n        <country>United States</country>\n        <founded>1971</founded>\n        <website>www.cannondale.com</website>\n    </brand>\n    <brand>\n        <name>Specialized</name>\n        <country>United States</country>\n        <founded>1974</founded>\n        <website>www.specialized.com</website>\n    </brand>\n</bicycle_brands>\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ea6956da-935b-41bf-ba27-6f934fc49e28",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6af1e7c4-d7dd-4727-9ce7-fe37eeedc7f3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6af1e7c4-d7dd-4727-9ce7-fe37eeedc7f3",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "attachment",
+										"useErrorRoute": true,
+										"enrichFileType": "attachment",
+										"fileName": "parts",
+										"enrichMethod": "attachment",
+										"attachmentName": "parts"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6af1e7c4-d7dd-4727-9ce7-fe37eeedc7f3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "71c603cc-0659-4cca-81b8-c5b7dd2b0b0f",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "b7388d13-0458-4f4e-b67a-a7eff243551f",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "71c603cc-0659-4cca-81b8-c5b7dd2b0b0f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${attachmentContentAsText(parts)}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "71c603cc-0659-4cca-81b8-c5b7dd2b0b0f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a620ebe7-d937-43cd-9ddd-d379f71a00f8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a620ebe7-d937-43cd-9ddd-d379f71a00f8",
+									"type": "action",
+									"uri": "multipart",
+									"options": {
+										"fname": "blabla"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a620ebe7-d937-43cd-9ddd-d379f71a00f8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "727b3e66-2de9-4746-a8e3-1a0c7412885f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "727b3e66-2de9-4746-a8e3-1a0c7412885f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "727b3e66-2de9-4746-a8e3-1a0c7412885f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b7388d13-0458-4f4e-b67a-a7eff243551f",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bicycle_parts>\n  <part>\n    <name>Handlebar</name>\n    <type>Steering</type>\n    <material>Aluminum</material>\n    <color>Black</color>\n    <weight>350 grams</weight>\n  </part>\n  <part>\n    <name>Frame</name>\n    <type>Main</type>\n    <material>Carbon Fiber</material>\n    <color>Red</color>\n    <weight>1500 grams</weight>\n  </part>\n  <part>\n    <name>Saddle</name>\n    <type>Seating</type>\n    <material>Leather</material>\n    <color>Brown</color>\n    <weight>280 grams</weight>\n  </part>\n  <part>\n    <name>Wheel</name>\n    <type>Wheelset</type>\n    <material>Aluminum Alloy</material>\n    <color>Silver</color>\n    <weight>850 grams</weight>\n  </part>\n</bicycle_parts>\n"
+									},
+									"links": {
+										"link": {
+											"id": "b7388d13-0458-4f4e-b67a-a7eff243551f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "974e84bb-1cc3-4025-a934-1c38889b3f1a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "f38bb637-0f93-488f-b2c7-a7582f0c6c3e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f38bb637-0f93-488f-b2c7-a7582f0c6c3e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${exception.message}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f38bb637-0f93-488f-b2c7-a7582f0c6c3e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "338377d8-ccf0-4806-b9d5-dae0f6385c33",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "338377d8-ccf0-4806-b9d5-dae0f6385c33",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "338377d8-ccf0-4806-b9d5-dae0f6385c33",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

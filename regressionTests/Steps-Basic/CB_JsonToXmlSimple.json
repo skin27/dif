@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5101702a81840011000000",
+						"name": "CB_JsonToXmlSimple",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "375cff21-b08b-446b-998e-4d60349869e1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_JsonToXmlSimple",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "ca3ae183-04bd-43d0-8efe-af2ed0f81ef8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ca3ae183-04bd-43d0-8efe-af2ed0f81ef8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n  \"Formula1\": {\n    \"Drivers\": {\n      \"Driver\": [\n        {\n          \"Age\": 19,\n          \"Name\": \"Max Verstappen\"\n        },\n        {\n          \"Age\": 30,\n          \"Name\": \"Nico Hulkenberg\"\n        }\n      ]\n    },\n    \"Teams\": {\n      \"Team\": [\n        {\n          \"Principal\": \"Christian Horner\",\n          \"Name\": \"Redbull Racing\"\n        },\n        {\n          \"Principal\": \"Carlos Ghosn\",\n          \"Name\": \"Renault\"\n        }\n      ]\n    }\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ca3ae183-04bd-43d0-8efe-af2ed0f81ef8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f8df5b6d-9da7-4e03-9c74-7a84215da88f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f8df5b6d-9da7-4e03-9c74-7a84215da88f",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": false,
+										"rootTag": "root",
+										"checkJsonKeys": false,
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f8df5b6d-9da7-4e03-9c74-7a84215da88f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "809a25b8-9cd0-41d9-907b-491f0ccb9865",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "809a25b8-9cd0-41d9-907b-491f0ccb9865",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "809a25b8-9cd0-41d9-907b-491f0ccb9865",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4578700f-021c-456d-89e6-ee5d82b1b8da",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69c2743e71cfcc001f000001",
+						"name": "restOutbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1d8d8ab5-3b9d-4ffb-909a-40950763b5c9",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/restOutbound",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "2c122f5c-a2b6-4242-af42-3844f9cb0539",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2c122f5c-a2b6-4242-af42-3844f9cb0539",
+									"type": "sink",
+									"uri": "rest",
+									"options": {
+										"method": "post",
+										"path": "echo/get/json",
+										"produces": "application/json"
+									},
+									"links": {
+										"link": {
+											"id": "2c122f5c-a2b6-4242-af42-3844f9cb0539",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69c2743e71cfcc001f000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

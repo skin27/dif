@@ -1,0 +1,321 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a957dc1bff3510016000394",
+						"name": "TestCollecterTestOK",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d8334163-75be-441c-83de-66df259f9d36",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/TestCollecterTestOK",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "d7b9bd06-1aab-4e90-84f5-249eecd940b9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d7b9bd06-1aab-4e90-84f5-249eecd940b9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root/>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d7b9bd06-1aab-4e90-84f5-249eecd940b9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d7f65c84-700b-41d2-bf21-0444181273f9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d7f65c84-700b-41d2-bf21-0444181273f9",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d7f65c84-700b-41d2-bf21-0444181273f9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ad970b12-65db-4236-83e0-574f79ae029d/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ad970b12-65db-4236-83e0-574f79ae029d/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+									"type": "action",
+									"uri": "setheaders:message:ad970b12-65db-4236-83e0-574f79ae029d/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+									"options": {
+										"expression": "694aca3eda8dd5001600023e"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ad970b12-65db-4236-83e0-574f79ae029d/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7432ed1b-459d-4a78-8255-81741957cc09/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7432ed1b-459d-4a78-8255-81741957cc09/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test/inbound_http/regressiontests/TestCollector",
+									"options": {
+										"httpMethod": "GET",
+										"useErrorRoute": true,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"retryInterval": 30000,
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "Basic",
+										"authUsername": "tester",
+										"authPassword": "ENC(gYKXF8zuzj0hzbJDbrqXnA==|r5Z+WxV4qQbv9OJGNPag9Q==|nKF1Zk0liZBjDkzLn1Aq8exWOHU/v/LMz+vDsfF4afjklWmNy56jrE8nNbA8CvXW4jp8jTSiqizhCdsJ0yUmym9PZTmrsciex8nsNelPIS73OE/+7r8Oiwoum3vPH9OALeeV8r6KBi24hEJQMKHvuPBD75qoTqdeWFKMVWr03ok=)",
+										"authenticationPreemptive": false,
+										"sslContextParameters": "#sslContext"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7432ed1b-459d-4a78-8255-81741957cc09/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e3d0dceb-d18e-4673-b475-0595a23ea67a/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e3d0dceb-d18e-4673-b475-0595a23ea67a/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": {
+											"id": "e3d0dceb-d18e-4673-b475-0595a23ea67a/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "514cb74f-17db-4152-a35a-c322190e323a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "ec5f9828-5e44-44f6-b7a7-71ad4400bb55/16476996-0a64-4286-8dee-dba644f5e123",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ec5f9828-5e44-44f6-b7a7-71ad4400bb55/16476996-0a64-4286-8dee-dba644f5e123",
+									"type": "action",
+									"uri": "setheaders:message:ec5f9828-5e44-44f6-b7a7-71ad4400bb55/16476996-0a64-4286-8dee-dba644f5e123",
+									"options": {
+										"expression": "694aca3eda8dd5001600023e"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ec5f9828-5e44-44f6-b7a7-71ad4400bb55/16476996-0a64-4286-8dee-dba644f5e123",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c920ef63-c1ea-4254-8642-bbf958ecd87d/16476996-0a64-4286-8dee-dba644f5e123",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c920ef63-c1ea-4254-8642-bbf958ecd87d/16476996-0a64-4286-8dee-dba644f5e123",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test/inbound_http/regressiontests/TestCollector",
+									"options": {
+										"httpMethod": "GET",
+										"useErrorRoute": true,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"retryInterval": 30000,
+										"useCustomDateHeader": false,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000,
+										"authMethod": "Basic",
+										"authUsername": "tester",
+										"authPassword": "ENC(p/9SgF3yRI6HI2nZBgW3WA==|FCbcC1pZQtde0ijXM24Qsg==|9XnldX5SmFgLKXZqrl7EkdwmGxrpzMUHwOmIh4zhK4t0VPul6Ec5rVWVRGUs422cAOYEEfimFSS95g43tBxiW23tk1luEBs0V0Dsli/srVDlfmwnbOsMzcU8xy8p0BCyNuPfzvt9Y+tlH8F2rBLKq+bM6EoswfDOiQ01w0JEpxI=)",
+										"authenticationPreemptive": false,
+										"sslContextParameters": "#sslContext"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c920ef63-c1ea-4254-8642-bbf958ecd87d/16476996-0a64-4286-8dee-dba644f5e123",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "25b322c9-3670-4129-b756-7903ba8e2e29/16476996-0a64-4286-8dee-dba644f5e123",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "25b322c9-3670-4129-b756-7903ba8e2e29/16476996-0a64-4286-8dee-dba644f5e123",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": {
+											"id": "25b322c9-3670-4129-b756-7903ba8e2e29/16476996-0a64-4286-8dee-dba644f5e123",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "ad970b12-65db-4236-83e0-574f79ae029d/7ded44bd-1cc6-4181-a6fc-4619af2b2cb0",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testFlowName",
+									"value": "OauthGmailNoreply"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testFlowId",
+									"value": "694aca3eda8dd5001600023e"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testException",
+									"value": "${exception.message}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testStatus",
+									"value": "OK"
+								}
+							]
+						}
+					},
+					{
+						"name": "ec5f9828-5e44-44f6-b7a7-71ad4400bb55/16476996-0a64-4286-8dee-dba644f5e123",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testFlowName",
+									"value": "OauthGmailNoreply"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testFlowId",
+									"value": "694aca3eda8dd5001600023e"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testException",
+									"value": "${exception.message}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "testStatus",
+									"value": "NOK"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

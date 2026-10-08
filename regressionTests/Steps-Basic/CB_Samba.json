@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cc22aa93e30011000105",
+						"name": "CB_Samba",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e9f67e28-532f-4132-9136-99f5842000cc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Samba",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "17a811ea-297b-482f-9dbd-84ffdec25f25",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "17a811ea-297b-482f-9dbd-84ffdec25f25",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "17a811ea-297b-482f-9dbd-84ffdec25f25",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f76b4ec4-11a2-4109-9469-5fcaaea3b8ae",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f76b4ec4-11a2-4109-9469-5fcaaea3b8ae",
+									"type": "action",
+									"uri": "smb://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"fileName": "comp-basic.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"password": "dovetail"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f76b4ec4-11a2-4109-9469-5fcaaea3b8ae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c124c594-cf05-479c-b31b-741aa77c53a7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c124c594-cf05-479c-b31b-741aa77c53a7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c124c594-cf05-479c-b31b-741aa77c53a7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a54cc22aa93e30011000107",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

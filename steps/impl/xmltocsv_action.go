@@ -12,11 +12,9 @@ import (
 )
 
 // xmlToCSVAction converts an XML body to CSV: every child of the root
-// element is a record, and every child of a record a field, whose name is
-// its column and whose trimmed text is its value. A record without children
-// is one field named after itself. The columns are the field names in the
-// order they first appear (orderHeaders unordered) or alphabetically
-// (ordered); a record without a column's field has it empty.
+// element is a record (see xmlRecords), and every child of a record a field.
+// The columns are ordered as orderHeaders says; a record without a column's
+// field has it empty.
 //
 // quoteFields quotes all fields, only non-empty ones, or none; a field that
 // holds the delimiter, a quote or a line break is always quoted.
@@ -49,25 +47,7 @@ func (a xmlToCSVAction) Process(_ context.Context, m message.Message) (message.M
 		return nil, err
 	}
 
-	var columns []string
-	records := make([]map[string]string, 0, len(root.children))
-	for _, row := range root.children {
-		fields := row.children
-		if len(fields) == 0 {
-			fields = []*xmlElem{row}
-		}
-		record := make(map[string]string, len(fields))
-		for _, f := range fields {
-			if !slices.Contains(columns, f.name) {
-				columns = append(columns, f.name)
-			}
-			record[f.name] = strings.TrimSpace(f.value) // a repeated field keeps its last value
-		}
-		records = append(records, record)
-	}
-	if a.ordered {
-		slices.Sort(columns)
-	}
+	columns, records := xmlRecords(root.children, a.ordered)
 
 	var b strings.Builder
 	if a.includeHeader {
@@ -91,6 +71,33 @@ func (a xmlToCSVAction) Process(_ context.Context, m message.Message) (message.M
 	m[message.Body] = b.String()
 	m[message.ContentType] = "text/csv"
 	return m, nil
+}
+
+// xmlRecords turns rows into records: every child of a row is a field, whose
+// name is its column and whose trimmed text is its value; a row without
+// children is one field named after itself. The columns are the field names
+// in the order they first appear, or alphabetically if ordered. A repeated
+// field keeps its last value.
+func xmlRecords(rows []*xmlElem, ordered bool) (columns []string, records []map[string]string) {
+	records = make([]map[string]string, 0, len(rows))
+	for _, row := range rows {
+		fields := row.children
+		if len(fields) == 0 {
+			fields = []*xmlElem{row}
+		}
+		record := make(map[string]string, len(fields))
+		for _, f := range fields {
+			if !slices.Contains(columns, f.name) {
+				columns = append(columns, f.name)
+			}
+			record[f.name] = strings.TrimSpace(f.value)
+		}
+		records = append(records, record)
+	}
+	if ordered {
+		slices.Sort(columns)
+	}
+	return columns, records
 }
 
 func (a xmlToCSVAction) writeLine(b *strings.Builder, fields []string) {

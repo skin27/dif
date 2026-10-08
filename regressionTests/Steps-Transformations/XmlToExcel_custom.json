@@ -1,0 +1,95 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6973a009f624bf00160001aa",
+						"name": "XmlToExcel_custom",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d6d08062-61de-4abb-bf71-25e3013b4b62",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToExcel_custom",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "3ed82b38-cc73-48f7-94fc-67ab418e01bd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3ed82b38-cc73-48f7-94fc-67ab418e01bd",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": false,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"orderHeaders": "unordered",
+										"excelFormat": "xlsx",
+										"useCustomWorksheets": true,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJicmVha2Zhc3RfbWVudVwiLFwieFBhdGhFeHByZXNzaW9uXCI6XCIvL2JyZWFrZmFzdF9tZW51L2Zvb2RcIn0iXQ==)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3ed82b38-cc73-48f7-94fc-67ab418e01bd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8199636d-590c-4c6f-b893-229f52d0456a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8199636d-590c-4c6f-b893-229f52d0456a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8199636d-590c-4c6f-b893-229f52d0456a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "616b6e09-a977-4a95-9636-393763b82a31",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

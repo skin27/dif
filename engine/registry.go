@@ -26,8 +26,11 @@ type FlowStatus struct {
 	State State
 	Since time.Time // when the current run started; zero when stopped
 
-	Completed int64 // messages processed to the end, including those an error route handled
-	Failed    int64 // messages that failed
+	Completed     int64  // messages processed to the end, including those an error route handled
+	Failed        int64  // messages that failed
+	Source        string // starting, ready, running, completed, failed or cancelled
+	InFlight      int64
+	DurationNanos int64
 }
 
 // NotFoundError is returned for an unknown flow id, with the registered ids

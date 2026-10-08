@@ -1,0 +1,241 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e87c6d19cee60016000042",
+						"name": "SQL_insert_postgresql",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ce3452a3-52d5-47c6-877a-b700561dbd92",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_insert_postgresql",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ecebb0e7-5be3-48e3-98ad-fd1e9be845da",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ecebb0e7-5be3-48e3-98ad-fd1e9be845da",
+									"type": "action",
+									"uri": "setheaders:message:ecebb0e7-5be3-48e3-98ad-fd1e9be845da",
+									"links": {
+										"link": [
+											{
+												"id": "ecebb0e7-5be3-48e3-98ad-fd1e9be845da",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b94892c9-6b5a-451b-b9cb-0f98e0ca5768",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b94892c9-6b5a-451b-b9cb-0f98e0ca5768",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT into transactions_next (timestamp,breadcrumb_id,server,tenant,environment,flow_id,flow_name,name,value) VALUES ('${header.timestamp}','${header.breadcrumbId}','https://next.dovetail.world','Regression Tests','test','694aca3eda8dd5001600023e','OauthGmailNoreply','${header.name}','${header.value}')"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b94892c9-6b5a-451b-b9cb-0f98e0ca5768",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b6d7cde2-2181-4acc-b373-5c0d21593ce3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b6d7cde2-2181-4acc-b373-5c0d21593ce3",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "HD9z#cpt"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b6d7cde2-2181-4acc-b373-5c0d21593ce3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "788088a3-b8ec-4f5e-9c70-eb613453c155",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "788088a3-b8ec-4f5e-9c70-eb613453c155",
+									"type": "action",
+									"uri": "setheaders:message:788088a3-b8ec-4f5e-9c70-eb613453c155",
+									"links": {
+										"link": [
+											{
+												"id": "788088a3-b8ec-4f5e-9c70-eb613453c155",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6320e326-426a-483d-a57f-af6e742a68ac",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6320e326-426a-483d-a57f-af6e742a68ac",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT * FROM  transactions_next WHERE id = ${header.id}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6320e326-426a-483d-a57f-af6e742a68ac",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ad667966-151c-4e90-9777-6aae22c24f4e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ad667966-151c-4e90-9777-6aae22c24f4e",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "HD9z#cpt"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ad667966-151c-4e90-9777-6aae22c24f4e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b3110d99-f5ca-4829-9024-bc079468eb07",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b3110d99-f5ca-4829-9024-bc079468eb07",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b3110d99-f5ca-4829-9024-bc079468eb07",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2b27ce41-0949-479c-ac28-920c8ba80caa",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "ecebb0e7-5be3-48e3-98ad-fd1e9be845da",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							}
+						}
+					},
+					{
+						"name": "788088a3-b8ec-4f5e-9c70-eb613453c155",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "id",
+								"value": "//generatedKey/text()"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

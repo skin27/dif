@@ -23,3 +23,8 @@ type messageSource struct{}
 func newMessageSource(string, stepdef.Params) (stepdef.Processor, error) { return messageSource{}, nil }
 
 func (messageSource) Run(context.Context, stepdef.Emit) error { return nil }
+
+func (messageSource) RunReady(_ context.Context, _ stepdef.Emit, ready func()) error {
+	ready()
+	return nil
+}

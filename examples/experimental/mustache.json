@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a72e3b5bd75720018000000",
+						"name": "mustache",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "edff8d75-edcc-4586-8fcf-e4c53e06efcc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/mustache",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ac214fe1-4612-4577-a4a2-66ef9b45f1cf",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ac214fe1-4612-4577-a4a2-66ef9b45f1cf",
+									"type": "action",
+									"uri": "setheaders:message:ac214fe1-4612-4577-a4a2-66ef9b45f1cf",
+									"links": {
+										"link": [
+											{
+												"id": "ac214fe1-4612-4577-a4a2-66ef9b45f1cf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c07d318c-d891-4253-bfb6-90d857f0012c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c07d318c-d891-4253-bfb6-90d857f0012c",
+									"type": "sink",
+									"uri": "mustache:ref:90eff3cb-bd42-44a3-9d93-7af5d6cf6902",
+									"links": {
+										"link": {
+											"id": "c07d318c-d891-4253-bfb6-90d857f0012c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a72e3b5bd75720018000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "90eff3cb-bd42-44a3-9d93-7af5d6cf6902",
+					"content": "Dear {{headers.lastName}}, {{headers.firstName}}\n\nThanks for the order of {{headers.item}}.\n\nRegards Camel Riders Bookstore"
+				}
+			},
+			"messages": {
+				"message": {
+					"name": "ac214fe1-4612-4577-a4a2-66ef9b45f1cf",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "lastName",
+								"value": "Doe"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "firstName",
+								"value": "Jane"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "item",
+								"value": "banana boat"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

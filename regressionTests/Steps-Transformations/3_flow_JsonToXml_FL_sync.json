@@ -1,0 +1,100 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a956e15bff351001600023d",
+						"name": "3_flow_JsonToXml_FL_sync",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c571b690-b019-4ca8-ac61-11043765b229",
+									"type": "source",
+									"uri": "flowlink",
+									"options": {
+										"transport": "sync"
+									},
+									"links": {
+										"link": {
+											"id": "f9e5231a-d00b-4560-bfb5-5681f294de94",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f9e5231a-d00b-4560-bfb5-5681f294de94",
+									"type": "action",
+									"uri": "jsontoxml",
+									"options": {
+										"elementName": "element",
+										"arrayName": "array",
+										"namespaceLenient": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f9e5231a-d00b-4560-bfb5-5681f294de94",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d2ee340e-7f20-4e40-a28e-07245f4bd6ce",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d2ee340e-7f20-4e40-a28e-07245f4bd6ce",
+									"type": "sink",
+									"uri": "setheaders:message:d2ee340e-7f20-4e40-a28e-07245f4bd6ce",
+									"links": {
+										"link": {
+											"id": "d2ee340e-7f20-4e40-a28e-07245f4bd6ce",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a956e15bff351001600023f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "d2ee340e-7f20-4e40-a28e-07245f4bd6ce",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "dummy",
+							"value": "dummy"
+						}
+					}
+				}
+			}
+		}
+	}
+}

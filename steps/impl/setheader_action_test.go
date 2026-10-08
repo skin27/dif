@@ -45,6 +45,6 @@ func TestSetHeaderInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "setheader", map[string]any{"name": "body"}, `"body" is reserved for the body`)
 	wantInvalid(t, stepdef.Action, "setheader", map[string]any{"name": "metadata.traceid"}, "reserved for metadata")
 	wantInvalid(t, stepdef.Action, "setheader", map[string]any{"name": "x", "language": "groovy"}, "option language")
-	wantInvalid(t, stepdef.Action, "setheader", map[string]any{"name": "x", "value": "${date:now}"}, "unsupported simple expression")
+	wantInvalid(t, stepdef.Action, "setheader", map[string]any{"name": "x", "value": "${exchangeId}"}, "unsupported simple expression")
 	wantInvalid(t, stepdef.Action, "setheader", map[string]any{"path": "x"}, "unknown option path")
 }

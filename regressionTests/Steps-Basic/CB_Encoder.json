@@ -1,0 +1,114 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4fcdb2d751da000d0001ee",
+						"name": "CB_Encoder",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1fe5db57-a1f7-4352-b7b0-61984eb07639",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Encoder",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "b4a93796-aa75-4659-b151-28f072d468d7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b4a93796-aa75-4659-b151-28f072d468d7",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Joyeux Noël "
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b4a93796-aa75-4659-b151-28f072d468d7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cb3176b9-7788-4c5d-bd85-f5ba0efaa041",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cb3176b9-7788-4c5d-bd85-f5ba0efaa041",
+									"type": "action",
+									"uri": "encoder",
+									"options": {
+										"originCharset": "UTF-8",
+										"targetCharset": "ASCII"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cb3176b9-7788-4c5d-bd85-f5ba0efaa041",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f965ddc3-e761-4609-8a1d-28737b8343b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f965ddc3-e761-4609-8a1d-28737b8343b0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f965ddc3-e761-4609-8a1d-28737b8343b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "76077abb-5fdf-4893-ae0e-1e5e51293f61",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

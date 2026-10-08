@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bb9cdf71686000d00006a",
+						"name": "ScriptGroovyScriptWCG_whlsl_20a_val",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b7ffd383-f7ec-4b54-9f70-fe27a9d7e106",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScriptWCG_whlsl_20a_val",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "c4050550-e86e-443b-b3a5-470bb5fccfcd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c4050550-e86e-443b-b3a5-470bb5fccfcd",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<names>\n    <name>Johnny Cash</name>\n</names>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c4050550-e86e-443b-b3a5-470bb5fccfcd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ef43ca4c-5d74-4200-adf8-87cbc0f03df8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ef43ca4c-5d74-4200-adf8-87cbc0f03df8",
+									"type": "action",
+									"uri": "groovy:ref:edbf48c8-5c19-49da-a107-6783b9408379",
+									"links": {
+										"link": [
+											{
+												"id": "ef43ca4c-5d74-4200-adf8-87cbc0f03df8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c6ccc0bf-5d8c-41dd-bd45-a33dc3f58a4d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c6ccc0bf-5d8c-41dd-bd45-a33dc3f58a4d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c6ccc0bf-5d8c-41dd-bd45-a33dc3f58a4d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5e9354b3-5c77-4424-8f31-e518021d506c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "edbf48c8-5c19-49da-a107-6783b9408379",
+					"content": "import groovy.xml.*; \n\ndef bodyAsString = request.getBody(String.class)+''\n\ntry {\n        new XmlParser().parseText(bodyAsString)\n         \n          request.setHeader(\"xmlValid\",true)\n         request.setHeader(\"xmlError\",\"\")\n} catch (Exception ex) {\n              request.setHeader(\"xmlValid\",false)\n\t      request.setHeader(\"xmlError\",ex.getMessage())\n}\n\nreturn bodyAsString"
+				}
+			}
+		}
+	}
+}

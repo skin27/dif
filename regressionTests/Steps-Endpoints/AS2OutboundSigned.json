@@ -1,0 +1,162 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694ac1deda8dd5000c000113",
+						"name": "AS2OutboundSigned",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "4c3914e1-f8a2-4932-bb3e-e5e52e9b9f59",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/AS2OutboundSigned",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9d61cf02-2ee2-470f-8fd2-8db188a96147",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9d61cf02-2ee2-470f-8fd2-8db188a96147",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "UNA:+.? 'UNB+UNOC:2+8002030000205:14+8714252011517:14+250527:0801+19542++DESADV'UNH+1954200001+DESADV:D:96B:UN'BGM+351+0102133548+9'DTM+2:20250605:102'DTM+137:20250527:102'MEA+WT+AAD+AAD::14359.176'MEA+WT+AAC+AAD::13182.371'MEA+WT+ADZ+AAD::15659.176'MEA+AAU++EA::9100'RFF+IL:4302314588'RFF+AAN:0020647918'RFF+AAP:5631128'RFF+AAQ:CLDU9706572'RFF+AAU:0102133548'RFF+VA:GB922955114'NAD+GG+6490'NAD+VN+1442407'NAD+DP+5013546181770++EXEL EUROPE LTD+UNIT 1, SHERLOCK BUSINESS PARK+WORKSOP++S80 3FY+GB'TDT+11+++31:TS Standard'CPS+1'FTX+PAC+++PX'FTX+AAI+++Consignment and item information are complete'FTX+AAH+++C - Union Goods - free circulation'LIN+10++05000204503883:EN'PIA+1+358849:SA+50204649:EN+05000204503883:EN'IMD+F++:::Gld Sld Gel Lvndr 150g/8 UK.'MEA+AAI+AAB:::14359.176'MEA+AAI+AAA:::13182.371'QTY+46:9048:MCS'QTY+189:174'QTY+59:8'HAN+:169::33074900'LIN+900001++05000204503883:EN'PIA+1+STD CHEP:SA+50204649:EN+05000204503883:EN'IMD+F++:::EU STD CHEP PALLET 100x120'MEA+AAI+AAB:::1300.000'MEA+AAI+AAA:::1300.000'QTY+46:52'QTY+189:1'QTY+59:0'HAN+:169::44152020'UNT+41+1954200001'UNZ+1+19542'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9d61cf02-2ee2-470f-8fd2-8db188a96147",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "90ffbe6c-827e-4ecc-bf58-f88b26ccb365",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "90ffbe6c-827e-4ecc-bf58-f88b26ccb365",
+									"type": "action",
+									"uri": "as2",
+									"options": {
+										"hostName": "next.dovetail.world",
+										"port": "443",
+										"uri": "/test/inbound_as2/adamtetz/BVG_TST2",
+										"as2From": "BVG_TST",
+										"as2To": "fluxygen",
+										"subject": "Signed and Encrypted test",
+										"messageContentType": "application/edi-x12",
+										"signingAlgorithm": "SHA256WITHRSA",
+										"keyAlias": "bruno",
+										"password": "1234",
+										"encryptingAlgorithm": "DES_EDE3_CBC",
+										"targetPortNumber": "443",
+										"ediMessageContentType": "application/edifact",
+										"as2MessageStructure": "ENCRYPTED_COMPRESSED_SIGNED",
+										"certificateForSigning": "http://nginx:8080/private_keys/694ac1deda8dd5000c000113?version=0&tenant=regressiontests&step=90ffbe6c-827e-4ecc-bf58-f88b26ccb365&key=privateKey",
+										"certificateForEncrypt": "http://nginx:8080/private_keys/694ac1deda8dd5000c000113?version=0&tenant=regressiontests&step=90ffbe6c-827e-4ecc-bf58-f88b26ccb365&key=publicCertificate",
+										"sslContext": "#sslContextObj"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "90ffbe6c-827e-4ecc-bf58-f88b26ccb365",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fd3f735e-1e9a-4eec-a021-0847b0905997",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fd3f735e-1e9a-4eec-a021-0847b0905997",
+									"type": "action",
+									"uri": "setheaders:message:fd3f735e-1e9a-4eec-a021-0847b0905997",
+									"links": {
+										"link": [
+											{
+												"id": "fd3f735e-1e9a-4eec-a021-0847b0905997",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "84de7ee4-cb98-4e24-8dbf-ebf32546fa30",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "84de7ee4-cb98-4e24-8dbf-ebf32546fa30",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "84de7ee4-cb98-4e24-8dbf-ebf32546fa30",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ac1bad81-06c5-4cc0-8b3d-6968c3d35f03",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "fd3f735e-1e9a-4eec-a021-0847b0905997",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "test",
+							"value": "123"
+						}
+					}
+				}
+			}
+		}
+	}
+}

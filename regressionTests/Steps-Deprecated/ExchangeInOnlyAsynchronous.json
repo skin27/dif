@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69d90442e2e58e001a000017",
+						"name": "ExchangeInOnlyAsynchronous",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "922c874e-0c0c-4b0b-80c4-001db1818bf4",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ExchangeInOnlyAsynchronous",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "65aa5866-7e8b-4c1e-9d1a-921cf1f13dcd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "65aa5866-7e8b-4c1e-9d1a-921cf1f13dcd",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Original body"
+									},
+									"links": {
+										"link": {
+											"id": "65aa5866-7e8b-4c1e-9d1a-921cf1f13dcd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b44c0591-b474-4976-ae2a-db724b49ee6e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

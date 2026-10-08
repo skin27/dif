@@ -1,0 +1,91 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a8bf26a48630d00110000af",
+						"name": "FlowlinkAsyncOutOW10sec",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "87becdad-45f2-4962-99c8-fca02a97d79f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlowlinkAsyncOutOW10sec",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "88e683f5-a265-4097-9677-6e30a7f84501",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "88e683f5-a265-4097-9677-6e30a7f84501",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "OauthGmailNoreply"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "88e683f5-a265-4097-9677-6e30a7f84501",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "57e36f80-86c6-4fbd-8242-09717b17ea96",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "57e36f80-86c6-4fbd-8242-09717b17ea96",
+									"type": "sink",
+									"uri": "flowlink-async",
+									"options": {
+										"transport": "async",
+										"targetFlowId": "6960fa64bf1e3b0018000069",
+										"exchangePattern": "InOnly",
+										"requestTimout": "10000"
+									},
+									"links": {
+										"link": {
+											"id": "57e36f80-86c6-4fbd-8242-09717b17ea96",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6be58f37-8ca5-463b-ba55-604a23afaea4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

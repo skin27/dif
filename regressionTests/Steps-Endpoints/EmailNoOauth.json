@@ -1,0 +1,208 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694b9a89da8dd5000c0000ad",
+						"name": "EmailNoOauth",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ccd8aa9f-b4e2-4c67-bbe7-2e3800d2e721",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/EmailNoOauth",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "39a15f7d-b323-46cd-8dbe-377501d89176",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "39a15f7d-b323-46cd-8dbe-377501d89176",
+									"type": "action",
+									"uri": "setheaders:message:39a15f7d-b323-46cd-8dbe-377501d89176",
+									"links": {
+										"link": [
+											{
+												"id": "39a15f7d-b323-46cd-8dbe-377501d89176",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e8451442-bff7-41ef-8a79-9946dcaf63f9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e8451442-bff7-41ef-8a79-9946dcaf63f9",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Hello people!"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e8451442-bff7-41ef-8a79-9946dcaf63f9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a77a4c80-6c45-4cb5-a093-e4a122f81f05",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a77a4c80-6c45-4cb5-a093-e4a122f81f05",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@fluxygen.com",
+										"subject": "Dummy",
+										"exchangeBodyAs": "body",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"username": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "basic",
+										"password": "qifpwjduigixoumq",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a77a4c80-6c45-4cb5-a093-e4a122f81f05",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6d4e9636-3fed-4b60-af28-de43735965dc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6d4e9636-3fed-4b60-af28-de43735965dc",
+									"type": "action",
+									"uri": "setheaders:message:6d4e9636-3fed-4b60-af28-de43735965dc",
+									"links": {
+										"link": [
+											{
+												"id": "6d4e9636-3fed-4b60-af28-de43735965dc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fc51298a-5407-4c6d-92c4-b7d91d279f83",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fc51298a-5407-4c6d-92c4-b7d91d279f83",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "fc51298a-5407-4c6d-92c4-b7d91d279f83",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "18777a1b-04e2-4462-bb4a-09b37e40e0c4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "39a15f7d-b323-46cd-8dbe-377501d89176",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "serverTmp",
+									"value": "https://next.dovetail.world"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "server",
+									"value": "next"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "subject",
+									"value": "Email body ${header.server} test"
+								}
+							]
+						}
+					},
+					{
+						"name": "6d4e9636-3fed-4b60-af28-de43735965dc",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessageId",
+									"value": "${header.CamelMailMessageId}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessage",
+									"value": "${header.mailMessageId.replaceAll('<.*@|>','')}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

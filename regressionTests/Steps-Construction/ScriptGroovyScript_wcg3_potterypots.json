@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695b6795f71686000b000000",
+						"name": "ScriptGroovyScript_wcg3_potterypots",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cdca4a73-b626-4417-8841-43b0b321f5c4",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_wcg3_potterypots",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "2aa21ad0-b068-44b1-bbd5-a99276c70a9f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2aa21ad0-b068-44b1-bbd5-a99276c70a9f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <Aggregated> <DLL> <DateTimeLogging>2024-01-15 12:40:01.037</DateTimeLogging> <Platform>WCG3</Platform> <Tenant>Pottery Pots</Tenant> <DateLogging>2024-01-15</DateLogging> <TimeLogging>12:40:01.038</TimeLogging> <ErrorClass>4</ErrorClass> <ErrorType>INFO</ErrorType> <FlowName>024_ERP_CS_Products</FlowName> <Datapoint>CS_PRODUCT_FTP</Datapoint> <ErrorMessage>INFOLOG - Integratie Producten van ERP naar Cloudsuite, check FTP</ErrorMessage> <breadcrumbId>ID-wcg3-production-1703922641579-445-793397</breadcrumbId> <Datafield_01/> <Datafield_02/> <Datafield_03/> <Datafield_04/> <Datafield_05/> <Payload>Controle op ERP_PRRODUCTS-bestand op FTP.</Payload> <PayloadId>UBV32303B8OaDBJx342D30312DBJxXWF2y9TI4nr0312D31352031323A34302y9TI4nr7CtlvLXAA57434733nr7CtlvLXAA506F747465727920506F7473CtlvLXAA</PayloadId> <CustomerReport>false</CustomerReport> <Retention>90</Retention> <RunId>55c515da-3690-4912-bc4c-2b63a149c1f1</RunId> <ProcessId>CLOUDSUITE</ProcessId> <DocumentId/> </DLL> <DLL> <DateTimeLogging>2024-01-15 12:40:01.081</DateTimeLogging> <Platform>WCG3</Platform> <Tenant>Pottery Pots</Tenant> <DateLogging>2024-01-15</DateLogging> <TimeLogging>12:40:01.081</TimeLogging> <ErrorClass>4</ErrorClass> <ErrorType>INFO</ErrorType> <FlowName>040_ERP_Customers_INCR</FlowName> <Datapoint>CS_CUSTOMER_START</Datapoint> <ErrorMessage>INFOLOG - Ophalen gewijzigd klanten uit ERP (Datum: 2024-01-15 Tijd: 13:40:00)</ErrorMessage> <breadcrumbId>ID-wcg3-production-1703922641579-450-32635</breadcrumbId> <Datafield_01/> <Datafield_02/> <Datafield_03/> <Datafield_04/> <Datafield_05/> <Payload>Ophalen wijzigingen klanten uit ERP ophalen</Payload> <PayloadId>5AK32303oNStLWfG342D30312DWfGKna1aYJh5aR0312D31352031323A34301aYJh5aRxwFCGKS7F57434733aRxwFCGKS7F506F747465727920506F7473wFCGKS7F</PayloadId> <CustomerReport>false</CustomerReport> <Retention>90</Retention> <RunId>39fa9a86-62de-4ecf-93d4-0eb7df9a8bfc</RunId> <ProcessId>CLOUDSUITE</ProcessId> <DocumentId/> <AttributeSet> <RunId>39fa9a86-62de-4ecf-93d4-0eb7df9a8bfc</RunId> <Attributes> <Attribute> <AttributeName>runDescription</AttributeName> <AttributeValue> Cloudsuite Customer Update - Incremental </AttributeValue> </Attribute> </Attributes> </AttributeSet> </DLL> <DLL> <DateTimeLogging>2024-01-15 12:40:02.268</DateTimeLogging> <Platform>WCG3</Platform> <Tenant>Pottery Pots</Tenant> <DateLogging>2024-01-15</DateLogging> <TimeLogging>12:40:02.268</TimeLogging> <ErrorClass>4</ErrorClass> <ErrorType>INFO</ErrorType> <FlowName>043_ERP_CS_Customers_Process</FlowName> <Datapoint>CS_CUSTOMERS_PROCESS_START</Datapoint> <ErrorMessage>INFOLOG - Verwerken van 0 klanten en adressen naar CS gestart</ErrorMessage> <breadcrumbId>ID-wcg3-production-1703922641579-450-32635</breadcrumbId> <Datafield_01>DDG_ECOM_DEBTORMUT_ADRES</Datafield_01> <Datafield_02>2024-01-15</Datafield_02> <Datafield_03>13:25:00</Datafield_03> <Datafield_04/> <Datafield_05/> <Payload>&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt; &lt;CustomerMutatiesERP&gt; &lt;resultData/&gt; &lt;/CustomerMutatiesERP&gt; </Payload> <PayloadId>oVK32303lJN8QP9m342D30312DP9mBzj5gC9vBS20312D31352031323A34305gC9vBS2jiXf2L1eR57434733S2jiXf2L1eR506F747465727920506F7473iXf2L1eR</PayloadId> <CustomerReport>false</CustomerReport> <Retention>90</Retention> <RunId>39fa9a86-62de-4ecf-93d4-0eb7df9a8bfc</RunId> <ProcessId>CLOUDSUITE</ProcessId> <DocumentId/> </DLL> <DLL> <DateTimeLogging>2024-01-15 12:40:02.311</DateTimeLogging> <Platform>WCG3</Platform> <Tenant>Pottery Pots</Tenant> <DateLogging>2024-01-15</DateLogging> <TimeLogging>12:40:02.312</TimeLogging> <ErrorClass>4</ErrorClass> <ErrorType>INFO</ErrorType> <FlowName>043_ERP_CS_Customers_Process</FlowName> <Datapoint>CS_CUSTOMERS_PROCESS_START</Datapoint> <ErrorMessage>INFOLOG - Verwerken van klanten en adressen naar CS voltooid</ErrorMessage> <breadcrumbId>ID-wcg3-production-1703922641579-450-32635</breadcrumbId> <Datafield_01>DDG_ECOM_DEBTORMUT_ADRES</Datafield_01> <Datafield_02>2024-01-15</Datafield_02> <Datafield_03>13:25:00</Datafield_03> <Datafield_04/> <Datafield_05/> <Payload>&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt; &lt;CustomerMutatiesERP&gt; &lt;resultData/&gt; &lt;/CustomerMutatiesERP&gt; </Payload> <PayloadId>DqA32303uEIwlCKE342D30312DCKEEES6T5a1sf90312D31352031323A34306T5a1sf9dZyjNgLv857434733f9dZyjNgLv8506F747465727920506F7473ZyjNgLv8</PayloadId> <CustomerReport>false</CustomerReport> <Retention>90</Retention> <RunId>39fa9a86-62de-4ecf-93d4-0eb7df9a8bfc</RunId> <ProcessId>CLOUDSUITE</ProcessId> <DocumentId/> </DLL> <DLL> <DateTimeLogging>2024-01-15 12:40:02.329</DateTimeLogging> <Platform>WCG3</Platform> <Tenant>Pottery Pots</Tenant> <DateLogging>2024-01-15</DateLogging> <TimeLogging>12:40:02.329</TimeLogging> <ErrorClass>4</ErrorClass> <ErrorType>INFO</ErrorType> <FlowName>043_ERP_CS_Customers_Process</FlowName> <Datapoint>CS_CUSTOMERS_END</Datapoint> <ErrorMessage>INFOLOG - Incrementele update van klanten richting Cloudsuite voltooid</ErrorMessage> <breadcrumbId>ID-wcg3-production-1703922641579-450-32635</breadcrumbId> <Datafield_01>DDG_ECOM_DEBTORMUT_ADRES</Datafield_01> <Datafield_02>2024-01-15</Datafield_02> <Datafield_03>13:25:00</Datafield_03> <Datafield_04/> <Datafield_05/> <Payload>&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt; &lt;CustomerMutatiesERP&gt; &lt;resultData/&gt; &lt;/CustomerMutatiesERP&gt; </Payload> <PayloadId>NVp32303mOWpGpb8342D30312Dpb8ipDzyL5mySz0312D31352031323A3430zyL5mySzThrumXwvD57434733SzThrumXwvD506F747465727920506F7473hrumXwvD</PayloadId> <CustomerReport>false</CustomerReport> <Retention>90</Retention> <RunId>39fa9a86-62de-4ecf-93d4-0eb7df9a8bfc</RunId> <ProcessId>CLOUDSUITE</ProcessId> <DocumentId/> </DLL> </Aggregated>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2aa21ad0-b068-44b1-bbd5-a99276c70a9f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ec3d807c-2a4a-4bf0-ab56-38e5c7962807",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ec3d807c-2a4a-4bf0-ab56-38e5c7962807",
+									"type": "action",
+									"uri": "groovy:ref:b9645a3f-1b96-45d0-8e61-903d1eb6728f",
+									"links": {
+										"link": [
+											{
+												"id": "ec3d807c-2a4a-4bf0-ab56-38e5c7962807",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a5879a05-9f99-4386-9eeb-ba198be6f000",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a5879a05-9f99-4386-9eeb-ba198be6f000",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a5879a05-9f99-4386-9eeb-ba198be6f000",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5d66e372-0ab7-4b21-810b-20ebd41625b9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "b9645a3f-1b96-45d0-8e61-903d1eb6728f",
+					"content": "//Generic_GetLogAttributes\n//Version 1\n//Company: WCG\n//Author: Roel Smeding\n\n//-------\nimport groovy.xml.*;\n\nclass sqlAttributeLine\n{\n    String RunId\n    String RunSubId\n    String AttributeName\n    String AttributeValue\n}\n\ndef aggregatedXml = new XmlParser().parseText(request.getBody())\ndef sqlAttributeLines = []\n\ndef attributeList = aggregatedXml.'**'.findAll{ attribute -> attribute.name() == \"Attribute\"}\nif (!attributeList.isEmpty()) {\n    attributeList.eachWithIndex { attribute, index ->\n        def line = new sqlAttributeLine(\n                RunId: attribute.parent().parent().RunId.text(),\n                RunSubId: attribute.RunSubId.text(),\n                AttributeName: attribute.AttributeName.text().replaceAll(/(^\\s*)|[\\r\\n\\t]/, \"\"),\n                AttributeValue: attribute.AttributeValue.text().replaceAll(/(^\\s*)|[\\r\\n\\t]/, \"\")\n        )\n        sqlAttributeLines.add(line);\n    }\n}\ndef String outputString = \"\"\"INSERT INTO \"DovetailLogAttributes\" (\"RunId\",\"RunSubId\",\"AttributeId\",\"AttributeValue\") \\nVALUES \\n\"\"\"\n\nsqlAttributeLines.each { sqlAttributeLine line ->\n    outputString += \"('\" + line.RunId + \"','\" + line.RunSubId + \"','\" + line.AttributeName + \"','\" + line.AttributeValue + \"'),\" + \"\\n\"\n}\n\n//Body or header?\n//-------\nrequest.setHeader(\"SQLcommand\", outputString.take(outputString.length() -2))\nresult = outputString.take(outputString.length() -2)"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,202 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7b0613b55b6d0011000413",
+						"name": "OutboundSamba_default_backslash",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ad672ca6-86c2-4e25-ae43-8ac82267cf37",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSamba_default_backslash",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "4df8c7f9-7c25-4395-9639-156b294735e2",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4df8c7f9-7c25-4395-9639-156b294735e2",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4df8c7f9-7c25-4395-9639-156b294735e2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a7a40be1-d26e-4d6b-a499-c7c23b74e14f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a7a40be1-d26e-4d6b-a499-c7c23b74e14f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "OutboundSambaDefaultBackslash"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a7a40be1-d26e-4d6b-a499-c7c23b74e14f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d2392d99-a060-4f31-ab36-6c46c5f52d23",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d2392d99-a060-4f31-ab36-6c46c5f52d23",
+									"type": "action",
+									"uri": "setheaders:message:d2392d99-a060-4f31-ab36-6c46c5f52d23",
+									"links": {
+										"link": [
+											{
+												"id": "d2392d99-a060-4f31-ab36-6c46c5f52d23",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "183b442c-8eb9-430c-8c56-8c68a6500da3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "183b442c-8eb9-430c-8c56-8c68a6500da3",
+									"type": "action",
+									"uri": "smb://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"fileName": "OutboundSambaDefaultBackslash.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"password": "ENC(qjlM/uUTIgu17zkHa34qKw==|hdd6SKX2l2anHIDFZEBRrQ==|5pqt9uLcOQJ5mU03YmwXg+gFlrqBwKYRccLbXXeIX5E1tXRY0xEBJZJoqZvplOLYF3ETRohvxWg42DeUHM3VlC3N9xPsmwMNkblJWjmvwQs=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "183b442c-8eb9-430c-8c56-8c68a6500da3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "269268d9-8b4a-4fff-8bb6-4ec3d86e68cd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "269268d9-8b4a-4fff-8bb6-4ec3d86e68cd",
+									"type": "action",
+									"uri": "smbenrich://dovetail@api-testing.dovetail.world:445/Data/next\\Regression Tests\\test",
+									"options": {
+										"recursive": false,
+										"fileName": "OutboundSambaDefaultBackslash.txt",
+										"charset": "utf-8",
+										"delete": false,
+										"move": "RAW(archive)",
+										"moveFailed": ".error",
+										"autoCreate": true,
+										"readLock": "changed",
+										"password": "ENC(P0ymZJEPF5OULs/GdCXfiw==|qNMkA0QefxHXk2S9lQUbbg==|400bpM2W+JO7dZsN7C3QW6j1lSjM/9A4YNUIIHXdJpEr6O22zZcUJFdZzvU4G2v6aYxnZH+G4BgcOQTbBEA9QAgEVXWH1fXwKBo87vXevLk=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "269268d9-8b4a-4fff-8bb6-4ec3d86e68cd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8c07c7f7-59fc-48b2-8b10-0606d21c484b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8c07c7f7-59fc-48b2-8b10-0606d21c484b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8c07c7f7-59fc-48b2-8b10-0606d21c484b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4ac719cd-9a82-4066-8585-a5bef024555e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "d2392d99-a060-4f31-ab36-6c46c5f52d23",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelFileName",
+							"value": "OutboundSambaBackslashHeaderCFN.txt"
+						}
+					}
+				}
+			}
+		}
+	}
+}

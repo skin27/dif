@@ -1,0 +1,315 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6abbb732b5cd100016000065",
+						"name": "Enrich_zip_single_body",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d5df183d-c12e-4923-bf6d-561af019b28b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_zip_single_body",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "3261f89a-75ab-404e-9537-ae220e151b70",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3261f89a-75ab-404e-9537-ae220e151b70",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3261f89a-75ab-404e-9537-ae220e151b70",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3aa44352-f966-4dd9-850b-ab8ae3468890",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3aa44352-f966-4dd9-850b-ab8ae3468890",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bicycle_brands>\n    <brand>\n        <name>Batavus</name>\n        <country>The Netherlands</country>\n        <founded>1888</founded>\n        <website>www.batavus.nl</website>\n    </brand>\n</bicycle_brands>\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3aa44352-f966-4dd9-850b-ab8ae3468890",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "02e2da84-fd39-4df4-b4be-3d5f6105c80e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "02e2da84-fd39-4df4-b4be-3d5f6105c80e",
+									"type": "action",
+									"uri": "setheaders:message:02e2da84-fd39-4df4-b4be-3d5f6105c80e",
+									"links": {
+										"link": [
+											{
+												"id": "02e2da84-fd39-4df4-b4be-3d5f6105c80e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5a63d0dc-6cd4-4ca1-9b23-82d148bc1ad0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5a63d0dc-6cd4-4ca1-9b23-82d148bc1ad0",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "5a63d0dc-6cd4-4ca1-9b23-82d148bc1ad0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f509c33a-2f07-41d7-b773-09e0e01f2566",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f509c33a-2f07-41d7-b773-09e0e01f2566",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "zip",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f509c33a-2f07-41d7-b773-09e0e01f2566",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "112a09ec-d52a-4e21-8d82-2c4f62185b42",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "5ceb2615-7e3a-4379-88b1-e41fa26ad94f",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "112a09ec-d52a-4e21-8d82-2c4f62185b42",
+									"type": "action",
+									"uri": "setheaders:message:112a09ec-d52a-4e21-8d82-2c4f62185b42",
+									"links": {
+										"link": [
+											{
+												"id": "112a09ec-d52a-4e21-8d82-2c4f62185b42",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "78abe862-fae9-47fa-a1b4-289ea807bafd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "78abe862-fae9-47fa-a1b4-289ea807bafd",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out",
+									"options": {
+										"fileName": "OauthGmailNoreply_${date-with-timezone:now:Europe/Amsterdam:yyyyMMddHHmmssSSS}.zip",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "ENC(hezjcjW4avkkPCpkGUpdrw==|wOmRwHE4RbsK+Ndbf3+E6Q==|o8xrIBSnuF4vmG+3iHdKzwgM4SqcAZi4XD+KSoEqsrbL7/tUc70tSbVlpRxKInThp/fZCOdSfl6eg7SiaK/NrIVrj6DK6CTXNhfBEwV2GsYo+di89bcQB5mpgwtnoYbV+OHn7OoTO8OYBcTBonluSA==)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "78abe862-fae9-47fa-a1b4-289ea807bafd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "09ee6254-6080-4872-9e90-e1613dba22f1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "09ee6254-6080-4872-9e90-e1613dba22f1",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "09ee6254-6080-4872-9e90-e1613dba22f1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5ceb2615-7e3a-4379-88b1-e41fa26ad94f",
+									"type": "action",
+									"uri": "setheaders:message:5ceb2615-7e3a-4379-88b1-e41fa26ad94f",
+									"links": {
+										"link": [
+											{
+												"id": "5ceb2615-7e3a-4379-88b1-e41fa26ad94f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5bb3793a-6d53-46d5-9907-f08b18981565",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5bb3793a-6d53-46d5-9907-f08b18981565",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bicycle_parts>\n  <part>\n    <name>Handlebar</name>\n    <type>Steering</type>\n    <material>Aluminum</material>\n    <color>Black</color>\n    <weight>350 grams</weight>\n  </part>\n  <part>\n    <name>Frame</name>\n    <type>Main</type>\n    <material>Carbon Fiber</material>\n    <color>Red</color>\n    <weight>1500 grams</weight>\n  </part>\n  <part>\n    <name>Saddle</name>\n    <type>Seating</type>\n    <material>Leather</material>\n    <color>Brown</color>\n    <weight>280 grams</weight>\n  </part>\n  <part>\n    <name>Wheel</name>\n    <type>Wheelset</type>\n    <material>Aluminum Alloy</material>\n    <color>Silver</color>\n    <weight>850 grams</weight>\n  </part>\n</bicycle_parts>\n"
+									},
+									"links": {
+										"link": {
+											"id": "5bb3793a-6d53-46d5-9907-f08b18981565",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2a5ff086-0e6e-4e6d-bd71-3f6886658a01",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "02e2da84-fd39-4df4-b4be-3d5f6105c80e",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "enrich1.txt"
+							}
+						}
+					},
+					{
+						"name": "5ceb2615-7e3a-4379-88b1-e41fa26ad94f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelFileName",
+								"value": "enrich2.txt"
+							}
+						}
+					},
+					{
+						"name": "112a09ec-d52a-4e21-8d82-2c4f62185b42",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "Position",
+									"value": "After 1st enrich"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "Body",
+									"value": "${body}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "CamelFileName",
+									"value": "OauthGmailNoreply.zip"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

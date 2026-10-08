@@ -51,3 +51,13 @@ func (a validateAction) Process(_ context.Context, m message.Message) (message.M
 	}
 	return m, nil
 }
+
+// newJSONValidator is the validate action with its schema from a DIL resource
+// (jsonvalidator:ref:<name>), as the option resource.
+func newJSONValidator(_ string, p stepdef.Params) (stepdef.Processor, error) {
+	s, err := compileJSONSchema([]byte(p["resource"].(string)))
+	if err != nil {
+		return nil, err
+	}
+	return validateAction{s}, nil
+}

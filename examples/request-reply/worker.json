@@ -1,0 +1,84 @@
+{
+  "dil": {
+    "integrations": {
+      "integration": {
+        "flows": {
+          "flow": {
+            "id": "worker",
+            "steps": {
+              "step": [
+                {
+                  "id": "step0",
+                  "type": "source",
+                  "uri": "queue:jobs",
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step1",
+                        "bound": "out"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "step1",
+                  "type": "action",
+                  "uri": "delay",
+                  "options": {
+                    "milliseconds": 1000
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step1",
+                        "bound": "in"
+                      },
+                      {
+                        "id": "step2",
+                        "bound": "out"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "step2",
+                  "type": "action",
+                  "uri": "setbody",
+                  "options": {
+                    "language": "simple",
+                    "expression": "processed ${body}"
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step2",
+                        "bound": "in"
+                      },
+                      {
+                        "id": "step3",
+                        "bound": "out"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "step3",
+                  "type": "sink",
+                  "uri": "reply",
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step3",
+                        "bound": "in"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

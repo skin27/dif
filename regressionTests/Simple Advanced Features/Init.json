@@ -1,0 +1,172 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a985d160fe1e100170002ef",
+						"name": "Init",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ffa76cd5-ca78-4b94-bf8f-f31e16172483",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Init",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "9807fcc6-2b8a-4b69-a75f-4d359ada322c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9807fcc6-2b8a-4b69-a75f-4d359ada322c",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9807fcc6-2b8a-4b69-a75f-4d359ada322c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c3b4078a-7b4e-42f3-8d17-7383ffa1d4ba",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c3b4078a-7b4e-42f3-8d17-7383ffa1d4ba",
+									"type": "action",
+									"uri": "setheaders:message:c3b4078a-7b4e-42f3-8d17-7383ffa1d4ba",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c3b4078a-7b4e-42f3-8d17-7383ffa1d4ba",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7bad7ce7-1c49-4565-8db5-b60e49be1afa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7bad7ce7-1c49-4565-8db5-b60e49be1afa",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Norman"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7bad7ce7-1c49-4565-8db5-b60e49be1afa",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c2346081-d8ab-4e49-98b0-6f842e39ad65",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c2346081-d8ab-4e49-98b0-6f842e39ad65",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "$init{\n  // minimum age to drive\n  $minAge := 18;\n\n  // say hello to my friend\n  $foo := ${uppercase('Hello ${body}')};\n\n  // either gold or silver\n  $bar := ${header.code > 999 ? 'Gold' : 'Silver'};\n}init$"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c2346081-d8ab-4e49-98b0-6f842e39ad65",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b69cc0be-3439-4346-a082-171261a613fa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b69cc0be-3439-4346-a082-171261a613fa",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b69cc0be-3439-4346-a082-171261a613fa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a985d160fe1e100170002f1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "c3b4078a-7b4e-42f3-8d17-7383ffa1d4ba",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "code",
+							"value": "1111"
+						}
+					}
+				}
+			}
+		}
+	}
+}

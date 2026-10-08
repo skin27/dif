@@ -1,0 +1,156 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953acf8da8dd5001500008f",
+						"name": "HttpHeaderDateReceive",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "54b0a560-a98f-498d-9be3-8e3a2960f058",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpHeaderDateReceive",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8e6bbb0f-f096-46c5-89cb-64c50db94498",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8e6bbb0f-f096-46c5-89cb-64c50db94498",
+									"type": "action",
+									"uri": "setheaders:message:8e6bbb0f-f096-46c5-89cb-64c50db94498",
+									"links": {
+										"link": [
+											{
+												"id": "8e6bbb0f-f096-46c5-89cb-64c50db94498",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "53b9404c-88c3-4dc2-8256-09c09b1da39c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "53b9404c-88c3-4dc2-8256-09c09b1da39c",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "53b9404c-88c3-4dc2-8256-09c09b1da39c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "27dfb1dc-3353-4e44-aaf5-41e916a59b8a",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "ec894375-569e-41e6-b20e-9bf5de12f3e1",
+												"bound": "out",
+												"expression": "${header.Date} != null",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "date",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "27dfb1dc-3353-4e44-aaf5-41e916a59b8a",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "No date or Date"
+									},
+									"links": {
+										"link": {
+											"id": "27dfb1dc-3353-4e44-aaf5-41e916a59b8a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ec894375-569e-41e6-b20e-9bf5de12f3e1",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Reply flow #2"
+									},
+									"links": {
+										"link": {
+											"id": "ec894375-569e-41e6-b20e-9bf5de12f3e1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6953acf8da8dd50015000091",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "8e6bbb0f-f096-46c5-89cb-64c50db94498",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Received_date",
+								"value": "${header.date}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Received_Date",
+								"value": "${header.Date}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

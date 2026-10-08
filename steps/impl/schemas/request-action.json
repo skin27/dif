@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:request-action",
+  "title": "request-action",
+  "description": "Submits a process-local asynchronous request and returns a receipt.",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "Request queue name"
+    },
+    "replyTo": {
+      "type": "string",
+      "description": "Reply queue name"
+    },
+    "requestTimeout": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 20000,
+      "description": "Response deadline in milliseconds from submission"
+    },
+    "overflow": {
+      "type": "string",
+      "enum": [
+        "fail",
+        "block"
+      ],
+      "default": "fail",
+      "description": "Admission policy when the queue is full"
+    },
+    "enqueueTimeout": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Admission timeout in milliseconds; required with block"
+    }
+  },
+  "required": [
+    "path",
+    "replyTo"
+  ],
+  "additionalProperties": false
+}

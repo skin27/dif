@@ -1,0 +1,196 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953dc32da8dd5000c000387",
+						"name": "RemoveTenantVariable_constant",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "38179ea7-ff7b-4351-bf84-eefedcce15cf",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/RemoveTenantVariable_constant",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "a9dec60c-5d70-4f18-8eeb-660e2183e5ae",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a9dec60c-5d70-4f18-8eeb-660e2183e5ae",
+									"type": "action",
+									"uri": "settenantvariable:TenantVarNameToRemove",
+									"options": {
+										"language": "constant",
+										"value": "MTA=",
+										"encrypt": false,
+										"flowName": "RemoveTenantVariable_constant",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a9dec60c-5d70-4f18-8eeb-660e2183e5ae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "21820c5a-2501-41ce-8a33-59cad904c998",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "21820c5a-2501-41ce-8a33-59cad904c998",
+									"type": "action",
+									"uri": "gettenantvariable:TenantVarNameToRemove",
+									"options": {
+										"headerName": "GotYou",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "21820c5a-2501-41ce-8a33-59cad904c998",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b1f038d7-9b8d-4fdc-9634-44ce7f1a9508",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b1f038d7-9b8d-4fdc-9634-44ce7f1a9508",
+									"type": "action",
+									"uri": "setheaders:message:b1f038d7-9b8d-4fdc-9634-44ce7f1a9508",
+									"links": {
+										"link": [
+											{
+												"id": "b1f038d7-9b8d-4fdc-9634-44ce7f1a9508",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "98dc56f8-7f6e-49b1-b8fe-832358c44efe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "98dc56f8-7f6e-49b1-b8fe-832358c44efe",
+									"type": "action",
+									"uri": "removetenantvariable:TenantVarNameToRemove",
+									"options": {
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "98dc56f8-7f6e-49b1-b8fe-832358c44efe",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "abddc4b4-9b4a-4955-9419-4143c2e4b23d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "abddc4b4-9b4a-4955-9419-4143c2e4b23d",
+									"type": "action",
+									"uri": "gettenantvariable:TenantVarNameToRemove",
+									"options": {
+										"headerName": "TenantVarNameToRemove",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "abddc4b4-9b4a-4955-9419-4143c2e4b23d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cf7ac830-f1ff-435e-b33e-036755d0dc4a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cf7ac830-f1ff-435e-b33e-036755d0dc4a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "cf7ac830-f1ff-435e-b33e-036755d0dc4a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "94475c63-4324-4f1a-bdaf-a07e95c1afb9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "b1f038d7-9b8d-4fdc-9634-44ce7f1a9508",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "TenantVarNameToRemove",
+							"value": "TenantVarNameToRemove"
+						}
+					}
+				}
+			}
+		}
+	}
+}

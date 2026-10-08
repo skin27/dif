@@ -1,0 +1,64 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6960fa48bf1e3b0014000025",
+						"name": "FlowlinkSyncIn",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e1bec961-3916-42b2-b62e-8393e2259ebe",
+									"type": "source",
+									"uri": "flowlink",
+									"options": {
+										"transport": "sync"
+									},
+									"links": {
+										"link": {
+											"id": "fd1643fe-950c-4323-87db-aa3089c8aedc",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fd1643fe-950c-4323-87db-aa3089c8aedc",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body} -> OauthGmailNoreply"
+									},
+									"links": {
+										"link": {
+											"id": "fd1643fe-950c-4323-87db-aa3089c8aedc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "10e14d46-2e78-4944-81b3-bf04ec544183",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

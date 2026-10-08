@@ -1,0 +1,135 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a82c264dd4f570016000000",
+						"name": "EdifactStandardsToXml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9d0a4633-03af-419c-b404-543366b8e655",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/EdifactStandardsToXml",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8865cadd-da1f-4c55-9ee0-f50d69b4bbc8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8865cadd-da1f-4c55-9ee0-f50d69b4bbc8",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"expression": "${header.config}IFTMIND96A"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8865cadd-da1f-4c55-9ee0-f50d69b4bbc8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "08d41db2-da38-451e-b363-f5b9a2f0d274",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "cbede34f-2cc0-482b-98bf-277b3ff7e9b0",
+												"bound": "out",
+												"expression": "${header.config} == 'IFTMIND96A'",
+												"language": "simple",
+												"rule": "iftmind96a",
+												"transport": "sync"
+											},
+											{
+												"id": "b126b4b9-de50-437d-8f60-3865545be171",
+												"bound": "out",
+												"expression": "${header.config} == 'DESADVD96A'",
+												"language": "simple",
+												"rule": "desadvd9a",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "08d41db2-da38-451e-b363-f5b9a2f0d274",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": {
+											"id": "08d41db2-da38-451e-b363-f5b9a2f0d274",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cbede34f-2cc0-482b-98bf-277b3ff7e9b0",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Envelope xmlns=\"http://www.blujaysolutions.com/2017/IFTMIN\"\n          xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n          xsi:schemaLocation=\"http://www.blujaysolutions.com/2017/IFTMIN file:///C:/Users/jss/Documents/seacon/germany_interfaces/develop/iftmin_D96A/IFTMIN_D96A.xsd\">\n\t  <Interchange>\n\t\t    <UNB>\n\t\t\t      <F0020>24535</F0020>\n\t\t\t      <S001>\n\t\t\t\t        <F0001>UNOA</F0001>\n\t\t\t\t        <F0002>2</F0002>\n\t\t\t      </S001>\n\t\t\t      <S002>\n\t\t\t\t        <F0004>8714252014808</F0004>\n\t\t\t\t        <F0008>14</F0008>\n\t\t\t      </S002>\n\t\t\t      <S003>\n\t\t\t\t        <F0010>8714252011517</F0010>\n\t\t\t\t        <F0014>14</F0014>\n\t\t\t      </S003>\n\t\t\t      <S004>\n\t\t\t\t        <F0017>130402</F0017>\n\t\t\t\t        <F0019>1219</F0019>\n\t\t\t      </S004>\n\t\t    </UNB>\n\t\t    <UNZ>\n\t\t\t      <F0036>1</F0036>\n\t\t\t      <F0020>24535</F0020>\n\t\t    </UNZ>\n\t\t    <Group>\n\t\t\t      <Message_IFTMIN>\n\t\t\t\t        <UNH>\n\t\t\t\t\t          <F0062>24546</F0062>\n\t\t\t\t\t          <S009>\n\t\t\t\t\t\t            <F0065>IFTMIN</F0065>\n\t\t\t\t\t\t            <F0052>D</F0052>\n\t\t\t\t\t\t            <F0054>96A</F0054>\n\t\t\t\t\t\t            <F0051>UN</F0051>\n\t\t\t\t\t          </S009>\n\t\t\t\t        </UNH>\n\t\t\t\t        <BGM>\n\t\t\t\t\t          <F1004>347605</F1004>\n\t\t\t\t\t          <F1225>9</F1225>\n\t\t\t\t\t          <C002>\n\t\t\t\t\t\t            <F1001>340</F1001>\n\t\t\t\t\t          </C002>\n\t\t\t\t        </BGM>\n\t\t\t\t        <DTM>\n\t\t\t\t\t          <C507>\n\t\t\t\t\t\t            <F2005>137</F2005>\n\t\t\t\t\t\t            <F2380>20130402</F2380>\n\t\t\t\t\t\t            <F2379>102</F2379>\n\t\t\t\t\t          </C507>\n\t\t\t\t        </DTM>\n\t\t\t\t        <DTM>\n\t\t\t\t\t          <C507>\n\t\t\t\t\t\t            <F2005>2</F2005>\n\t\t\t\t\t\t            <F2380>20130404</F2380>\n\t\t\t\t\t\t            <F2379>102</F2379>\n\t\t\t\t\t          </C507>\n\t\t\t\t        </DTM>\n\t\t\t\t        <DTM>\n\t\t\t\t\t          <C507>\n\t\t\t\t\t\t            <F2005>200</F2005>\n\t\t\t\t\t\t            <F2380>20130403</F2380>\n\t\t\t\t\t\t            <F2379>102</F2379>\n\t\t\t\t\t          </C507>\n\t\t\t\t        </DTM>\n\t\t\t\t        <TSR>\n\t\t\t\t\t          <C536>\n\t\t\t\t\t\t            <F4065>11</F4065>\n\t\t\t\t\t          </C536>\n\t\t\t\t\t          <C537>\n\t\t\t\t\t\t            <F4219>N</F4219>\n\t\t\t\t\t          </C537>\n\t\t\t\t        </TSR>\n\t\t\t\t        <FTX>\n\t\t\t\t\t          <F4451>DEL</F4451>\n\t\t\t\t\t          <C108>\n\t\t\t\t\t\t            <F4440>EXACT DONDERDAG 4.4 TUSSEN 8.15-12.00 UUR</F4440>\n\t\t\t\t\t\t            <F4440>AFLEVEREN</F4440>\n\t\t\t\t\t          </C108>\n\t\t\t\t        </FTX>\n\t\t\t\t        <UNT>\n\t\t\t\t\t          <F0074>98126</F0074>\n\t\t\t\t\t          <F0062>24546</F0062>\n\t\t\t\t        </UNT>\n\t\t\t\t        <SG2>\n\t\t\t\t\t          <TOD>\n\t\t\t\t\t\t            <F4055>6</F4055>\n\t\t\t\t\t\t            <C100>\n\t\t\t\t\t\t\t              <F4053>CIP</F4053>\n\t\t\t\t\t\t            </C100>\n\t\t\t\t\t          </TOD>\n\t\t\t\t        </SG2>\n\t\t\t\t        <SG11>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>DP</F3035>\n\t\t\t\t\t\t            <F3164>AMSTERDAM</F3164>\n\t\t\t\t\t\t            <F3251>1234AB</F3251>\n\t\t\t\t\t\t            <F3207>670</F3207>\n\t\t\t\t\t\t            <C080>\n\t\t\t\t\t\t\t              <F3036>DUMMY B.V.</F3036>\n\t\t\t\t\t\t            </C080>\n\t\t\t\t\t\t            <C059>\n\t\t\t\t\t\t\t              <F3042>VERLENGDE VOORBEELDWEG 123</F3042>\n\t\t\t\t\t\t            </C059>\n\t\t\t\t\t          </NAD>\n\t\t\t\t        </SG11>\n\t\t\t\t        <SG11>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>CZ</F3035>\n\t\t\t\t\t\t            <F3164>AMSTERDAM</F3164>\n\t\t\t\t\t\t            <F3251>1234 AB</F3251>\n\t\t\t\t\t\t            <F3207>670</F3207>\n\t\t\t\t\t\t            <C080>\n\t\t\t\t\t\t\t              <F3036>DUMMY WIRE &amp; CABLE B.V.</F3036>\n\t\t\t\t\t\t            </C080>\n\t\t\t\t\t\t            <C059>\n\t\t\t\t\t\t\t              <F3042>INDUSTRIEGEBIED: 1234</F3042>\n\t\t\t\t\t\t\t              <F3042>VOORBEELDWEG 10</F3042>\n\t\t\t\t\t\t            </C059>\n\t\t\t\t\t          </NAD>\n\t\t\t\t\t          <SG12>\n\t\t\t\t\t\t            <CTA>\n\t\t\t\t\t\t\t              <F3139>IC</F3139>\n\t\t\t\t\t\t\t              <C056>\n\t\t\t\t\t\t\t\t                <F3412>JANE DOE</F3412>\n\t\t\t\t\t\t\t              </C056>\n\t\t\t\t\t\t            </CTA>\n\t\t\t\t\t\t            <COM>\n\t\t\t\t\t\t\t              <C076>\n\t\t\t\t\t\t\t\t                <F3148>+31(0)12 3456789</F3148>\n\t\t\t\t\t\t\t\t                <F3155>TE</F3155>\n\t\t\t\t\t\t\t              </C076>\n\t\t\t\t\t\t            </COM>\n\t\t\t\t\t          </SG12>\n\t\t\t\t        </SG11>\n\t\t\t\t        <SG11>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>SF</F3035>\n\t\t\t\t\t\t            <F3164>AMSTERDAM</F3164>\n\t\t\t\t\t\t            <F3251>1234 AB</F3251>\n\t\t\t\t\t\t            <F3207>670</F3207>\n\t\t\t\t\t\t            <C080>\n\t\t\t\t\t\t\t              <F3036>DUMMY WIRE &amp; CABLE B.V.</F3036>\n\t\t\t\t\t\t            </C080>\n\t\t\t\t\t\t            <C059>\n\t\t\t\t\t\t\t              <F3042>INDUSTRIEGEBIED: 1234</F3042>\n\t\t\t\t\t\t\t              <F3042>VOORBEELDWEG 10</F3042>\n\t\t\t\t\t\t            </C059>\n\t\t\t\t\t          </NAD>\n\t\t\t\t\t          <SG12>\n\t\t\t\t\t\t            <CTA>\n\t\t\t\t\t\t\t              <F3139>IC</F3139>\n\t\t\t\t\t\t\t              <C056>\n\t\t\t\t\t\t\t\t                <F3412>JANE DOE</F3412>\n\t\t\t\t\t\t\t              </C056>\n\t\t\t\t\t\t            </CTA>\n\t\t\t\t\t\t            <COM>\n\t\t\t\t\t\t\t              <C076>\n\t\t\t\t\t\t\t\t                <F3148>+31(0)12 3456789</F3148>\n\t\t\t\t\t\t\t\t                <F3155>TE</F3155>\n\t\t\t\t\t\t\t              </C076>\n\t\t\t\t\t\t            </COM>\n\t\t\t\t\t          </SG12>\n\t\t\t\t        </SG11>\n\t\t\t\t        <SG11>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>FW</F3035>\n\t\t\t\t\t\t            <F3251>1234 AB</F3251>\n\t\t\t\t\t\t            <F3207>670</F3207>\n\t\t\t\t\t\t            <C080>\n\t\t\t\t\t\t\t              <F3036>LOGISTICS B.V.</F3036>\n\t\t\t\t\t\t            </C080>\n\t\t\t\t\t          </NAD>\n\t\t\t\t        </SG11>\n\t\t\t\t        <SG18>\n\t\t\t\t\t          <GID>\n\t\t\t\t\t\t            <F1496>1</F1496>\n\t\t\t\t\t\t            <C213>\n\t\t\t\t\t\t\t              <F7224>1</F7224>\n\t\t\t\t\t\t\t              <F7065>E827</F7065>\n\t\t\t\t\t\t\t              <F3055>9</F3055>\n\t\t\t\t\t\t            </C213>\n\t\t\t\t\t          </GID>\n\t\t\t\t\t          <HAN>\n\t\t\t\t\t\t            <C524>\n\t\t\t\t\t\t\t              <F4079>UST</F4079>\n\t\t\t\t\t\t\t              <F3055>9</F3055>\n\t\t\t\t\t\t            </C524>\n\t\t\t\t\t          </HAN>\n\t\t\t\t\t          <SG20>\n\t\t\t\t\t\t            <MEA>\n\t\t\t\t\t\t\t              <F6311>AAE</F6311>\n\t\t\t\t\t\t\t              <C502>\n\t\t\t\t\t\t\t\t                <F6313>G</F6313>\n\t\t\t\t\t\t\t              </C502>\n\t\t\t\t\t\t\t              <C174>\n\t\t\t\t\t\t\t\t                <F6411>KGM</F6411>\n\t\t\t\t\t\t\t\t                <F6314>24</F6314>\n\t\t\t\t\t\t\t              </C174>\n\t\t\t\t\t\t            </MEA>\n\t\t\t\t\t          </SG20>\n\t\t\t\t\t          <SG20>\n\t\t\t\t\t\t            <MEA>\n\t\t\t\t\t\t\t              <F6311>AAE</F6311>\n\t\t\t\t\t\t\t              <C502>\n\t\t\t\t\t\t\t\t                <F6313>GMC</F6313>\n\t\t\t\t\t\t\t              </C502>\n\t\t\t\t\t\t\t              <C174>\n\t\t\t\t\t\t\t\t                <F6411>MTQ</F6411>\n\t\t\t\t\t\t\t\t                <F6314>80</F6314>\n\t\t\t\t\t\t\t              </C174>\n\t\t\t\t\t\t            </MEA>\n\t\t\t\t\t          </SG20>\n\t\t\t\t\t          <SG21>\n\t\t\t\t\t\t            <DIM>\n\t\t\t\t\t\t\t              <F6145>1</F6145>\n\t\t\t\t\t\t\t              <C211>\n\t\t\t\t\t\t\t\t                <F6411>MTR</F6411>\n\t\t\t\t\t\t\t\t                <F6168>41</F6168>\n\t\t\t\t\t\t\t\t                <F6140>41</F6140>\n\t\t\t\t\t\t\t\t                <F6008>48</F6008>\n\t\t\t\t\t\t\t              </C211>\n\t\t\t\t\t\t            </DIM>\n\t\t\t\t\t          </SG21>\n\t\t\t\t\t          <SG23>\n\t\t\t\t\t\t            <PCI>\n\t\t\t\t\t\t\t              <F4233>33E</F4233>\n\t\t\t\t\t\t            </PCI>\n\t\t\t\t\t\t            <GIN>\n\t\t\t\t\t\t\t              <F7405>BJ</F7405>\n\t\t\t\t\t\t\t              <C208>\n\t\t\t\t\t\t\t\t                <F7402>00387142520086154710</F7402>\n\t\t\t\t\t\t\t              </C208>\n\t\t\t\t\t\t            </GIN>\n\t\t\t\t\t          </SG23>\n\t\t\t\t        </SG18>\n\t\t\t      </Message_IFTMIN>\n\t\t    </Group>\n\t  </Interchange>\n</Envelope>"
+									},
+									"links": {
+										"link": {
+											"id": "cbede34f-2cc0-482b-98bf-277b3ff7e9b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b126b4b9-de50-437d-8f60-3865545be171",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Envelope xmlns=\"http://www.blujaysolutions.com/2018/DESADV\"\n          xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n          xsi:schemaLocation=\"http://www.blujaysolutions.com/2018/DESADV file:///C:/Users/jss/Documents/seacon/germany_interfaces/develop/desadv_D96A/DESADV_D96A.xsd\">\n\t  <Interchange>\n\t\t    <UNB>\n\t\t\t      <F0020>13239</F0020>\n\t\t\t      <S001>\n\t\t\t\t        <F0001>UNOA</F0001>\n\t\t\t\t        <F0002>2</F0002>\n\t\t\t      </S001>\n\t\t\t      <S002>\n\t\t\t\t        <F0004>SENDERUNB</F0004>\n\t\t\t\t        <F0007>1</F0007>\n\t\t\t\t        <F0008>2</F0008>\n\t\t\t      </S002>\n\t\t\t      <S003>\n\t\t\t\t        <F0010>094200005560840976PU0002</F0010>\n\t\t\t\t        <F0007>OD</F0007>\n\t\t\t      </S003>\n\t\t\t      <S004>\n\t\t\t\t        <F0017>200930</F0017>\n\t\t\t\t        <F0019>1337</F0019>\n\t\t\t      </S004>\n\t\t    </UNB>\n\t\t    <UNZ>\n\t\t\t      <F0036>1</F0036>\n\t\t\t      <F0020>13239</F0020>\n\t\t    </UNZ>\n\t\t    <Group>\n\t\t\t      <Message_DESADV>\n\t\t\t\t        <UNH>\n\t\t\t\t\t          <F0062>7654</F0062>\n\t\t\t\t\t          <S009>\n\t\t\t\t\t\t            <F0065>DESADV</F0065>\n\t\t\t\t\t\t            <F0052>D</F0052>\n\t\t\t\t\t\t            <F0054>96A</F0054>\n\t\t\t\t\t\t            <F0051>UN</F0051>\n\t\t\t\t\t\t            <F0057>A01051</F0057>\n\t\t\t\t\t          </S009>\n\t\t\t\t        </UNH>\n\t\t\t\t        <BGM>\n\t\t\t\t\t          <F1004>12345678987654321</F1004>\n\t\t\t\t\t          <C002>\n\t\t\t\t\t\t            <F1001>351</F1001>\n\t\t\t\t\t          </C002>\n\t\t\t\t        </BGM>\n\t\t\t\t        <DTM>\n\t\t\t\t\t          <C507>\n\t\t\t\t\t\t            <F2005>137</F2005>\n\t\t\t\t\t\t            <F2380>202009301337</F2380>\n\t\t\t\t\t\t            <F2379>203</F2379>\n\t\t\t\t\t          </C507>\n\t\t\t\t        </DTM>\n\t\t\t\t        <MEA>\n\t\t\t\t\t          <F6311>AAX</F6311>\n\t\t\t\t\t          <C502>\n\t\t\t\t\t\t            <F6313>AAD</F6313>\n\t\t\t\t\t          </C502>\n\t\t\t\t\t          <C174>\n\t\t\t\t\t\t            <F6411>KGM</F6411>\n\t\t\t\t\t\t            <F6314>550</F6314>\n\t\t\t\t\t          </C174>\n\t\t\t\t        </MEA>\n\t\t\t\t        <UNT>\n\t\t\t\t\t          <F0074>19</F0074>\n\t\t\t\t\t          <F0062>7654</F0062>\n\t\t\t\t        </UNT>\n\t\t\t\t        <SG2>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>CN</F3035>\n\t\t\t\t\t\t            <C082>\n\t\t\t\t\t\t\t              <F3039>CHA</F3039>\n\t\t\t\t\t\t\t              <F3055>92</F3055>\n\t\t\t\t\t\t            </C082>\n\t\t\t\t\t          </NAD>\n\t\t\t\t        </SG2>\n\t\t\t\t        <SG2>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>CZ</F3035>\n\t\t\t\t\t\t            <C082>\n\t\t\t\t\t\t\t              <F3039>1234</F3039>\n\t\t\t\t\t\t\t              <F3055>92</F3055>\n\t\t\t\t\t\t            </C082>\n\t\t\t\t\t          </NAD>\n\t\t\t\t        </SG2>\n\t\t\t\t        <SG2>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>MF</F3035>\n\t\t\t\t\t\t            <C082>\n\t\t\t\t\t\t\t              <F3039>2345</F3039>\n\t\t\t\t\t\t\t              <F3055>92</F3055>\n\t\t\t\t\t\t            </C082>\n\t\t\t\t\t          </NAD>\n\t\t\t\t        </SG2>\n\t\t\t\t        <SG2>\n\t\t\t\t\t          <NAD>\n\t\t\t\t\t\t            <F3035>SE</F3035>\n\t\t\t\t\t\t            <C082>\n\t\t\t\t\t\t\t              <F3039>3312</F3039>\n\t\t\t\t\t\t\t              <F3055>92</F3055>\n\t\t\t\t\t\t            </C082>\n\t\t\t\t\t          </NAD>\n\t\t\t\t        </SG2>\n\t\t\t\t        <SG10>\n\t\t\t\t\t          <CPS>\n\t\t\t\t\t\t            <F7164>1</F7164>\n\t\t\t\t\t\t            <F7075>1</F7075>\n\t\t\t\t\t          </CPS>\n\t\t\t\t\t          <SG11>\n\t\t\t\t\t\t            <PAC>\n\t\t\t\t\t\t\t              <F7224>1</F7224>\n\t\t\t\t\t\t            </PAC>\n\t\t\t\t\t\t            <QTY>\n\t\t\t\t\t\t\t              <C186>\n\t\t\t\t\t\t\t\t                <F6063>52</F6063>\n\t\t\t\t\t\t\t\t                <F6060>250</F6060>\n\t\t\t\t\t\t\t              </C186>\n\t\t\t\t\t\t            </QTY>\n\t\t\t\t\t\t            <SG13>\n\t\t\t\t\t\t\t              <PCI>\n\t\t\t\t\t\t\t\t                <F4233>17</F4233>\n\t\t\t\t\t\t\t\t                <C827>\n\t\t\t\t\t\t\t\t\t                  <F7511>G</F7511>\n\t\t\t\t\t\t\t\t\t                  <F3055>10</F3055>\n\t\t\t\t\t\t\t\t                </C827>\n\t\t\t\t\t\t\t              </PCI>\n\t\t\t\t\t\t\t              <RFF>\n\t\t\t\t\t\t\t\t                <C506>\n\t\t\t\t\t\t\t\t\t                  <F1153>AAT</F1153>\n\t\t\t\t\t\t\t\t\t                  <F1154>123456789</F1154>\n\t\t\t\t\t\t\t\t                </C506>\n\t\t\t\t\t\t\t              </RFF>\n\t\t\t\t\t\t\t              <GIR>\n\t\t\t\t\t\t\t\t                <F7297>3</F7297>\n\t\t\t\t\t\t\t\t                <C206>\n\t\t\t\t\t\t\t\t\t                  <F7402>987654321</F7402>\n\t\t\t\t\t\t\t\t\t                  <F7405>ML</F7405>\n\t\t\t\t\t\t\t\t                </C206>\n\t\t\t\t\t\t\t\t                <C206>\n\t\t\t\t\t\t\t\t\t                  <F7402>32 123456</F7402>\n\t\t\t\t\t\t\t\t\t                  <F7405>BX</F7405>\n\t\t\t\t\t\t\t\t                </C206>\n\t\t\t\t\t\t\t              </GIR>\n\t\t\t\t\t\t\t              <SG14>\n\t\t\t\t\t\t\t\t                <GIN>\n\t\t\t\t\t\t\t\t\t                  <F7405>BN</F7405>\n\t\t\t\t\t\t\t\t\t                  <C208>\n\t\t\t\t\t\t\t\t\t\t                    <F7402>23345566</F7402>\n\t\t\t\t\t\t\t\t\t                  </C208>\n\t\t\t\t\t\t\t\t                </GIN>\n\t\t\t\t\t\t\t              </SG14>\n\t\t\t\t\t\t            </SG13>\n\t\t\t\t\t          </SG11>\n\t\t\t\t\t          <SG15>\n\t\t\t\t\t\t            <LIN>\n\t\t\t\t\t\t\t              <F1222>0</F1222>\n\t\t\t\t\t\t\t              <C212>\n\t\t\t\t\t\t\t\t                <F7140>2535115</F7140>\n\t\t\t\t\t\t\t\t                <F7143>IN</F7143>\n\t\t\t\t\t\t\t              </C212>\n\t\t\t\t\t\t            </LIN>\n\t\t\t\t\t\t            <QTY>\n\t\t\t\t\t\t\t              <C186>\n\t\t\t\t\t\t\t\t                <F6063>12</F6063>\n\t\t\t\t\t\t\t\t                <F6060>250</F6060>\n\t\t\t\t\t\t\t              </C186>\n\t\t\t\t\t\t            </QTY>\n\t\t\t\t\t\t            <SG16>\n\t\t\t\t\t\t\t              <RFF>\n\t\t\t\t\t\t\t\t                <C506>\n\t\t\t\t\t\t\t\t\t                  <F1153>ON</F1153>\n\t\t\t\t\t\t\t\t\t                  <F1154>0345601</F1154>\n\t\t\t\t\t\t\t\t                </C506>\n\t\t\t\t\t\t\t              </RFF>\n\t\t\t\t\t\t            </SG16>\n\t\t\t\t\t          </SG15>\n\t\t\t\t        </SG10>\n\t\t\t      </Message_DESADV>\n\t\t    </Group>\n\t  </Interchange>\n</Envelope>"
+									},
+									"links": {
+										"link": {
+											"id": "b126b4b9-de50-437d-8f60-3865545be171",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "35b89d88-ad80-46a3-88a6-69805ee4feac",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

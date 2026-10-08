@@ -1,0 +1,91 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a69b3a8f705b3000c000001",
+						"name": "SetFlowPropertiesOnBody",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "867256fd-9f58-40e1-aa2c-0d4ba22771a9",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetFlowPropertiesOnBody",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "39eb95c0-40db-40f7-88d4-7a65894d764b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "39eb95c0-40db-40f7-88d4-7a65894d764b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "test\n694aca3eda8dd5001600023e\nOauthGmailNoreply\nnext\nhttps://next.dovetail.world\nRegression Tests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "39eb95c0-40db-40f7-88d4-7a65894d764b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "27e01a3a-411f-47aa-8ae4-cf319253af54",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "27e01a3a-411f-47aa-8ae4-cf319253af54",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "27e01a3a-411f-47aa-8ae4-cf319253af54",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a69b3a8f705b3000c000003",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6aaab9ffc26143000c000003",
+						"name": "setOAuth2Token",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a2d8a41d-d805-4ebc-8a45-4d6bd589325c",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": "-1",
+										"period": "15000"
+									},
+									"links": {
+										"link": {
+											"id": "4a881d78-dc86-49a1-a0fc-b090dcacd265",
+											"bound": "out",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "4a881d78-dc86-49a1-a0fc-b090dcacd265",
+									"type": "sink",
+									"uri": "oauth2token:4a881d78-dc86-49a1-a0fc-b090dcacd265",
+									"options": {
+										"tokenName": "zzzBVGAccessToken",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "4a881d78-dc86-49a1-a0fc-b090dcacd265",
+											"bound": "in",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "6aaab9ffc26143000c000005",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "5b2fcda9-f2db-4b10-86f5-176a89c52239",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5b2fcda9-f2db-4b10-86f5-176a89c52239",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${exception.message}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5b2fcda9-f2db-4b10-86f5-176a89c52239",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fad56075-5e07-4904-baf3-339cba51d467",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fad56075-5e07-4904-baf3-339cba51d467",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "fad56075-5e07-4904-baf3-339cba51d467",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

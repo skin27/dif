@@ -34,6 +34,11 @@ var commands = []cmdDoc{
 	{"MONITORING", "status", "", "Show the message counts on one line", ""},
 	{"MONITORING", "log", "<flow> [--lines n]", "Follow or display a flow's log", "Follows the log live; press Enter to stop.\nWith --lines, shows its last n lines."},
 	{"DEVELOPMENT", "catalog", "[step]", "List available steps", "With [step], show its description and options."},
+	{"DEVELOPMENT", "init", "<flow.json> [--template hello|timer|file|http] [--id name]", "Create a starter flow", "Refuses to overwrite an existing file. Default template: hello. File input moves to inbox/.done. The http template serves HTTPS on 127.0.0.1:9002 and needs security/server-identity.p12 and DIF_SERVER_IDENTITY_PASSWORD."},
+	{"DEVELOPMENT", "validate", "<flow.json>... [--output text|json]", "Validate flow structure, references and option schemas", "Offline validation does not construct processors. Expressions, processor-specific semantics and external resources are checked when loading a flow."},
+	{"DEVELOPMENT", "describe", "<flow.json> [--output text|json]", "Describe steps, links, error handling and configuration", "Option values, URI paths and expression text are omitted to avoid exposing credentials."},
+	{"SYSTEM", "version", "[--output text|json]", "Show version and build information", "Includes revision, Go version and platform."},
+	{"SYSTEM", "completion", "[command line]", "Suggest commands and arguments", "Examples: completion, completion val, completion init --template t, completion catalog pass. Lists suggestions without running a command."},
 	{"SYSTEM", "help", "[command]", "Show this help", ""},
 	{"SYSTEM", "exit", "", "Stop all flows and exit", "Ctrl+C does the same."},
 }
@@ -75,6 +80,8 @@ func helpText() string {
 		{"stopped", "Flow is loaded but not running"},
 	}, nil, nil), "  "))
 	b.WriteString("\n\n<flow> is the flow id from the DIL file. Use 'help <command>' for details.")
+	b.WriteString("\nFlow filenames default to .json; the extension can be omitted.")
+	b.WriteString("\nStart this shell by running dif.exe without arguments (PowerShell: .\\dif.exe).\nTry: init hello.json, validate hello.json, describe hello.json, run hello.json, request hello.")
 	return b.String()
 }
 
@@ -83,6 +90,10 @@ func commandHelp(c cmdDoc) string {
 	s := "Usage:\n  " + c.usageLine() + "\n\n" + c.desc + "."
 	if c.detail != "" {
 		s += "\n\n" + c.detail
+	}
+	switch c.name {
+	case "load", "run", "init", "validate", "describe":
+		s += "\n\nFlow filenames default to .json: '" + c.name + " hello' uses hello.json. Explicit extensions are preserved."
 	}
 	return s
 }

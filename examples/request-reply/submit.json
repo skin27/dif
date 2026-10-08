@@ -1,0 +1,71 @@
+{
+  "dil": {
+    "integrations": {
+      "integration": {
+        "flows": {
+          "flow": {
+            "id": "submit",
+            "steps": {
+              "step": [
+                {
+                  "id": "step0",
+                  "type": "source",
+                  "uri": "timer:documents",
+                  "options": {
+                    "period": 5000
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step1",
+                        "bound": "out"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "step1",
+                  "type": "action",
+                  "uri": "setbody",
+                  "options": {
+                    "language": "simple",
+                    "expression": "document"
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step1",
+                        "bound": "in"
+                      },
+                      {
+                        "id": "step2",
+                        "bound": "out"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "step2",
+                  "type": "sink",
+                  "uri": "request:jobs",
+                  "options": {
+                    "replyTo": "results",
+                    "requestTimeout": 20000
+                  },
+                  "links": {
+                    "link": [
+                      {
+                        "id": "step2",
+                        "bound": "in"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

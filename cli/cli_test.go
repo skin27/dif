@@ -35,19 +35,19 @@ func readLog(t *testing.T, dir, id string) string {
 func TestRun(t *testing.T) {
 	tests := []struct {
 		name  string
-		args  []string
+		paths []string
 		stdin string
 		code  int
 		out   []string
 		logs  map[string][]string // flow id -> lines in its log
 	}{
-		{"hello", []string{"start", "../examples/hello.json"}, "send hello\nsend hello bye\nexit\n", 0, []string{
-			"DIF - Data Integration Framework\nVersion: " + Version + "\n\nFlows: 1\nUse 'help' for available commands.\n\n",
+		{"hello", []string{"../testdata/hello.json"}, "send hello\nsend hello bye\nexit\n", 0, []string{
+			"DIF - Data Integration Framework\nVersion: " + Version + "\n\nNo flows loaded.\nUse 'help' for available commands.\n\n",
 			"> send hello\nmessage sent to flow hello; its result is in the flow's log\n",
 			"> exit\nexit: 2 messages processed, 0 failed\n",
 		}, map[string][]string{"hello": {
-			"flow hello loaded from ../examples/hello.json\n",
-			"flow hello started\n",
+			"flow hello loaded from ../testdata/hello.json\n",
+			"flow hello started",
 			`message 1: {"Correlation-Id":"`,
 			`"Message-Id":"`,
 			`"body":"HELLO WORLD","greeting":"hello","metadata.step":"hello-sink","metadata.timestamp":"`,
@@ -57,35 +57,35 @@ func TestRun(t *testing.T) {
 			`"body":"bye"`,
 			"flow hello stopped (dif exits)\n",
 		}}},
-		{"request", []string{"start", "../examples/hello.json"}, "request hello bye\nstop hello\nrequest hello\nexit\n", 0, []string{
+		{"request", []string{"../testdata/hello.json"}, "request hello bye\nstop hello\nrequest hello\nexit\n", 0, []string{
 			"> request hello bye\nreply from flow hello:\n" + `{"Correlation-Id":"`,
 			`"Message-Id":"`,
 			`"body":"bye","greeting":"hello","metadata.step":"hello-sink","metadata.timestamp":"`,
 			`"metadata.trail":"flow:hello source:hello-source action:hello-action sink:hello-sink"}` + "\n",
 			"> request hello\nError: cannot send: flow is stopped\n",
 		}, map[string][]string{"hello": {`message 1: {"Correlation-Id":"`, `"body":"bye"`}}},
-		{"stop keeps the CLI", []string{"start", "../examples/hello.json"}, "stop hello\nstatus\nsend hello\nstart hello\nsend hello\nexit\n", 0, []string{
+		{"stop keeps the CLI", []string{"../testdata/hello.json"}, "stop hello\nstatus\nsend hello\nstart hello\nsend hello\nexit\n", 0, []string{
 			"> stop hello\nflow hello stopped\n",
 			"> status\n1 flows: 0 messages processed, 0 failed\n",
 			"> send hello\nError: cannot send: flow is stopped\n",
 			"> start hello\nflow hello started\n",
 			"exit: 1 messages processed, 0 failed",
-		}, map[string][]string{"hello": {"flow hello stopped\n", "flow hello started\n", `message 1: {"Correlation-Id":"`, `"body":"HELLO WORLD"`}}},
-		{"force stop", []string{"start", "../examples/hello.json"}, "stop hello --force\nstop --force hello\nstop\nstop a b\nexit\n", 0, []string{
+		}, map[string][]string{"hello": {"flow hello stopped\n", "flow hello started", `message 1: {"Correlation-Id":"`, `"body":"HELLO WORLD"`}}},
+		{"force stop", []string{"../testdata/hello.json"}, "stop hello --force\nstop --force hello\nstop\nstop a b\nexit\n", 0, []string{
 			"> stop hello --force\nflow hello stopped (forced)\n",
 			"> stop --force hello\nError: cannot stop: flow is stopped\n",
 			"> stop\nError: missing flow argument\n\nUsage:\n  stop <flow> [--force]\n",
 			"> stop a b\nError: unexpected argument 'b'\n\nUsage:\n  stop <flow> [--force]\n",
 		}, map[string][]string{"hello": {"flow hello stopped (forced)\n"}}},
-		{"pause and start", []string{"start", "../examples/hello.json"}, "pause hello\nsend hello\npause hello\nstart hello\nstart hello\npause hello\nresume hello\nexit\n", 0, []string{
+		{"pause and start", []string{"../testdata/hello.json"}, "pause hello\nsend hello\npause hello\nstart hello\nstart hello\npause hello\nresume hello\nexit\n", 0, []string{
 			"> pause hello\nflow hello paused\n",
 			"> send hello\nError: cannot send: flow is paused\n",
 			"> pause hello\nError: cannot pause: flow is paused\n",
 			"> start hello\nflow hello started\n> start hello\nError: cannot start: flow is started\n",
 			"> resume hello\nflow hello started\n",
-		}, map[string][]string{"hello": {"flow hello paused\n", "flow hello started\n"}}},
-		{"multiple flows", []string{"start", "../examples/hello.json", "../examples/timer.json"}, "pause timer\nlist\nlist started\nlist paused\nlist stopped\nlist bogus\nlist a b\nstart timer\nexit\n", 0, []string{
-			"Flows: 2\n",
+		}, map[string][]string{"hello": {"flow hello paused\n", "flow hello started"}}},
+		{"multiple flows", []string{"../testdata/hello.json", "../testdata/timer.json"}, "pause timer\nlist\nlist started\nlist paused\nlist stopped\nlist bogus\nlist a b\nstart timer\nexit\n", 0, []string{
+			"No flows loaded.\n",
 			"> pause timer\nflow timer paused\n",
 			"> list\n\nFLOWS\n\nID      STATUS      COMPLETED   FAILED   UPTIME\n─────",
 			"\nhello   ● STARTED           0        0   0s\ntimer   ● PAUSED            0        0   0s\n\n2 flows\n\n> list started",
@@ -97,8 +97,8 @@ func TestRun(t *testing.T) {
 			"> list bogus\nError: unknown state 'bogus'; use started, paused or stopped\n\nUsage:\n  list [state]\n",
 			"> list a b\nError: unexpected argument 'b'\n\nUsage:\n  list [state]\n",
 			"> start timer\nflow timer started\n",
-		}, map[string][]string{"hello": {"flow hello started\n"}, "timer": {"flow timer paused\n"}}},
-		{"unknown flow", []string{"start", "../examples/hello.json"}, "start nope\npause nope\nsend nope\nsend\nlog nope\nstats nope\nexit\n", 0, []string{
+		}, map[string][]string{"hello": {"flow hello started"}, "timer": {"flow timer paused\n"}}},
+		{"unknown flow", []string{"../testdata/hello.json"}, "start nope\npause nope\nsend nope\nsend\nlog nope\nstats nope\nexit\n", 0, []string{
 			"> start nope\nError: flow 'nope' not found\n\nUse 'list' to see loaded flows.\n",
 			"> pause nope\nError: flow 'nope' not found\n",
 			"> send nope\nError: flow 'nope' not found\n",
@@ -106,13 +106,13 @@ func TestRun(t *testing.T) {
 			"> log nope\nError: flow 'nope' not found\n",
 			"> stats nope\nError: flow 'nope' not found\n\nUse 'list' to see loaded flows.\n",
 		}, nil},
-		{"suggestions", []string{"start", "../examples/hello.json", "../examples/timer.json"}, "pause time\npause timer\nlog helo --lines 1\nstop nope\nexit\n", 0, []string{
+		{"suggestions", []string{"../testdata/hello.json", "../testdata/timer.json"}, "pause time\npause timer\nlog helo --lines 1\nstop nope\nexit\n", 0, []string{
 			"> pause time\nError: flow 'time' not found\n\nDid you mean: timer?\nUse 'list' to see loaded flows.\n",
 			"> pause timer\nflow timer paused\n",
 			"> log helo --lines 1\nError: flow 'helo' not found\n\nDid you mean: hello?\n",
 			"> stop nope\nError: flow 'nope' not found\n",
 		}, nil},
-		{"missing and extra arguments", []string{"start", "../examples/hello.json"}, "start\npause\nresume\nstart hello extra\nstats a b\ncatalog a b\nhelp a b\nexit\n", 0, []string{
+		{"missing and extra arguments", []string{"../testdata/hello.json"}, "start\npause\nresume\nstart hello extra\nstats a b\ncatalog a b\nhelp a b\nexit\n", 0, []string{
 			"> start\nError: missing flow argument\n\nUsage:\n  start <flow>\n",
 			"> pause\nError: missing flow argument\n\nUsage:\n  pause <flow>\n",
 			"> resume\nError: missing flow argument\n\nUsage:\n  resume <flow>\n",
@@ -121,7 +121,7 @@ func TestRun(t *testing.T) {
 			"> catalog a b\nError: unexpected argument 'b'\n\nUsage:\n  catalog [step]\n",
 			"> help a b\nError: unexpected argument 'b'\n\nUsage:\n  help [command]\n",
 		}, nil},
-		{"help and unknown", []string{"start", "../examples/hello.json"}, "help\nhelp stop\nhelp nope\nquit\nexit\n", 0, []string{
+		{"help and unknown", []string{"../testdata/hello.json"}, "help\nhelp stop\nhelp nope\nquit\nexit\n", 0, []string{
 			"> help\n\nDIF COMMANDS\n\nFLOW MANAGEMENT\n  load <flow.json>... ",
 			"\n  run <flow.json>... ",
 			"\nMESSAGING\n  send <flow> [body] ",
@@ -137,36 +137,36 @@ func TestRun(t *testing.T) {
 			"> help nope\nError: unknown command 'nope'\n\nUse 'help' to see available commands.\n",
 			"> quit\nError: unknown command 'quit'\n\nUse 'help' to see available commands.\n",
 		}, nil},
-		{"timer", []string{"start", "../examples/timer.json"}, "list\nexit\n", 0, []string{
+		{"timer", []string{"../testdata/timer.json"}, "list\nexit\n", 0, []string{
 			"> list\n\nFLOWS\n\nID      STATUS      COMPLETED   FAILED   UPTIME\n",
 			"\ntimer   ● STARTED   ",
 			"exit:",
 		}, nil},
-		{"duplicate flow id", []string{"start", "../examples/hello.json", "../examples/hello.json"}, "", 1, nil, nil},
-		{"no args opens the CLI", nil, "list\nstats\nstart hello\nload ../examples/hello.json ../examples/timer.json\nlist\nstart hello\nsend hello\nlist started\nexit\n", 0, []string{
+		{"duplicate flow id", nil, "run ../testdata/hello.json ../testdata/hello.json\nexit\n", 0, []string{"Error: flow hello is already registered"}, nil},
+		{"no args opens the CLI", nil, "list\nstats\nstart hello\nload ../testdata/hello.json ../testdata/timer.json\nlist\nstart hello\nsend hello\nlist started\nexit\n", 0, []string{
 			"DIF - Data Integration Framework\nVersion: " + Version + "\n\nNo flows loaded.\nUse 'help' for available commands.\n\n",
 			"> list\n\nNo flows loaded.\n\n",
 			"> stats\n\nDIF MESSAGE STATISTICS\n\nFLOW    COMPLETED   FAILED   TOTAL\n",
 			"\nTOTAL           0        0       0\n\n> start hello",
 			"> start hello\nError: flow 'hello' not found\n",
-			"flow hello loaded from ../examples/hello.json; it is stopped\nflow timer loaded from ../examples/timer.json; it is stopped\n",
+			"flow hello loaded from ../testdata/hello.json; it is stopped\nflow timer loaded from ../testdata/timer.json; it is stopped\n",
 			"\nhello   ● STOPPED           0        0   -\ntimer   ● STOPPED           0        0   -\n\n2 flows\n",
 			"> start hello\nflow hello started\n",
 			"exit: 1 messages processed, 0 failed",
-		}, map[string][]string{"hello": {"message 1:"}, "timer": {"flow timer loaded from ../examples/timer.json\n"}}},
-		{"load errors", nil, "load\nload nope.json\nload ../examples/hello.json\nload ../examples/hello.json\nexit\n", 0, []string{
+		}, map[string][]string{"hello": {"message 1:"}, "timer": {"flow timer loaded from ../testdata/timer.json\n"}}},
+		{"load errors", nil, "load\nload nope.json\nload ../testdata/hello.json\nload ../testdata/hello.json\nexit\n", 0, []string{
 			"> load\nError: missing flow file argument\n\nUsage:\n  load <flow.json>...\n",
 			"> load nope.json\nError: open nope.json:",
-			"> load ../examples/hello.json\nError: flow hello is already registered\n",
+			"> load ../testdata/hello.json\nError: flow hello is already registered\n",
 		}, nil},
-		{"run", nil, "run\nrun ../examples/hello.json nope.json\nrun ../examples/hello.json\nsend hello\nexit\n", 0, []string{
+		{"run", nil, "run\nrun ../testdata/hello.json nope.json\nrun ../testdata/hello.json\nsend hello\nexit\n", 0, []string{
 			"> run\nError: missing flow file argument\n\nUsage:\n  run <flow.json>...\n",
-			"> run ../examples/hello.json nope.json\nflow hello started (loaded from ../examples/hello.json)\nError: open nope.json:",
-			"> run ../examples/hello.json\nError: flow hello is already registered\n",
+			"> run ../testdata/hello.json nope.json\nflow hello started (loaded from ../testdata/hello.json)\nError: open nope.json:",
+			"> run ../testdata/hello.json\nError: flow hello is already registered\n",
 			"> send hello\nmessage sent to flow hello",
 			"exit: 1 messages processed, 0 failed",
-		}, map[string][]string{"hello": {"flow hello loaded from ../examples/hello.json\n", "flow hello started (loaded from ../examples/hello.json)\n", "message 1:"}}},
-		{"log usage", []string{"start", "../examples/hello.json"}, "log\nlog hello --lines\nlog hello --lines 0\nlog hello --lines x\nlog hello extra\nlog --lines 2\nlog hello -n\nexit\n", 0, []string{
+		}, map[string][]string{"hello": {"flow hello loaded from ../testdata/hello.json\n", "flow hello started (loaded from ../testdata/hello.json)\n", "message 1:"}}},
+		{"log usage", []string{"../testdata/hello.json"}, "log\nlog hello --lines\nlog hello --lines 0\nlog hello --lines x\nlog hello extra\nlog --lines 2\nlog hello -n\nexit\n", 0, []string{
 			"> log\nError: missing flow argument\n\nUsage:\n  log <flow> [--lines n]\n",
 			"> log hello --lines\nError: --lines needs a number\n\nUsage:\n  log <flow> [--lines n]\n",
 			"> log hello --lines 0\nError: --lines needs a positive number, not '0'\n",
@@ -175,15 +175,16 @@ func TestRun(t *testing.T) {
 			"> log --lines 2\nError: missing flow argument\n",
 			"> log hello -n\nError: unknown option '-n'\n",
 		}, nil},
-		{"start without files", []string{"start"}, "", 2, nil, nil},
-		{"run is a command, not an argument", []string{"run", "../examples/hello.json"}, "", 2, nil, nil},
-		{"missing file", []string{"start", "nope.json"}, "", 1, nil, nil},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := useLogDir(t)
 			var stdout, stderr bytes.Buffer
-			if code := Run(tt.args, strings.NewReader(tt.stdin), &stdout, &stderr); code != tt.code {
+			input := tt.stdin
+			if len(tt.paths) > 0 {
+				input = "run " + strings.Join(tt.paths, " ") + "\n" + input
+			}
+			if code := Run(nil, strings.NewReader(input), &stdout, &stderr); code != tt.code {
 				t.Errorf("exit code = %d, want %d (stderr: %s)", code, tt.code, stderr.String())
 			}
 			for _, want := range tt.out {
@@ -217,7 +218,7 @@ func block(t *testing.T, out, cmd string) string {
 // TestStats sends messages to two flows, one of which fails them, and leaves a third without messages.
 func TestStats(t *testing.T) {
 	dir := useLogDir(t)
-	hello, err := os.ReadFile("../examples/hello.json")
+	hello, err := os.ReadFile("../testdata/hello.json")
 	must(t, err)
 	failing := filepath.Join(t.TempDir(), "failing.json")
 	idle := filepath.Join(t.TempDir(), "idle.json")
@@ -229,8 +230,8 @@ func TestStats(t *testing.T) {
 	stdin, w := io.Pipe()
 	var stdout, stderr bytes.Buffer
 	done := make(chan int)
-	go func() { done <- Run([]string{"start", "../examples/hello.json", failing}, stdin, &stdout, &stderr) }()
-	fmt.Fprintf(w, "load %s\nsend hello\nsend hello\nsend failing\n", idle)
+	go func() { done <- Run(nil, stdin, &stdout, &stderr) }()
+	fmt.Fprintf(w, "run ../testdata/hello.json %s\nload %s\nsend hello\nsend hello\nsend failing\n", failing, idle)
 	// Messages are processed in the background; wait until all three are logged.
 	logged := func(id, line string) bool {
 		b, _ := os.ReadFile(filepath.Join(dir, id+".log"))
@@ -322,14 +323,14 @@ func TestCatalog(t *testing.T) {
 func TestLogLines(t *testing.T) {
 	useLogDir(t)
 	var stdout, stderr bytes.Buffer
-	stdin := "stop hello\nstart hello\nlog hello --lines 2\nlog hello --lines 100\nexit\n"
-	if code := Run([]string{"start", "../examples/hello.json"}, strings.NewReader(stdin), &stdout, &stderr); code != 0 {
+	stdin := "run ../testdata/hello.json\nstop hello\nstart hello\nlog hello --lines 2\nlog hello --lines 100\nexit\n"
+	if code := Run(nil, strings.NewReader(stdin), &stdout, &stderr); code != 0 {
 		t.Fatalf("exit code = %d (stderr: %s)", code, stderr.String())
 	}
 	const ts = `\d{4}/\d\d/\d\d \d\d:\d\d:\d\d\.\d{6} `
 	for _, want := range []string{
 		`> log hello --lines 2\n` + ts + `flow hello stopped\n` + ts + `flow hello started\n> `,
-		`> log hello --lines 100\n` + ts + `flow hello loaded from \.\./examples/hello\.json\n` + ts + `flow hello started\n` +
+		`> log hello --lines 100\n` + ts + `flow hello loaded from \.\./testdata/hello.json\n` + ts + `flow hello started \(loaded from \.\./testdata/hello.json\)\n` +
 			ts + `flow hello stopped\n` + ts + `flow hello started\n> `,
 	} {
 		if !regexp.MustCompile(want).MatchString(stdout.String()) {
@@ -342,7 +343,7 @@ func TestLogLines(t *testing.T) {
 // log file, not to the console, until the log is followed.
 func TestFlowsRunInTheBackground(t *testing.T) {
 	dir := useLogDir(t)
-	timer, err := os.ReadFile("../examples/timer.json")
+	timer, err := os.ReadFile("../testdata/timer.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -351,7 +352,7 @@ func TestFlowsRunInTheBackground(t *testing.T) {
 	fast := strings.Replace(string(timer), `"period": 5000`, `"period": 10, "repeatCount": 3`, 1)
 	invalid := strings.Replace(string(timer), `"period": 5000`, `"period": "x"`, 1)
 	if fast == string(timer) || invalid == string(timer) {
-		t.Fatal("examples/timer.json has no period 5000 to replace")
+		t.Fatal("testdata/timer.json has no period 5000 to replace")
 	}
 	invalid = strings.Replace(invalid, `"id": "timer",`, `"id": "bad",`, 1)
 	must(t, os.WriteFile(good, []byte(fast), 0o644))

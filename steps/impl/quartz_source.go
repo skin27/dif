@@ -38,6 +38,11 @@ func newQuartzSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 }
 
 func (q quartzSource) Run(ctx context.Context, emit stepdef.Emit) error {
+	return q.RunReady(ctx, emit, func() {})
+}
+
+func (q quartzSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	ready()
 	for {
 		at := q.schedule.next(time.Now())
 		if at.IsZero() {

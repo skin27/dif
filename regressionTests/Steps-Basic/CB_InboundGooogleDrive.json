@@ -1,0 +1,95 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50fe5c2a818400150001a0",
+						"name": "CB_InboundGooogleDrive",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f902c392-7057-4f88-b9ca-02c9367880b3",
+									"type": "source",
+									"uri": "googledrive:1HYnwLTICJPLGbPL4AUcUJC-cRuGeTrG3",
+									"options": {
+										"accessToken": "@{OauthTokenGoogleDrive}",
+										"filterFiles": "juca_test.txt",
+										"moveTo": ".dovetail",
+										"initialDelay": 1000,
+										"delay": 1000,
+										"gSuiteFiles": "Ignore",
+										"flowId": "6a50fe5c2a818400150001a0",
+										"tenant": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "379c25c4-53eb-4fa4-afed-ca36556ca21b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "379c25c4-53eb-4fa4-afed-ca36556ca21b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "379c25c4-53eb-4fa4-afed-ca36556ca21b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "73381b77-60a6-4160-82ac-6eb0a6d8045f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "73381b77-60a6-4160-82ac-6eb0a6d8045f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "73381b77-60a6-4160-82ac-6eb0a6d8045f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a50fe5c2a818400150001a2",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

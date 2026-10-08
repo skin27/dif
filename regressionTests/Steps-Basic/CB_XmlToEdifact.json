@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ce9daa93e3001100011d",
+						"name": "CB_XmlToEdifact",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e73b680e-34fe-405d-ab38-24be5fcffe56",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_XmlToEdifact",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "2bab4b00-d57d-44a8-96c7-f3698100eccc",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2bab4b00-d57d-44a8-96c7-f3698100eccc",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<env:unEdifact xmlns:env=\"urn:org.milyn.edi.unedifact.v41\">\n    <env:UNB>\n        <env:syntaxIdentifier>\n            <env:id>UNOA</env:id>\n            <env:versionNum>2</env:versionNum>\n        </env:syntaxIdentifier>\n        <env:sender>\n            <env:id>8714252014808</env:id>\n            <env:internalId>14</env:internalId>\n        </env:sender>\n        <env:recipient>\n            <env:id>8714252011517</env:id>\n            <env:internalId>14</env:internalId>\n        </env:recipient>\n        <env:dateTime>\n            <env:date>130402</env:date>\n            <env:time>1219</env:time>\n        </env:dateTime>\n        <env:controlRef>24535</env:controlRef>\n    </env:UNB>\n    <env:interchangeMessage xmlns:c=\"urn:org.milyn.edi.unedifact:un:d96a:common\" xmlns:iftmin=\"urn:org.milyn.edi.unedifact:un:d96a:iftmin\">\n        <env:UNH>\n            <env:messageRefNum>24546</env:messageRefNum>\n            <env:messageIdentifier>\n                <env:id>IFTMIN</env:id>\n                <env:versionNum>D</env:versionNum>\n                <env:releaseNum>96A</env:releaseNum>\n                <env:controllingAgencyCode>UN</env:controllingAgencyCode>\n            </env:messageIdentifier>\n        </env:UNH>\n        <iftmin:IFTMIN>\n            <iftmin:BGM>\n                <c:C002>\n                    <c:e1001>340</c:e1001>\n                </c:C002>\n                <c:e1004>347605</c:e1004>\n                <c:e1225>9</c:e1225>\n            </iftmin:BGM>\n            <iftmin:DTM>\n                <c:C507>\n                    <c:e2005>137</c:e2005>\n                    <c:e2380>20130402</c:e2380>\n                    <c:e2379>102</c:e2379>\n                </c:C507>\n            </iftmin:DTM>\n            <iftmin:DTM>\n                <c:C507>\n                    <c:e2005>2</c:e2005>\n                    <c:e2380>20130404</c:e2380>\n                    <c:e2379>102</c:e2379>\n                </c:C507>\n            </iftmin:DTM>\n            <iftmin:DTM>\n                <c:C507>\n                    <c:e2005>200</c:e2005>\n                    <c:e2380>20130403</c:e2380>\n                    <c:e2379>102</c:e2379>\n                </c:C507>\n            </iftmin:DTM>\n            <iftmin:TSR>\n                <c:C536>\n                    <c:e4065>11</c:e4065>\n                </c:C536>\n                <c:C537>\n                    <c:e4219>N</c:e4219>\n                </c:C537>\n            </iftmin:TSR>\n            <iftmin:FTX>\n                <c:e4451>DEL</c:e4451>\n                <c:C108>\n                    <c:e4440_-_-1>EXACT DONDERDAG 4.4 TUSSEN 8.15-12.00 UUR</c:e4440_-_-1>\n                    <c:e4440_-_-2>AFLEVEREN</c:e4440_-_-2>\n                </c:C108>\n            </iftmin:FTX>\n            <iftmin:Segment_group_2>\n                <iftmin:TOD>\n                    <c:e4055>6</c:e4055>\n                    <c:C100>\n                        <c:e4053>CIP</c:e4053>\n                    </c:C100>\n                </iftmin:TOD>\n            </iftmin:Segment_group_2>\n            <iftmin:Segment_group_11>\n                <iftmin:NAD>\n                    <c:e3035>DP</c:e3035>\n                    <c:C080>\n                        <c:e3036_-_-1>DUMMY B.V.</c:e3036_-_-1>\n                    </c:C080>\n                    <c:C059>\n                        <c:e3042_-_-1>VERLENGDE VOORBEELDWEG 123</c:e3042_-_-1>\n                    </c:C059>\n                    <c:e3164>AMSTERDAM</c:e3164>\n                    <c:e3251>1234AB</c:e3251>\n                    <c:e3207>670</c:e3207>\n                </iftmin:NAD>\n            </iftmin:Segment_group_11>\n            <iftmin:Segment_group_11>\n                <iftmin:NAD>\n                    <c:e3035>CZ</c:e3035>\n                    <c:C080>\n                        <c:e3036_-_-1>DUMMY WIRE &amp; CABLE B.V.</c:e3036_-_-1>\n                    </c:C080>\n                    <c:C059>\n                        <c:e3042_-_-1>INDUSTRIEGEBIED: 1234</c:e3042_-_-1>\n                        <c:e3042_-_-2>VOORBEELDWEG 10</c:e3042_-_-2>\n                    </c:C059>\n                    <c:e3164>AMSTERDAM</c:e3164>\n                    <c:e3251>1234 AB</c:e3251>\n                    <c:e3207>670</c:e3207>\n                </iftmin:NAD>\n                <iftmin:Segment_group_12>\n                    <iftmin:CTA>\n                        <c:e3139>IC</c:e3139>\n                        <c:C056>\n                            <c:e3412>JANE DOE</c:e3412>\n                        </c:C056>\n                    </iftmin:CTA>\n                    <iftmin:COM>\n                        <c:C076>\n                            <c:e3148>+31(0)12 3456789</c:e3148>\n                            <c:e3155>TE</c:e3155>\n                        </c:C076>\n                    </iftmin:COM>\n                </iftmin:Segment_group_12>\n            </iftmin:Segment_group_11>\n            <iftmin:Segment_group_11>\n                <iftmin:NAD>\n                    <c:e3035>SF</c:e3035>\n                    <c:C080>\n                        <c:e3036_-_-1>DUMMY WIRE &amp; CABLE B.V.</c:e3036_-_-1>\n                    </c:C080>\n                    <c:C059>\n                        <c:e3042_-_-1>INDUSTRIEGEBIED: 1234</c:e3042_-_-1>\n                        <c:e3042_-_-2>VOORBEELDWEG 10</c:e3042_-_-2>\n                    </c:C059>\n                    <c:e3164>AMSTERDAM</c:e3164>\n                    <c:e3251>1234 AB</c:e3251>\n                    <c:e3207>670</c:e3207>\n                </iftmin:NAD>\n                <iftmin:Segment_group_12>\n                    <iftmin:CTA>\n                        <c:e3139>IC</c:e3139>\n                        <c:C056>\n                            <c:e3412>JANE DOE</c:e3412>\n                        </c:C056>\n                    </iftmin:CTA>\n                    <iftmin:COM>\n                        <c:C076>\n                            <c:e3148>+31(0)12 3456789</c:e3148>\n                            <c:e3155>TE</c:e3155>\n                        </c:C076>\n                    </iftmin:COM>\n                </iftmin:Segment_group_12>\n            </iftmin:Segment_group_11>\n            <iftmin:Segment_group_11>\n                <iftmin:NAD>\n                    <c:e3035>FW</c:e3035>\n                    <c:C080>\n                        <c:e3036_-_-1>LOGISTICS B.V.</c:e3036_-_-1>\n                    </c:C080>\n                    <c:e3251>1234 AB</c:e3251>\n                    <c:e3207>670</c:e3207>\n                </iftmin:NAD>\n            </iftmin:Segment_group_11>\n            <iftmin:Segment_group_18>\n                <iftmin:GID>\n                    <c:e1496>1.0</c:e1496>\n                    <c:C213_-_-1>\n                        <c:e7224>1.0</c:e7224>\n                        <c:e7065>E827</c:e7065>\n                        <c:e3055>9</c:e3055>\n                    </c:C213_-_-1>\n                </iftmin:GID>\n                <iftmin:HAN>\n                    <c:C524>\n                        <c:e4079>UST</c:e4079>\n                        <c:e3055>9</c:e3055>\n                    </c:C524>\n                </iftmin:HAN>\n                <iftmin:Segment_group_20>\n                    <iftmin:MEA>\n                        <c:e6311>AAE</c:e6311>\n                        <c:C502>\n                            <c:e6313>G</c:e6313>\n                        </c:C502>\n                        <c:C174>\n                            <c:e6411>KGM</c:e6411>\n                            <c:e6314>24.0</c:e6314>\n                        </c:C174>\n                    </iftmin:MEA>\n                </iftmin:Segment_group_20>\n                <iftmin:Segment_group_20>\n                    <iftmin:MEA>\n                        <c:e6311>AAE</c:e6311>\n                        <c:C502>\n                            <c:e6313>GMC</c:e6313>\n                        </c:C502>\n                        <c:C174>\n                            <c:e6411>MTQ</c:e6411>\n                            <c:e6314>80.0</c:e6314>\n                        </c:C174>\n                    </iftmin:MEA>\n                </iftmin:Segment_group_20>\n                <iftmin:Segment_group_21>\n                    <iftmin:DIM>\n                        <c:e6145>1</c:e6145>\n                        <c:C211>\n                            <c:e6411>MTR</c:e6411>\n                            <c:e6168>41.0</c:e6168>\n                            <c:e6140>41.0</c:e6140>\n                            <c:e6008>48.0</c:e6008>\n                        </c:C211>\n                    </iftmin:DIM>\n                </iftmin:Segment_group_21>\n                <iftmin:Segment_group_23>\n                    <iftmin:PCI>\n                        <c:e4233>33E</c:e4233>\n                    </iftmin:PCI>\n                    <iftmin:GIN>\n                        <c:e7405>BJ</c:e7405>\n                        <c:C208_-_-1>\n                            <c:e7402_-_-1>00387142520086154710</c:e7402_-_-1>\n                        </c:C208_-_-1>\n                    </iftmin:GIN>\n                </iftmin:Segment_group_23>\n            </iftmin:Segment_group_18>\n        </iftmin:IFTMIN>\n        <env:UNT>\n            <env:segmentCount>98126</env:segmentCount>\n            <env:messageRefNum>24546</env:messageRefNum>\n        </env:UNT>\n    </env:interchangeMessage>\n    <env:UNZ>\n        <env:controlCount>1</env:controlCount>\n        <env:controlRef>24535</env:controlRef>\n    </env:UNZ>\n</env:unEdifact>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2bab4b00-d57d-44a8-96c7-f3698100eccc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "45878740-21db-49b1-bfdc-541274748f85",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "45878740-21db-49b1-bfdc-541274748f85",
+									"type": "action",
+									"uri": "xmltoedifact",
+									"options": {
+										"edifactType": "d96a"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "45878740-21db-49b1-bfdc-541274748f85",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b59e7d5b-b332-4b58-b0bb-7ae277ae927b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b59e7d5b-b332-4b58-b0bb-7ae277ae927b",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "b59e7d5b-b332-4b58-b0bb-7ae277ae927b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e4296ef4-2de7-4643-a527-91dd888cace0",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

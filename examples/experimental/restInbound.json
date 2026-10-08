@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69c2743471cfcc0024000003",
+						"name": "restInbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "294d29c4-3c5c-4d29-819a-5176c5d01386",
+									"type": "source",
+									"uri": "rest",
+									"options": {
+										"method": "get",
+										"consumes": "text/xml",
+										"exchangePattern": "InOut",
+										"path": "hello/me"
+									},
+									"links": {
+										"link": {
+											"id": "4efa91c3-9315-4d1b-b5b4-9af9d6d4dbbf",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4efa91c3-9315-4d1b-b5b4-9af9d6d4dbbf",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Some inbound test!"
+									},
+									"links": {
+										"link": {
+											"id": "4efa91c3-9315-4d1b-b5b4-9af9d6d4dbbf",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69c2743471cfcc0024000005",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

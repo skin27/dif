@@ -1,0 +1,58 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:settenantvariable-action",
+	"title": "settenantvariable action",
+	"description": "Sets a tenant variable, which the flows of a tenant share, to the value of an expression. Variables are kept in memory.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Variable",
+			"description": "Name of the variable, from the URI (<step>:<name>)",
+			"type": "string"
+		},
+		"tenantDbName": {
+			"title": "Tenant",
+			"description": "Tenant the variable belongs to",
+			"type": "string",
+			"default": "default"
+		},
+		"language": {
+			"title": "Language",
+			"description": "Language of the value",
+			"type": "string",
+			"enum": ["simple", "constant"],
+			"default": "simple"
+		},
+		"value": {
+			"title": "Value",
+			"description": "The value, an expression",
+			"type": "string",
+			"default": ""
+		},
+		"encrypt": {
+			"title": "Encrypt",
+			"description": "Accepted for compatibility; variables in memory are not encrypted",
+			"type": "boolean",
+			"default": false
+		},
+		"protectedValue": {
+			"title": "Protected value",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "boolean",
+			"default": false
+		},
+		"groupName": {
+			"title": "Group",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": "Groupless"
+		},
+		"flowName": {
+			"title": "Flow name",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

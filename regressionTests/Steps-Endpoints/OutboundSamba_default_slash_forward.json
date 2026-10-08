@@ -1,0 +1,168 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a79c198705d9100160001af",
+						"name": "OutboundSamba_default_slash_forward",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f65ea45d-f019-4a1f-8acb-7fbfc0da7240",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSamba_default_slash_forward",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "acb28e9b-fb33-4419-8b73-0c552eaeff98",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "acb28e9b-fb33-4419-8b73-0c552eaeff98",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "acb28e9b-fb33-4419-8b73-0c552eaeff98",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b9baeca8-ea73-43c3-8eae-8eb8c3f4d90d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b9baeca8-ea73-43c3-8eae-8eb8c3f4d90d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "OutboundSambaDefaultSlashForward"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b9baeca8-ea73-43c3-8eae-8eb8c3f4d90d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8303c4b9-9e39-4993-b436-9e72ab37da28",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8303c4b9-9e39-4993-b436-9e72ab37da28",
+									"type": "action",
+									"uri": "smb://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"fileName": "OutboundSambaDefaultSlashForward.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"password": "ENC(y0YTi0NRqu37NJ4/XkcHIg==|FmM/8n5lW9y9e1GFy7eD6g==|bicJNYYrJhijqETjV14ZhveTTQ3Ub2oEviqT0WTKSKgQ6qw6djWCoZMPg85tv6/uEDIzC4PVq+xp/gJt3HU0yK8W8E2hRy87fJp6DJVerM8=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8303c4b9-9e39-4993-b436-9e72ab37da28",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4144f6cb-57b1-4d57-abb1-d0ae2de8a7ff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4144f6cb-57b1-4d57-abb1-d0ae2de8a7ff",
+									"type": "action",
+									"uri": "smbenrich://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"recursive": false,
+										"fileName": "OutboundSambaDefaultSlashForward.txt",
+										"charset": "utf-8",
+										"delete": false,
+										"move": "RAW(archive)",
+										"moveFailed": ".error",
+										"autoCreate": true,
+										"readLock": "changed",
+										"password": "ENC(cYCWaxsiPkFpltL+clVHMQ==|sCwWsUxyMEQNo/cL51tBpw==|Ol1dKlptKSQHIvLvibnnbuudP/1eTzFnj+pEl9y76qSGEryFqcZ2C/zP1TdslGM3k/c11sFwSmdJKvBM1LmfI2TqXSEWShjnMAA6r7ABi4s=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4144f6cb-57b1-4d57-abb1-d0ae2de8a7ff",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6fc1f391-066e-419c-babe-c62fc3a82bfe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6fc1f391-066e-419c-babe-c62fc3a82bfe",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6fc1f391-066e-419c-babe-c62fc3a82bfe",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fbda832a-9b35-4b46-97a5-1947945552ca",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,173 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7eac60ee15e2001000003b",
+						"name": "SimpleHeadersRouting_Split_Tokenize",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6c9a570c-5a7e-48f2-8c8a-d2f56ec6138b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersRouting_Split_Tokenize",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d3b3976c-0a9a-4427-a54a-645be29d355d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d3b3976c-0a9a-4427-a54a-645be29d355d",
+									"type": "action",
+									"uri": "setheaders:message:d3b3976c-0a9a-4427-a54a-645be29d355d",
+									"links": {
+										"link": [
+											{
+												"id": "d3b3976c-0a9a-4427-a54a-645be29d355d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "978d0aa8-078f-4515-b9cb-83847a81c36a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "978d0aa8-078f-4515-b9cb-83847a81c36a",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "TextBeforeTOKENTextAfter"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "978d0aa8-078f-4515-b9cb-83847a81c36a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "18dcdf5e-c38b-48e3-a91b-e5a92f3f3975",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "18dcdf5e-c38b-48e3-a91b-e5a92f3f3975",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "tokenize",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "18dcdf5e-c38b-48e3-a91b-e5a92f3f3975",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3c836639-25f1-4987-9625-ee2f6f3e2209",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "9cda7baa-e7e8-4386-b7a8-87cea23be95f",
+												"bound": "out",
+												"expression": "TOKEN",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3c836639-25f1-4987-9625-ee2f6f3e2209",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "3c836639-25f1-4987-9625-ee2f6f3e2209",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9cda7baa-e7e8-4386-b7a8-87cea23be95f",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root>${bodyAs(String)}</root>"
+									},
+									"links": {
+										"link": {
+											"id": "9cda7baa-e7e8-4386-b7a8-87cea23be95f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "84c4d5cc-acbb-495a-8a61-d70997bcdf62",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "d3b3976c-0a9a-4427-a54a-645be29d355d",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "expression2",
+							"value": "${body.split(',')}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

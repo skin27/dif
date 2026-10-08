@@ -12,10 +12,11 @@
 								{
 									"id": "fa1804e4-bede-46b4-92ff-406d21458632",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/groovy",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -28,7 +29,7 @@
 								{
 									"id": "b3d05115-7716-4f4e-bc54-90cf8002b846",
 									"type": "action",
-									"uri": "groovy:ref:264b7508-92b8-4ead-aa6a-cc742cb55d94",
+									"uri": "groovy:ref:e51e05f6-f80e-4770-9de2-33f6087edaa6",
 									"links": {
 										"link": [
 											{
@@ -71,7 +72,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}
@@ -80,7 +81,7 @@
 		"core": {
 			"resources": {
 				"resource": {
-					"name": "264b7508-92b8-4ead-aa6a-cc742cb55d94",
+					"name": "e51e05f6-f80e-4770-9de2-33f6087edaa6",
 					"content": "def change = 'hello'\nresult = change"
 				}
 			}

@@ -4,6 +4,14 @@
 	"title": "content router",
 	"description": "Sends the message along the first outbound link whose condition (the link's language and expression) holds, else along the link without a condition.",
 	"type": "object",
-	"properties": {},
+	"properties": {
+		"exchangePattern": {
+			"title": "Exchange pattern",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"enum": ["InOnly", "InOut"],
+			"default": "InOut"
+		}
+	},
 	"additionalProperties": false
 }

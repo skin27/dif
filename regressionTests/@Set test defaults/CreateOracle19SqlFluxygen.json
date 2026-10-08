@@ -1,0 +1,120 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "698f4d96e9d4cd002e000043",
+						"name": "CreateOracle19SqlFluxygen",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "2cc485e6-1ded-4779-ba40-1e40f04d8c90",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "e4a2e4f1-e1b8-413c-82de-fce6b8a40f92",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e4a2e4f1-e1b8-413c-82de-fce6b8a40f92",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "CREATE USER fluxygen IDENTIFIED BY fluxygen\n  DEFAULT TABLESPACE users\n  TEMPORARY TABLESPACE temp\n  QUOTA UNLIMITED ON users;\n\nGRANT CREATE SESSION, CREATE TABLE TO fluxygen;"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e4a2e4f1-e1b8-413c-82de-fce6b8a40f92",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e7dc1e1e-a187-499f-aa6d-dadeb34ffa15",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e7dc1e1e-a187-499f-aa6d-dadeb34ffa15",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${bodyAs(String)}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "oracle",
+										"database": "fluxygen",
+										"host": "api-testing.dovetail.world",
+										"port": "1621",
+										"username": "system",
+										"password": "ENC(h8ey1CLW7i+sACGt1hBK3w==|3km8qhdKYEFujwjiYQAf3w==|nQGHgGKeSBVjjfKGMYlM+L0k+5D321zDGJrIJ5LiwJ+qAg2tmhv5D59M5GCMoHusgZyAXVbM2RPmVMoEZGyAaJvVwHUWyy/JxAUM0OHaZlo=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e7dc1e1e-a187-499f-aa6d-dadeb34ffa15",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "da7b6f78-6972-4248-85de-e5d09145cd48",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "da7b6f78-6972-4248-85de-e5d09145cd48",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "da7b6f78-6972-4248-85de-e5d09145cd48",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ebb9db0b-fa39-408f-b1a6-2d7ff43edc41",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

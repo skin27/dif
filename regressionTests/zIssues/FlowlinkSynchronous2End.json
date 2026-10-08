@@ -1,0 +1,87 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a915201a4bb2c0016000030",
+						"name": "FlowlinkSynchronous2End",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "643b65b4-8f65-411a-b885-38af31192c67",
+									"type": "source",
+									"uri": "flowlink",
+									"options": {
+										"transport": "sync"
+									},
+									"links": {
+										"link": {
+											"id": "96725742-1252-4528-9196-e5af0fe5cfb3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "96725742-1252-4528-9196-e5af0fe5cfb3",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "End"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "96725742-1252-4528-9196-e5af0fe5cfb3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c701223e-b7bb-4fc5-b4b8-114df1050c5b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c701223e-b7bb-4fc5-b4b8-114df1050c5b",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "End"
+									},
+									"links": {
+										"link": {
+											"id": "c701223e-b7bb-4fc5-b4b8-114df1050c5b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a915201a4bb2c0016000032",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

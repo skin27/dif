@@ -1,0 +1,313 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695237dcda8dd5001a000000",
+						"name": "ForceInboundSamba",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "15af9625-841d-44fb-930d-da99a4c2075d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ForceInboundSamba",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1b400aee-7906-40bd-9ef1-7af26163df0f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1b400aee-7906-40bd-9ef1-7af26163df0f",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1b400aee-7906-40bd-9ef1-7af26163df0f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ffcc45ae-1a8b-4d36-87ed-d8465f787b54",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ffcc45ae-1a8b-4d36-87ed-d8465f787b54",
+									"type": "action",
+									"uri": "smbenrich://dovetail@api-testing.dovetail.world:445/Data/next/Regression Tests/test",
+									"options": {
+										"fileName": "abcdef.xyz",
+										"charset": "utf-8",
+										"password": "dovetail",
+										"autoCreate": true,
+										"recursive": false,
+										"delete": false,
+										"move": "RAW(archive)",
+										"readLock": "none"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ffcc45ae-1a8b-4d36-87ed-d8465f787b54",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b3fb89b9-2f46-4781-a3cc-5d4d98f02364",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b3fb89b9-2f46-4781-a3cc-5d4d98f02364",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b3fb89b9-2f46-4781-a3cc-5d4d98f02364",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b8fd47ac-b9aa-450d-9d8d-467f980f886a",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "9d696b76-893c-4be1-a37d-197dbf833a4c",
+												"bound": "out",
+												"expression": "${header.BodySize} > 0",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "1st_time_success",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b8fd47ac-b9aa-450d-9d8d-467f980f886a",
+									"type": "action",
+									"uri": "setheaders:message:b8fd47ac-b9aa-450d-9d8d-467f980f886a",
+									"links": {
+										"link": [
+											{
+												"id": "b8fd47ac-b9aa-450d-9d8d-467f980f886a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "82eb1268-139d-464a-9a87-77e2be833cb7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "82eb1268-139d-464a-9a87-77e2be833cb7",
+									"type": "action",
+									"uri": "smbenrich://${header.username}@${header.host}:${header.port}/${header.sharename}/${header.path}",
+									"options": {
+										"fileName": "${header.filename}",
+										"charset": "utf-8",
+										"password": "${header.password}",
+										"autoCreate": true,
+										"recursive": false,
+										"delete": false,
+										"readLock": "none"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "82eb1268-139d-464a-9a87-77e2be833cb7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "249ad9f1-4eac-43e1-8b7a-3672a1545f3a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "249ad9f1-4eac-43e1-8b7a-3672a1545f3a",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "2nd attempt successful"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "249ad9f1-4eac-43e1-8b7a-3672a1545f3a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "afd38e99-8bf4-4d65-9d14-fd5a42e6af9a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "afd38e99-8bf4-4d65-9d14-fd5a42e6af9a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "afd38e99-8bf4-4d65-9d14-fd5a42e6af9a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9d696b76-893c-4be1-a37d-197dbf833a4c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "1st attempt successful"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9d696b76-893c-4be1-a37d-197dbf833a4c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c442afbb-99af-46da-be34-c8adefb88fb8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c442afbb-99af-46da-be34-c8adefb88fb8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c442afbb-99af-46da-be34-c8adefb88fb8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695237dcda8dd5001a000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "b8fd47ac-b9aa-450d-9d8d-467f980f886a",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "sharename",
+								"value": "Data"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "path",
+								"value": "/next/Regression Tests/test"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "filename",
+								"value": "abcdef.xyz"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "host",
+								"value": "api-testing.dovetail.world"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "port",
+								"value": "445"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "username",
+								"value": "dovetail"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "password",
+								"value": "dovetail"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,143 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a3a83dabbc90014000648",
+						"name": "CB_Jolt",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0c2f2ece-afa5-4307-96c8-715bb5a638a6",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Jolt",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "980e8fae-f4ee-4ccb-bcd6-b838e48f2e43",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "980e8fae-f4ee-4ccb-bcd6-b838e48f2e43",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "980e8fae-f4ee-4ccb-bcd6-b838e48f2e43",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "09a2ded9-8fd0-4e12-b6ee-336e9bd512dd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "09a2ded9-8fd0-4e12-b6ee-336e9bd512dd",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n  \"sensor_id\": \"SN-992\",\n  \"data\": {\n    \"temp\": 21.5,\n    \"status\": \"ONLINE\"\n  }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "09a2ded9-8fd0-4e12-b6ee-336e9bd512dd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a536750-6039-4cc6-9cf8-619e5f85ca04",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a536750-6039-4cc6-9cf8-619e5f85ca04",
+									"type": "action",
+									"uri": "jolt:ref:55e05c33-b951-49ba-b6a8-ed8cfe472b65",
+									"options": {
+										"template": "[\n  {\n    \"operation\": \"shift\",\n    \"spec\": {\n      \"sensor_id\": \"device_id\",\n      \"data\": {\n        \"temp\": \"temperature\",\n        \"status\": \"device_status\"\n      }\n    }\n  }\n]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6a536750-6039-4cc6-9cf8-619e5f85ca04",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e131754d-483d-4e26-86e1-7120c5c289b3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e131754d-483d-4e26-86e1-7120c5c289b3",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e131754d-483d-4e26-86e1-7120c5c289b3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b51eac7d-456b-4d85-9639-c3baa931af38",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "55e05c33-b951-49ba-b6a8-ed8cfe472b65",
+					"content": "[\n  {\n    \"operation\": \"shift\",\n    \"spec\": {\n      \"sensor_id\": \"device_id\",\n      \"data\": {\n        \"temp\": \"temperature\",\n        \"status\": \"device_status\"\n      }\n    }\n  }\n]"
+				}
+			}
+		}
+	}
+}

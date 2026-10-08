@@ -16,6 +16,25 @@
 			"type": "boolean",
 			"default": false
 		},
+		"matchOnUriPrefix": {
+			"title": "Match on URI prefix",
+			"description": "Same as matchPrefix (Camel's name); either one turns prefix matching on",
+			"type": "boolean",
+			"default": false
+		},
+		"exchangePattern": {
+			"title": "Exchange pattern",
+			"description": "InOut replies with the message the flow ends with; InOnly replies at once with the request and the flow goes on without the caller",
+			"type": "string",
+			"enum": ["InOut", "InOnly"],
+			"default": "InOut"
+		},
+		"authenticationPreemptive": {
+			"title": "Preemptive authentication",
+			"description": "Accepted for compatibility; it only affects outbound calls, so it has no effect here",
+			"type": "boolean",
+			"default": false
+		},
 		"preserveHttpHeaders": {
 			"title": "Preserve HTTP headers",
 			"description": "Add the headers http.method, http.path, http.query and http.uri",
@@ -30,7 +49,7 @@
 		},
 		"serverIdentityPassword": {
 			"title": "Server identity password",
-			"description": "Password of the keystore; defaults to the environment variable DIF_SERVER_IDENTITY_PASSWORD",
+			"description": "Keystore password; env DIF_SERVER_IDENTITY_PASSWORD (or its _FILE companion)",
 			"type": "string"
 		}
 	},

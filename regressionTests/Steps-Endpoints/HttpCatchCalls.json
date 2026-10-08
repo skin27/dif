@@ -1,0 +1,430 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953b15cda8dd5000c0001a6",
+						"name": "HttpCatchCalls",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a3acdf7f-3fee-44c7-8d80-95a40a2bae04",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpCatchCalls",
+									"options": {
+										"matchPrefix": true,
+										"preserveHttpHeaders": true,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d4a98536-7685-45f2-a8c6-a715bdc36fad",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d4a98536-7685-45f2-a8c6-a715bdc36fad",
+									"type": "action",
+									"uri": "setheaders:message:d4a98536-7685-45f2-a8c6-a715bdc36fad",
+									"links": {
+										"link": [
+											{
+												"id": "d4a98536-7685-45f2-a8c6-a715bdc36fad",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2aaa0f4e-a0fe-44c7-b0df-989523626195",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2aaa0f4e-a0fe-44c7-b0df-989523626195",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2aaa0f4e-a0fe-44c7-b0df-989523626195",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f3c0fcda-4cce-4bfc-b8cd-53837308e1f8",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "77e406d1-8c8b-4d4d-99b6-a331ce3e85fb",
+												"bound": "out",
+												"expression": "${header.config} == 'basic'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "basic",
+												"transport": "sync"
+											},
+											{
+												"id": "3292cf1d-322c-4f4c-9dd4-4e2321abc8f2",
+												"bound": "out",
+												"expression": "${header.config} == 'preemptive'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "preemptive",
+												"transport": "sync"
+											},
+											{
+												"id": "d7daca67-cffd-4846-a95f-d88e11b47678",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'GET'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "get",
+												"transport": "sync"
+											},
+											{
+												"id": "5d32dd6c-9b7a-4a32-980c-169851018d8d",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'POST'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "post",
+												"transport": "sync"
+											},
+											{
+												"id": "2385c3ca-7a00-4679-9978-90cb1d5288d9",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'PUT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "put",
+												"transport": "sync"
+											},
+											{
+												"id": "015974cb-6c12-45d2-a418-7aad01596531",
+												"bound": "out",
+												"expression": "${header.config} == 'delete_with_body'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "delete_with_body",
+												"transport": "sync"
+											},
+											{
+												"id": "370ac08b-e79d-4ebe-aa64-3f85ad16a26c",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'DELETE'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "delete",
+												"transport": "sync"
+											},
+											{
+												"id": "17d83bff-4191-45c4-af4a-da18224c9ed5",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'HEAD'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "head",
+												"transport": "sync"
+											},
+											{
+												"id": "7573e675-35f5-49ae-b292-6135aff4bfed",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'OPTIONS'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "options",
+												"transport": "sync"
+											},
+											{
+												"id": "9e704a1e-d366-4701-b6f5-6cd228d81541",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'TRACE'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "trace",
+												"transport": "sync"
+											},
+											{
+												"id": "aadfb0f0-f4ec-460c-98c8-08a63e188d14",
+												"bound": "out",
+												"expression": "${header.CamelHttpMethod} == 'PATCH'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "patch",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f3c0fcda-4cce-4bfc-b8cd-53837308e1f8",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "No method"
+									},
+									"links": {
+										"link": {
+											"id": "f3c0fcda-4cce-4bfc-b8cd-53837308e1f8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "77e406d1-8c8b-4d4d-99b6-a331ce3e85fb",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "BASIC AUTH"
+									},
+									"links": {
+										"link": {
+											"id": "77e406d1-8c8b-4d4d-99b6-a331ce3e85fb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3292cf1d-322c-4f4c-9dd4-4e2321abc8f2",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "BASIC AUTH PREEMPTIVE"
+									},
+									"links": {
+										"link": {
+											"id": "3292cf1d-322c-4f4c-9dd4-4e2321abc8f2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d7daca67-cffd-4846-a95f-d88e11b47678",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "GET"
+									},
+									"links": {
+										"link": {
+											"id": "d7daca67-cffd-4846-a95f-d88e11b47678",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5d32dd6c-9b7a-4a32-980c-169851018d8d",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "POST"
+									},
+									"links": {
+										"link": {
+											"id": "5d32dd6c-9b7a-4a32-980c-169851018d8d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2385c3ca-7a00-4679-9978-90cb1d5288d9",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "PUT"
+									},
+									"links": {
+										"link": {
+											"id": "2385c3ca-7a00-4679-9978-90cb1d5288d9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "015974cb-6c12-45d2-a418-7aad01596531",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "DELETE WITH BODY"
+									},
+									"links": {
+										"link": {
+											"id": "015974cb-6c12-45d2-a418-7aad01596531",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "370ac08b-e79d-4ebe-aa64-3f85ad16a26c",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "DELETE"
+									},
+									"links": {
+										"link": {
+											"id": "370ac08b-e79d-4ebe-aa64-3f85ad16a26c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "17d83bff-4191-45c4-af4a-da18224c9ed5",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "HEAD"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "17d83bff-4191-45c4-af4a-da18224c9ed5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9b6a8233-d92c-42d8-ac8e-8454ff19cd64",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9b6a8233-d92c-42d8-ac8e-8454ff19cd64",
+									"type": "sink",
+									"uri": "setheaders:message:9b6a8233-d92c-42d8-ac8e-8454ff19cd64",
+									"links": {
+										"link": {
+											"id": "9b6a8233-d92c-42d8-ac8e-8454ff19cd64",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7573e675-35f5-49ae-b292-6135aff4bfed",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "OPTIONS"
+									},
+									"links": {
+										"link": {
+											"id": "7573e675-35f5-49ae-b292-6135aff4bfed",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9e704a1e-d366-4701-b6f5-6cd228d81541",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "TRACE"
+									},
+									"links": {
+										"link": {
+											"id": "9e704a1e-d366-4701-b6f5-6cd228d81541",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "aadfb0f0-f4ec-460c-98c8-08a63e188d14",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "PATCH"
+									},
+									"links": {
+										"link": {
+											"id": "aadfb0f0-f4ec-460c-98c8-08a63e188d14",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6953b15cda8dd5000c0001a8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "d4a98536-7685-45f2-a8c6-a715bdc36fad",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_${header.config}"
+							}
+						}
+					},
+					{
+						"name": "9b6a8233-d92c-42d8-ac8e-8454ff19cd64",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CheckMethod",
+								"value": "HEAD"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

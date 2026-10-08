@@ -1,0 +1,59 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:rest-source",
+	"title": "rest source",
+	"description": "Receives HTTPS requests with one method on a path of the REST address and replies with the flow's outcome, as Camel's REST DSL does.",
+	"type": "object",
+	"properties": {
+		"method": {
+			"title": "Method",
+			"description": "The HTTP method served; other methods get 405",
+			"type": "string",
+			"enum": ["get", "post", "put", "delete", "patch", "head", "trace", "connect", "option", "options"],
+			"default": "get"
+		},
+		"path": {
+			"title": "Path",
+			"description": "Path below the REST address, such as hello/me",
+			"type": "string"
+		},
+		"consumes": {
+			"title": "Consumes",
+			"description": "Media type of the requests; informational only",
+			"type": "string",
+			"default": ""
+		},
+		"produces": {
+			"title": "Produces",
+			"description": "Content-Type of a reply whose message sets none",
+			"type": "string",
+			"default": ""
+		},
+		"exchangePattern": {
+			"title": "Exchange pattern",
+			"description": "InOut replies with the message the flow ends with; InOnly replies at once with the request",
+			"type": "string",
+			"enum": ["InOut", "InOnly"],
+			"default": "InOut"
+		},
+		"address": {
+			"title": "REST address",
+			"description": "host:port to listen on; Camel's rest configuration in the Java platform",
+			"type": "string",
+			"default": "0.0.0.0:9002"
+		},
+		"serverIdentityFile": {
+			"title": "Server identity",
+			"description": "PKCS#12 keystore with the server's private key and certificate",
+			"type": "string",
+			"default": "security/server-identity.p12"
+		},
+		"serverIdentityPassword": {
+			"title": "Server identity password",
+			"description": "Keystore password; env DIF_SERVER_IDENTITY_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ca22aa93e30015000086",
+						"name": "CB_RemoveTenantVariable",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8b4e73ef-3556-4a4f-88ad-eb9152f1c093",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_RemoveTenantVariable",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8c8e641f-7e71-4613-97c6-e0b0a350ef23",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8c8e641f-7e71-4613-97c6-e0b0a350ef23",
+									"type": "action",
+									"uri": "removetenantvariable:varTest",
+									"options": {
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8c8e641f-7e71-4613-97c6-e0b0a350ef23",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ed041d81-a777-4c94-8c29-1c18de8a8ea9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ed041d81-a777-4c94-8c29-1c18de8a8ea9",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "ed041d81-a777-4c94-8c29-1c18de8a8ea9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a54ca22aa93e30015000088",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

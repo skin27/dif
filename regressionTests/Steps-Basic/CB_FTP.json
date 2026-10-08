@@ -1,0 +1,120 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50cedd2a81840011000126",
+						"name": "CB_FTP",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f2029f7c-3e62-41d0-896c-c1d1fdb5f21b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_FTP",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "ce5381e9-db2a-4d7b-8545-24ab5b8e9882",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ce5381e9-db2a-4d7b-8545-24ab5b8e9882",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "testing FTP!"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ce5381e9-db2a-4d7b-8545-24ab5b8e9882",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "56b8979c-f7c6-47d1-b77c-39d783dbc124",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "56b8979c-f7c6-47d1-b77c-39d783dbc124",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out/",
+									"options": {
+										"fileName": "ComponentTest.txt",
+										"binary": false,
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "ENC(UML9GgWG6McWDxkLx/ch6g==|P52kK+XFpvBvoSZwraPv/A==|VNvua+0EUKZCPJsVFJWEPhLJcaJt9vWfjrfnb/3Zmg46MldUwT6oWZAqwwR9xjYCM3n9CK3ykEbAjt4CRtaYc2RzdOg/tNCjBYujuK+7+UXlwr3DmVYsjpliH3Vv+IMmvTmV3eyhzxzciijHkeolog==)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "56b8979c-f7c6-47d1-b77c-39d783dbc124",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7aaeffff-1a4c-4942-a630-4b76a48ab843",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7aaeffff-1a4c-4942-a630-4b76a48ab843",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "7aaeffff-1a4c-4942-a630-4b76a48ab843",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a50cedd2a81840011000128",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

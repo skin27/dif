@@ -1,0 +1,142 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a97eb890fe1e10011000090",
+						"name": "GreaterThan",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b5d870dd-cd49-4062-bf89-6333218d47c2",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/GreaterThan",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "36b48093-27a6-4240-9c9e-322ce89eab4c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "36b48093-27a6-4240-9c9e-322ce89eab4c",
+									"type": "action",
+									"uri": "setheaders:message:36b48093-27a6-4240-9c9e-322ce89eab4c",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "36b48093-27a6-4240-9c9e-322ce89eab4c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "145cfeb4-aa53-44c3-ba51-13d6e2b03ce1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "145cfeb4-aa53-44c3-ba51-13d6e2b03ce1",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "145cfeb4-aa53-44c3-ba51-13d6e2b03ce1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a97eb890fe1e10011000092",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "36b48093-27a6-4240-9c9e-322ce89eab4c",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "count1",
+								"value": "1"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "count10",
+								"value": "10"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "count100",
+								"value": "100"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Resultheader1",
+								"value": "${int:header.count1}  > 10"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Resultheader2",
+								"value": "${int:header.count10}  > 10"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Resultheader3",
+								"value": "${int:header.count100}  > 10"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Resultheader4",
+								"value": "100 > 10"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

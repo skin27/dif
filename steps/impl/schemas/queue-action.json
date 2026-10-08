@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:queue-action",
+  "title": "queue action",
+  "description": "Sends a copy to a named queue. Durable queues require enqueue delivery; memory queues may wait for processing.",
+  "type": "object",
+  "properties": {
+    "path": {
+      "description": "Logical queue name from queue:<name>; alternative to targetQueueId",
+      "type": "string"
+    },
+    "delivery": {
+      "description": "processed waits for the consumer; enqueue returns after buffering",
+      "type": "string",
+      "enum": [
+        "processed",
+        "enqueue"
+      ],
+      "default": "processed"
+    },
+    "targetQueueId": {
+      "title": "Target queue",
+      "description": "Logical queue name; defaults to the receiver flow id in legacy flows",
+      "type": "string"
+    },
+    "transport": {
+      "title": "Transport",
+      "description": "Broker of the Java platform, such as activemq; informational only, as queues are in memory",
+      "type": "string",
+      "default": "activemq"
+    },
+    "exchangePattern": {
+      "title": "Exchange pattern",
+      "description": "InOut: the target flow's outcome replaces the message; InOnly: the message passes on unchanged",
+      "type": "string",
+      "enum": [
+        "InOnly",
+        "InOut"
+      ],
+      "default": "InOnly"
+    },
+    "requestTimeout": {
+      "title": "Request timeout",
+      "description": "Milliseconds to wait for the target flow",
+      "type": "integer",
+      "minimum": 1,
+      "default": 20000
+    },
+    "overflow": {
+      "description": "Admission policy when the channel is full",
+      "default": "fail",
+      "type": "string",
+      "enum": [
+        "fail",
+        "block"
+      ]
+    },
+    "enqueueTimeout": {
+      "minimum": 0,
+      "description": "Admission timeout in milliseconds; positive value required with overflow block",
+      "default": 0,
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}

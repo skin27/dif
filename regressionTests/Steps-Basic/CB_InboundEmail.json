@@ -1,0 +1,118 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50fdf22a8184001500015d",
+						"name": "CB_InboundEmail",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ac55f35e-f2d4-4098-9e58-42399cb9d5d1",
+									"type": "source",
+									"uri": "imaps:imap.gmail.com:993",
+									"options": {
+										"content": "body",
+										"unseen": true,
+										"delay": "10000",
+										"searchSubject": "Errors because of wrong credentials",
+										"authenticationType": "oauth",
+										"username": "noreply@fluxygen.com",
+										"accessToken": "@{OauthTokenGMailNoreply}",
+										"tenantDbName": "regressiontests"
+									},
+									"blocks": {
+										"block": {
+											"id": "ac55f35e-f2d4-4098-9e58-42399cb9d5d1_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "fbaf437b-3f51-427a-9ada-029dbb3e7f4f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fbaf437b-3f51-427a-9ada-029dbb3e7f4f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "fbaf437b-3f51-427a-9ada-029dbb3e7f4f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7385fd35-f443-4896-82d7-2534cddeef9e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "939f1d3a-26dc-497b-928b-b5f78359cf76",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "939f1d3a-26dc-497b-928b-b5f78359cf76",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": true
+									},
+									"links": {
+										"link": {
+											"id": "939f1d3a-26dc-497b-928b-b5f78359cf76",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"type": "imaps",
+					"keys": {
+						"host": "imap.gmail.com",
+						"port": "993",
+						"authenticationType": "oauth",
+						"username": "noreply@fluxygen.com",
+						"password": ""
+					},
+					"id": "ac55f35e-f2d4-4098-9e58-42399cb9d5d1_connection",
+					"name": "imaps_connection"
+				}
+			}
+		}
+	}
+}

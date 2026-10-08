@@ -1,0 +1,169 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953d6c7da8dd5000c00033c",
+						"name": "GetTenantVariableNotExist",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9fb8c4c8-3939-4655-9a08-2404ba73660d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/GetTenantVariableNotExist",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "f5b5338f-c64e-4988-ba90-9fbebb908b6b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f5b5338f-c64e-4988-ba90-9fbebb908b6b",
+									"type": "action",
+									"uri": "setheaders:message:f5b5338f-c64e-4988-ba90-9fbebb908b6b",
+									"links": {
+										"link": [
+											{
+												"id": "f5b5338f-c64e-4988-ba90-9fbebb908b6b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d63c21d9-9d13-4077-92e5-8342a83ca1f7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d63c21d9-9d13-4077-92e5-8342a83ca1f7",
+									"type": "action",
+									"uri": "gettenantvariable:${header.TenantVarName}",
+									"options": {
+										"headerName": "TenantVariable",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d63c21d9-9d13-4077-92e5-8342a83ca1f7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "09b57b0e-afbb-4d17-9189-061fcf5a7e1e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "09b57b0e-afbb-4d17-9189-061fcf5a7e1e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.TenantVariable}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "09b57b0e-afbb-4d17-9189-061fcf5a7e1e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "71f8f61d-7b4d-4023-b082-2528e9782476",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "71f8f61d-7b4d-4023-b082-2528e9782476",
+									"type": "action",
+									"uri": "removetenantvariable:${header.TenantVarName}",
+									"options": {
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "71f8f61d-7b4d-4023-b082-2528e9782476",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1a33b29d-b3fe-4902-ba21-efe385b9c514",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1a33b29d-b3fe-4902-ba21-efe385b9c514",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1a33b29d-b3fe-4902-ba21-efe385b9c514",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6953d6c7da8dd5000c00033e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "f5b5338f-c64e-4988-ba90-9fbebb908b6b",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "TenantVarName",
+							"value": "SetTenantVariable"
+						}
+					}
+				}
+			}
+		}
+	}
+}

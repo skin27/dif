@@ -1,0 +1,241 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e881c119cee6000c0000a3",
+						"name": "SQL_insert_postgresql_escaped",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b0fa3128-fd5e-4eee-b966-94030a689533",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_insert_postgresql_escaped",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "13b29989-21ff-4da2-9d8e-93dae13f4ba6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "13b29989-21ff-4da2-9d8e-93dae13f4ba6",
+									"type": "action",
+									"uri": "setheaders:message:13b29989-21ff-4da2-9d8e-93dae13f4ba6",
+									"links": {
+										"link": [
+											{
+												"id": "13b29989-21ff-4da2-9d8e-93dae13f4ba6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e9dab1d5-1694-41fb-9f4a-97c9d97a554d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e9dab1d5-1694-41fb-9f4a-97c9d97a554d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT into transactions_next (timestamp,breadcrumb_id,server,tenant,environment,flow_id,flow_name,name,value) VALUES ('${header.timestamp}','${header.breadcrumbId}','https://next.dovetail.world','Regression Tests','test','694aca3eda8dd5001600023e','OauthGmailNoreply','${header.name}','${header.value}')"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e9dab1d5-1694-41fb-9f4a-97c9d97a554d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "74d4bced-9f0c-4bf2-8119-bd724faff409",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "74d4bced-9f0c-4bf2-8119-bd724faff409",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": true,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "ENC(X0sxSZmlKU/JZ3BS5Brmzg==|Dme0ICQaYvYPnrl03I/0VQ==|n2XScNlRiEgsgfRevFEL++p17WC/T74oaGExLJyoF6c8FLo/mrjyvC9NlYBEgUwhO84HOxDwcZ+KjAgd9xFM8Ite73vACqyedNR1iSwaNnA=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "74d4bced-9f0c-4bf2-8119-bd724faff409",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dd81181a-c189-4dc5-9600-3c3f2fbf20d6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dd81181a-c189-4dc5-9600-3c3f2fbf20d6",
+									"type": "action",
+									"uri": "setheaders:message:dd81181a-c189-4dc5-9600-3c3f2fbf20d6",
+									"links": {
+										"link": [
+											{
+												"id": "dd81181a-c189-4dc5-9600-3c3f2fbf20d6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2062b505-0b99-4d95-b481-ae740dad7b54",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2062b505-0b99-4d95-b481-ae740dad7b54",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT * FROM  transactions_next WHERE id = ${header.id}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2062b505-0b99-4d95-b481-ae740dad7b54",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "547eef9f-2b49-4084-9cd7-e5627f5a7f7c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "547eef9f-2b49-4084-9cd7-e5627f5a7f7c",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "postgres",
+										"database": "postgres",
+										"host": "api-testing.dovetail.world",
+										"port": "5432",
+										"username": "postgres",
+										"password": "ENC(SzfjvjzsVpALZlrJca8ybw==|MQBaHmVBuV9Q63Uyk+kz5Q==|i+I2OMRnSXQbF5lM9UX632uyeJnKFfUp88spX6aa5ZCJS5Yut+KIS9PnR0ncvzLEneMAHzNJ9z5cgSBCF/sIEerWvW7XuPE+ViBUhGc8nZ4=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "547eef9f-2b49-4084-9cd7-e5627f5a7f7c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "14c1de60-07c7-479e-ac2d-2cd2336fe7ed",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "14c1de60-07c7-479e-ac2d-2cd2336fe7ed",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "14c1de60-07c7-479e-ac2d-2cd2336fe7ed",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5e5ed513-c637-4d95-8ee5-3554f509fceb",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "13b29989-21ff-4da2-9d8e-93dae13f4ba6",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							}
+						}
+					},
+					{
+						"name": "dd81181a-c189-4dc5-9600-3c3f2fbf20d6",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "id",
+								"value": "//generatedKey/text()"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

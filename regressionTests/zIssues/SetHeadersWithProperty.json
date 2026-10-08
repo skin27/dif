@@ -1,0 +1,159 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6abf5317726f53000c000000",
+						"name": "SetHeadersWithProperty",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "24c80216-6f6b-483b-b5e7-73e1191e276d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetHeadersWithProperty",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "c99ca15a-b767-46a1-9850-7877605f79fb",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c99ca15a-b767-46a1-9850-7877605f79fb",
+									"type": "action",
+									"uri": "setheaders:message:c99ca15a-b767-46a1-9850-7877605f79fb",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c99ca15a-b767-46a1-9850-7877605f79fb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6115d589-e1d0-4a53-ac92-1bf645403eb3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6115d589-e1d0-4a53-ac92-1bf645403eb3",
+									"type": "action",
+									"uri": "setheaders:message:6115d589-e1d0-4a53-ac92-1bf645403eb3",
+									"options": {
+										"expression": "?apikey=${header.apikey_filmtotaal}&dag=${header.day}&sorteer=${header.sort}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6115d589-e1d0-4a53-ac92-1bf645403eb3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "937e253c-3012-47da-9267-c6d1e1ab8338",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "937e253c-3012-47da-9267-c6d1e1ab8338",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "937e253c-3012-47da-9267-c6d1e1ab8338",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6abf5317726f53000c000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "c99ca15a-b767-46a1-9850-7877605f79fb",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "url",
+								"value": "/fluxygen-technology/"
+							}
+						}
+					},
+					{
+						"name": "6115d589-e1d0-4a53-ac92-1bf645403eb3",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "day",
+									"value": "${date:now:dd-MM-yyyy}"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "dayFixed",
+									"value": "28-10-2023"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "sort",
+									"value": "0"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "dynamicUrl",
+									"value": "?apikey=${header.apikey_filmtotaal}&dag=${header.day}&sorteer=${header.sort}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

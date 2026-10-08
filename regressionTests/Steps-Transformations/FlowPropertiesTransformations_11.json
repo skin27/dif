@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696a1e5c633fc0000c000063",
+						"name": "FlowPropertiesTransformations_11",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "27a5a198-0d79-43d9-a94d-846e80b03ff5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlowPropertiesTransformations_11",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ffc7d60e-d4c7-4af6-b183-0fd81721868a",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ffc7d60e-d4c7-4af6-b183-0fd81721868a",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<items>\n  <item>\n    <ID>1</ID>\n    <Name>Pete</Name>\n    <Number>1001</Number>\n  </item>\n  <item>\n    <ID>2</ID>\n    <Name>John</Name>\n    <Number>1002</Number>\n  </item>\n  <item>\n    <ID>3</ID>\n    <Name>Frank</Name>\n    <Number>1003</Number>\n  </item>\n  <item>\n    <ID>4</ID>\n    <Name>Max</Name>\n    <Number>1004</Number>\n  </item>\n</items>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ffc7d60e-d4c7-4af6-b183-0fd81721868a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bc310481-108d-47aa-a9a7-ae5564f97e0d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bc310481-108d-47aa-a9a7-ae5564f97e0d",
+									"type": "action",
+									"uri": "xmltocsv",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": true,
+										"lineSeparator": "linefeed",
+										"orderHeaders": "unordered",
+										"quoteFields": "all_fields"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bc310481-108d-47aa-a9a7-ae5564f97e0d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ae582add-76fa-40b0-8958-1d675186f11a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ae582add-76fa-40b0-8958-1d675186f11a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ae582add-76fa-40b0-8958-1d675186f11a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "696a1e5c633fc0000c000065",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

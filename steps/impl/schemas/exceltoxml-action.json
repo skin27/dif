@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:exceltoxml-action",
+	"title": "exceltoxml action",
+	"description": "Converts an xlsx workbook (not the older xls) into XML: <workbook> holds an element per rule, named after the rule's name, else its worksheet, with a <row> per row of the rule's cells and an element per cell (field1, field2, ... or the header names). Values only: strings and numbers; dates come as Excel's serial numbers.",
+	"type": "object",
+	"properties": {
+		"rules": {
+			"title": "Rules",
+			"description": "JSON list of rules: {\"name\": \"node1\", \"worksheet\": \"Sheet1\", \"cellRange\": \"A2:C4\", \"transpose\": false, \"headerRow\": false, \"discardEmpty\": false}. An empty worksheet is the first, an empty cellRange the whole used range; headerRow takes the first row as field names; discardEmpty leaves out empty cells and rows. A flow's DIL rules list is passed as this text",
+			"type": "string"
+		}
+	},
+	"required": ["rules"],
+	"additionalProperties": false
+}

@@ -1,0 +1,182 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "699722f8598de9000e000053",
+						"name": "ContentRouterAuthorizationCheck",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e4ab9c19-b93b-412b-b9a7-35c13f3ba471",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ContentRouterAuthorizationCheck",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d733d209-58ba-4ddc-b545-828caa08dd37",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d733d209-58ba-4ddc-b545-828caa08dd37",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d733d209-58ba-4ddc-b545-828caa08dd37",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a74173b5-de34-41be-9e94-4010ca9699ab",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "45bf0871-0200-4545-9b56-5948aa2cd22f",
+												"bound": "out",
+												"expression": "${header.Authorization} == ''",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "auth_ok",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a74173b5-de34-41be-9e94-4010ca9699ab",
+									"type": "action",
+									"uri": "setheaders:message:a74173b5-de34-41be-9e94-4010ca9699ab",
+									"links": {
+										"link": [
+											{
+												"id": "a74173b5-de34-41be-9e94-4010ca9699ab",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a4d64d9f-a68d-44b3-be7c-96dd69094aba",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a4d64d9f-a68d-44b3-be7c-96dd69094aba",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a4d64d9f-a68d-44b3-be7c-96dd69094aba",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "45bf0871-0200-4545-9b56-5948aa2cd22f",
+									"type": "action",
+									"uri": "setheaders:message:45bf0871-0200-4545-9b56-5948aa2cd22f",
+									"links": {
+										"link": [
+											{
+												"id": "45bf0871-0200-4545-9b56-5948aa2cd22f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cec3bf83-c9b9-42da-9b5f-6548521e14c3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cec3bf83-c9b9-42da-9b5f-6548521e14c3",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "cec3bf83-c9b9-42da-9b5f-6548521e14c3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "699722f8598de9000e000055",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "a74173b5-de34-41be-9e94-4010ca9699ab",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelHttpResponseCode",
+								"value": "401"
+							}
+						}
+					},
+					{
+						"name": "45bf0871-0200-4545-9b56-5948aa2cd22f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "CamelHttpResponseCode",
+								"value": "200"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

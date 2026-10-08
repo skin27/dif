@@ -1,0 +1,174 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cde2aa93e3000c000125",
+						"name": "CB_SOAP",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8741bb3f-7f84-4ba3-ab50-f16a6cb9b368",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_SOAP",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "2f7d97bd-9db9-4bc3-89ec-e1b46ee6b576",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2f7d97bd-9db9-4bc3-89ec-e1b46ee6b576",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<FullCountryInfo>\n <sCountryISOCode>NL</sCountryISOCode>\n</FullCountryInfo>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2f7d97bd-9db9-4bc3-89ec-e1b46ee6b576",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b69076c0-07a3-4b07-9eac-031e50e52349",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b69076c0-07a3-4b07-9eac-031e50e52349",
+									"type": "action",
+									"uri": "setheaders:message:b69076c0-07a3-4b07-9eac-031e50e52349",
+									"links": {
+										"link": [
+											{
+												"id": "b69076c0-07a3-4b07-9eac-031e50e52349",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d5d8fea6-a455-42cd-91e7-432842a9977b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d5d8fea6-a455-42cd-91e7-432842a9977b",
+									"type": "action",
+									"uri": "soap:http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso",
+									"options": {
+										"extract": true,
+										"action": "FullCountryInfo",
+										"httpHeaders": "[{\"_id\":\"e88fe2b2-371f-4271-a30b-06353bd2e951\",\"name\":\"ApiToken\",\"value\":\"123\"}]",
+										"token": "123",
+										"params": "WSDL"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d5d8fea6-a455-42cd-91e7-432842a9977b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f6dd09ed-ba89-4c9d-b48a-af89c5590461",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f6dd09ed-ba89-4c9d-b48a-af89c5590461",
+									"type": "action",
+									"uri": "replace",
+									"options": {
+										"regex": ".countryinfo\">",
+										"replaceWith": ".countryinfo\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">",
+										"group": 0
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f6dd09ed-ba89-4c9d-b48a-af89c5590461",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b413f003-c2cf-40ab-befa-4f8f8243a9fa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b413f003-c2cf-40ab-befa-4f8f8243a9fa",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "b413f003-c2cf-40ab-befa-4f8f8243a9fa",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6876be3a-ba9f-4a89-8dd9-3cc442f74497",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "b69076c0-07a3-4b07-9eac-031e50e52349",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "Content-Type",
+							"value": "text/xml"
+						}
+					}
+				}
+			}
+		}
+	}
+}

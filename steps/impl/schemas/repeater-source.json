@@ -19,9 +19,8 @@
 		},
 		"repeatCount": {
 			"title": "Repeat count",
-			"description": "Number of messages to produce; 0 means unlimited",
+			"description": "Number of messages to produce; 0 or less (as -1) means unlimited",
 			"type": "integer",
-			"minimum": 0,
 			"default": 0
 		}
 	},

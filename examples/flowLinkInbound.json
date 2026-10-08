@@ -10,11 +10,11 @@
 						"steps": {
 							"step": [
 								{
-									"id": "6e65d70b-d796-4fbb-8b3b-4d7166cba2aa",
+									"id": "2e2ecccb-2ad2-4ea7-b265-ece36bfd35a3",
 									"type": "source",
-									"uri": "unknown",
+									"uri": "flowlink",
 									"options": {
-										"transport": "async"
+										"transport": "sync"
 									},
 									"links": {
 										"link": {
@@ -54,7 +54,7 @@
 									"uri": "setbody",
 									"options": {
 										"language": "simple",
-										"expression": "Message body:\n\nTest succeeded"
+										"expression": "Message body:\n\nTest of flowlink succeeded"
 									},
 									"links": {
 										"link": {
@@ -74,7 +74,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

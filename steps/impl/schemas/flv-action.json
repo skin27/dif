@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:flv-action",
+	"title": "flv action",
+	"description": "Converts a flat file of fixed-length values into XML. Every non-empty line is a record: the first rule whose matchOn the line starts with cuts it into the fields of its subcollection, by length. <flv> holds the records as elements named after the rule's name, else its matchOn; with group, consecutive records of a rule are collected in a <group>. A line no rule matches fails the message.",
+	"type": "object",
+	"properties": {
+		"rules": {
+			"title": "Rules",
+			"description": "JSON list of rules: {\"matchOn\": \"HDR\", \"name\": \"\", \"group\": false, \"subcollection\": [{\"field\": \"header\", \"length\": 3}, ...]}. A flow's DIL rules list is passed as this text",
+			"type": "string"
+		}
+	},
+	"required": ["rules"],
+	"additionalProperties": false
+}

@@ -1,0 +1,195 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6977422af624bf0012000090",
+						"name": "SOAP_extract_smart",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cb25f0ba-39d2-40dd-b396-454f89ea2ad1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SOAP_extract_smart",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "198cf95f-77fc-4edf-a667-5e49a98376a6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "198cf95f-77fc-4edf-a667-5e49a98376a6",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "config|country"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "198cf95f-77fc-4edf-a667-5e49a98376a6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "88033656-8eec-4cd5-92ca-821474e9746a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "88033656-8eec-4cd5-92ca-821474e9746a",
+									"type": "action",
+									"uri": "setheaders:message:88033656-8eec-4cd5-92ca-821474e9746a",
+									"links": {
+										"link": [
+											{
+												"id": "88033656-8eec-4cd5-92ca-821474e9746a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "50cc0a4e-88cb-4b6e-804d-c46939234332",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "50cc0a4e-88cb-4b6e-804d-c46939234332",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<ListOfCountryNamesByName/>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "50cc0a4e-88cb-4b6e-804d-c46939234332",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "873d34aa-c215-481d-945f-630a76adf714",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "873d34aa-c215-481d-945f-630a76adf714",
+									"type": "action",
+									"uri": "soap:http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso",
+									"options": {
+										"extract": true,
+										"action": "ListOfCountryNamesByName",
+										"params": "wsdl"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "873d34aa-c215-481d-945f-630a76adf714",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ae503852-e935-4e55-9705-d39790eb5f32",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ae503852-e935-4e55-9705-d39790eb5f32",
+									"type": "action",
+									"uri": "replace",
+									"options": {
+										"regex": ".countryinfo\">",
+										"replaceWith": ".countryinfo\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">",
+										"group": 0
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ae503852-e935-4e55-9705-d39790eb5f32",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "16b3cfdf-353a-4dfe-88e3-e6d4395022ff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "16b3cfdf-353a-4dfe-88e3-e6d4395022ff",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "16b3cfdf-353a-4dfe-88e3-e6d4395022ff",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a7c36c9d-f2da-4f92-8428-24b9ec209e16",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "88033656-8eec-4cd5-92ca-821474e9746a",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "Content-Type",
+							"value": "Application/Xml"
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,58 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:graphql-action",
+	"title": "graphql action",
+	"description": "Posts a GraphQL query to an endpoint and replaces the body with the response; an error status fails the message.",
+	"type": "object",
+	"properties": {
+		"url": {
+			"title": "URL",
+			"description": "The GraphQL endpoint, http(s)://host[:port]/path",
+			"type": "string",
+			"default": ""
+		},
+		"query": {
+			"title": "Query",
+			"description": "The query; \"\" takes the body as query",
+			"type": "string",
+			"default": ""
+		},
+		"variables": {
+			"title": "Variables",
+			"description": "Variables of the query, a JSON object; \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"accessToken": {
+			"title": "Access token",
+			"description": "Sent as bearer token; \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"path": {
+			"title": "URL from the URI",
+			"description": "From the URI graphql:<url>, when the option url is not set",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to wait for the response",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"additionalProperties": false
+}

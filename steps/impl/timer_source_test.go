@@ -76,7 +76,7 @@ func TestTimerStopsWhenFlowStops(t *testing.T) {
 func TestTimerInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"period": "x"}, `option period: want integer, got "x"`)
 	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"period": 0.0}, "option period: 0 is less than 1")
-	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"repeatCount": -1.0}, "option repeatCount: -1 is less than 0")
+	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"repeatCount": 1.5}, "option repeatCount: want integer")
 	wantInvalid(t, stepdef.Source, "timer:tick", map[string]any{"numbers": 2.0}, "unknown option numbers")
 }
 

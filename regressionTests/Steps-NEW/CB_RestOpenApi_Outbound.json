@@ -1,0 +1,140 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a42e3dabbc9001400075b",
+						"name": "CB_RestOpenApi_Outbound",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ffcef361-3ef7-4758-a778-f0c3d21aa7b8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_RestOpenApi_Outbound",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "dc8b5a9b-9d71-4c53-8dd6-a4199789f400",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dc8b5a9b-9d71-4c53-8dd6-a4199789f400",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dc8b5a9b-9d71-4c53-8dd6-a4199789f400",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "50d83420-7e82-45ea-be60-f3e0061a0817",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "50d83420-7e82-45ea-be60-f3e0061a0817",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<product>\n    <id>PRD-100245</id>\n    <name>UltraSmart Coffee Machine 5000</name>\n    <description>Fully automatic bean-to-cup coffee machine</description>\n\n    <category>\n        <id>12</id>\n        <name>Kitchen Appliances</name>\n    </category>\n\n    <price>\n        <currency>EUR</currency>\n        <amount>899.95</amount>\n        <vatIncluded>true</vatIncluded>\n    </price>\n\n    <stock>\n        <warehouse>\n            <location>Amsterdam</location>\n            <quantity>24</quantity>\n        </warehouse>\n        <warehouse>\n            <location>Rotterdam</location>\n            <quantity>18</quantity>\n        </warehouse>\n        <warehouse>\n            <location>Eindhoven</location>\n            <quantity>0</quantity>\n        </warehouse>\n    </stock>\n\n    <dimensions>\n        <width>28.5</width>\n        <height>42.3</height>\n        <depth>36.1</depth>\n        <unit>cm</unit>\n    </dimensions>\n\n    <weight>\n        <value>8.75</value>\n        <unit>kg</unit>\n    </weight>\n\n    <manufacturer>\n        <name>CoffeeTech Europe</name>\n        <country>Netherlands</country>\n        <support>\n            <email>support@coffeetech.example</email>\n            <phone>+31-20-1234567</phone>\n        </support>\n    </manufacturer>\n\n    <tags>\n        <tag>coffee</tag>\n        <tag>espresso</tag>\n        <tag>automatic</tag>\n        <tag>premium</tag>\n    </tags>\n\n    <specifications>\n        <power>1450W</power>\n        <voltage>230V</voltage>\n        <waterTank>\n            <capacity>1.8</capacity>\n            <unit>L</unit>\n        </waterTank>\n        <programs>\n            <program>Espresso</program>\n            <program>Cappuccino</program>\n            <program>Latte</program>\n            <program>Hot Water</program>\n        </programs>\n    </specifications>\n\n    <reviews>\n        <review>\n            <user>john.doe</user>\n            <rating>5</rating>\n            <comment>Excellent coffee!</comment>\n        </review>\n        <review>\n            <user>jane.smith</user>\n            <rating>4</rating>\n            <comment>Very good, but a bit noisy.</comment>\n        </review>\n    </reviews>\n\n    <availability>\n        <online>true</online>\n        <stores>\n            <store>Amsterdam</store>\n            <store>Rotterdam</store>\n            <store>Utrecht</store>\n        </stores>\n    </availability>\n\n    <createdAt>2026-07-17T10:15:30Z</createdAt>\n    <updatedAt>2026-07-17T11:45:00Z</updatedAt>\n</product>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "50d83420-7e82-45ea-be60-f3e0061a0817",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "21cb6eee-b49b-4a85-bc79-aed49a754f58",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "21cb6eee-b49b-4a85-bc79-aed49a754f58",
+									"type": "action",
+									"uri": "restopenapi:ref:f143f190-09a8-478e-8450-cac1bfaa62ca",
+									"links": {
+										"link": [
+											{
+												"id": "21cb6eee-b49b-4a85-bc79-aed49a754f58",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a41834d5-eb5c-48a5-a07a-0eb0172df346",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a41834d5-eb5c-48a5-a07a-0eb0172df346",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a41834d5-eb5c-48a5-a07a-0eb0172df346",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2dc6ab18-46a7-490c-9ae1-fd9378ace26a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "f143f190-09a8-478e-8450-cac1bfaa62ca",
+					"content": ""
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,202 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69739365f624bf00160000c0",
+						"name": "SimpleReplace",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "232bae2c-5a9a-40bf-88c3-42bf8f5e582b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleReplace",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "ed07bcfe-402e-41ad-8ce1-d397e6489d62",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ed07bcfe-402e-41ad-8ce1-d397e6489d62",
+									"type": "action",
+									"uri": "setheaders:message:ed07bcfe-402e-41ad-8ce1-d397e6489d62",
+									"links": {
+										"link": [
+											{
+												"id": "ed07bcfe-402e-41ad-8ce1-d397e6489d62",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b6a6409d-7de2-424e-bae2-b9c7f5e4863d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b6a6409d-7de2-424e-bae2-b9c7f5e4863d",
+									"type": "action",
+									"uri": "simplereplace",
+									"links": {
+										"link": [
+											{
+												"id": "b6a6409d-7de2-424e-bae2-b9c7f5e4863d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8be887ec-6fc2-44d2-83d3-9ca4d51865f3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8be887ec-6fc2-44d2-83d3-9ca4d51865f3",
+									"type": "action",
+									"uri": "setheaders:message:8be887ec-6fc2-44d2-83d3-9ca4d51865f3",
+									"links": {
+										"link": [
+											{
+												"id": "8be887ec-6fc2-44d2-83d3-9ca4d51865f3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "90cf7877-d657-45ad-a9f3-30ea3fcaecab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "90cf7877-d657-45ad-a9f3-30ea3fcaecab",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "90cf7877-d657-45ad-a9f3-30ea3fcaecab",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1ceb2fd6-5b3b-4a66-a1fb-903ac5a0d673",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "ed07bcfe-402e-41ad-8ce1-d397e6489d62",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "company",
+									"value": "Dovetail BV"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "name",
+									"value": "Integration made easy"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "firstname",
+									"value": "Norman"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "lastname",
+									"value": "Hooghof"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "street",
+									"value": "Schepenlaan"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "housenumber",
+									"value": "18"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "housenumberaddition",
+									"value": "-1"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "postalcode",
+									"value": "6002 EE"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "city",
+									"value": "weert"
+								}
+							]
+						}
+					},
+					{
+						"name": "8be887ec-6fc2-44d2-83d3-9ca4d51865f3",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "Content-Type",
+								"value": "text/xml"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

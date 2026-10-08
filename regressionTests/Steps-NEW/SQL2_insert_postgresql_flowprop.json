@@ -1,0 +1,267 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69f0d93584ad650011000086",
+						"name": "SQL2_insert_postgresql_flowprop",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b789ec76-bbd9-4e35-b2eb-34ba6d4fe5b1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL2_insert_postgresql_flowprop",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8227aadc-b22d-4d87-a600-c0a88f110a2f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8227aadc-b22d-4d87-a600-c0a88f110a2f",
+									"type": "action",
+									"uri": "setheaders:message:8227aadc-b22d-4d87-a600-c0a88f110a2f",
+									"links": {
+										"link": [
+											{
+												"id": "8227aadc-b22d-4d87-a600-c0a88f110a2f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b7dbb677-e182-43cd-a94d-47aa395887dd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b7dbb677-e182-43cd-a94d-47aa395887dd",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT into transactions (timestamp,breadcrumb_id,server,tenant,environment,flow_id,flow_name,name,value) VALUES ('${header.timestamp}','${header.breadcrumbId}','https://next.dovetail.world','Regression Tests','test','694aca3eda8dd5001600023e','OauthGmailNoreply','${header.name}','${header.value}')"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b7dbb677-e182-43cd-a94d-47aa395887dd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "91e38b29-ae99-4af8-9401-3f5bc3285fb9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "91e38b29-ae99-4af8-9401-3f5bc3285fb9",
+									"type": "action",
+									"uri": "sql2",
+									"options": {
+										"query": ":#${body}",
+										"dataSource": "91e38b29-ae99-4af8-9401-3f5bc3285fb9_connection"
+									},
+									"blocks": {
+										"block": {
+											"id": "91e38b29-ae99-4af8-9401-3f5bc3285fb9_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "91e38b29-ae99-4af8-9401-3f5bc3285fb9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d1250b71-40b4-4076-b12b-d609053b3372",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d1250b71-40b4-4076-b12b-d609053b3372",
+									"type": "action",
+									"uri": "setheaders:message:d1250b71-40b4-4076-b12b-d609053b3372",
+									"links": {
+										"link": [
+											{
+												"id": "d1250b71-40b4-4076-b12b-d609053b3372",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a0d47e22-871c-4e73-a802-1566fc179102",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a0d47e22-871c-4e73-a802-1566fc179102",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT * FROM  transactions WHERE id = ${header.id}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a0d47e22-871c-4e73-a802-1566fc179102",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d4465e82-45d6-408c-aa3d-47e7264aee0c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d4465e82-45d6-408c-aa3d-47e7264aee0c",
+									"type": "action",
+									"uri": "sql2",
+									"options": {
+										"query": ":#${body}",
+										"dataSource": "d4465e82-45d6-408c-aa3d-47e7264aee0c_connection"
+									},
+									"blocks": {
+										"block": {
+											"id": "d4465e82-45d6-408c-aa3d-47e7264aee0c_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d4465e82-45d6-408c-aa3d-47e7264aee0c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e05442ed-bda7-4012-8471-ea094aaf87fc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e05442ed-bda7-4012-8471-ea094aaf87fc",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e05442ed-bda7-4012-8471-ea094aaf87fc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eb998d14-6bee-45ad-a107-2846ac754eec",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "8227aadc-b22d-4d87-a600-c0a88f110a2f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							}
+						}
+					},
+					{
+						"name": "d1250b71-40b4-4076-b12b-d609053b3372",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "id",
+								"value": "//generatedKey/text()"
+							}
+						}
+					}
+				]
+			},
+			"connections": {
+				"connection": [
+					{
+						"type": "jdbc",
+						"keys": {
+							"dbtype": "postgres",
+							"dbname": "",
+							"host": "",
+							"port": "",
+							"username": "",
+							"password": "ENC(n5DqCTDcpwC2M1ViuHvHbw==|SlPQnIKGFaWHVdunebPdRw==|Lyjaxb1z7vVLLKze75eLkw==)"
+						},
+						"id": "91e38b29-ae99-4af8-9401-3f5bc3285fb9_connection",
+						"name": "postgres"
+					},
+					{
+						"type": "jdbc",
+						"keys": {
+							"dbtype": "postgres",
+							"dbname": "",
+							"host": "",
+							"port": "",
+							"username": "",
+							"password": "ENC(5IYndolkCnVs+JuoCdAPwA==|xChxFwhFp726D2bfs8fmLQ==|shUMzLDzeMX5mZ5PeFqHuQ==)"
+						},
+						"id": "d4465e82-45d6-408c-aa3d-47e7264aee0c_connection",
+						"name": "postgres"
+					}
+				]
+			}
+		}
+	}
+}

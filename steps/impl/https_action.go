@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net/http"
@@ -21,6 +22,7 @@ import (
 // its string headers become HTTP headers; metadata and http.* headers are
 // never sent directly. Trace identity is mapped explicitly to DIF-Trace-Id.
 // The response sets the body, http.status and Content-Type.
+// Cookies of the cookie store go along, and cookies the server sets are kept.
 // Only servers whose certificate chains to the trust store are trusted.
 type httpsAction struct {
 	url            string
@@ -41,19 +43,35 @@ func newHTTPSAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if err != nil || u.Host == "" {
 		return nil, fmt.Errorf("uri: want https://host[:port]/path")
 	}
-	pw, given := trustStorePassword.get(p)
-	pool, err := keystore.LoadTrustPool(p["trustStoreFile"].(string), pw)
+	client, err := httpsClient(p)
 	if err != nil {
-		return nil, trustStorePassword.explain("trust store", err, given)
+		return nil, err
 	}
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.TLSClientConfig = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
 	return httpsAction{
 		url:            u.String(),
 		method:         p["httpMethod"].(string),
-		client:         &http.Client{Transport: transport, Timeout: time.Duration(p["socketTimeout"].(int)) * time.Millisecond},
+		client:         client,
 		throwOnFailure: p["throwExceptionOnFailure"].(bool),
 	}, nil
+}
+
+// httpsClient returns an HTTP client that trusts the trust store of the options
+// trustStoreFile and trustStorePassword (the system's roots if trustStoreFile is
+// empty) and times out after socketTimeout ms.
+func httpsClient(p stepdef.Params) (*http.Client, error) {
+	var pool *x509.CertPool // nil: the system's roots
+	if file := p["trustStoreFile"].(string); file != "" {
+		pw, given, err := trustStorePassword.get(p)
+		if err != nil {
+			return nil, err
+		}
+		if pool, err = keystore.LoadTrustPool(file, pw); err != nil {
+			return nil, trustStorePassword.explain("trust store", err, given)
+		}
+	}
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSClientConfig = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
+	return &http.Client{Transport: transport, Timeout: time.Duration(p["socketTimeout"].(int)) * time.Millisecond}, nil
 }
 
 func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
@@ -74,13 +92,15 @@ func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Me
 		}
 		req.Header.Set(k, s)
 	}
-
 	writeIdentityHeaders(req.Header, m)
+	cookies.addTo(req)
+
 	resp, err := a.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	cookies.keep(req.URL, resp.Cookies())
 	data, err := io.ReadAll(io.LimitReader(resp.Body, maxBodySize))
 	if err != nil {
 		return nil, fmt.Errorf("%s %s: reading response: %w", a.method, a.url, err)

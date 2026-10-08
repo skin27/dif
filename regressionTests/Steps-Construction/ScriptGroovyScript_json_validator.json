@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6957d2e0f71686000e000102",
+						"name": "ScriptGroovyScript_json_validator",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c65abdce-55d1-4b21-b9f8-24c4142f0b92",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptGroovyScript_json_validator",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "a014e2f3-fa0d-4180-a4ee-72cd7c527308",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a014e2f3-fa0d-4180-a4ee-72cd7c527308",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n    \"name\": \"John McClusky\",\n    \"age\": 45,\n    \"city\": \"York\"\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a014e2f3-fa0d-4180-a4ee-72cd7c527308",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dc9fea2f-fe8a-4749-b1fa-60fafecc7d23",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dc9fea2f-fe8a-4749-b1fa-60fafecc7d23",
+									"type": "action",
+									"uri": "groovy:ref:cf563138-a539-4460-bdf7-de9d9fe9c2c6",
+									"links": {
+										"link": [
+											{
+												"id": "dc9fea2f-fe8a-4749-b1fa-60fafecc7d23",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c8c31cc6-967d-4005-8b72-2eb3be87738c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c8c31cc6-967d-4005-8b72-2eb3be87738c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c8c31cc6-967d-4005-8b72-2eb3be87738c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cf3157f8-e059-4eaa-b5d6-8420bbd87c0b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "cf563138-a539-4460-bdf7-de9d9fe9c2c6",
+					"content": "import groovy.json.JsonSlurper\n\ntry {\n  def jsonObject = new JsonSlurper().parseText(request.body)\n  // If parsing is successful, JSON is parsable ('valid')\n   \"Parsable\"\n//   def age = jsonObject.age;\n} catch (Exception e) {\n  // Parsing failed, JSON is not parsable ('invalid')\n   \"Not parsable\"\n}"
+				}
+			}
+		}
+	}
+}

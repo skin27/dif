@@ -63,13 +63,47 @@ func (r *Registry) Register(d stepdef.Definition) error {
 //
 // An action node may use a sink processor (the message passes on unchanged
 // after it is consumed) or a router processor (one that passes the message on
-// or stops it, such as a filter); a sink node may use an action processor.
+// or stops it, such as a filter), in that order of preference; a sink node may
+// use an action processor.
 // A router processor gets the node's outbound links as Params[stepdef.Links].
 func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
+	return r.ProcessorWithParams(n, nil)
+}
+
+// ProcessorWithParams injects trusted runtime bindings after option validation.
+func (r *Registry) ProcessorWithParams(n *flowdef.Node, bindings stepdef.Params) (stepdef.Processor, error) {
+	e, params, err := r.parameters(n)
+	if err != nil {
+		return nil, err
+	}
+	name, _, _ := strings.Cut(n.URI, ":")
+	for _, key := range e.def.RuntimeBindings {
+		if value, ok := bindings[key]; ok {
+			params[key] = value
+		}
+	}
+	p, err := e.def.New(n.ID, params)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", name, err)
+	}
+	if !implements(p, e.def.Kind) {
+		return nil, fmt.Errorf("%s: processor %T is not a %s processor", name, p, e.def.Kind)
+	}
+	return p, nil
+}
+
+// Validate checks the registered step and its option schema without constructing
+// a processor. It does not check expressions or external resources.
+func (r *Registry) Validate(n *flowdef.Node) error {
+	_, _, err := r.parameters(n)
+	return err
+}
+
+func (r *Registry) parameters(n *flowdef.Node) (entry, stepdef.Params, error) {
 	name, path, _ := strings.Cut(n.URI, ":")
 	e, ok := r.lookup(name, n.Kind)
 	if !ok {
-		return nil, fmt.Errorf("no processor for %q (%s)", name, n.Kind)
+		return entry{}, nil, fmt.Errorf("no processor for %q (%s)", name, n.Kind)
 	}
 
 	opts := make(map[string]any, len(n.Options)+1)
@@ -79,7 +113,7 @@ func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 	}
 	params, err := e.schema.validate(opts)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", name, err)
+		return entry{}, nil, fmt.Errorf("%s: %w", name, err)
 	}
 
 	if e.def.Kind == stepdef.Router {
@@ -90,14 +124,7 @@ func (r *Registry) Processor(n *flowdef.Node) (stepdef.Processor, error) {
 		params[stepdef.Links] = links
 	}
 
-	p, err := e.def.New(n.ID, params)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", name, err)
-	}
-	if !implements(p, e.def.Kind) {
-		return nil, fmt.Errorf("%s: processor %T is not a %s processor", name, p, e.def.Kind)
-	}
-	return p, nil
+	return e, params, nil
 }
 
 // StepInfo describes a registered step for a catalog, from its definition and schema.
@@ -144,7 +171,7 @@ func (r *Registry) lookup(name, kind string) (entry, bool) {
 	kinds := []string{kind}
 	switch kind {
 	case stepdef.Action:
-		kinds = append(kinds, stepdef.Sink, stepdef.Router)
+		kinds = append(kinds, stepdef.Router, stepdef.Sink) // a wastebin router stops the message, its sink would not
 	case stepdef.Sink:
 		kinds = append(kinds, stepdef.Action)
 	}
@@ -169,7 +196,8 @@ func implements(p stepdef.Processor, kind string) bool {
 		return ok
 	case stepdef.Router:
 		_, ok := p.(stepdef.RouterProcessor)
-		return ok
+		_, loops := p.(stepdef.Looper)
+		return ok || loops
 	case stepdef.Sink:
 		_, ok := p.(stepdef.SinkProcessor)
 		return ok

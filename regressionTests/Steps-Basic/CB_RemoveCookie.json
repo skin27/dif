@@ -1,0 +1,90 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54b61aaa93e3001500006e",
+						"name": "CB_RemoveCookie",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a108a15d-e5ec-4d4c-8224-e504500f9703",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_RemoveCookie",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5d1fdcb4-9907-40b7-8585-83a8d1f57a0d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5d1fdcb4-9907-40b7-8585-83a8d1f57a0d",
+									"type": "action",
+									"uri": "removecookie",
+									"options": {
+										"name": "MyCookie",
+										"domain": "dovetail.world"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5d1fdcb4-9907-40b7-8585-83a8d1f57a0d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "32ef79c3-8662-48c6-9739-5f87b5d1d394",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "32ef79c3-8662-48c6-9739-5f87b5d1d394",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Test finished"
+									},
+									"links": {
+										"link": {
+											"id": "32ef79c3-8662-48c6-9739-5f87b5d1d394",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a54b61aaa93e30015000070",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

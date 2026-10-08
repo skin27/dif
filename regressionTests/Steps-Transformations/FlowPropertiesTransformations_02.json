@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6967c281633fc00014000080",
+						"name": "FlowPropertiesTransformations_02",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6bb6d335-830e-4419-a9e6-ed64a76a4665",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlowPropertiesTransformations_02",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "99ed5adc-a66e-45b8-8371-5022eb114aff",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "99ed5adc-a66e-45b8-8371-5022eb114aff",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\"nr\":1,\"name\":\"Calvin Klein\"\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "99ed5adc-a66e-45b8-8371-5022eb114aff",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6bd8f355-a473-4732-bfdf-d51088b77f57",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6bd8f355-a473-4732-bfdf-d51088b77f57",
+									"type": "action",
+									"uri": "jsontoxml",
+									"options": {
+										"namespaceLenient": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6bd8f355-a473-4732-bfdf-d51088b77f57",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ba482465-d635-42a5-8d2c-4317aa2231fc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ba482465-d635-42a5-8d2c-4317aa2231fc",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ba482465-d635-42a5-8d2c-4317aa2231fc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "badf4b51-b110-4c75-aeae-f6a3593abb55",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,113 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6980b7e807da32000c000004",
+						"name": "SimpleExpression_OriginalBody",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a39d876b-0eb9-4562-8783-2926a28a81e0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleExpression_OriginalBody",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "e753177b-f3aa-4c7c-b365-370edd2583e7",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e753177b-f3aa-4c7c-b365-370edd2583e7",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<test/>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e753177b-f3aa-4c7c-b365-370edd2583e7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "71cc3d16-43cc-4b19-8c58-e5426e1dcf02",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "71cc3d16-43cc-4b19-8c58-e5426e1dcf02",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.originalBody}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "71cc3d16-43cc-4b19-8c58-e5426e1dcf02",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "339bf245-8386-44fd-a695-19904a79048a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "339bf245-8386-44fd-a695-19904a79048a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "339bf245-8386-44fd-a695-19904a79048a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6980b7e807da32000c000006",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

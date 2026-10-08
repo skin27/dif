@@ -1,0 +1,120 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694a9b19da8dd5000c00000c",
+						"name": "CreateMsSqlTableEmployees",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b3bb7747-fa65-40cd-8213-1e47f1f55739",
+									"type": "source",
+									"uri": "repeater",
+									"options": {
+										"repeatCount": 1,
+										"period": 10000
+									},
+									"links": {
+										"link": {
+											"id": "e7465d58-92af-451e-91a5-e6e452690e47",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e7465d58-92af-451e-91a5-e6e452690e47",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "CREATE TABLE Employees_next (\n    EmployeeID INT PRIMARY KEY,\n    FirstName NVARCHAR(50),\n    LastName NVARCHAR(50),\n    BirthDate DATE,\n    Email NVARCHAR(100)\n);"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e7465d58-92af-451e-91a5-e6e452690e47",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0916e301-90ae-4ee4-9922-09341f979152",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0916e301-90ae-4ee4-9922-09341f979152",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": false,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "sql_server",
+										"database": "tempdb",
+										"host": "api-testing.dovetail.world",
+										"port": "1433",
+										"username": "SA",
+										"password": "$Ytn4BmT"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0916e301-90ae-4ee4-9922-09341f979152",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1b57e67b-d8ce-4529-ac72-ef520afa71e4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1b57e67b-d8ce-4529-ac72-ef520afa71e4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1b57e67b-d8ce-4529-ac72-ef520afa71e4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7cd6e7bb-2fc9-4a51-a377-cd76b037be3b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

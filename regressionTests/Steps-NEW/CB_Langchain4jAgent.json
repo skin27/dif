@@ -1,0 +1,156 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6aa263de879ca20016000088",
+						"name": "CB_Langchain4jAgent",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d642bdc5-701c-4ca3-bb8b-2a22a90ba425",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Langchain4jAgent",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "3a49c78d-21bc-44b1-bc69-911df429adf5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3a49c78d-21bc-44b1-bc69-911df429adf5",
+									"type": "action",
+									"uri": "setuuid",
+									"links": {
+										"link": [
+											{
+												"id": "3a49c78d-21bc-44b1-bc69-911df429adf5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a2089739-507d-4559-ab0f-4de7b45ce82b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a2089739-507d-4559-ab0f-4de7b45ce82b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Extend the xml below with relevant information.\nConstraints:\nAge\nConstructor\nCareer\nNumber of poles in GP\nNumber of podiums in GP\nNumber of wins in GP\n\n<drivers>\n<driver>Max Verstappen</driver>\n<driver>Lewis Hamilton</driver>\n</drivers>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a2089739-507d-4559-ab0f-4de7b45ce82b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d",
+									"type": "action",
+									"uri": "langchain4jagent",
+									"options": {
+										"tags": "weather",
+										"websearchapikey": "ENC(pFBAQblaw9vEQP2+ITfnIg==|FmzmF6XenLX+iBoE/cDmLQ==|yCxP4RvD1n/z3QfdAVKnHHwDwsTGDJWrteN6GCQ3+cnS1tEYvF8xqIRuucVjUh1FYJdhNv4r1BXHd6zFq49qysSuEiVKLbQMiQIoIhkykVHyBdQNN7O0ffAiPVE0yAgVrMxsiatxqnB7hwRIzqyALH6r1y8osBoJLvZ5A2BXACcdbGkfl4o11ZOI3j2CDB4u)",
+										"memoryId": "${header.UUID}",
+										"agent": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d_connection",
+										"routeId": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d"
+									},
+									"blocks": {
+										"block": {
+											"id": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d_connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": [
+											{
+												"id": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f5528190-c5a9-4707-8607-7f665f3c6a31",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f5528190-c5a9-4707-8607-7f665f3c6a31",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f5528190-c5a9-4707-8607-7f665f3c6a31",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6aa263de879ca2001600008a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"type": "langchain4jagent",
+					"keys": {
+						"apikey": "ENC(IUlAQzqXOIIPElh5Qwv2EA==|8GTAAVDO/9kAw9yu5DIU3w==|890zHsQbE7N31YM8vYbH3xF8Xz15CbpPSBDAI/9qSEDi4B3WNkMSEOemKCCTuan6lK5et4ygaJtfNGkn/zpg4Q==)",
+						"websearchapikey": "ENC(rE1mYRcHcuKeLzRz4/A0vw==|WhjWIqP9ytJZsQRiT2GmGQ==|j4YEl3DDxVmvGvrhzcPXW7RpHEn6t1ZC4BG9SUrOuzqakKw8hEMHqNqmQRmhYv/pMn4WX9zLPJe4EU2iRNGvdw==)",
+						"modelname": "gemini-3-flash-preview",
+						"timeout": "10"
+					},
+					"id": "eb469fe6-d6a1-42f3-b4b9-d15926e0991d_connection",
+					"name": "langchain4jagent"
+				}
+			}
+		}
+	}
+}

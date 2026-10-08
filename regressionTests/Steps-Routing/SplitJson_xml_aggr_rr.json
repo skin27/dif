@@ -1,0 +1,142 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e7386f71686001400024c",
+						"name": "SplitJson_xml_aggr_rr",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "cdebf102-105c-48db-a07a-c0a427f21197",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitJson_xml_aggr_rr",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "de579ab4-ee41-4925-b662-24d7a4bae652",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "de579ab4-ee41-4925-b662-24d7a4bae652",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "jsonpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "de579ab4-ee41-4925-b662-24d7a4bae652",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "abeaa967-2db6-4cce-b33e-59978f1222e6",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "8f9c7e99-3918-47d0-b917-9fa77e4c3c60",
+												"bound": "out",
+												"expression": "$.film",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "abeaa967-2db6-4cce-b33e-59978f1222e6",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "abeaa967-2db6-4cce-b33e-59978f1222e6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8f9c7e99-3918-47d0-b917-9fa77e4c3c60",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": true,
+										"rootTag": "root",
+										"checkJsonKeys": false,
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8f9c7e99-3918-47d0-b917-9fa77e4c3c60",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0a44510d-ee90-414c-9d99-37762e4dd045",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0a44510d-ee90-414c-9d99-37762e4dd045",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "0a44510d-ee90-414c-9d99-37762e4dd045",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "25725db2-e705-4bcc-bdcb-f9f6dd9fc421",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

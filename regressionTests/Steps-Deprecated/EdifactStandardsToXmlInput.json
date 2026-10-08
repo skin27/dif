@@ -1,0 +1,68 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a83097add4f57001100004e",
+						"name": "EdifactStandardsToXmlInput",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a5793072-8780-4086-9c43-3d4778d7aa80",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/EdifactStandardsToXmlInput",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "ea854450-67bf-47ec-8f28-6e7e434ae0e9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ea854450-67bf-47ec-8f28-6e7e434ae0e9",
+									"type": "sink",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/tmp",
+									"options": {
+										"fileName": "EdifactStandardsToXml.xml",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override"
+									},
+									"links": {
+										"link": {
+											"id": "ea854450-67bf-47ec-8f28-6e7e434ae0e9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a83097add4f570011000050",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

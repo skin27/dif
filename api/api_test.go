@@ -5,7 +5,7 @@ import "testing"
 // TestHello is the end-to-end test: JSON -> parse -> steps -> engine -> Message.
 func TestHello(t *testing.T) {
 	var results []*Result
-	f, err := Load("../examples/hello.json", func(res *Result, err error) {
+	f, err := Load("../testdata/hello.json", func(res *Result, err error) {
 		if err != nil {
 			t.Error(err)
 			return

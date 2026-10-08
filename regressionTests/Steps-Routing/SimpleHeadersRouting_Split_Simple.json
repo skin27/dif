@@ -1,0 +1,173 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e68ccf716860014000200",
+						"name": "SimpleHeadersRouting_Split_Simple",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "49653834-3575-41d0-b791-b710bba3143a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersRouting_Split_Simple",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "eba4a29d-980b-4116-890a-393d7034a972",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eba4a29d-980b-4116-890a-393d7034a972",
+									"type": "action",
+									"uri": "setheaders:message:eba4a29d-980b-4116-890a-393d7034a972",
+									"links": {
+										"link": [
+											{
+												"id": "eba4a29d-980b-4116-890a-393d7034a972",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7d92af9a-8aea-412a-b18f-a41725bb16e4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7d92af9a-8aea-412a-b18f-a41725bb16e4",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "a,b,c,d,e,f"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7d92af9a-8aea-412a-b18f-a41725bb16e4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "20b035d6-9fb4-4245-b075-fe992dcd7f4f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "20b035d6-9fb4-4245-b075-fe992dcd7f4f",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "simple",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "20b035d6-9fb4-4245-b075-fe992dcd7f4f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "548b3932-cf1e-4df7-bce8-f00248d87e18",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "2f8c71d7-3be2-48e8-9b77-0120f0221bda",
+												"bound": "out",
+												"expression": "${header.expression}",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "548b3932-cf1e-4df7-bce8-f00248d87e18",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "548b3932-cf1e-4df7-bce8-f00248d87e18",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2f8c71d7-3be2-48e8-9b77-0120f0221bda",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root>${bodyAs(String)}</root>"
+									},
+									"links": {
+										"link": {
+											"id": "2f8c71d7-3be2-48e8-9b77-0120f0221bda",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7fcf5354-462e-4a3e-9c80-10b844897080",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "eba4a29d-980b-4116-890a-393d7034a972",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "expression2",
+							"value": "${body.split(',')}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

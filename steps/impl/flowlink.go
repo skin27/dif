@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"dif/internal/channels"
 	"fmt"
 	"time"
 
@@ -28,7 +29,11 @@ func newFlowLinkSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if id == "" {
 		return nil, fmt.Errorf("option flowId: empty flow id")
 	}
-	return flowLinkSource{queueSource{linkEndpoint(id)}}, nil
+	q := channelRuntime(p).queue("flowlink:" + id)
+	if q.core.Durable() {
+		return nil, fmt.Errorf("flowlink endpoints must use memory storage")
+	}
+	return flowLinkSource{queueSource{q}}, nil
 }
 
 // flowLinkAction sends a copy of the message to the flow targetFlowId:
@@ -46,6 +51,7 @@ type flowLinkAction struct {
 	wait     bool // for the target's outcome
 	inOut    bool // the outcome replaces the message
 	timeout  time.Duration
+	policy   channels.Policy
 }
 
 func newFlowLinkAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
@@ -55,8 +61,17 @@ func newFlowLinkAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	}
 	sync := map[string]bool{"sync": true, "direct": true, "vm": true}[p["transport"].(string)]
 	inOut := p["exchangePattern"] == "InOut"
+	policy, err := admissionPolicy(p)
+	if err != nil {
+		return nil, err
+	}
+	q := channelRuntime(p).queue("flowlink:" + id)
+	if q.core.Durable() {
+		return nil, fmt.Errorf("flowlink endpoints must use memory storage")
+	}
 	return flowLinkAction{
-		target:   linkEndpoint(id),
+		target:   q,
+		policy:   policy,
 		targetID: id,
 		wait:     sync || inOut,
 		inOut:    inOut,
@@ -71,17 +86,17 @@ type linkReply struct {
 
 func (a flowLinkAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
 	if !a.wait {
-		return m, a.target.put(m.Copy())
+		return m, a.target.putPolicy(ctx, queued{m: m.Copy()}, a.policy)
 	}
 
 	wait, cancel := context.WithTimeout(ctx, a.timeout)
 	defer cancel() // also drops the message if the target has not taken it
 	replies := make(chan linkReply, 1)
-	err := a.target.putQueued(queued{
+	err := a.target.putPolicy(wait, queued{
 		m:     m.Copy(),
 		reply: func(out message.Message, err error) { replies <- linkReply{out, err} },
 		wait:  wait,
-	})
+	}, a.policy)
 	if err != nil {
 		return nil, err
 	}
@@ -102,3 +117,5 @@ func (a flowLinkAction) Process(ctx context.Context, m message.Message) (message
 		return nil, fmt.Errorf("flow %s did not reply within %v", a.targetID, a.timeout)
 	}
 }
+
+func (a flowLinkAction) LocalTargets() []string { return []string{"queue:" + a.target.name} }

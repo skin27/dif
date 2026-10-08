@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:idempotent-router",
+  "title": "idempotent consumer",
+  "description": "Guards its downstream branch with a completion-based idempotency key.",
+  "type": "object",
+  "properties": {
+    "namespace": {"type":"string", "description":"Namespace configured in the channel runtime"},
+    "key": {"type":"string", "default":"${header.Message-Id}", "description":"Simple expression identifying the business operation"},
+    "claimTimeout": {"type":"integer", "minimum":1, "default":20000, "description":"Milliseconds to wait for another delivery with the same key"}
+  },
+  "required":["namespace"],
+  "additionalProperties":false
+}

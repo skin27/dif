@@ -161,6 +161,29 @@ func TestHTTPSSourceOptions(t *testing.T) {
 	}
 }
 
+func TestHTTPSSourceOneWay(t *testing.T) {
+	addr, c := freeAddr(t), trustingClient(t)
+	seen := make(chan message.Message, 10)
+	emit := func(m message.Message, reply func(message.Message, error)) error {
+		if reply != nil {
+			t.Error("one-way source waits for a reply")
+		}
+		seen <- m
+		return nil
+	}
+	serve(t, "https://"+addr+"/in", map[string]any{"exchangePattern": "InOnly", "matchOnUriPrefix": true, "authenticationPreemptive": true}, emit)
+	waitServing(t, c, "https://"+addr+"/in")
+	<-seen
+
+	status, body, _ := call(t, c, http.MethodPost, "https://"+addr+"/in/sub", "ping")
+	if status != 200 || body != "ping" {
+		t.Errorf("reply = %d %q, want 200 \"ping\" (the request)", status, body)
+	}
+	if m := <-seen; m[message.Body] != "ping" {
+		t.Errorf("message body = %v, want ping", m[message.Body])
+	}
+}
+
 func TestHTTPSSourceErrors(t *testing.T) {
 	addr, c := freeAddr(t), trustingClient(t)
 	serve(t, "https://"+addr+"/fail", nil, func(m message.Message, reply func(message.Message, error)) error {
@@ -238,7 +261,7 @@ func TestHTTPSSourceInvalid(t *testing.T) {
 	wantInvalid(t, stepdef.Source, "https://localhost:9001/x", with("serverIdentityFile", "missing.p12"), "server identity: open missing.p12")
 	wantInvalid(t, stepdef.Source, "https://localhost:9001/x", with("serverIdentityFile", testTrustStore), "holds 0 private keys")
 	wantInvalid(t, stepdef.Source, "https:nohost", ok, "want https://host:port/path")
-	wantInvalid(t, stepdef.Source, "https://localhost/x", with("matchOnUriPrefix", true), "unknown option matchOnUriPrefix")
+	wantInvalid(t, stepdef.Source, "https://localhost/x", with("exchangePattern", "InOptionalOut"), "exchangePattern")
 
 	// The password falls back to the environment.
 	t.Setenv("DIF_SERVER_IDENTITY_PASSWORD", testPassword)

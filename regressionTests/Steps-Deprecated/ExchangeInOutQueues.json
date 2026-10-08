@@ -1,0 +1,85 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a831399dd4f5700110001af",
+						"name": "ExchangeInOutQueues",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e4d52246-1213-4016-a2de-8c9f246278f9",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ExchangeInOutQueues",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "427572f5-f099-4efa-8b35-9eb3422873e8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "427572f5-f099-4efa-8b35-9eb3422873e8",
+									"type": "action",
+									"uri": "setrequestreply",
+									"links": {
+										"link": [
+											{
+												"id": "427572f5-f099-4efa-8b35-9eb3422873e8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5d95bd70-f83d-4d13-83a8-2a9dfd9641c9",
+												"bound": "out",
+												"transport": "async"
+											}
+										]
+									}
+								},
+								{
+									"id": "5d95bd70-f83d-4d13-83a8-2a9dfd9641c9",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "InOut Queues returns new body"
+									},
+									"links": {
+										"link": {
+											"id": "5d95bd70-f83d-4d13-83a8-2a9dfd9641c9",
+											"bound": "in",
+											"transport": "async"
+										}
+									}
+								},
+								{
+									"id": "ea42ed55-7b63-46e6-b21f-898cf66de519",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

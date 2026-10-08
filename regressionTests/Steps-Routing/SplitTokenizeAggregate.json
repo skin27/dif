@@ -1,0 +1,139 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e6f1cf71686000c000094",
+						"name": "SplitTokenizeAggregate",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "2b8d8aec-5594-40eb-956b-68a706924bdf",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitTokenizeAggregate",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "577a6f61-58e5-4c97-a529-089b20a03fed",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "577a6f61-58e5-4c97-a529-089b20a03fed",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "TextBeforeTOKENTextAfter"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "577a6f61-58e5-4c97-a529-089b20a03fed",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "348b99a3-30ce-4417-af88-c594121aba58",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "348b99a3-30ce-4417-af88-c594121aba58",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "tokenize",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "348b99a3-30ce-4417-af88-c594121aba58",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "129c55d8-d6f9-45c4-bccd-9193bd1b03e4",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "80b18f2a-554c-43d0-8fee-4019666533ec",
+												"bound": "out",
+												"expression": "TOKEN",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "129c55d8-d6f9-45c4-bccd-9193bd1b03e4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "129c55d8-d6f9-45c4-bccd-9193bd1b03e4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "80b18f2a-554c-43d0-8fee-4019666533ec",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root>${bodyAs(String)}</root>"
+									},
+									"links": {
+										"link": {
+											"id": "80b18f2a-554c-43d0-8fee-4019666533ec",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a3e9934f-8597-468d-91d6-15d82d7abe37",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,130 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a355981a6e23e00110001c2",
+						"name": "HttpsCamelParameters",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "97231d7e-c809-497c-b004-fc7261fcbba0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpsCamelParameters",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": true,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "585cf461-e52f-4e7a-a23f-67a4020c0dac",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "585cf461-e52f-4e7a-a23f-67a4020c0dac",
+									"type": "action",
+									"uri": "setheaders:message:585cf461-e52f-4e7a-a23f-67a4020c0dac",
+									"options": {
+										"expression": "${header.CamelHttpMethod}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "585cf461-e52f-4e7a-a23f-67a4020c0dac",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b51c679b-ec14-4f56-818b-412dcb9359f1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b51c679b-ec14-4f56-818b-412dcb9359f1",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b51c679b-ec14-4f56-818b-412dcb9359f1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a355981a6e23e00110001c4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "585cf461-e52f-4e7a-a23f-67a4020c0dac",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "X-CamelHttpMethod",
+								"value": "${header.CamelHttpMethod}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "X-CamelHttpQuery",
+								"value": "${header.CamelHttpQuery}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "X-CamelHttpUri",
+								"value": "${header.CamelHttpUri}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "X-CamelHttpUrl",
+								"value": "${header.CamelHttpUrl}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "X-CamelServletContextPath",
+								"value": "${header.CamelServletContextPath}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

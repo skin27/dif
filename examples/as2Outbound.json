@@ -12,10 +12,11 @@
 								{
 									"id": "912effdc-029b-411a-a89f-39f9fb1cf140",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/as2Outbound",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -64,8 +65,8 @@
 										"keyAlias": "bruno",
 										"password": "1234",
 										"encryptingAlgorithm": "DES_EDE3_CBC",
-										"certificateForSigning": "http://flux-nginx:8080/private_keys/69456f55da8dd5001b000000?version=0&tenant=_new2&step=12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c&key=privateKeyFileData",
-										"certificateForEncrypt": "http://flux-nginx:8080/private_keys/69456f55da8dd5001b000000?version=0&tenant=_new2&step=12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c&key=publicCertificateFileData",
+										"certificateForSigning": "http://nginx:8080/private_keys/69456f55da8dd5001b000000?version=0&tenant=_new2&step=12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c&key=privateKey",
+										"certificateForEncrypt": "http://nginx:8080/private_keys/69456f55da8dd5001b000000?version=0&tenant=_new2&step=12b2efc0-a8fa-4d05-bdc4-e1c7cedb072c&key=publicCertificate",
 										"sslContext": "#sslContextObj"
 									},
 									"links": {
@@ -114,7 +115,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

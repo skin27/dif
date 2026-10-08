@@ -1,0 +1,139 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6985a5d2b52c1b000b00003a",
+						"name": "Token_SplitAggregate",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "aaa7418a-6c26-4f7b-8b5c-f01122862dfa",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Token_SplitAggregate",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "723ec893-5c7f-45e2-974b-191352555d9f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "723ec893-5c7f-45e2-974b-191352555d9f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "TextBeforeTOKENTextAfter"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "723ec893-5c7f-45e2-974b-191352555d9f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f30cf35a-c990-48e9-992d-01de43620ada",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f30cf35a-c990-48e9-992d-01de43620ada",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "tokenize",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f30cf35a-c990-48e9-992d-01de43620ada",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8e3ced72-b723-43a5-8547-2ef1c5aabd08",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "44a907ae-e23e-4093-9318-3748e366505e",
+												"bound": "out",
+												"expression": "TOKEN",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8e3ced72-b723-43a5-8547-2ef1c5aabd08",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8e3ced72-b723-43a5-8547-2ef1c5aabd08",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "44a907ae-e23e-4093-9318-3748e366505e",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<root>${bodyAs(String)}</root>"
+									},
+									"links": {
+										"link": {
+											"id": "44a907ae-e23e-4093-9318-3748e366505e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6985a5d2b52c1b000b00003c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,241 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696f9a92c9b9a40012000052",
+						"name": "HeaderNameAsHeader_tenant_variable",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "678e4197-b457-4897-b256-ce9a46be71a4",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HeaderNameAsHeader_tenant_variable",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "a3eacc18-d206-475c-92a3-d5fbe13010a3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a3eacc18-d206-475c-92a3-d5fbe13010a3",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a3eacc18-d206-475c-92a3-d5fbe13010a3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "03e749e3-71ef-4682-85ff-396194e72d5c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "03e749e3-71ef-4682-85ff-396194e72d5c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Body"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "03e749e3-71ef-4682-85ff-396194e72d5c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6600383d-7082-421a-9b18-e75e16032682",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6600383d-7082-421a-9b18-e75e16032682",
+									"type": "action",
+									"uri": "setheaders:message:6600383d-7082-421a-9b18-e75e16032682",
+									"links": {
+										"link": [
+											{
+												"id": "6600383d-7082-421a-9b18-e75e16032682",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "12c618af-9de0-45f0-b210-880338d03689",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "12c618af-9de0-45f0-b210-880338d03689",
+									"type": "action",
+									"uri": "settenantvariable:New_${header.name}",
+									"options": {
+										"language": "simple",
+										"value": "TmV3XyR7aGVhZGVyLm5hbWV9",
+										"encrypt": false,
+										"flowName": "HeaderNameAsHeader_tenant_variable",
+										"groupName": "Steps-Transformations",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "12c618af-9de0-45f0-b210-880338d03689",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "78494566-cc25-48cb-a71b-41eefbf042c5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "78494566-cc25-48cb-a71b-41eefbf042c5",
+									"type": "action",
+									"uri": "gettenantvariable:New_${header.name}",
+									"options": {
+										"headerName": "New_${header.name}",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "78494566-cc25-48cb-a71b-41eefbf042c5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a8b8d76-c84f-4e88-a419-c7a8b7526991",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a8b8d76-c84f-4e88-a419-c7a8b7526991",
+									"type": "action",
+									"uri": "removetenantvariable:New_${header.name}",
+									"options": {
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6a8b8d76-c84f-4e88-a419-c7a8b7526991",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a7b5031b-b44a-4b51-9c58-9b484b68f785",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a7b5031b-b44a-4b51-9c58-9b484b68f785",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)} ${header.config}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a7b5031b-b44a-4b51-9c58-9b484b68f785",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "35410537-cf66-415c-824e-ce6f971d17bf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "35410537-cf66-415c-824e-ce6f971d17bf",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "35410537-cf66-415c-824e-ce6f971d17bf",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "acb9d602-fba5-4497-8fd5-a71427bb3c9f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "6600383d-7082-421a-9b18-e75e16032682",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "name",
+							"value": "headerName"
+						}
+					}
+				}
+			}
+		}
+	}
+}

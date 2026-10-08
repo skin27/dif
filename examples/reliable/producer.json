@@ -1,0 +1,10 @@
+{
+  "dil": {"integrations": {"integration": {"flows": {"flow": {
+    "id": "reliable-producer",
+    "steps": {"step": [
+      {"id": "in", "type": "source", "uri": "timer:orders", "options": {"period": 50, "repeatCount": 5}, "links": {"link": [{"id": "key", "bound": "out"}]}},
+      {"id": "key", "type": "action", "uri": "setheader", "options": {"name": "orderId", "value": "demo-order-${body}"}, "links": {"link": [{"id": "key", "bound": "in"}, {"id": "send", "bound": "out"}]}},
+      {"id": "send", "type": "sink", "uri": "queue:orders", "options": {"delivery": "enqueue", "overflow": "block", "enqueueTimeout": 5000}, "links": {"link": [{"id": "send", "bound": "in"}]}}
+    ]}
+  }}}}}
+}

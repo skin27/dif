@@ -1,0 +1,94 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:oauth2token-sink",
+	"title": "oauth2token sink",
+	"description": "Fetches an OAuth2 access token from a token endpoint and keeps it in tenant variables, renewing it when it expires within expiryDelay. Every message that reaches the step triggers the check (put a repeater in front); the message is not used. The token is set in each variable of tokenName and in the same name with the suffix _Temp. Unlike the Java platform, DIF takes the endpoint and credentials from these options and the environment, not from a tenant configuration.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Id",
+			"description": "From the URI: oauth2token:<id>; not used",
+			"type": "string"
+		},
+		"tokenName": {
+			"title": "Token variables",
+			"description": "Tenant variables to set to the token, separated by commas",
+			"type": "string"
+		},
+		"tenantDbName": {
+			"title": "Tenant",
+			"description": "Tenant the variables belong to",
+			"type": "string",
+			"default": "default"
+		},
+		"expiryDelay": {
+			"title": "Expiry delay",
+			"description": "Seconds before the token expires at which it is renewed",
+			"type": "integer",
+			"minimum": 0,
+			"default": 60
+		},
+		"tokenUrl": {
+			"title": "Token endpoint",
+			"description": "https URL of the token endpoint (http only for localhost); required to create the step",
+			"type": "string",
+			"default": ""
+		},
+		"grantType": {
+			"title": "Grant type",
+			"description": "client_credentials needs clientSecret; refresh_token needs refreshToken",
+			"type": "string",
+			"enum": ["client_credentials", "refresh_token"],
+			"default": "client_credentials"
+		},
+		"clientId": {
+			"title": "Client id",
+			"description": "OAuth2 client id; required to create the step",
+			"type": "string",
+			"default": ""
+		},
+		"clientSecret": {
+			"title": "Client secret",
+			"description": "OAuth2 client secret; env DIF_OAUTH2_CLIENT_SECRET (or its _FILE companion)",
+			"type": "string"
+		},
+		"refreshToken": {
+			"title": "Refresh token",
+			"description": "Refresh token for the refresh_token grant; env DIF_OAUTH2_REFRESH_TOKEN (or its _FILE companion)",
+			"type": "string"
+		},
+		"scope": {
+			"title": "Scope",
+			"description": "Requested scopes, separated by spaces; \"\" for the server's default",
+			"type": "string",
+			"default": ""
+		},
+		"clientAuthentication": {
+			"title": "Client authentication",
+			"description": "basic: client id and secret by HTTP Basic; post: in the request body",
+			"type": "string",
+			"enum": ["basic", "post"],
+			"default": "basic"
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds the whole call may take",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		}
+	},
+	"required": ["tokenName"],
+	"additionalProperties": false
+}

@@ -1,0 +1,148 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69739017f624bf000f0000c0",
+						"name": "SimpleHeadersTransformations_05",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f5ab8c85-04ba-4337-b2ab-b973ca167089",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersTransformations_05",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "71d7fe5e-b4d7-494c-b36e-7a521502272f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "71d7fe5e-b4d7-494c-b36e-7a521502272f",
+									"type": "action",
+									"uri": "setheaders:message:71d7fe5e-b4d7-494c-b36e-7a521502272f",
+									"links": {
+										"link": [
+											{
+												"id": "71d7fe5e-b4d7-494c-b36e-7a521502272f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "62f355a9-1fcd-4fb3-9971-664cec16da38",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "62f355a9-1fcd-4fb3-9971-664cec16da38",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\"nr\":1,\"name\":\"Calvin Klein\"\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "62f355a9-1fcd-4fb3-9971-664cec16da38",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a5be7bb4-d2b5-4b1c-bbdf-53132bf47554",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a5be7bb4-d2b5-4b1c-bbdf-53132bf47554",
+									"type": "action",
+									"uri": "replace",
+									"options": {
+										"regex": "${header.regex}",
+										"replaceWith": "${header.replace}",
+										"group": 0
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a5be7bb4-d2b5-4b1c-bbdf-53132bf47554",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "829bcb11-933b-4902-b1cd-09b246373643",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "829bcb11-933b-4902-b1cd-09b246373643",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "829bcb11-933b-4902-b1cd-09b246373643",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fd602261-2847-4dd2-bf21-8f1edff185c3",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "71d7fe5e-b4d7-494c-b36e-7a521502272f",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "breadcrumbId",
+							"value": "${header.breadcrumbId}_${header.number}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

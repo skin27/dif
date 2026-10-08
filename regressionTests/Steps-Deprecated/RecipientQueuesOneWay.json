@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7ebde0ee15e200100001b6",
+						"name": "RecipientQueuesOneWay",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "bea84a88-f3d2-4059-b4bf-99a777354ca5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/RecipientQueuesOneWay",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "b0b317fe-7a74-48fb-87a2-8ff86c7ece2c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b0b317fe-7a74-48fb-87a2-8ff86c7ece2c",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "In front of recipient"
+									},
+									"links": {
+										"link": {
+											"id": "b0b317fe-7a74-48fb-87a2-8ff86c7ece2c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8a92bd00-5c81-4502-b313-f47c78fc43c0",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

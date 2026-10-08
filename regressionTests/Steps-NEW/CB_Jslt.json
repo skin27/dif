@@ -1,0 +1,143 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a5a4125dabbc9001400070e",
+						"name": "CB_Jslt",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "52ce1743-2bbe-4755-b190-168f9a680b82",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Jslt",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "a5c24c14-c6bf-4d54-9140-980bf6ddaabe",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a5c24c14-c6bf-4d54-9140-980bf6ddaabe",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a5c24c14-c6bf-4d54-9140-980bf6ddaabe",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6b4144a8-017a-40eb-a35e-15cff725af91",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6b4144a8-017a-40eb-a35e-15cff725af91",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n  \"id\": \"USR-9823\",\n  \"personal_info\": {\n    \"first_name\": \"Alex\",\n    \"last_name\": \"De Vries\",\n    \"age\": 19\n  },\n  \"roles\": [\"user\", \"moderator\"],\n  \"active\": true\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6b4144a8-017a-40eb-a35e-15cff725af91",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c8ad32b4-9fb6-48b2-bb5f-36f14b1c4ae1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c8ad32b4-9fb6-48b2-bb5f-36f14b1c4ae1",
+									"type": "action",
+									"uri": "jslt:ref:1c518f0d-78b0-43f8-8f79-73e15c29b1e0",
+									"options": {
+										"stylesheet": "{\n  \"gebruiker_id\" : .id,\n  \"volledige_naam\" : .personal_info.first_name + \" \" + .personal_info.last_name,\n  \"is_volwassen\" : if (.personal_info.age >= 18) true else false,\n  \"rechten\" : [for (.roles) .]\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c8ad32b4-9fb6-48b2-bb5f-36f14b1c4ae1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0cc20bc0-dc82-446b-8599-bbbf30494aac",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0cc20bc0-dc82-446b-8599-bbbf30494aac",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0cc20bc0-dc82-446b-8599-bbbf30494aac",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5f1c49c7-a620-4f78-a73a-db2d984e2793",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "1c518f0d-78b0-43f8-8f79-73e15c29b1e0",
+					"content": "{\n  \"gebruiker_id\" : .id,\n  \"volledige_naam\" : .personal_info.first_name + \" \" + .personal_info.last_name,\n  \"is_volwassen\" : if (.personal_info.age >= 18) true else false,\n  \"rechten\" : [for (.roles) .]\n}"
+				}
+			}
+		}
+	}
+}

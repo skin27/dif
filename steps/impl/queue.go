@@ -2,125 +2,19 @@ package impl
 
 import (
 	"context"
-	"fmt"
-	"sync"
-
+	"dif/internal/channels"
 	"dif/message"
 	stepdef "dif/steps/definition"
+	"fmt"
+	"time"
 )
 
-// Queues are named in-memory FIFO queues of messages, shared by all flows in
-// the process: the deadletter and flowlink steps put messages on one, the
-// queue and flowlink sources take them off. They are not persisted; their
-// messages are lost when dif exits.
-
-// queueCapacity limits the messages a queue holds; putting more fails.
-const queueCapacity = 10000
-
-type memQueue struct {
-	name  string
-	mu    sync.Mutex
-	msgs  []queued
-	ready chan struct{} // holds a token while msgs may be non-empty
-}
-
-// queued is a message on a queue. A sender that waits for the outcome gives
-// reply, which the consuming flow calls, and wait: once wait is done the
-// sender no longer waits, and the message is dropped if it was not taken yet.
-type queued struct {
-	m     message.Message
-	reply func(message.Message, error) // nil if no one waits
-	wait  context.Context              // nil if no one waits
-}
-
-var queues = struct {
-	sync.Mutex
-	m map[string]*memQueue
-}{m: map[string]*memQueue{}}
-
-// queueNamed returns the queue name, creating it the first time.
-func queueNamed(name string) *memQueue {
-	queues.Lock()
-	defer queues.Unlock()
-	q, ok := queues.m[name]
-	if !ok {
-		q = &memQueue{name: name, ready: make(chan struct{}, 1)}
-		queues.m[name] = q
-	}
-	return q
-}
-
-// put adds m to the end of the queue.
-func (q *memQueue) put(m message.Message) error {
-	return q.putQueued(queued{m: m})
-}
-
-func (q *memQueue) putQueued(e queued) error {
-	q.mu.Lock()
-	if len(q.msgs) >= queueCapacity {
-		q.mu.Unlock()
-		return fmt.Errorf("queue %s is full (%d messages)", q.name, queueCapacity)
-	}
-	q.msgs = append(q.msgs, e)
-	q.mu.Unlock()
-	q.signal()
-	return nil
-}
-
-// putBack returns e, which take gave, to the front of the queue.
-func (q *memQueue) putBack(e queued) {
-	q.mu.Lock()
-	q.msgs = append([]queued{e}, q.msgs...)
-	q.mu.Unlock()
-	q.signal()
-}
-
-// take removes the first message whose sender still waits (or never did),
-// waiting for one until ctx is done.
-func (q *memQueue) take(ctx context.Context) (queued, error) {
-	for {
-		q.mu.Lock()
-		for len(q.msgs) > 0 {
-			e := q.msgs[0]
-			q.msgs[0] = queued{}
-			q.msgs = q.msgs[1:]
-			if e.wait != nil && e.wait.Err() != nil {
-				continue // the sender gave up
-			}
-			more := len(q.msgs) > 0
-			q.mu.Unlock()
-			if more {
-				q.signal() // let another taker in
-			}
-			return e, nil
-		}
-		q.mu.Unlock()
-		select {
-		case <-q.ready:
-		case <-ctx.Done():
-			return queued{}, ctx.Err()
-		}
-	}
-}
-
-func (q *memQueue) signal() {
-	select {
-	case q.ready <- struct{}{}:
-	default: // a token is there already
-	}
-}
-
-func (q *memQueue) len() int {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	return len(q.msgs)
-}
-
-// deadLetterSink puts a copy of the message on an in-memory queue, the dead
+// deadLetterSink puts a copy of the message on a configured queue, the dead
 // letter queue. It is meant for a flow's error route: the message keeps its
 // headers, among them error.message and error.step.
 type deadLetterSink struct {
-	q *memQueue
+	q      *memQueue
+	policy channels.Policy
 }
 
 func newDeadLetterSink(_ string, p stepdef.Params) (stepdef.Processor, error) {
@@ -128,14 +22,56 @@ func newDeadLetterSink(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if name == "" {
 		return nil, fmt.Errorf("option deadLetterQueue: empty queue name")
 	}
-	return deadLetterSink{queueNamed(name)}, nil
+	policy, err := admissionPolicy(p)
+	return deadLetterSink{channelRuntime(p).queue(name), policy}, err
 }
 
-func (s deadLetterSink) Consume(_ context.Context, m message.Message) error {
-	return s.q.put(m.Copy())
+func (s deadLetterSink) Consume(ctx context.Context, m message.Message) error {
+	return s.q.putPolicy(ctx, queued{m: m.Copy()}, s.policy)
 }
 
-// queueSource emits the messages of an in-memory queue, such as a dead
+func (s deadLetterSink) LocalTargets() []string { return []string{"queue:" + s.q.name} }
+
+// newQueueAction addresses a logical queue by URI path or targetQueueId.
+// Existing actions wait for processing; delivery=enqueue only waits for admission.
+func newQueueAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
+	id, legacy := p["targetQueueId"].(string)
+	path, named := p["path"].(string)
+	if named {
+		if legacy && id != path {
+			return nil, fmt.Errorf("path and targetQueueId name different queues")
+		}
+		id = path
+	}
+	if !named && !legacy {
+		return nil, fmt.Errorf("missing required option targetQueueId or queue URI path")
+	}
+	if id == "" {
+		return nil, fmt.Errorf("option targetQueueId: empty queue id")
+	}
+	wait := p["delivery"] != "enqueue"
+	if !wait && p["exchangePattern"] == message.InOut {
+		return nil, fmt.Errorf("delivery enqueue does not support exchangePattern InOut")
+	}
+	q := channelRuntime(p).queue(id)
+	if q.core.Durable() && wait {
+		return nil, fmt.Errorf("durable queues require delivery enqueue and exchangePattern InOnly")
+	}
+	policy, err := admissionPolicy(p)
+	if err != nil {
+		return nil, err
+	}
+	return flowLinkAction{
+		target:   q,
+		policy:   policy,
+		targetID: id,
+		wait:     wait,
+		inOut:    p["exchangePattern"] == message.InOut,
+		timeout:  time.Duration(p["requestTimeout"].(int)) * time.Millisecond,
+	}, nil
+}
+
+// queueSource emits the messages of a configured queue, such as a dead
 // letter queue, as they arrive. Messages keep their headers and trace id; a
 // sender that waits for the outcome gets it.
 type queueSource struct {
@@ -143,17 +79,94 @@ type queueSource struct {
 }
 
 func newQueueSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
-	return queueSource{queueNamed(p["path"].(string))}, nil
+	if p["path"] == "" {
+		return nil, fmt.Errorf("option path: empty queue name")
+	}
+	return queueSource{channelRuntime(p).queue(p["path"].(string))}, nil
 }
 
 func (s queueSource) Run(ctx context.Context, emit stepdef.Emit) error {
+	release, err := s.q.core.AcquireConsumer(false)
+	if err != nil {
+		return err
+	}
+	defer release()
+	return s.run(ctx, emit)
+}
+
+func (s queueSource) run(ctx context.Context, emit stepdef.Emit) error {
+	if s.q.core.Durable() {
+		return fmt.Errorf("durable source requires completion-aware runner")
+	}
 	for {
 		e, err := s.q.take(ctx)
 		if err != nil {
-			return nil // the flow stopped
+			if ctx.Err() != nil {
+				return nil
+			}
+			return err
 		}
 		if emit(e.m, e.reply) != nil {
 			s.q.putBack(e) // the flow is stopping and did not take it
+			return nil
+		}
+		if e.release != nil {
+			e.release()
+		}
+	}
+}
+
+func (s queueSource) LocalChannel() string { return "queue:" + s.q.name }
+
+func (s queueSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	release, err := s.q.core.AcquireConsumer(false)
+	if err != nil {
+		return err
+	}
+	defer release()
+	ready()
+	return s.run(ctx, emit)
+}
+
+// RunDelivery receives a completion callback independent of an early reply.
+func (s queueSource) RunDelivery(ctx context.Context, emit stepdef.EmitDelivery, ready func()) error {
+	if !s.q.core.Durable() {
+		return s.RunReady(ctx, func(m message.Message, reply func(message.Message, error)) error { return emit(m, reply, nil) }, ready)
+	}
+	s.q.core.TrackRecovered(func() func() { return stepdef.TrackWork(ctx, true) })
+	release, err := s.q.core.AcquireConsumer(false)
+	if err != nil {
+		return err
+	}
+	defer release()
+	ready()
+	for {
+		e, err := s.q.take(ctx)
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil
+			}
+			return err
+		}
+		completed := make(chan error, 1)
+		err = emit(e.m, nil, func(processingErr error) error {
+			err := s.q.core.Complete(e.id, processingErr)
+			if err != nil {
+				stepdef.ReportSourceFailure(ctx, err)
+			}
+			completed <- err
+			return err
+		})
+		if err != nil {
+			return s.q.core.Return(e.entry())
+		}
+		// A single source reserves at most one delivery. Other sources may compete.
+		select {
+		case err := <-completed:
+			if err != nil {
+				return err
+			}
+		case <-ctx.Done():
 			return nil
 		}
 	}

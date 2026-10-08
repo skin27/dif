@@ -12,10 +12,12 @@
 								{
 									"id": "fc632b24-43d8-4dc1-a6ce-793f1409426a",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/base64ToText",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": true,
+										"exchangePattern": "InOut",
+										"matchOnUriPrefix": false
 									},
 									"links": {
 										"link": {
@@ -69,39 +71,15 @@
 								},
 								{
 									"id": "01d8e1d8-a64e-499c-a024-e9e64186c272",
-									"type": "action",
+									"type": "sink",
 									"uri": "setbody",
 									"options": {
 										"language": "simple",
 										"expression": "${body}"
 									},
 									"links": {
-										"link": [
-											{
-												"id": "01d8e1d8-a64e-499c-a024-e9e64186c272",
-												"bound": "in",
-												"transport": "sync"
-											},
-											{
-												"id": "714ef93e-3f55-4e7b-af46-a27de4430ded",
-												"bound": "out",
-												"transport": "sync"
-											}
-										]
-									}
-								},
-								{
-									"id": "714ef93e-3f55-4e7b-af46-a27de4430ded",
-									"type": "sink",
-									"uri": "log",
-									"options": {
-										"showHeaders": true,
-										"showBody": true,
-										"showException": false
-									},
-									"links": {
 										"link": {
-											"id": "714ef93e-3f55-4e7b-af46-a27de4430ded",
+											"id": "01d8e1d8-a64e-499c-a024-e9e64186c272",
 											"bound": "in",
 											"transport": "sync"
 										}
@@ -121,7 +99,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

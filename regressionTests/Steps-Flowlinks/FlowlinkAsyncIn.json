@@ -1,0 +1,87 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6960fa64bf1e3b0018000069",
+						"name": "FlowlinkAsyncIn",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f58cd804-5d39-4d5b-b529-142d93890d42",
+									"type": "source",
+									"uri": "flowlink-async",
+									"options": {
+										"transport": "async"
+									},
+									"links": {
+										"link": {
+											"id": "5dfdd5f6-bfea-429d-a14a-256722a119ab",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5dfdd5f6-bfea-429d-a14a-256722a119ab",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body} -> OauthGmailNoreply"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5dfdd5f6-bfea-429d-a14a-256722a119ab",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2119b495-9cc3-4b98-8dce-3b249dff4b8c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2119b495-9cc3-4b98-8dce-3b249dff4b8c",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body} -> OauthGmailNoreply -> Delayed"
+									},
+									"links": {
+										"link": {
+											"id": "2119b495-9cc3-4b98-8dce-3b249dff4b8c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "784de49f-a715-4b4a-8696-28b3dff98512",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,92 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50ad7b2a8184000c000069",
+						"name": "CB_File",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5eacbb25-026f-4621-8d50-1ca60d294079",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_File",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "f6cda935-5723-4672-a34d-31e4572b9daa",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f6cda935-5723-4672-a34d-31e4572b9daa",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "DataToFile"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f6cda935-5723-4672-a34d-31e4572b9daa",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "055cdbec-b131-423b-b30e-c71a02399dff",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "055cdbec-b131-423b-b30e-c71a02399dff",
+									"type": "sink",
+									"uri": "file:/data/.assimbly/tenants/regressiontests/tmp",
+									"options": {
+										"fileName": "test123.txt",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override"
+									},
+									"links": {
+										"link": {
+											"id": "055cdbec-b131-423b-b30e-c71a02399dff",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6bb28d44-a9ec-4247-89c1-3527db3da0e7",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

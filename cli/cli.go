@@ -3,6 +3,7 @@ package cli
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -23,26 +24,13 @@ import (
 	"dif/message"
 )
 
-const usage = `usage: dif                        open the CLI without flows; add them with "load" or "run"
-       dif start <flow.json>...    load and start the flows, then open the CLI`
-
 // followLines is the number of past lines "log <flow>" shows before following, as tail -f does.
 const followLines = 10
 
-// Run executes the command line args and returns the process exit code.
+// runShell opens the interactive command interface and returns its exit code.
 // dif runs until "exit" or Ctrl+C; flows can be loaded, started and stopped in between.
 // Flows run in the background and write their output to their log file, not to the console.
-func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
-	var paths []string
-	switch {
-	case len(args) == 0:
-	case len(args) >= 2 && args[0] == "start":
-		paths = args[1:]
-	default:
-		fmt.Fprintln(stderr, usage)
-		return 2
-	}
-
+func runShell(stdin io.Reader, stdout, stderr io.Writer) int {
 	con := &console{w: stdout, interactive: isTerminal(stdin), color: useColor(stdout)}
 	eng := api.NewEngine()
 
@@ -130,29 +118,8 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return nil
 	}
 
-	for _, path := range paths {
-		flow, err := load(path)
-		if err == nil {
-			err = flow.Start()
-		}
-		if err != nil {
-			fmt.Fprintln(stderr, "Error:", err)
-			running := eng.ListFlows("")
-			eng.Shutdown()
-			closeLogs(running)
-			return 1
-		}
-		if l, err := flowLogOf(flow.ID()); err == nil {
-			l.logger.Printf("flow %s started", flow.ID())
-		}
-	}
 	fmt.Fprintf(stdout, "DIF - Data Integration Framework\nVersion: %s\n\n", Version)
-	if len(paths) == 0 {
-		fmt.Fprintln(stdout, "No flows loaded.")
-	} else {
-		fmt.Fprintf(stdout, "Flows: %d\n", len(paths))
-	}
-	fmt.Fprint(stdout, "Use 'help' for available commands.\n\n")
+	fmt.Fprint(stdout, "No flows loaded.\nUse 'help' for available commands.\n\n")
 
 	// flowError reports err, explaining an unknown flow.
 	flowError := func(err error) {
@@ -196,11 +163,20 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			}
 			switch cmd {
 			case "":
+			case "init", "validate", "describe", "version", "completion":
+				runShellUtility(cmd, rest, con)
 			case "load", "run":
+				parsed, err := utilityArguments(rest)
+				if err != nil {
+					con.fail("%v", err)
+					break
+				}
+				fields = parsed
 				if !args(1, len(fields), "flow file") {
 					break
 				}
 				for _, path := range fields {
+					path = flowFilePath(path)
 					flow, err := load(path)
 					if err != nil {
 						con.fail("%v", err)
@@ -324,6 +300,10 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				completed, failed := totals(flows)
 				con.say("%d flows: %d messages processed, %d failed", len(flows), completed+failed, failed)
 			case "catalog":
+				if strings.Contains(rest, "--") {
+					runShellUtility(cmd, rest, con)
+					break
+				}
 				if !args(0, 1, "step") {
 					break
 				}
@@ -388,6 +368,24 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return 1
 	}
 	return 0
+}
+
+// runShellUtility executes development commands without opening
+// another engine. All output passes through the console to preserve its prompt.
+func runShellUtility(cmd, rest string, con *console) {
+	args, err := utilityArguments(rest)
+	if err != nil {
+		con.fail("%v", err)
+		return
+	}
+	var stdout, stderr bytes.Buffer
+	runUtility(append([]string{cmd}, args...), &stdout, &stderr)
+	if stdout.Len() > 0 {
+		con.block(strings.TrimSuffix(stdout.String(), "\n"))
+	}
+	if stderr.Len() > 0 {
+		con.say("%s", strings.TrimSuffix(stderr.String(), "\n"))
+	}
 }
 
 // parseLog parses the arguments of the log command: the flow id and, with

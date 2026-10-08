@@ -1,0 +1,116 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4fcd6dd751da000d00017b",
+						"name": "CB_EdiToXml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1011c0ab-0096-4ba8-8e15-e6a558175666",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_EdiToXml",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8f8cf2f5-359c-4932-ae7f-0ce524bd469e",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8f8cf2f5-359c-4932-ae7f-0ce524bd469e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "CUS~John^Doe~1901-01-07~john.doe@example.com"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8f8cf2f5-359c-4932-ae7f-0ce524bd469e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9b55273f-7688-4052-9f79-9f12302faa66",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9b55273f-7688-4052-9f79-9f12302faa66",
+									"type": "action",
+									"uri": "editoxml",
+									"options": {
+										"segment": "LB",
+										"field": "~",
+										"component": "^",
+										"subComponent": "!"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9b55273f-7688-4052-9f79-9f12302faa66",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0a00bd36-e934-4310-be3c-cfccbff725a4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0a00bd36-e934-4310-be3c-cfccbff725a4",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0a00bd36-e934-4310-be3c-cfccbff725a4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "645edf60-49ce-4ec1-88cf-2688f6af8b68",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

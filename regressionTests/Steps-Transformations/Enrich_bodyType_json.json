@@ -1,0 +1,159 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695fd286f7168600110001bf",
+						"name": "Enrich_bodyType_json",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "74ff1c81-e9e1-44fb-abd5-8e477937c16d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_bodyType_json",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "bc20c48d-314c-41bc-82ac-2a5a1eb1c335",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bc20c48d-314c-41bc-82ac-2a5a1eb1c335",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "json",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bc20c48d-314c-41bc-82ac-2a5a1eb1c335",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6159be2a-98b6-4c02-aa55-1da6105c19b3",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "7b058301-221a-446b-8431-918513ebd4cb",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6159be2a-98b6-4c02-aa55-1da6105c19b3",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "6159be2a-98b6-4c02-aa55-1da6105c19b3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7b058301-221a-446b-8431-918513ebd4cb",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n    \"products\": [\n        {\n            \"id\": \"1\",\n            \"name\": \"spoon\"\n        },\n        {\n            \"id\": \"2\",\n            \"name\": \"knife\"\n        }\n    ],\n    \"images\": [\n        {\n            \"id\": \"1\",\n            \"name\": \"spoon\"\n        },\n        {\n            \"id\": \"2\",\n            \"name\": \"knife\"\n        }\n    ]\n}"
+									},
+									"links": {
+										"link": {
+											"id": "7b058301-221a-446b-8431-918513ebd4cb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e3d6f80c-4719-4312-bab5-7c23a1d68536",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "ac87ac88-b3c3-4936-b4ef-5e226f9cc300",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ac87ac88-b3c3-4936-b4ef-5e226f9cc300",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${exception.message}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ac87ac88-b3c3-4936-b4ef-5e226f9cc300",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "58d17b83-0219-4b03-be23-dbb7e2052823",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "58d17b83-0219-4b03-be23-dbb7e2052823",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "58d17b83-0219-4b03-be23-dbb7e2052823",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

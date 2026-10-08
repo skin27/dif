@@ -1,0 +1,171 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a9972d82670910016000191",
+						"name": "SetHeaders_jsonpath_as_string",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "122bf5cd-73af-41c1-9482-78506c4e9bbe",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetHeaders_jsonpath_as_string",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "735de28e-8771-44b8-b91b-48ca4fa624b9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "735de28e-8771-44b8-b91b-48ca4fa624b9",
+									"type": "action",
+									"uri": "setheaders:message:735de28e-8771-44b8-b91b-48ca4fa624b9",
+									"options": {
+										"writeAsString": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "735de28e-8771-44b8-b91b-48ca4fa624b9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b7a6f91b-b895-4d20-b5af-2c6d0ea1f32f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b7a6f91b-b895-4d20-b5af-2c6d0ea1f32f",
+									"type": "action",
+									"uri": "setheaders:message:b7a6f91b-b895-4d20-b5af-2c6d0ea1f32f",
+									"options": {
+										"writeAsString": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b7a6f91b-b895-4d20-b5af-2c6d0ea1f32f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fd08868d-31e6-46f0-b60c-5e5d714af00f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fd08868d-31e6-46f0-b60c-5e5d714af00f",
+									"type": "action",
+									"uri": "setheaders:message:fd08868d-31e6-46f0-b60c-5e5d714af00f",
+									"options": {
+										"writeAsString": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fd08868d-31e6-46f0-b60c-5e5d714af00f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "287ba057-fb4c-477e-830d-505c3aba34b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "287ba057-fb4c-477e-830d-505c3aba34b0",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "author|price|color"
+									},
+									"links": {
+										"link": {
+											"id": "287ba057-fb4c-477e-830d-505c3aba34b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f16d8a64-5098-4be2-b4c0-0f8b80c8970d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "735de28e-8771-44b8-b91b-48ca4fa624b9",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "jsonpath",
+								"name": "author",
+								"value": "$.store.book[0].author"
+							}
+						}
+					},
+					{
+						"name": "b7a6f91b-b895-4d20-b5af-2c6d0ea1f32f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "jsonpath",
+								"name": "price",
+								"value": "$..book[?(@.price<8.99)].price"
+							}
+						}
+					},
+					{
+						"name": "fd08868d-31e6-46f0-b60c-5e5d714af00f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "jsonpath",
+								"name": "color",
+								"value": "$..bicycle.color"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

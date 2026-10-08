@@ -17,6 +17,9 @@ type dilDoc struct {
 			Messages struct {
 				Message oneOrMany[dilMessage] `json:"message"`
 			} `json:"messages"`
+			Resources struct {
+				Resource oneOrMany[dilResource] `json:"resource"`
+			} `json:"resources"`
 		} `json:"core"`
 	} `json:"dil"`
 }
@@ -59,6 +62,13 @@ type dilMessage struct {
 	Headers struct {
 		Header oneOrMany[dilHeader] `json:"header"`
 	} `json:"headers"`
+}
+
+// dilResource is a named text, such as a JSON Schema or a template, that steps
+// refer to as <scheme>:ref:<name>.
+type dilResource struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
 }
 
 type dilHeader struct {

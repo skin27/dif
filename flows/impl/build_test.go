@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"strings"
 	"testing"
@@ -102,10 +103,10 @@ func TestParseErrorHandler(t *testing.T) {
 		delay        time.Duration
 		route        string // kind:id of the error route's first step, "" for none
 	}{
-		{"errorHandler.json", 0, 0, "action:de8503cb-b66a-4503-88fe-fb9edeaec662"},
+		{"errorHandler.json", 0, time.Second, "action:de8503cb-b66a-4503-88fe-fb9edeaec662"}, // redeliveryDelay wins over redeliveryInterval
 		{"deadletter.json", 3, 10 * time.Second, "sink:68513f81-1b54-4b2b-ac98-50b65c979014"},
 		{"log.json", 0, 0, ""},
-		{"hello.json", 0, time.Second, ""}, // no options: the defaults
+		{"../testdata/hello.json", 0, time.Second, ""}, // no options: the defaults
 	}
 	for _, tt := range tests {
 		t.Run(tt.file, func(t *testing.T) {
@@ -155,7 +156,7 @@ func TestParseUnknownURI(t *testing.T) {
 		nodes[n.Kind+":"+n.URI] = n
 		return noop{}, nil
 	}
-	for _, file := range []string{"flowLinkOutbound.json", "flowLinkInbound.json", "xslt.json"} {
+	for _, file := range []string{"flowLinkOutbound.json", "flowlinkAsynInbound.json", "xslt.json"} {
 		data, err := os.ReadFile("../../examples/" + file)
 		if err != nil {
 			t.Fatal(err)
@@ -167,7 +168,7 @@ func TestParseUnknownURI(t *testing.T) {
 	if n := nodes["sink:flowlink"]; n == nil || n.Options["targetFlowId"] != "68c2dfb31e33920007000001" {
 		t.Errorf("flow link sink = %+v", n)
 	}
-	if n := nodes["source:flowlink"]; n == nil || n.Options["flowId"] != "68c2dfb31e33920007000001" || n.Options["transport"] != "async" {
+	if n := nodes["source:flowlink"]; n == nil || n.Options["flowId"] != "69f44944607cff0016000001" || n.Options["transport"] != "async" {
 		t.Errorf("flow link source = %+v, want its flow id added", n)
 	}
 	// Without a known option it stays unknown.
@@ -277,5 +278,115 @@ func TestParseMessageReference(t *testing.T) {
 		`{"id":"b","type":"sink","uri":"setheaders:message:nope","links":{"link":{"id":"b","bound":"in"}}}`)
 	if _, err := Parse([]byte(bad), newNoop); err == nil || !strings.Contains(err.Error(), `step b: message "nope" not found`) {
 		t.Errorf("unknown message: err = %v", err)
+	}
+}
+
+func TestParseResourceRef(t *testing.T) {
+	steps := `{"id":"a","type":"source","links":{"link":{"id":"b","bound":"out"}}},` +
+		`{"id":"b","type":"sink","uri":"jsonvalidator:ref:r1","options":{"x":1},"links":{"link":{"id":"b","bound":"in"}}}`
+	doc := func(resources string) string {
+		return `{"dil":{"integrations":{"integration":{"flows":{"flow":{"id":"f","steps":{"step":[` + steps + `]}}}}},"core":{"resources":` + resources + `}}}`
+	}
+	var sink *flowdef.Node
+	collect := func(n *flowdef.Node) (stepdef.Processor, error) {
+		if n.ID == "b" {
+			sink = n
+		}
+		return noop{}, nil
+	}
+	if _, err := Parse([]byte(doc(`{"resource":[{"name":"r0","content":"no"},{"name":"r1","content":"{\"type\":\"object\"}"}]}`)), collect); err != nil {
+		t.Fatal(err)
+	}
+	if sink.URI != "jsonvalidator" || sink.Options["resource"] != `{"type":"object"}` || sink.Options["x"] != 1.0 {
+		t.Errorf("node = %+v, want URI jsonvalidator with the resource as option", sink)
+	}
+	if _, err := Parse([]byte(doc(`{"resource":{"name":"r0","content":"no"}}`)), collect); err == nil || !strings.Contains(err.Error(), `step b: resource "r1" not found in dil.core.resources`) {
+		t.Errorf("err = %v", err)
+	}
+}
+
+// The steps DIL exports as "unknown" with a rules list are told apart by the
+// keys of their rules, and get the list as JSON text, which their schemas
+// (scalar options only) take.
+func TestParseUnknownRulesSteps(t *testing.T) {
+	nodes := map[string]*flowdef.Node{}
+	collect := func(n *flowdef.Node) (stepdef.Processor, error) {
+		nodes[n.Kind+":"+n.URI] = n
+		return noop{}, nil
+	}
+	for _, file := range []string{"flv.json", "exceltoxml.json", "formToXml.json", "headerstopdf.json", "experimental/openapiInbound.json", "experimental/openapiOutbound.json"} {
+		data, err := os.ReadFile("../../examples/" + file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Parse(data, collect); err != nil {
+			t.Fatalf("%s: %v", file, err)
+		}
+	}
+
+	rules := func(uri string) []map[string]any {
+		t.Helper()
+		n := nodes["action:"+uri]
+		if n == nil {
+			t.Fatalf("no %s step; got %v", uri, nodes)
+		}
+		text, ok := n.Options["rules"].(string)
+		if !ok {
+			t.Fatalf("%s rules = %#v, want JSON text", uri, n.Options["rules"])
+		}
+		var list []map[string]any
+		if err := json.Unmarshal([]byte(text), &list); err != nil {
+			t.Fatalf("%s rules %q: %v", uri, text, err)
+		}
+		return list
+	}
+	if flv := rules("flv"); len(flv) != 1 || flv[0]["matchOn"] != "HDR" || len(flv[0]["subcollection"].([]any)) != 2 {
+		t.Errorf("flv rules = %v", flv)
+	}
+	if excel := rules("exceltoxml"); len(excel) != 1 || excel[0]["worksheet"] != "Sheet1" || excel[0]["cellRange"] != "A2:C4" {
+		t.Errorf("exceltoxml rules = %v", excel)
+	}
+	if n := nodes["action:formtoxml"]; n == nil || len(n.Options) != 0 {
+		t.Errorf("formtoxml step = %+v, want an action without options", n)
+	}
+
+	// Other unknown steps stay unknown: this one has an option, those have the wrong kind.
+	if n := nodes["action:unknown"]; n == nil || n.Options["uuid"] == nil {
+		t.Errorf("headerstopdf step = %+v, want it to stay unknown", n)
+	}
+	if nodes["source:unknown"] == nil || nodes["sink:unknown"] == nil {
+		t.Errorf("option-less unknown source and sink = %v, %v, want them to stay unknown", nodes["source:unknown"], nodes["sink:unknown"])
+	}
+}
+
+func TestKnownURI(t *testing.T) {
+	step := func(kind string, opts map[string]any) dilStep {
+		return dilStep{Type: kind, URI: "unknown", Options: opts}
+	}
+	rule := func(key string) map[string]any {
+		return map[string]any{"rules": []any{map[string]any{"name": "x"}, map[string]any{key: 1}}}
+	}
+
+	for name, tc := range map[string]struct {
+		step dilStep
+		want string
+	}{
+		"flv":                    {step("action", rule("subcollection")), "flv"},
+		"exceltoxml":             {step("action", rule("worksheet")), "exceltoxml"},
+		"rules of another step":  {step("action", rule("other")), "unknown"},
+		"rules that is no list":  {step("action", map[string]any{"rules": "x"}), "unknown"},
+		"rules of no objects":    {step("action", map[string]any{"rules": []any{1, "a"}}), "unknown"},
+		"formtoxml":              {step("action", nil), "formtoxml"},
+		"formtoxml, empty":       {step("action", map[string]any{}), "formtoxml"},
+		"no option-less source":  {step("source", nil), "unknown"},
+		"no option-less sink":    {step("sink", map[string]any{}), "unknown"},
+		"an action with options": {step("action", map[string]any{"stylesheet": "<x/>"}), "unknown"},
+		"dead letter":            {step("sink", map[string]any{"deadLetterQueue": "q"}), "deadletter"},
+		"flow link source":       {step("source", map[string]any{"transport": "async"}), "flowlink"},
+		"known step":             {dilStep{Type: "action", URI: "setbody"}, "setbody"},
+	} {
+		if got := knownURI(tc.step); got != tc.want {
+			t.Errorf("%s: knownURI = %q, want %q", name, got, tc.want)
+		}
 	}
 }

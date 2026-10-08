@@ -1,0 +1,175 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7aedb4b55b6d00160000d2",
+						"name": "SetGetTenantVariable_headers",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "8b85cbf6-267e-4262-96d3-82a4d8b58f36",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetGetTenantVariable_headers",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "e051f222-a585-46b4-b33e-1081d487a06d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e051f222-a585-46b4-b33e-1081d487a06d",
+									"type": "action",
+									"uri": "setheaders:message:e051f222-a585-46b4-b33e-1081d487a06d",
+									"links": {
+										"link": [
+											{
+												"id": "e051f222-a585-46b4-b33e-1081d487a06d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f4c32126-9639-46b0-b323-20bd1d853d1a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f4c32126-9639-46b0-b323-20bd1d853d1a",
+									"type": "action",
+									"uri": "settenantvariable:${header.flow_name}",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "simple",
+										"value": "JHtoZWFkZXIuZmxvd19uYW1lfV8ke2hlYWRlci52YWx1ZX0=",
+										"flowName": "SetGetTenantVariable_headers",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f4c32126-9639-46b0-b323-20bd1d853d1a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "19723d06-8b8b-4ef4-b7c0-52a7db65da19",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "19723d06-8b8b-4ef4-b7c0-52a7db65da19",
+									"type": "action",
+									"uri": "gettenantvariable:${header.flow_name}",
+									"options": {
+										"headerName": "tenantVar",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "19723d06-8b8b-4ef4-b7c0-52a7db65da19",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "78aa8e32-4a9c-4252-87df-9b6e4018ba89",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "78aa8e32-4a9c-4252-87df-9b6e4018ba89",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.tenantVar}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "78aa8e32-4a9c-4252-87df-9b6e4018ba89",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f8abde6d-95c7-4f37-aee1-66b56569ad90",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f8abde6d-95c7-4f37-aee1-66b56569ad90",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f8abde6d-95c7-4f37-aee1-66b56569ad90",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a7aedb4b55b6d00160000d4",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "e051f222-a585-46b4-b33e-1081d487a06d",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "flow_name",
+							"value": "OauthGmailNoreply"
+						}
+					}
+				}
+			}
+		}
+	}
+}

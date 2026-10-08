@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cdbaaa93e300150001a9",
+						"name": "CB_SetTenantVariable",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "f8f8727c-0c6d-4ffa-be0e-bfecf9d87fcb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_SetTenantVariable",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "e216441e-9283-46c8-aefe-7fa61a3ca752",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e216441e-9283-46c8-aefe-7fa61a3ca752",
+									"type": "action",
+									"uri": "settenantvariable:${header.varTest}",
+									"options": {
+										"language": "simple",
+										"value": "JHtoZWFkZXIudmFyVmFsdWV9",
+										"encrypt": false,
+										"flowName": "CB_SetTenantVariable",
+										"groupName": "Steps-Basic",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e216441e-9283-46c8-aefe-7fa61a3ca752",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "62370e5a-79e3-41ad-b22a-a05b3828d545",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "62370e5a-79e3-41ad-b22a-a05b3828d545",
+									"type": "action",
+									"uri": "gettenantvariable:${header.varTest}",
+									"options": {
+										"headerName": "variable",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "62370e5a-79e3-41ad-b22a-a05b3828d545",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ed7dd2ec-79ca-46bc-95bc-ea6eb91be121",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ed7dd2ec-79ca-46bc-95bc-ea6eb91be121",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.variable}"
+									},
+									"links": {
+										"link": {
+											"id": "ed7dd2ec-79ca-46bc-95bc-ea6eb91be121",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a0a4bb4c-1bde-4973-b304-c75d980ee41a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

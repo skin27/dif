@@ -1,0 +1,145 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "696a5a51633fc0000f00014f",
+						"name": "FlvRulesOrder",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7ff79af1-7394-46fa-8d58-180ed400c724",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/FlvRulesOrder",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "e6c78a56-49a3-4186-bdf0-c764d2bc3f90",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e6c78a56-49a3-4186-bdf0-c764d2bc3f90",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "YAYthing\nAAA123\nAAA456"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e6c78a56-49a3-4186-bdf0-c764d2bc3f90",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "88406c48-2c77-49b2-99ac-9ec7bbc2b02a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "88406c48-2c77-49b2-99ac-9ec7bbc2b02a",
+									"type": "action",
+									"uri": "unknown",
+									"options": {
+										"rules": [
+											{
+												"group": false,
+												"matchOn": "YAY",
+												"subcollection": [
+													{
+														"field": "header",
+														"length": 3
+													},
+													{
+														"_id": "57a5fd51-2397-4595-bd4e-07913e1d99f2",
+														"field": "body",
+														"length": "5"
+													}
+												]
+											},
+											{
+												"_id": "86895b8f-bfd6-4f31-b9b5-ab3790a4af7e",
+												"group": "true",
+												"matchOn": "AAA",
+												"subcollection": [
+													{
+														"_id": "a10d686a-d438-4db0-8d2c-11845c413175",
+														"field": "header",
+														"length": 3
+													},
+													{
+														"_id": "47281eac-f5c8-4fe7-9388-cd2dfbc361e7",
+														"field": "B",
+														"length": "3"
+													}
+												]
+											}
+										]
+									},
+									"links": {
+										"link": [
+											{
+												"id": "88406c48-2c77-49b2-99ac-9ec7bbc2b02a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "db1d91a0-0f35-4063-a91d-d0ef90cd5c14",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "db1d91a0-0f35-4063-a91d-d0ef90cd5c14",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "db1d91a0-0f35-4063-a91d-d0ef90cd5c14",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6d6b06e3-b7a2-4bd2-ad08-6f09e28756d9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,129 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69739c68f624bf000c0000d2",
+						"name": "XmlToCsv_EOL",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "62faad10-2c64-4cb8-a3c2-bf44f82fc166",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToCsv_EOL",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "06db30c2-ce4b-4122-a3ab-5fb7b5ea4216",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "06db30c2-ce4b-4122-a3ab-5fb7b5ea4216",
+									"type": "action",
+									"uri": "setheaders:message:06db30c2-ce4b-4122-a3ab-5fb7b5ea4216",
+									"links": {
+										"link": [
+											{
+												"id": "06db30c2-ce4b-4122-a3ab-5fb7b5ea4216",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3bb0725f-2d49-4e37-9881-01050b066a30",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3bb0725f-2d49-4e37-9881-01050b066a30",
+									"type": "action",
+									"uri": "xmltocsv",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"delimiter": ",",
+										"lineSeparator": "endofline",
+										"orderHeaders": "unordered",
+										"quoteFields": "all_fields"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3bb0725f-2d49-4e37-9881-01050b066a30",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4c233616-2751-48e1-be33-81a4447df1b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4c233616-2751-48e1-be33-81a4447df1b0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4c233616-2751-48e1-be33-81a4447df1b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5a6098f7-d9e4-4871-9fbc-dbc47b3fc7f1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "06db30c2-ce4b-4122-a3ab-5fb7b5ea4216",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "breadcrumbId",
+							"value": "${header.breadcrumbId}_${header.number}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

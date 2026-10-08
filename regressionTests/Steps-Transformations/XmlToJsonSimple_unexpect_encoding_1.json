@@ -1,0 +1,93 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6969f5e3633fc00016000000",
+						"name": "XmlToJsonSimple_unexpect_encoding_1",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a3a81f1d-a7dd-49d8-9957-db1dccda0311",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToJsonSimple_unexpect_encoding_1",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "7ab9f8c8-49fc-4bb3-981b-fdbf8eae0df5",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7ab9f8c8-49fc-4bb3-981b-fdbf8eae0df5",
+									"type": "action",
+									"uri": "xmltojsonsimple",
+									"options": {
+										"removeRoot": false,
+										"removeNamespaces": true,
+										"keepStrings": false,
+										"hasTypes": false,
+										"typeValueMismatch": "original"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7ab9f8c8-49fc-4bb3-981b-fdbf8eae0df5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "794eca24-3c90-434e-b02b-d669ca929ac8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "794eca24-3c90-434e-b02b-d669ca929ac8",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "794eca24-3c90-434e-b02b-d669ca929ac8",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6969f5e3633fc00016000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

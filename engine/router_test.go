@@ -139,3 +139,56 @@ func TestRunOnlyRoutersBranch(t *testing.T) {
 		t.Errorf("err = %v", err)
 	}
 }
+
+// looperStub runs link 0 (x -> y) rounds times with the message of the round
+// before, then link 1 (z); it fails in round failAt (-1 never).
+type looperStub struct {
+	rounds, failAt int
+	ins            *[]string
+}
+
+func (l looperStub) Round(_ context.Context, in, prev message.Message, round int) ([]stepdef.Route, bool, error) {
+	*l.ins = append(*l.ins, in[message.Body].(string))
+	if round == l.failAt {
+		return nil, false, errors.New("round failed")
+	}
+	if round < l.rounds {
+		m := prev
+		if round == 0 {
+			m = in.Copy()
+		}
+		return []stepdef.Route{{Next: 0, Message: m}}, false, nil
+	}
+	return []stepdef.Route{{Next: 1, Message: prev}}, true, nil
+}
+
+func TestRunLooper(t *testing.T) {
+	var ran, ins []string
+	f := routed(&ran, nil, nil)
+	r := f.Source.Next[0]
+	r.Processor = looperStub{rounds: 2, failAt: -1, ins: &ins}
+	res, err := Run(context.Background(), f, message.New("-"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(ran, " "); got != "x y x y z" {
+		t.Errorf("ran = %q, want two rounds of x y, then z", got)
+	}
+	if res.Message[message.Body] != "-xxz" {
+		t.Errorf("body = %v, want -xxz: every round gets the message of the round before", res.Message[message.Body])
+	}
+	if got := strings.Join(ins, " "); got != "- - -" {
+		t.Errorf("in per round = %q, want the entering message every time", got)
+	}
+	if got := strings.Join(res.Trail, " "); got != "source:a router:r action:x sink:y action:x sink:y action:z" {
+		t.Errorf("trail = %q", got)
+	}
+
+	ran, ins = nil, nil
+	r.Processor = looperStub{rounds: 3, failAt: 1, ins: &ins}
+	_, err = Run(context.Background(), f, message.New("-"))
+	var se *StepError
+	if !errors.As(err, &se) || se.Step != "r" || se.Message[message.Body] != "-x" || !strings.Contains(err.Error(), "round failed") {
+		t.Errorf("err = %v, want a step error of r with the message of round 0", err)
+	}
+}

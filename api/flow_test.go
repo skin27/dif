@@ -36,6 +36,13 @@ func dil(t *testing.T, id string, steps ...step) string {
 		}
 		list = append(list, map[string]any{"id": s.id, "type": s.kind, "uri": s.uri, "options": s.opts, "links": map[string]any{"link": links}})
 	}
+	return writeDIL(t, id, list)
+}
+
+// writeDIL writes a DIL file with one flow made of the DIL steps in list and
+// returns its path.
+func writeDIL(t *testing.T, id string, list []map[string]any) string {
+	t.Helper()
 	doc := map[string]any{"dil": map[string]any{"integrations": map[string]any{"integration": map[string]any{
 		"flows": map[string]any{"flow": map[string]any{"id": id, "steps": map[string]any{"step": list}}},
 	}}}}
@@ -179,7 +186,7 @@ func TestInvalidFlowsAreRejected(t *testing.T) {
 			`step b: setbody: option language: "groovy" is not one of "constant", "simple"`},
 		{"setheader without name", []step{timer(nil), {"h", "action", "setheader", map[string]any{"value": "x"}}, logSink},
 			"step h: setheader: missing required option name"},
-		{"unknown source", []step{{"src", "source", "sftp://example.com/in", nil}, logSink}, `step src: no processor for "sftp" (source)`},
+		{"unknown source", []step{{"src", "source", "carrierpigeon://example.com/in", nil}, logSink}, `step src: no processor for "carrierpigeon" (source)`},
 		{"keystore missing", []step{{"src", "source", "https://0.0.0.0:9001/in", map[string]any{"serverIdentityFile": "nope.p12"}}, logSink}, "step src: https: server identity: open nope.p12"},
 		{"unknown action", []step{timer(nil), {"x", "action", "xslt", nil}, logSink}, `step x: no processor for "xslt" (action)`},
 		{"unknown core message", []step{timer(nil), {"x", "action", "setheaders:message:x", nil}, logSink}, `step x: message "x" not found`},
@@ -296,9 +303,9 @@ func TestRequestExchangePattern(t *testing.T) {
 	}
 }
 
-// TestExamplesThatLoad pins which examples load. The https examples use the
-// default keystores in security/, so the test runs in a directory holding the
-// test keystores under those names.
+// TestExamplesThatLoad pins which examples (and experimental examples) load.
+// The https examples use the default keystores in security/, so the test runs
+// in a directory holding the test keystores under those names.
 func TestExamplesThatLoad(t *testing.T) {
 	examples, err := filepath.Abs("../examples")
 	if err != nil {
@@ -321,21 +328,33 @@ func TestExamplesThatLoad(t *testing.T) {
 	t.Setenv("DIF_SERVER_IDENTITY_PASSWORD", "changeit")
 	t.Setenv("DIF_TRUSTSTORE_PASSWORD", "changeit")
 
-	files, err := filepath.Glob(filepath.Join(examples, "*.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var loaded []string
-	for _, f := range files {
-		if _, err := Load(f, nil); err == nil {
-			loaded = append(loaded, filepath.Base(f))
+	loading := func(dir string) string {
+		files, err := filepath.Glob(filepath.Join(dir, "*.json"))
+		if err != nil {
+			t.Fatal(err)
 		}
+		var loaded []string
+		for _, f := range files {
+			if _, err := Load(f, nil); err == nil {
+				loaded = append(loaded, filepath.Base(f))
+			}
+		}
+		return strings.Join(loaded, " ")
 	}
-	want := "aggregate.json base64ToText.json contentrouter.json csvtoxml.json deadletter.json encoder.json enrich.json errorHandler.json fileInbound.json fileOutbound.json filter.json " +
-		"flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json hello.json httpsClient.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json queueAsynchronousOutbound.json " +
-		"recipient.json removeHeaders.json repeater.json replace.json scheduler.json setBody.json setOneWay.json setRequestReply.json simplereplace.json split.json splitAndAggregate.json test.json " +
-		"textToBase64.json timer.json unzip.json wiretap.json xmltocsv.json xmltojson.json xmltojsonsimple.json zip.json"
-	if got := strings.Join(loaded, " "); got != want {
+
+	want := "aggregate.json base64ToText.json contentrouter.json csvtoxml.json deadletter.json editoxml.json emailoutbound.json encoder.json enrich.json errorHandler.json exceltoxml.json " +
+		"fileEnrich.json fileInbound.json fileOutbound.json filter.json flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json flv.json formToXml.json getTenantVariable.json " +
+		"googleDriveOutbound.json googledriveInbound.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json multipart.json pedroteste.json queueAsynchronousOutbound.json queueInbound.json queueOutbound.json recipient.json " +
+		"removeCookie.json removeHeaders.json removeTenantVariable.json repeater.json replace.json scheduler.json setBody.json setCookie.json setOneWay.json setRequestReply.json " +
+		"setTenantVariable.json sftpEnrich.json sftpInbound.json sftpOutbound.json simplereplace.json split.json splitAndAggregate.json test.json textToBase64.json throttle.json unzip.json wiretap.json xmltocsv.json xmltoedi.json xmltoedifact.json xmltoexcel.json " +
+		"xmltojson.json xmltojsonsimple.json zip.json"
+	if got := loading(examples); got != want {
 		t.Errorf("examples that load:\n%s\nwant\n%s", got, want)
+	}
+
+	want = "counter.json delay.json doWhile.json graphql.json ifelse.json jsonvalidator.json logger.json loop.json restInbound.json restOutbound.json setBodyByHeader.json " +
+		"setHeaderByBody.json setUUID.json simplevalidator.json wastebin.json"
+	if got := loading(filepath.Join(examples, "experimental")); got != want {
+		t.Errorf("experimental examples that load:\n%s\nwant\n%s", got, want)
 	}
 }

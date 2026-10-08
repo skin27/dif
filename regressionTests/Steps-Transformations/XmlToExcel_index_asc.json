@@ -1,0 +1,95 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6973a1d0f624bf000c0001ba",
+						"name": "XmlToExcel_index_asc",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c57618db-31c5-46b3-acbc-ca6149d3b94e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToExcel_index_asc",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1f02e7f1-f5b0-44e4-89fa-2c2cd8ad1fe4",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1f02e7f1-f5b0-44e4-89fa-2c2cd8ad1fe4",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": false,
+										"includeIndexColumn": true,
+										"indexColumnName": "index",
+										"orderHeaders": "ascending",
+										"excelFormat": "xlsx",
+										"useCustomWorksheets": false,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJcIixcInhQYXRoRXhwcmVzc2lvblwiOlwiXCJ9Il0=)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1f02e7f1-f5b0-44e4-89fa-2c2cd8ad1fe4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4bea6044-e796-4da4-a7ac-ea9e4c59bcc9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4bea6044-e796-4da4-a7ac-ea9e4c59bcc9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "4bea6044-e796-4da4-a7ac-ea9e4c59bcc9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2b8e28d8-dd56-441f-82b4-a37dc3002631",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

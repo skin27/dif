@@ -8,7 +8,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -21,11 +20,15 @@ import (
 // httpsSource receives HTTPS requests on host:port/path and replies with the
 // outcome of the flow (request-reply). The body of a request is the message
 // body and its headers are message headers; the reply is the final body with
-// its Content-Type and identity headers.
+// its Content-Type and identity headers. A one-way (InOnly) source replies at once with the
+// request instead.
 type httpsSource struct {
 	addr, path          string
 	matchPrefix         bool
+	oneWay              bool
 	preserveHTTPHeaders bool
+	method              string // the only HTTP method served; "" for any
+	produces            string // Content-Type of a reply that sets none; "" for text
 	identity            string // absolute path of the keystore
 	cert                tls.Certificate
 }
@@ -35,36 +38,69 @@ func newHTTPSSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if err != nil {
 		return nil, err
 	}
-	file := p["serverIdentityFile"].(string)
-	pw, given := serverIdentityPassword.get(p)
-	cert, err := keystore.LoadIdentity(file, pw)
-	if err != nil {
-		return nil, serverIdentityPassword.explain("server identity", err, given)
-	}
-	abs, err := filepath.Abs(file)
+	abs, cert, err := loadServerIdentity(p)
 	if err != nil {
 		return nil, err
 	}
 	return httpsSource{
 		addr:                addr,
 		path:                path,
-		matchPrefix:         p["matchPrefix"].(bool),
+		matchPrefix:         p["matchPrefix"].(bool) || p["matchOnUriPrefix"].(bool),
+		oneWay:              p["exchangePattern"] == message.InOnly,
 		preserveHTTPHeaders: p["preserveHttpHeaders"].(bool),
 		identity:            abs,
 		cert:                cert,
 	}, nil
 }
 
+// loadServerIdentity loads the keystore of the options serverIdentityFile and
+// serverIdentityPassword, and returns its absolute path and certificate.
+func loadServerIdentity(p stepdef.Params) (string, tls.Certificate, error) {
+	file := p["serverIdentityFile"].(string)
+	pw, given, err := serverIdentityPassword.get(p)
+	if err != nil {
+		return "", tls.Certificate{}, err
+	}
+	cert, err := keystore.LoadIdentity(file, pw)
+	if err != nil {
+		return "", cert, serverIdentityPassword.explain("server identity", err, given)
+	}
+	abs, err := filepath.Abs(file)
+	return abs, cert, err
+}
+
 // Run serves the path until ctx is done. It fails when the address cannot be
 // bound or the path is already served by another flow.
 func (s httpsSource) Run(ctx context.Context, emit stepdef.Emit) error {
-	unregister, err := serveHTTPS(s.addr, s.identity, s.cert, s.path, s.matchPrefix, s.handler(emit))
+	return s.RunReady(ctx, emit, func() {})
+}
+
+func (s httpsSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	unregister, server, err := serveHTTPS(s.addr, s.identity, s.cert, s.path, s.matchPrefix, s.handler(emit))
 	if err != nil {
 		return err
 	}
-	defer unregister()
-	<-ctx.Done()
-	return nil
+	defer func() {
+		shutdown := stepdef.ShutdownContext(ctx)
+		if shutdown == nil {
+			var cancel context.CancelFunc
+			shutdown, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+		}
+		unregister(shutdown)
+	}()
+	ready()
+	select {
+	case <-ctx.Done():
+		return nil
+	case <-server.done:
+		if ctx.Err() != nil {
+			return nil
+		}
+		err := fmt.Errorf("HTTPS listener stopped: %w", server.err)
+		stepdef.ReportSourceFailure(ctx, err)
+		return err
+	}
 }
 
 func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
@@ -73,6 +109,11 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 		err error
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
+		if s.method != "" && r.Method != s.method {
+			w.Header().Set("Allow", s.method)
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 		body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBodySize))
 		if err != nil {
 			http.Error(w, "cannot read request: "+err.Error(), http.StatusBadRequest)
@@ -98,6 +139,16 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 			m["http.uri"] = r.URL.RequestURI()
 		}
 
+		if s.oneWay {
+			reply := m.Copy()
+			if emit(m, nil) != nil {
+				http.Error(w, "flow is not running", http.StatusServiceUnavailable)
+				return
+			}
+			writeReply(w, reply, s.produces)
+			return
+		}
+
 		done := make(chan outcome, 1)
 		if emit(m, func(out message.Message, err error) { done <- outcome{out, err} }) != nil {
 			http.Error(w, "flow is not running", http.StatusServiceUnavailable)
@@ -109,16 +160,24 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 				http.Error(w, o.err.Error(), http.StatusInternalServerError)
 				return
 			}
-			writeIdentityHeaders(w.Header(), o.m)
-			ct, _ := o.m[message.ContentType].(string)
-			if ct == "" {
-				ct = "text/plain; charset=utf-8"
-			}
-			w.Header().Set("Content-Type", ct)
-			w.Write(bytesOf(o.m[message.Body]))
+			writeReply(w, o.m, s.produces)
 		case <-r.Context().Done(): // the client went away
 		}
 	}
+}
+
+// writeReply writes the body of m with its Content-Type, else produces, else text.
+func writeReply(w http.ResponseWriter, m message.Message, produces string) {
+	writeIdentityHeaders(w.Header(), m)
+	ct, _ := m[message.ContentType].(string)
+	if ct == "" {
+		ct = produces
+	}
+	if ct == "" {
+		ct = "text/plain; charset=utf-8"
+	}
+	w.Header().Set("Content-Type", ct)
+	w.Write(bytesOf(m[message.Body]))
 }
 
 // splitAddress splits the path of an https URI, //host[:port]/path, into the
@@ -146,11 +205,11 @@ var (
 
 // get returns the password; given reports whether one was set at all (a
 // keystore may have an empty password).
-func (k keystorePassword) get(p stepdef.Params) (pw string, given bool) {
+func (k keystorePassword) get(p stepdef.Params) (pw string, given bool, err error) {
 	if pw, ok := p[k.option].(string); ok {
-		return pw, true
+		return pw, true, nil
 	}
-	return os.LookupEnv(k.env)
+	return environmentSecret(k.env)
 }
 
 // explain wraps a keystore error; when no password was given and the

@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a79a467705d910016000077",
+						"name": "InboundHttpOneWayDefault",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "3614cc02-ee0b-4db9-8ed9-5de973edce31",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/InboundHttpOneWayDefault",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "81742cbe-bf9f-4468-b928-0023fdd50958",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "81742cbe-bf9f-4468-b928-0023fdd50958",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Transport type default and Exchange pattern one way are deprecated\n\nBody matches strings:\nNew body"
+									},
+									"links": {
+										"link": {
+											"id": "81742cbe-bf9f-4468-b928-0023fdd50958",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "32824e4f-d483-476d-972e-744ae6039a24",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

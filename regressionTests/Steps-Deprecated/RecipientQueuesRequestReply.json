@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7ebe1fee15e2000c00011e",
+						"name": "RecipientQueuesRequestReply",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "ff34d701-2e3b-4bc3-a765-3d9d1ee55206",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/RecipientQueuesRequestReply",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "b6cf1679-be9b-4e3f-931d-f34c2e9ed890",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b6cf1679-be9b-4e3f-931d-f34c2e9ed890",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "tapped"
+									},
+									"links": {
+										"link": {
+											"id": "b6cf1679-be9b-4e3f-931d-f34c2e9ed890",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8eedd8ba-7db8-4290-a178-a3a02a2929bc",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

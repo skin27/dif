@@ -19,13 +19,13 @@
 		},
 		"trustStoreFile": {
 			"title": "Trust store",
-			"description": "PKCS#12 keystore with the certificates to trust",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
 			"type": "string",
 			"default": "security/outbound-truststore.p12"
 		},
 		"trustStorePassword": {
 			"title": "Trust store password",
-			"description": "Password of the trust store; defaults to the environment variable DIF_TRUSTSTORE_PASSWORD",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
 			"type": "string"
 		},
 		"socketTimeout": {

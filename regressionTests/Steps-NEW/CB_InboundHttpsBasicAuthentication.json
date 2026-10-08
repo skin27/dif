@@ -1,0 +1,87 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7f20bcee15e2000c000445",
+						"name": "CB_InboundHttpsBasicAuthentication",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0e640f74-98d4-4389-909c-e4f1a5703967",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_InboundHttpsBasicAuthentication",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false,
+										"handlers": "0e640f74-98d4-4389-909c-e4f1a5703967_basic"
+									},
+									"blocks": {
+										"block": {
+											"id": "0e640f74-98d4-4389-909c-e4f1a5703967_basic",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "20cca0cc-09fa-4470-aa4c-d6f226a301f3",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "20cca0cc-09fa-4470-aa4c-d6f226a301f3",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Test succeeded"
+									},
+									"links": {
+										"link": {
+											"id": "20cca0cc-09fa-4470-aa4c-d6f226a301f3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "efc2d294-ba79-4b66-8434-90b878c545d8",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"id": "0e640f74-98d4-4389-909c-e4f1a5703967_basic",
+					"name": "basic",
+					"type": "basic",
+					"keys": {
+						"path": "/regressiontests/CB_InboundHttpsBasicAuthentication",
+						"username": "fruit",
+						"password": "ENC(qbDN4aAtlXrBMeBdRr19sg==|3qld9B2I1ybci0niHiSnpg==|ets3odHHBCR8muiVlan9tQ==)"
+					}
+				}
+			}
+		}
+	}
+}

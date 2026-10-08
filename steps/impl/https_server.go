@@ -27,6 +27,8 @@ type httpsServer struct {
 	identity string // the keystore file of the server's certificate
 	srv      *http.Server
 	ln       net.Listener
+	done     chan struct{}
+	err      error // read only after done closes
 
 	mu     sync.RWMutex
 	routes map[string]httpsRoute // by path
@@ -44,7 +46,7 @@ type httpsRoute struct {
 // it is not running yet; a bind error is returned. All routes at one address
 // share its certificate, so they must use the same identity file.
 // unregister removes the route and stops the server once it has none left.
-func serveHTTPS(addr, identity string, cert tls.Certificate, path string, prefix bool, handler http.Handler) (unregister func(), err error) {
+func serveHTTPS(addr, identity string, cert tls.Certificate, path string, prefix bool, handler http.Handler) (unregister func(context.Context), server *httpsServer, err error) {
 	httpsServers.Lock()
 	defer httpsServers.Unlock()
 
@@ -52,9 +54,9 @@ func serveHTTPS(addr, identity string, cert tls.Certificate, path string, prefix
 	if s == nil {
 		ln, err := net.Listen("tcp", addr)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		s = &httpsServer{identity: identity, ln: ln, routes: map[string]httpsRoute{}, fresh: map[net.Conn]bool{}}
+		s = &httpsServer{identity: identity, ln: ln, routes: map[string]httpsRoute{}, fresh: map[net.Conn]bool{}, done: make(chan struct{})}
 		s.srv = &http.Server{
 			Handler:           s,
 			ReadHeaderTimeout: 10 * time.Second,
@@ -62,20 +64,20 @@ func serveHTTPS(addr, identity string, cert tls.Certificate, path string, prefix
 			ErrorLog:          log.New(io.Discard, "", 0), // e.g. TLS handshake errors of clients
 			ConnState:         s.track,
 		}
-		go s.srv.ServeTLS(ln, "", "")
+		go func() { s.err = s.srv.ServeTLS(ln, "", ""); close(s.done) }()
 		httpsServers.m[addr] = s
 	} else if s.identity != identity {
-		return nil, fmt.Errorf("%s already serves with server identity %s, not %s", addr, s.identity, identity)
+		return nil, nil, fmt.Errorf("%s already serves with server identity %s, not %s", addr, s.identity, identity)
 	}
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if _, used := s.routes[path]; used {
-		return nil, fmt.Errorf("path %s on %s is already served by another flow", path, addr)
+		return nil, nil, fmt.Errorf("path %s on %s is already served by another flow", path, addr)
 	}
 	s.routes[path] = httpsRoute{prefix, handler}
 
-	return func() {
+	return func(ctx context.Context) {
 		httpsServers.Lock()
 		s.mu.Lock()
 		delete(s.routes, path)
@@ -94,13 +96,11 @@ func serveHTTPS(addr, identity string, cert tls.Certificate, path string, prefix
 			// for connections without a request, such as the spare ones Go
 			// clients open; those are closed first.
 			s.closeFresh()
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
 			if s.srv.Shutdown(ctx) != nil {
 				s.srv.Close()
 			}
 		}
-	}, nil
+	}, s, nil
 }
 
 // ServeHTTP routes a request by its exact path, else by the longest prefix route.

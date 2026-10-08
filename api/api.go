@@ -69,6 +69,12 @@ func Load(path string, onResult func(*Result, error)) (*Flow, error) {
 		return nil, err
 	}
 
+	return LoadBytes(data, onResult)
+}
+
+// LoadBytes builds a flow from an already resolved document. Relative resource
+// paths retain their existing meaning: relative to the process working directory.
+func LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, error) {
 	f, err := flowimpl.Parse(data, steps.Processor)
 	if err != nil {
 		return nil, err

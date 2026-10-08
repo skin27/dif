@@ -1,0 +1,104 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a98022d0fe1e10011000192",
+						"name": "Elvis",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6d8e3238-519a-4ab1-8e56-dd66673d4dcb",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Elvis",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5cd08c65-6594-45e7-8f6e-5cd0c2e8f187",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5cd08c65-6594-45e7-8f6e-5cd0c2e8f187",
+									"type": "action",
+									"uri": "setheaders:message:5cd08c65-6594-45e7-8f6e-5cd0c2e8f187",
+									"options": {
+										"writeAsString": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5cd08c65-6594-45e7-8f6e-5cd0c2e8f187",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cbf935f8-dc5c-4f38-8123-9d6972e15d5d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cbf935f8-dc5c-4f38-8123-9d6972e15d5d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "cbf935f8-dc5c-4f38-8123-9d6972e15d5d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a98022d0fe1e10011000194",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "5cd08c65-6594-45e7-8f6e-5cd0c2e8f187",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "resultHeader1",
+							"value": "${jsonpath(\"$.customer.name\")} ?: 'Geen naam'"
+						}
+					}
+				}
+			}
+		}
+	}
+}

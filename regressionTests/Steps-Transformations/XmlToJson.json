@@ -1,0 +1,3506 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69f1f5ef09deca001600007b",
+						"name": "XmlToJson",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9b0010f2-35da-4905-99ee-3440bcf614c8",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToJson",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "e03ea981-1bc8-4f8f-9bb4-77c5b8824d56",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e03ea981-1bc8-4f8f-9bb4-77c5b8824d56",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"expression": "${header.config}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e03ea981-1bc8-4f8f-9bb4-77c5b8824d56",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fc119a98-2664-45bc-9065-434fcf83aabf",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "8312476e-a6be-4679-b4ec-9a7dec6541fd",
+												"bound": "out",
+												"expression": "${header.config} contains 'TTT'",
+												"language": "simple",
+												"rule": "ttt",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fc119a98-2664-45bc-9065-434fcf83aabf",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fc119a98-2664-45bc-9065-434fcf83aabf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c178fb6a-4def-41fb-9bed-7b39a32cce1b",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "80d4f246-185b-4d5e-9d7c-734714254c81",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ffffff",
+												"transport": "sync"
+											},
+											{
+												"id": "eef358be-b87e-4357-a828-c360921edf10",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tfffff",
+												"transport": "sync"
+											},
+											{
+												"id": "39ee8904-d02f-4165-957e-a335d49d273a",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftffff",
+												"transport": "sync"
+											},
+											{
+												"id": "0baa478d-c831-43c1-85ce-df2b563d25d6",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ffftff",
+												"transport": "sync"
+											},
+											{
+												"id": "abdf1644-0601-41a8-aa72-ac3f710ddcbc",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fffftf",
+												"transport": "sync"
+											},
+											{
+												"id": "385e54f3-1246-49b4-ba12-1dcfef6e1fae",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ffffft",
+												"transport": "sync"
+											},
+											{
+												"id": "59dc2fe0-3f85-457f-aff4-8766c939cc35",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fffftt",
+												"transport": "sync"
+											},
+											{
+												"id": "ae0e1bf7-11a5-4802-8f11-f0b0cca8026f",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ffftft",
+												"transport": "sync"
+											},
+											{
+												"id": "6e41cf6f-33b0-4343-b0e3-224272a6da6c",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tfffft",
+												"transport": "sync"
+											},
+											{
+												"id": "4ffa02c0-8977-4ae4-8155-0cedcdb25090",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tffftt",
+												"transport": "sync"
+											},
+											{
+												"id": "97b1ba99-c596-44d3-8fd5-a07a930aaba7",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttffft",
+												"transport": "sync"
+											},
+											{
+												"id": "2b28164c-6ff5-4aa3-a12e-60d2522bc23b",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttffff",
+												"transport": "sync"
+											},
+											{
+												"id": "83164c05-2fab-4e78-9562-9a155731fdfb",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tffftf",
+												"transport": "sync"
+											},
+											{
+												"id": "4011bf74-bfe0-4db8-b3a6-fb5eacff5567",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftffft",
+												"transport": "sync"
+											},
+											{
+												"id": "0ba71f1d-1e45-4f1e-a2e5-68802b047d12",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fffttf",
+												"transport": "sync"
+											},
+											{
+												"id": "bf2ff183-f7d1-4fcb-a4b2-729883d05ef0",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fftfff",
+												"transport": "sync"
+											},
+											{
+												"id": "ace9be22-90b0-4b8f-a865-8315ed9c3f45",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fttfff",
+												"transport": "sync"
+											},
+											{
+												"id": "5d1a48ad-ffde-496c-bed7-cf5b0f242082",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tftfff",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c178fb6a-4def-41fb-9bed-7b39a32cce1b",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c178fb6a-4def-41fb-9bed-7b39a32cce1b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "00519808-036b-4997-959f-c5e777e96982",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "a9c016f5-b62d-481c-9bf4-a7ba3e529905",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fftfft",
+												"transport": "sync"
+											},
+											{
+												"id": "6b828e02-6807-40c3-ac64-6355dab0a5c7",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttfttf",
+												"transport": "sync"
+											},
+											{
+												"id": "c7d98f98-df31-486c-9226-58f8b07db9db",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttftft",
+												"transport": "sync"
+											},
+											{
+												"id": "568c3581-7e27-487c-b304-5011211334f1",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttftff",
+												"transport": "sync"
+											},
+											{
+												"id": "78d9f2e2-6c78-4dd6-9f82-a810b0fc3278",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttfftt",
+												"transport": "sync"
+											},
+											{
+												"id": "401b63d2-a39c-42c3-9dde-0c21b2d7f9d2",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttfftf",
+												"transport": "sync"
+											},
+											{
+												"id": "3b299784-41c0-4007-adf1-7f94738ca38d",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tffttf",
+												"transport": "sync"
+											},
+											{
+												"id": "ece49dd4-30f2-497f-b2c7-b228d5dd8f6b",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tfftft",
+												"transport": "sync"
+											},
+											{
+												"id": "d1cbc7b8-fa5c-49b5-8b73-41c747f46185",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tfftff",
+												"transport": "sync"
+											},
+											{
+												"id": "abcc1dd5-15e2-4bb5-a260-0f0de52881fb",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftfttf",
+												"transport": "sync"
+											},
+											{
+												"id": "33bde550-2790-4b34-bd60-74eb835272db",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftftft",
+												"transport": "sync"
+											},
+											{
+												"id": "c309428f-b645-46c4-aaeb-60bc7185b719",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftftff",
+												"transport": "sync"
+											},
+											{
+												"id": "84607950-d7f2-40cc-8c39-1b0489813f02",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftfftt",
+												"transport": "sync"
+											},
+											{
+												"id": "c597a24d-56e2-4ad4-982d-ef709d97d869",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftfftf",
+												"transport": "sync"
+											},
+											{
+												"id": "86397f22-e3f3-4255-b1c6-6f553ba99c49",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fttfft",
+												"transport": "sync"
+											},
+											{
+												"id": "c7a6a499-e8d1-468b-8ccb-8384f8b78369",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fttftf",
+												"transport": "sync"
+											},
+											{
+												"id": "5e644508-693b-4a44-9719-c5e097683be9",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fttftt",
+												"transport": "sync"
+											},
+											{
+												"id": "f0a6c772-5749-4e01-8315-4bf47b2b90d2",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tftfft",
+												"transport": "sync"
+											},
+											{
+												"id": "9c9bcea0-1d0b-4a4e-b369-34a4c9589bc1",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fftftf",
+												"transport": "sync"
+											},
+											{
+												"id": "afdd4b8f-3bb0-4041-90d4-77bb33a11c3e",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tftftt",
+												"transport": "sync"
+											},
+											{
+												"id": "eb55b9d0-56dc-4dc4-b456-7d7dd75bab41",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fftftt",
+												"transport": "sync"
+											},
+											{
+												"id": "81899c25-fcb5-460a-a4bb-3ca4f2674cf0",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tfttff",
+												"transport": "sync"
+											},
+											{
+												"id": "c5412944-b169-4bea-820d-86972bc9e9ed",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ffttff",
+												"transport": "sync"
+											},
+											{
+												"id": "b7464790-c911-4c3c-801a-cf5cecffff43",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tfttft",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "00519808-036b-4997-959f-c5e777e96982",
+									"type": "router",
+									"uri": "content",
+									"links": {
+										"link": [
+											{
+												"id": "00519808-036b-4997-959f-c5e777e96982",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c6bbf7a3-c059-43c5-8807-851d7dc914e4",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "c57066d8-7c74-4b0a-92d4-fa64c00e0cc8",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTTFT'",
+												"language": "simple",
+												"rule": "ffttft",
+												"transport": "sync"
+											},
+											{
+												"id": "43a37be4-11b6-4c12-aed9-bfc6e0885aca",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTFTF'",
+												"language": "simple",
+												"rule": "tftftf",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c6bbf7a3-c059-43c5-8807-851d7dc914e4",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\"noTransformation\":\"in flow\"}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c6bbf7a3-c059-43c5-8807-851d7dc914e4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3ff5a830-b7e9-406a-9503-2642164ac516",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3ff5a830-b7e9-406a-9503-2642164ac516",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "3ff5a830-b7e9-406a-9503-2642164ac516",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c57066d8-7c74-4b0a-92d4-fa64c00e0cc8",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c57066d8-7c74-4b0a-92d4-fa64c00e0cc8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "13ef3f51-8788-489c-bbf4-876dc2a7f106",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "13ef3f51-8788-489c-bbf4-876dc2a7f106",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "13ef3f51-8788-489c-bbf4-876dc2a7f106",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "43a37be4-11b6-4c12-aed9-bfc6e0885aca",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "43a37be4-11b6-4c12-aed9-bfc6e0885aca",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "078086ac-69d9-4503-b82a-63df682b045f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "078086ac-69d9-4503-b82a-63df682b045f",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "078086ac-69d9-4503-b82a-63df682b045f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a9c016f5-b62d-481c-9bf4-a7ba3e529905",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a9c016f5-b62d-481c-9bf4-a7ba3e529905",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a514ea0-c009-40ec-9ac6-02b38cd6cac5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a514ea0-c009-40ec-9ac6-02b38cd6cac5",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "6a514ea0-c009-40ec-9ac6-02b38cd6cac5",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6b828e02-6807-40c3-ac64-6355dab0a5c7",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6b828e02-6807-40c3-ac64-6355dab0a5c7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "179299d9-23aa-458c-b353-25042da8f49c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "179299d9-23aa-458c-b353-25042da8f49c",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "179299d9-23aa-458c-b353-25042da8f49c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c7d98f98-df31-486c-9226-58f8b07db9db",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c7d98f98-df31-486c-9226-58f8b07db9db",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5629ffcc-390f-4077-9d71-a1c696492a33",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5629ffcc-390f-4077-9d71-a1c696492a33",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "5629ffcc-390f-4077-9d71-a1c696492a33",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "568c3581-7e27-487c-b304-5011211334f1",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "568c3581-7e27-487c-b304-5011211334f1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "96ec114c-02d5-4ba2-9fd3-d46e31b3a1d3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "96ec114c-02d5-4ba2-9fd3-d46e31b3a1d3",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "96ec114c-02d5-4ba2-9fd3-d46e31b3a1d3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "78d9f2e2-6c78-4dd6-9f82-a810b0fc3278",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "78d9f2e2-6c78-4dd6-9f82-a810b0fc3278",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7976da48-4cbc-428a-9c5c-946f03528b69",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7976da48-4cbc-428a-9c5c-946f03528b69",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "7976da48-4cbc-428a-9c5c-946f03528b69",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "401b63d2-a39c-42c3-9dde-0c21b2d7f9d2",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "401b63d2-a39c-42c3-9dde-0c21b2d7f9d2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b224a73a-0cca-4e28-9c88-3381b92d9349",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b224a73a-0cca-4e28-9c88-3381b92d9349",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "b224a73a-0cca-4e28-9c88-3381b92d9349",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "3b299784-41c0-4007-adf1-7f94738ca38d",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3b299784-41c0-4007-adf1-7f94738ca38d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7d55f96d-364d-4a46-8257-07baaf559c69",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7d55f96d-364d-4a46-8257-07baaf559c69",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "7d55f96d-364d-4a46-8257-07baaf559c69",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ece49dd4-30f2-497f-b2c7-b228d5dd8f6b",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ece49dd4-30f2-497f-b2c7-b228d5dd8f6b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fb69dd90-7339-459f-92b0-42fc04ecf0c2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fb69dd90-7339-459f-92b0-42fc04ecf0c2",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "fb69dd90-7339-459f-92b0-42fc04ecf0c2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d1cbc7b8-fa5c-49b5-8b73-41c747f46185",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d1cbc7b8-fa5c-49b5-8b73-41c747f46185",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "afc118c8-23d2-4ef3-9693-b253994a1aab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "afc118c8-23d2-4ef3-9693-b253994a1aab",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "afc118c8-23d2-4ef3-9693-b253994a1aab",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "abcc1dd5-15e2-4bb5-a260-0f0de52881fb",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "abcc1dd5-15e2-4bb5-a260-0f0de52881fb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fa67007e-377c-477f-b4cb-5065556571a2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fa67007e-377c-477f-b4cb-5065556571a2",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "fa67007e-377c-477f-b4cb-5065556571a2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "33bde550-2790-4b34-bd60-74eb835272db",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "33bde550-2790-4b34-bd60-74eb835272db",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e0c2d38d-a533-408b-98bf-4fc524afc7dc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e0c2d38d-a533-408b-98bf-4fc524afc7dc",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "e0c2d38d-a533-408b-98bf-4fc524afc7dc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c309428f-b645-46c4-aaeb-60bc7185b719",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c309428f-b645-46c4-aaeb-60bc7185b719",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "35dd18b6-cdab-4e67-9ec1-9e41d812aa4d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "35dd18b6-cdab-4e67-9ec1-9e41d812aa4d",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "35dd18b6-cdab-4e67-9ec1-9e41d812aa4d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "84607950-d7f2-40cc-8c39-1b0489813f02",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "84607950-d7f2-40cc-8c39-1b0489813f02",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "83d0dee8-a1aa-4cc3-8ed8-3dbdee3e92dc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "83d0dee8-a1aa-4cc3-8ed8-3dbdee3e92dc",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "83d0dee8-a1aa-4cc3-8ed8-3dbdee3e92dc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c597a24d-56e2-4ad4-982d-ef709d97d869",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c597a24d-56e2-4ad4-982d-ef709d97d869",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f08e1eaa-af77-4658-abf6-51fc01e45dad",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f08e1eaa-af77-4658-abf6-51fc01e45dad",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "f08e1eaa-af77-4658-abf6-51fc01e45dad",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "86397f22-e3f3-4255-b1c6-6f553ba99c49",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "86397f22-e3f3-4255-b1c6-6f553ba99c49",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "49a49463-90f0-49a0-b28b-a170e44b62c4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "49a49463-90f0-49a0-b28b-a170e44b62c4",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "49a49463-90f0-49a0-b28b-a170e44b62c4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c7a6a499-e8d1-468b-8ccb-8384f8b78369",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c7a6a499-e8d1-468b-8ccb-8384f8b78369",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e4e6e14a-13d4-4d89-9368-e8cb53fdb0ab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e4e6e14a-13d4-4d89-9368-e8cb53fdb0ab",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "e4e6e14a-13d4-4d89-9368-e8cb53fdb0ab",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5e644508-693b-4a44-9719-c5e097683be9",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5e644508-693b-4a44-9719-c5e097683be9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3da01529-95df-4699-a535-8e1e3e4824d9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3da01529-95df-4699-a535-8e1e3e4824d9",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "3da01529-95df-4699-a535-8e1e3e4824d9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f0a6c772-5749-4e01-8315-4bf47b2b90d2",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f0a6c772-5749-4e01-8315-4bf47b2b90d2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a1999d31-10df-4fa6-83fb-6b5a213bdbbe",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a1999d31-10df-4fa6-83fb-6b5a213bdbbe",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "a1999d31-10df-4fa6-83fb-6b5a213bdbbe",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9c9bcea0-1d0b-4a4e-b369-34a4c9589bc1",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9c9bcea0-1d0b-4a4e-b369-34a4c9589bc1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8e087661-b4dc-4365-8291-ca021d87d141",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8e087661-b4dc-4365-8291-ca021d87d141",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "8e087661-b4dc-4365-8291-ca021d87d141",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "afdd4b8f-3bb0-4041-90d4-77bb33a11c3e",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "afdd4b8f-3bb0-4041-90d4-77bb33a11c3e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cfa2a86d-0ca7-4f9c-813e-82b54e2984b0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cfa2a86d-0ca7-4f9c-813e-82b54e2984b0",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "cfa2a86d-0ca7-4f9c-813e-82b54e2984b0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eb55b9d0-56dc-4dc4-b456-7d7dd75bab41",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "eb55b9d0-56dc-4dc4-b456-7d7dd75bab41",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "02546bbb-4e8f-4a84-a8d8-b48bb494ddec",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "02546bbb-4e8f-4a84-a8d8-b48bb494ddec",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "02546bbb-4e8f-4a84-a8d8-b48bb494ddec",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "81899c25-fcb5-460a-a4bb-3ca4f2674cf0",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "81899c25-fcb5-460a-a4bb-3ca4f2674cf0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c4453e57-25e9-4d22-aff7-79b966c466c7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c4453e57-25e9-4d22-aff7-79b966c466c7",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "c4453e57-25e9-4d22-aff7-79b966c466c7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c5412944-b169-4bea-820d-86972bc9e9ed",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c5412944-b169-4bea-820d-86972bc9e9ed",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0190f4eb-d1d1-4d6a-975a-806e63002360",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0190f4eb-d1d1-4d6a-975a-806e63002360",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "0190f4eb-d1d1-4d6a-975a-806e63002360",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b7464790-c911-4c3c-801a-cf5cecffff43",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b7464790-c911-4c3c-801a-cf5cecffff43",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "317140f5-9b60-45f1-83d2-8c9ad4939993",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "317140f5-9b60-45f1-83d2-8c9ad4939993",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "317140f5-9b60-45f1-83d2-8c9ad4939993",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "80d4f246-185b-4d5e-9d7c-734714254c81",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "80d4f246-185b-4d5e-9d7c-734714254c81",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "41041dd8-18b7-4340-954c-f74d340c5beb",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "41041dd8-18b7-4340-954c-f74d340c5beb",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "41041dd8-18b7-4340-954c-f74d340c5beb",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eef358be-b87e-4357-a828-c360921edf10",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "eef358be-b87e-4357-a828-c360921edf10",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fe96c8e0-5a38-4e38-ae5f-c679dfcc71b6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fe96c8e0-5a38-4e38-ae5f-c679dfcc71b6",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "fe96c8e0-5a38-4e38-ae5f-c679dfcc71b6",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "39ee8904-d02f-4165-957e-a335d49d273a",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "39ee8904-d02f-4165-957e-a335d49d273a",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a7eec650-cfb9-49bb-a3dd-01f5ef4521df",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a7eec650-cfb9-49bb-a3dd-01f5ef4521df",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "a7eec650-cfb9-49bb-a3dd-01f5ef4521df",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0baa478d-c831-43c1-85ce-df2b563d25d6",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0baa478d-c831-43c1-85ce-df2b563d25d6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "77138d4a-f3c8-4d34-9752-8be1a9a123f1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "77138d4a-f3c8-4d34-9752-8be1a9a123f1",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "77138d4a-f3c8-4d34-9752-8be1a9a123f1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "abdf1644-0601-41a8-aa72-ac3f710ddcbc",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "abdf1644-0601-41a8-aa72-ac3f710ddcbc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "493a60dd-e062-4be4-962f-1097cd9f0dc2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "493a60dd-e062-4be4-962f-1097cd9f0dc2",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "493a60dd-e062-4be4-962f-1097cd9f0dc2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "385e54f3-1246-49b4-ba12-1dcfef6e1fae",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "385e54f3-1246-49b4-ba12-1dcfef6e1fae",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "725e6c80-ad9d-499c-ba8c-ec4bb0fb63ce",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "725e6c80-ad9d-499c-ba8c-ec4bb0fb63ce",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "725e6c80-ad9d-499c-ba8c-ec4bb0fb63ce",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "59dc2fe0-3f85-457f-aff4-8766c939cc35",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "59dc2fe0-3f85-457f-aff4-8766c939cc35",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d965934b-3877-479e-b212-49dd5f27d9e7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d965934b-3877-479e-b212-49dd5f27d9e7",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "d965934b-3877-479e-b212-49dd5f27d9e7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ae0e1bf7-11a5-4802-8f11-f0b0cca8026f",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ae0e1bf7-11a5-4802-8f11-f0b0cca8026f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cdfd368f-d9e5-46f3-a34e-e1484408dfc4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cdfd368f-d9e5-46f3-a34e-e1484408dfc4",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "cdfd368f-d9e5-46f3-a34e-e1484408dfc4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6e41cf6f-33b0-4343-b0e3-224272a6da6c",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6e41cf6f-33b0-4343-b0e3-224272a6da6c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4d97bb1a-639b-48d5-a58a-e3b938c35f0e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4d97bb1a-639b-48d5-a58a-e3b938c35f0e",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "4d97bb1a-639b-48d5-a58a-e3b938c35f0e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4ffa02c0-8977-4ae4-8155-0cedcdb25090",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4ffa02c0-8977-4ae4-8155-0cedcdb25090",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c14f49fe-06e9-461b-a48f-e57911074aa4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c14f49fe-06e9-461b-a48f-e57911074aa4",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "c14f49fe-06e9-461b-a48f-e57911074aa4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "97b1ba99-c596-44d3-8fd5-a07a930aaba7",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "97b1ba99-c596-44d3-8fd5-a07a930aaba7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4d445851-a052-4883-9389-2d8e139bac19",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4d445851-a052-4883-9389-2d8e139bac19",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "4d445851-a052-4883-9389-2d8e139bac19",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2b28164c-6ff5-4aa3-a12e-60d2522bc23b",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2b28164c-6ff5-4aa3-a12e-60d2522bc23b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "da27a04f-47df-4eea-bd3d-77dd3bd58f65",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "da27a04f-47df-4eea-bd3d-77dd3bd58f65",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "da27a04f-47df-4eea-bd3d-77dd3bd58f65",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "83164c05-2fab-4e78-9562-9a155731fdfb",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "83164c05-2fab-4e78-9562-9a155731fdfb",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "859b0fec-9005-4356-9022-78dfd1dafcea",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "859b0fec-9005-4356-9022-78dfd1dafcea",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "859b0fec-9005-4356-9022-78dfd1dafcea",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4011bf74-bfe0-4db8-b3a6-fb5eacff5567",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4011bf74-bfe0-4db8-b3a6-fb5eacff5567",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2efd91ea-ab9c-4c42-99eb-98fa2cf576e3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2efd91ea-ab9c-4c42-99eb-98fa2cf576e3",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "2efd91ea-ab9c-4c42-99eb-98fa2cf576e3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0ba71f1d-1e45-4f1e-a2e5-68802b047d12",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0ba71f1d-1e45-4f1e-a2e5-68802b047d12",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "065cdc3c-82cd-47ff-a615-57293e7ac476",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "065cdc3c-82cd-47ff-a615-57293e7ac476",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "065cdc3c-82cd-47ff-a615-57293e7ac476",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bf2ff183-f7d1-4fcb-a4b2-729883d05ef0",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bf2ff183-f7d1-4fcb-a4b2-729883d05ef0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1dd21eb4-39c1-46aa-aa54-35a0dbf46016",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1dd21eb4-39c1-46aa-aa54-35a0dbf46016",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "1dd21eb4-39c1-46aa-aa54-35a0dbf46016",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ace9be22-90b0-4b8f-a865-8315ed9c3f45",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ace9be22-90b0-4b8f-a865-8315ed9c3f45",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9523b55e-cf36-4114-a138-e4ef7a228a04",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9523b55e-cf36-4114-a138-e4ef7a228a04",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "9523b55e-cf36-4114-a138-e4ef7a228a04",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5d1a48ad-ffde-496c-bed7-cf5b0f242082",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5d1a48ad-ffde-496c-bed7-cf5b0f242082",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dcd3d3b4-215f-448e-b92e-938b44a4e8e7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dcd3d3b4-215f-448e-b92e-938b44a4e8e7",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "dcd3d3b4-215f-448e-b92e-938b44a4e8e7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8312476e-a6be-4679-b4ec-9a7dec6541fd",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8312476e-a6be-4679-b4ec-9a7dec6541fd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0cd23cfc-b643-4698-a165-1a508f02b9cf",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "4899b76e-3664-47a6-9547-40558fdbd5cd",
+												"bound": "out",
+												"expression": "${header.config} == 'FFFTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fffttt",
+												"transport": "sync"
+											},
+											{
+												"id": "2333850c-4961-40c9-a1fb-cb98521ec9b3",
+												"bound": "out",
+												"expression": "${header.config} == 'TFFTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tffttt",
+												"transport": "sync"
+											},
+											{
+												"id": "86b7118c-3298-4e03-b882-ed57e32feadf",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTFFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tttfft",
+												"transport": "sync"
+											},
+											{
+												"id": "d03d36ae-6c38-4052-a2e4-b149979edc26",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fttttf",
+												"transport": "sync"
+											},
+											{
+												"id": "0703b2da-e563-4285-8b64-f06367b50bdf",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tttttt",
+												"transport": "sync"
+											},
+											{
+												"id": "88a2ea8e-43fa-469a-8f77-ca0db4aac9e1",
+												"bound": "out",
+												"expression": "${header.config} == 'FTFTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftfttt",
+												"transport": "sync"
+											},
+											{
+												"id": "bb0e9a7b-65a5-40bf-9584-c6eb2340d35b",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fftttt",
+												"transport": "sync"
+											},
+											{
+												"id": "76f9236d-4158-4b35-b060-099e97eeda53",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftttff",
+												"transport": "sync"
+											},
+											{
+												"id": "dcdff9a6-8247-4cee-8a2c-df5c60444432",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ftttft",
+												"transport": "sync"
+											},
+											{
+												"id": "c00b9993-f8a3-4328-97d0-374d34357c67",
+												"bound": "out",
+												"expression": "${header.config} == 'FTTTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fttttt",
+												"transport": "sync"
+											},
+											{
+												"id": "fcdc4133-690f-4815-a9f9-92fa640a9c57",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tftttt",
+												"transport": "sync"
+											},
+											{
+												"id": "ab7a4101-16b9-48f7-8477-527ea48efcdd",
+												"bound": "out",
+												"expression": "${header.config} == 'FFTTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "fftttf",
+												"transport": "sync"
+											},
+											{
+												"id": "1e607f35-7450-4243-be6b-1c47dd2d66f2",
+												"bound": "out",
+												"expression": "${header.config} == 'TTFTTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttfttt",
+												"transport": "sync"
+											},
+											{
+												"id": "5c74c440-4beb-4622-98cd-e0759a775c71",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTFTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tttftf",
+												"transport": "sync"
+											},
+											{
+												"id": "a6012c5e-368b-420e-a6c2-4fc29d4bd455",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTFTT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tttftt",
+												"transport": "sync"
+											},
+											{
+												"id": "fd633eda-5ed2-4d5a-9abd-1f5759308a60",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTTFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttttff",
+												"transport": "sync"
+											},
+											{
+												"id": "75a33402-928f-48d8-8bae-6539774e2096",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTTFT'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "ttttft",
+												"transport": "sync"
+											},
+											{
+												"id": "219c26cb-d8b3-4e00-ae10-3318c408583b",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tttttf",
+												"transport": "sync"
+											},
+											{
+												"id": "2a52551f-bfb9-4f61-a473-d99a36dd1175",
+												"bound": "out",
+												"expression": "${header.config} == 'TTTFFF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tttfff",
+												"transport": "sync"
+											},
+											{
+												"id": "b173160f-8efd-4e9d-b2d3-76f5892b3cbe",
+												"bound": "out",
+												"expression": "${header.config} == 'TFTTTF'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "tftttf",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0cd23cfc-b643-4698-a165-1a508f02b9cf",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\"noTransformation\":\"in flow\"}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0cd23cfc-b643-4698-a165-1a508f02b9cf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "84521ea8-0c9a-4d3d-bd57-e6eebaf4f010",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "84521ea8-0c9a-4d3d-bd57-e6eebaf4f010",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "84521ea8-0c9a-4d3d-bd57-e6eebaf4f010",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4899b76e-3664-47a6-9547-40558fdbd5cd",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4899b76e-3664-47a6-9547-40558fdbd5cd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "872b0dd8-110b-4dc1-a5b2-e85ca5f4c1ba",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "872b0dd8-110b-4dc1-a5b2-e85ca5f4c1ba",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "872b0dd8-110b-4dc1-a5b2-e85ca5f4c1ba",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2333850c-4961-40c9-a1fb-cb98521ec9b3",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2333850c-4961-40c9-a1fb-cb98521ec9b3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a83a6a4-5861-43aa-8f51-953fc3b30795",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a83a6a4-5861-43aa-8f51-953fc3b30795",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "6a83a6a4-5861-43aa-8f51-953fc3b30795",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "86b7118c-3298-4e03-b882-ed57e32feadf",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "86b7118c-3298-4e03-b882-ed57e32feadf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "75eb33a7-e214-41b1-a91d-8422785285e4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "75eb33a7-e214-41b1-a91d-8422785285e4",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "75eb33a7-e214-41b1-a91d-8422785285e4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d03d36ae-6c38-4052-a2e4-b149979edc26",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d03d36ae-6c38-4052-a2e4-b149979edc26",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6ce44f2f-627a-4c48-a498-21a161b7ce54",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6ce44f2f-627a-4c48-a498-21a161b7ce54",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "6ce44f2f-627a-4c48-a498-21a161b7ce54",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0703b2da-e563-4285-8b64-f06367b50bdf",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0703b2da-e563-4285-8b64-f06367b50bdf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d29e366d-bcc0-4a2d-a5f2-a11649722c5b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d29e366d-bcc0-4a2d-a5f2-a11649722c5b",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "d29e366d-bcc0-4a2d-a5f2-a11649722c5b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "88a2ea8e-43fa-469a-8f77-ca0db4aac9e1",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "88a2ea8e-43fa-469a-8f77-ca0db4aac9e1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "807fafee-5c7e-42f3-a5ae-bdcb57665189",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "807fafee-5c7e-42f3-a5ae-bdcb57665189",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "807fafee-5c7e-42f3-a5ae-bdcb57665189",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bb0e9a7b-65a5-40bf-9584-c6eb2340d35b",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bb0e9a7b-65a5-40bf-9584-c6eb2340d35b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b6deb3dd-d6e0-495a-8ae8-2cabe3aa43f2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b6deb3dd-d6e0-495a-8ae8-2cabe3aa43f2",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "b6deb3dd-d6e0-495a-8ae8-2cabe3aa43f2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "76f9236d-4158-4b35-b060-099e97eeda53",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "76f9236d-4158-4b35-b060-099e97eeda53",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "180f0863-1899-447d-90a9-25a6bc01a027",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "180f0863-1899-447d-90a9-25a6bc01a027",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "180f0863-1899-447d-90a9-25a6bc01a027",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dcdff9a6-8247-4cee-8a2c-df5c60444432",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "dcdff9a6-8247-4cee-8a2c-df5c60444432",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a9fcacb3-57aa-4d61-b92c-eec291885f3b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a9fcacb3-57aa-4d61-b92c-eec291885f3b",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "a9fcacb3-57aa-4d61-b92c-eec291885f3b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c00b9993-f8a3-4328-97d0-374d34357c67",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c00b9993-f8a3-4328-97d0-374d34357c67",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "31c5b5bb-0b05-485c-bb45-0e4e208be9e4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "31c5b5bb-0b05-485c-bb45-0e4e208be9e4",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "31c5b5bb-0b05-485c-bb45-0e4e208be9e4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fcdc4133-690f-4815-a9f9-92fa640a9c57",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fcdc4133-690f-4815-a9f9-92fa640a9c57",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9f90dedf-acad-497b-8f0d-63e86cd24617",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9f90dedf-acad-497b-8f0d-63e86cd24617",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "9f90dedf-acad-497b-8f0d-63e86cd24617",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "ab7a4101-16b9-48f7-8477-527ea48efcdd",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": false,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ab7a4101-16b9-48f7-8477-527ea48efcdd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1b554026-3cbd-43ef-ba15-dbf4f6a98fe1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1b554026-3cbd-43ef-ba15-dbf4f6a98fe1",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "1b554026-3cbd-43ef-ba15-dbf4f6a98fe1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1e607f35-7450-4243-be6b-1c47dd2d66f2",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": false,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1e607f35-7450-4243-be6b-1c47dd2d66f2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e6183f67-7926-4851-89af-fa054d8b6bc7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e6183f67-7926-4851-89af-fa054d8b6bc7",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "e6183f67-7926-4851-89af-fa054d8b6bc7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5c74c440-4beb-4622-98cd-e0759a775c71",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5c74c440-4beb-4622-98cd-e0759a775c71",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1b9154a7-cf1a-4916-aa5f-a6cd2f63e1a0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1b9154a7-cf1a-4916-aa5f-a6cd2f63e1a0",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "1b9154a7-cf1a-4916-aa5f-a6cd2f63e1a0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a6012c5e-368b-420e-a6c2-4fc29d4bd455",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": true,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a6012c5e-368b-420e-a6c2-4fc29d4bd455",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "110cd1ff-da3c-412b-a99a-6e97384b5c2e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "110cd1ff-da3c-412b-a99a-6e97384b5c2e",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "110cd1ff-da3c-412b-a99a-6e97384b5c2e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "fd633eda-5ed2-4d5a-9abd-1f5759308a60",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fd633eda-5ed2-4d5a-9abd-1f5759308a60",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "88fd8f2f-716a-4900-aa1a-a1132fbc6097",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "88fd8f2f-716a-4900-aa1a-a1132fbc6097",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "88fd8f2f-716a-4900-aa1a-a1132fbc6097",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "75a33402-928f-48d8-8bae-6539774e2096",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": false,
+										"typeHints": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "75a33402-928f-48d8-8bae-6539774e2096",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "54765604-89f2-4bc8-8eb2-1b82f8fe590b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "54765604-89f2-4bc8-8eb2-1b82f8fe590b",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "54765604-89f2-4bc8-8eb2-1b82f8fe590b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "219c26cb-d8b3-4e00-ae10-3318c408583b",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "219c26cb-d8b3-4e00-ae10-3318c408583b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "129c27b1-c908-4384-a94f-3f11084bba76",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "129c27b1-c908-4384-a94f-3f11084bba76",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "129c27b1-c908-4384-a94f-3f11084bba76",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2a52551f-bfb9-4f61-a473-d99a36dd1175",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": true,
+										"trimSpaces": true,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2a52551f-bfb9-4f61-a473-d99a36dd1175",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "deee2aa3-ff83-4483-a32a-32548de11295",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "deee2aa3-ff83-4483-a32a-32548de11295",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "deee2aa3-ff83-4483-a32a-32548de11295",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b173160f-8efd-4e9d-b2d3-76f5892b3cbe",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": true,
+										"skipNamespaces": true,
+										"removeNamespacePrefixes": true,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b173160f-8efd-4e9d-b2d3-76f5892b3cbe",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8322e435-0877-45e0-a58a-b3cf3380c46d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8322e435-0877-45e0-a58a-b3cf3380c46d",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": {
+											"id": "8322e435-0877-45e0-a58a-b3cf3380c46d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "4aae7f5a-b9b3-47a1-935f-06c060180329",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

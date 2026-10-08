@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xmltoedifact-action",
+	"title": "xmltoedifact action",
+	"description": "Converts the XML form of an EDIFACT interchange, as Smooks writes it, into EDIFACT with the default delimiters. An element named by three upper-case characters (BGM, UNB, ...) is a segment, its children its data elements, and a child with children a composite; the elements above segments are walked through. The conversion is structural: it does not know the message definitions, so an element the XML omits is not restored as an empty position; leave it in the XML, empty, to keep it.",
+	"type": "object",
+	"properties": {
+		"edifactType": {
+			"title": "EDIFACT version",
+			"description": "Message directory, such as d96a; accepted for compatibility, the conversion does not depend on it",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"additionalProperties": false
+}

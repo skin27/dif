@@ -1,0 +1,67 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b3f52efbdb4c0011000147",
+						"name": "counter",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "7cee7a5b-d34c-450e-a8d0-02972b6ad07c",
+									"type": "source",
+									"uri": "counter",
+									"options": {
+										"start": "1",
+										"numbers": "5",
+										"period": "1000"
+									},
+									"links": {
+										"link": {
+											"id": "bad1fd15-af05-4bf1-ac6b-68e52cdd2be9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bad1fd15-af05-4bf1-ac6b-68e52cdd2be9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "bad1fd15-af05-4bf1-ac6b-68e52cdd2be9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69b3f52efbdb4c0011000149",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

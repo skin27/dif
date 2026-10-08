@@ -1,0 +1,65 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:rest-action",
+	"title": "rest action",
+	"description": "Calls a REST endpoint, host/path, with the message, as the https action does, and replaces the body with the response.",
+	"type": "object",
+	"properties": {
+		"method": {
+			"title": "Method",
+			"description": "The HTTP method",
+			"type": "string",
+			"enum": ["get", "post", "put", "delete", "patch", "head", "trace", "connect", "option", "options"],
+			"default": "post"
+		},
+		"host": {
+			"title": "Host",
+			"description": "Base URL of the host, http(s)://host[:port]; by default the REST address of this dif",
+			"type": "string",
+			"default": "https://localhost:9002"
+		},
+		"path": {
+			"title": "Path",
+			"description": "Path on the host, such as echo/get/json",
+			"type": "string"
+		},
+		"produces": {
+			"title": "Produces",
+			"description": "Content-Type of the request when the message sets none",
+			"type": "string",
+			"default": ""
+		},
+		"consumes": {
+			"title": "Consumes",
+			"description": "Accept header of the request",
+			"type": "string",
+			"default": ""
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": "security/outbound-truststore.p12"
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to wait for the response",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"throwExceptionOnFailure": {
+			"title": "Fail on error status",
+			"description": "Fail the message when the response status is 400 or more",
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

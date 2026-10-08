@@ -1,0 +1,33 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a919057ecd75d000c000190",
+						"name": "InboundHttpPreserveCamelHeaders",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6a919057ecd75d000c000192",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

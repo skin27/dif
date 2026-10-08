@@ -1,0 +1,112 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a68bb062ddee70016000195",
+						"name": "simplevalidator",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "68d27b5d-afd9-4f55-87f6-7a229d3583e9",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/simplevalidator",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "f139be2d-6e0f-4c90-a534-c9712d00f5a8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "f139be2d-6e0f-4c90-a534-c9712d00f5a8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "hello"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f139be2d-6e0f-4c90-a534-c9712d00f5a8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "922cdcb4-fb76-4e3c-978c-84957284e6b9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "922cdcb4-fb76-4e3c-978c-84957284e6b9",
+									"type": "action",
+									"uri": "simplevalidator",
+									"options": {
+										"expression": "${body} contains 'goodbey'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "922cdcb4-fb76-4e3c-978c-84957284e6b9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "dd2c6651-331b-416a-9424-19f76438036a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "dd2c6651-331b-416a-9424-19f76438036a",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "Doesn't reach the errorhandler"
+									},
+									"links": {
+										"link": {
+											"id": "dd2c6651-331b-416a-9424-19f76438036a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a68bb062ddee70016000197",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		}
+	}
+}

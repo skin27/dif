@@ -1,0 +1,232 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "699ddbf07b0d31000c0002ef",
+						"name": "Simple_safeQuote",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "2ca19bfa-89aa-4632-bc9f-7d9cc228ca5a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Simple_safeQuote",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1470a89a-7e46-424d-afe3-c89ba0ca40ec",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1470a89a-7e46-424d-afe3-c89ba0ca40ec",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1470a89a-7e46-424d-afe3-c89ba0ca40ec",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "655b5370-4156-4af8-b0a5-8049d5940431",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "655b5370-4156-4af8-b0a5-8049d5940431",
+									"type": "action",
+									"uri": "setheaders:message:655b5370-4156-4af8-b0a5-8049d5940431",
+									"links": {
+										"link": [
+											{
+												"id": "655b5370-4156-4af8-b0a5-8049d5940431",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5b378487-b2aa-4f06-93f6-4085e0d149bf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5b378487-b2aa-4f06-93f6-4085e0d149bf",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "'Hey Netherlands'\nHey Netherlands"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5b378487-b2aa-4f06-93f6-4085e0d149bf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cccd1bce-064a-44a4-ba78-a5df39c8a357",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cccd1bce-064a-44a4-ba78-a5df39c8a357",
+									"type": "action",
+									"uri": "setheaders:message:cccd1bce-064a-44a4-ba78-a5df39c8a357",
+									"options": {
+										"expression": "${capitalize('${header.variable1}')}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cccd1bce-064a-44a4-ba78-a5df39c8a357",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0cd17c27-21d8-4812-b906-35148622bdd3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0cd17c27-21d8-4812-b906-35148622bdd3",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${safeQuote(${body})}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0cd17c27-21d8-4812-b906-35148622bdd3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f0f1547a-ff9b-4102-a4ae-fc43c54b7a2e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f0f1547a-ff9b-4102-a4ae-fc43c54b7a2e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "f0f1547a-ff9b-4102-a4ae-fc43c54b7a2e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0160721d-56f6-49b6-9adb-f67d3d1d2335",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "655b5370-4156-4af8-b0a5-8049d5940431",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader1",
+									"value": "Hello world"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "inputHeader2",
+									"value": "'Hi Europe'"
+								}
+							]
+						}
+					},
+					{
+						"name": "cccd1bce-064a-44a4-ba78-a5df39c8a357",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader1",
+									"value": "${safeQuote(${header.inputHeader1})}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader2",
+									"value": "${safeQuote(${header.inputHeader2})}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader3",
+									"value": "${safeQuote('Double Quotes')}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "resultHeader4",
+									"value": "${safeQuote(${body})}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,109 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a50c5f22a81840015000096",
+						"name": "CB_Form2Xml",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d19ea26a-e516-42aa-809d-e3e0769c10fc",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Form2Xml",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "0c832bd1-940f-445e-8b06-277d9262f515",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0c832bd1-940f-445e-8b06-277d9262f515",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "name=Pedro&surname=Catalão&myage=36"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0c832bd1-940f-445e-8b06-277d9262f515",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "23d9551e-de7c-4802-b2e4-b9101ed4fa8d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "23d9551e-de7c-4802-b2e4-b9101ed4fa8d",
+									"type": "action",
+									"uri": "formtoxml",
+									"links": {
+										"link": [
+											{
+												"id": "23d9551e-de7c-4802-b2e4-b9101ed4fa8d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6beb8aff-d87e-42ef-b02b-c5665e22c506",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6beb8aff-d87e-42ef-b02b-c5665e22c506",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "6beb8aff-d87e-42ef-b02b-c5665e22c506",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0b7f6958-64d7-487a-a2bc-fff695a2217d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

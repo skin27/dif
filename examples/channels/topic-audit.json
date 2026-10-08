@@ -1,0 +1,9 @@
+{
+  "dil": {"integrations": {"integration": {"flows": {"flow": {
+    "id": "topic-audit",
+    "steps": {"step": [
+      {"id": "in", "type": "source", "uri": "topic:orders.received", "links": {"link": [{"id": "log", "bound": "out"}]}},
+      {"id": "log", "type": "sink", "uri": "log", "options": {"showBody": true}, "links": {"link": [{"id": "log", "bound": "in"}]}}
+    ]}
+  }}}}}
+}

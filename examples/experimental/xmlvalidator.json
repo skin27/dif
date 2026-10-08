@@ -1,0 +1,141 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a68b97f2ddee70016000129",
+						"name": "xmlvalidator",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5e67f589-16ce-4c97-afcb-cb450edb9b0a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/xmlvalidator",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "1e0c7024-b0cc-437d-b2c2-559fa13f328c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1e0c7024-b0cc-437d-b2c2-559fa13f328c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<shiporder orderid=\"889923\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:noNamespaceSchemaLocation=\"shiporder.xsd\">\n  <orderperson>John Smith</orderperson>\n  <shipto>\n    <name>Ola Nordmann</name>\n    <address>Langgt 23</address>\n    <city>4000 Stavanger</city>\n    <country>Norway</country>\n  </shipto>\n  <item>\n    <title>Empire Burlesque</title>\n    <note>Special Edition</note>\n    <quantity>1</quantity>\n    <price>10.90</price>\n  </item>\n  <item>\n    <title>Hide your heart</title>\n    <quantity>1</quantity>\n    <price>9.90</price>\n  </item>\n</shiporder> "
+									},
+									"links": {
+										"link": [
+											{
+												"id": "1e0c7024-b0cc-437d-b2c2-559fa13f328c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "18dc50ff-6025-44d0-8ab6-3a9ea4ab8bac",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "18dc50ff-6025-44d0-8ab6-3a9ea4ab8bac",
+									"type": "action",
+									"uri": "xmlvalidator:ref:262ad220-1d68-4cc0-bf41-01f0ec7ed610",
+									"links": {
+										"link": [
+											{
+												"id": "18dc50ff-6025-44d0-8ab6-3a9ea4ab8bac",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "797f50ec-f94b-4b3c-a39f-cdc234e89bdd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "797f50ec-f94b-4b3c-a39f-cdc234e89bdd",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "Doesn't reach the errorhandler"
+									},
+									"links": {
+										"link": {
+											"id": "797f50ec-f94b-4b3c-a39f-cdc234e89bdd",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a68b97f2ddee7001600012b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "12b217c3-cde9-4639-af54-74e0c8c7792d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "12b217c3-cde9-4639-af54-74e0c8c7792d",
+									"type": "sink",
+									"uri": "logger",
+									"options": {
+										"loggingLevel": "INFO",
+										"language": "simple",
+										"expression": "Reaches the errorhandler"
+									},
+									"links": {
+										"link": {
+											"id": "12b217c3-cde9-4639-af54-74e0c8c7792d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 4
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "262ad220-1d68-4cc0-bf41-01f0ec7ed610",
+					"content": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n\n<xs:element name=\"shiporder\">\n  <xs:complexType>\n    <xs:sequence>\n      <xs:element name=\"orderperson\" type=\"xs:string\"/>\n      <xs:element name=\"shipto\">\n        <xs:complexType>\n          <xs:sequence>\n            <xs:element name=\"name\" type=\"xs:string\"/>\n            <xs:element name=\"address\" type=\"xs:string\"/>\n            <xs:element name=\"town\" type=\"xs:string\"/>\n            <xs:element name=\"country\" type=\"xs:string\"/>\n          </xs:sequence>\n        </xs:complexType>\n      </xs:element>\n      <xs:element name=\"item\" maxOccurs=\"unbounded\">\n        <xs:complexType>\n          <xs:sequence>\n            <xs:element name=\"title\" type=\"xs:string\"/>\n            <xs:element name=\"note\" type=\"xs:string\" minOccurs=\"0\"/>\n            <xs:element name=\"quantity\" type=\"xs:positiveInteger\"/>\n            <xs:element name=\"price\" type=\"xs:decimal\"/>\n          </xs:sequence>\n        </xs:complexType>\n      </xs:element>\n    </xs:sequence>\n    <xs:attribute name=\"orderid\" type=\"xs:string\" use=\"required\"/>\n  </xs:complexType>\n</xs:element>\n\n</xs:schema>"
+				}
+			}
+		}
+	}
+}

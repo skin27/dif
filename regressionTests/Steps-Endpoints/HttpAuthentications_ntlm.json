@@ -1,0 +1,182 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6953d425da8dd5001500030a",
+						"name": "HttpAuthentications_ntlm",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d0129c13-717a-4000-9a9e-247040c7f5e0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/HttpAuthentications_ntlm",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "5ac76e12-c5bd-43b5-b1c8-db24f3b2ae07",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5ac76e12-c5bd-43b5-b1c8-db24f3b2ae07",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5ac76e12-c5bd-43b5-b1c8-db24f3b2ae07",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "89e71a85-263a-4744-98e0-63627df810e8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "89e71a85-263a-4744-98e0-63627df810e8",
+									"type": "action",
+									"uri": "setheaders:message:89e71a85-263a-4744-98e0-63627df810e8",
+									"links": {
+										"link": [
+											{
+												"id": "89e71a85-263a-4744-98e0-63627df810e8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8d1edf82-c44e-4abf-ad34-b4bb039bc994",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8d1edf82-c44e-4abf-ad34-b4bb039bc994",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<message/>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8d1edf82-c44e-4abf-ad34-b4bb039bc994",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0da75964-6c0b-4173-8e12-551bca2d950f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0da75964-6c0b-4173-8e12-551bca2d950f",
+									"type": "action",
+									"uri": "https:https://next.dovetail.world/test/inbound_http/regressiontests/HttpCatchCalls",
+									"options": {
+										"httpMethod": "GET",
+										"authMethod": "Basic",
+										"authUsername": "harry",
+										"authPassword": "potter",
+										"authenticationPreemptive": false,
+										"useErrorRoute": true,
+										"useCustomDateHeader": false,
+										"retryRequests": false,
+										"retryAttempts": 5,
+										"mutualTls": false,
+										"retryInterval": 30000,
+										"maxTotalConnections": "20",
+										"connectionsPerRoute": "2",
+										"connectTimeout": 180000,
+										"socketTimeout": 180000
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0da75964-6c0b-4173-8e12-551bca2d950f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "199f042c-bab2-4b79-a812-0bcfcd9fcb0f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "199f042c-bab2-4b79-a812-0bcfcd9fcb0f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "199f042c-bab2-4b79-a812-0bcfcd9fcb0f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d57be55f-a78e-4a74-a880-9cc0fe6dbf4c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "89e71a85-263a-4744-98e0-63627df810e8",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "authenticationMethod",
+							"value": "ntlm"
+						}
+					}
+				}
+			}
+		}
+	}
+}

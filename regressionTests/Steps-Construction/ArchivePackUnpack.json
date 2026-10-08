@@ -1,0 +1,399 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6954e291f71686000b000000",
+						"name": "ArchivePackUnpack",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "d5836290-919d-4e07-8ac8-c1f43bc7e44c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ArchivePackUnpack",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "c766bda4-914f-4a34-9798-4fece135f737",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c766bda4-914f-4a34-9798-4fece135f737",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "ID,Name,Number\n1,Pete,1001\n2,John,1002\n3,Frank,1003\n4,Max,1004"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c766bda4-914f-4a34-9798-4fece135f737",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6513cada-191c-4b35-91fe-17a07c6a29b7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6513cada-191c-4b35-91fe-17a07c6a29b7",
+									"type": "action",
+									"uri": "setheaders:message:6513cada-191c-4b35-91fe-17a07c6a29b7",
+									"options": {
+										"expression": "${header.breadcrumbId}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6513cada-191c-4b35-91fe-17a07c6a29b7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ee385391-c7f4-4b20-9f89-563527663c97",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ee385391-c7f4-4b20-9f89-563527663c97",
+									"type": "action",
+									"uri": "zip",
+									"links": {
+										"link": [
+											{
+												"id": "ee385391-c7f4-4b20-9f89-563527663c97",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ecd3949d-c92e-4b4d-b276-ceec10aa6b89",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ecd3949d-c92e-4b4d-b276-ceec10aa6b89",
+									"type": "router",
+									"uri": "recipient",
+									"links": {
+										"link": [
+											{
+												"id": "ecd3949d-c92e-4b4d-b276-ceec10aa6b89",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4b4540be-524e-4bc3-9fec-28697633b5e1",
+												"bound": "out",
+												"pattern": "InOnly",
+												"transport": "sync"
+											},
+											{
+												"id": "6eb1634c-c86b-4458-b878-bb87d0bc2ee0",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4b4540be-524e-4bc3-9fec-28697633b5e1",
+									"type": "action",
+									"uri": "setheaders:message:4b4540be-524e-4bc3-9fec-28697633b5e1",
+									"options": {
+										"expression": "${header.breadcrumbId}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "4b4540be-524e-4bc3-9fec-28697633b5e1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6dbc5266-c484-4161-a4b0-8753bca75670",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6dbc5266-c484-4161-a4b0-8753bca75670",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out",
+									"options": {
+										"fileName": "OauthGmailNoreply.zip",
+										"binary": true,
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6dbc5266-c484-4161-a4b0-8753bca75670",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1f724ad0-305a-4754-96d4-d2b93376e5f0",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1f724ad0-305a-4754-96d4-d2b93376e5f0",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1f724ad0-305a-4754-96d4-d2b93376e5f0",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6eb1634c-c86b-4458-b878-bb87d0bc2ee0",
+									"type": "action",
+									"uri": "setheaders:message:6eb1634c-c86b-4458-b878-bb87d0bc2ee0",
+									"options": {
+										"expression": "${header.breadcrumbId}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6eb1634c-c86b-4458-b878-bb87d0bc2ee0",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a1f22ba3-fab1-455a-b160-ea0b319234ba",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a1f22ba3-fab1-455a-b160-ea0b319234ba",
+									"type": "action",
+									"uri": "unzip",
+									"links": {
+										"link": [
+											{
+												"id": "a1f22ba3-fab1-455a-b160-ea0b319234ba",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ee49c879-1ac2-44fd-8206-0437ddebd9a9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ee49c879-1ac2-44fd-8206-0437ddebd9a9",
+									"type": "action",
+									"uri": "setheaders:message:ee49c879-1ac2-44fd-8206-0437ddebd9a9",
+									"options": {
+										"expression": "${header.breadcrumbId}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ee49c879-1ac2-44fd-8206-0437ddebd9a9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c6525c43-2615-4ea7-912a-542cca07790f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c6525c43-2615-4ea7-912a-542cca07790f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "After zip\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c6525c43-2615-4ea7-912a-542cca07790f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "99730146-7d69-4acc-8196-0931e3cece10",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "99730146-7d69-4acc-8196-0931e3cece10",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/out",
+									"options": {
+										"fileName": "OauthGmailNoreply.txt",
+										"binary": false,
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "99730146-7d69-4acc-8196-0931e3cece10",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3f970516-2eab-4a47-9c72-b5841deff8da",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3f970516-2eab-4a47-9c72-b5841deff8da",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "3f970516-2eab-4a47-9c72-b5841deff8da",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6954e291f71686000b000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "6513cada-191c-4b35-91fe-17a07c6a29b7",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "CamelFileName",
+									"value": "text.txt"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "breadcrumbIdOrg",
+									"value": "${header.breadcrumbId}"
+								}
+							]
+						}
+					},
+					{
+						"name": "6eb1634c-c86b-4458-b878-bb87d0bc2ee0",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbIdOrg}_unzip"
+							}
+						}
+					},
+					{
+						"name": "4b4540be-524e-4bc3-9fec-28697633b5e1",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbIdOrg}_zip"
+							}
+						}
+					},
+					{
+						"name": "ee49c879-1ac2-44fd-8206-0437ddebd9a9",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "constant",
+								"name": "Content-Type",
+								"value": "text/plain"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

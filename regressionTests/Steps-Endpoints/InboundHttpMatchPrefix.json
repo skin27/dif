@@ -1,0 +1,163 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69de5d1ed9461a001800011f",
+						"name": "InboundHttpMatchPrefix",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a9b56984-02b0-469d-9e3b-0b48e77620de",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/InboundHttpMatchPrefix",
+									"options": {
+										"matchPrefix": true,
+										"preserveHttpHeaders": true,
+										"exchangePattern": "InOut",
+										"matchOnUriPrefix": true
+									},
+									"links": {
+										"link": {
+											"id": "2a8f9f4c-45a9-419a-ae9c-5d4bf431d2db",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2a8f9f4c-45a9-419a-ae9c-5d4bf431d2db",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2a8f9f4c-45a9-419a-ae9c-5d4bf431d2db",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "857393e0-f785-4b91-91cc-7dc3bc2f82b6",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "79e1ec1b-6d1e-4922-83ba-dd44fe9f7249",
+												"bound": "out",
+												"expression": "${header.CamelHttpPath} == '/1'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "prefix_1",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "857393e0-f785-4b91-91cc-7dc3bc2f82b6",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "ROUTE OTHERWISE\n${headers}\n--------------------------------------------------------------\n${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "857393e0-f785-4b91-91cc-7dc3bc2f82b6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "96137a1a-7da4-4bb0-94e8-709965f0c486",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "96137a1a-7da4-4bb0-94e8-709965f0c486",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "96137a1a-7da4-4bb0-94e8-709965f0c486",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "79e1ec1b-6d1e-4922-83ba-dd44fe9f7249",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "ROUTE PREFIX 1\n${headers}\n--------------------------------------------------------------\n${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "79e1ec1b-6d1e-4922-83ba-dd44fe9f7249",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "953155ea-2dde-4ba3-a733-87d8eef4e90e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "953155ea-2dde-4ba3-a733-87d8eef4e90e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "953155ea-2dde-4ba3-a733-87d8eef4e90e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "69de5d1ed9461a0018000121",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

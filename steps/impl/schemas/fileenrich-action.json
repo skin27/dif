@@ -1,0 +1,70 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:fileenrich-action",
+	"title": "fileenrich action",
+	"description": "Replaces the body with the content of the first file (by name) in a directory that the options select; without one the message passes on unchanged. Sets file.name and Content-Type.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Directory",
+			"description": "From the URI: fileenrich:<dir>",
+			"type": "string",
+			"default": "/"
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Only the file with this name; \"\" for any",
+			"type": "string",
+			"default": ""
+		},
+		"include": {
+			"title": "Include",
+			"description": "Regular expression the file name must match; \"\" for any",
+			"type": "string",
+			"default": ""
+		},
+		"exclude": {
+			"title": "Exclude",
+			"description": "Regular expression the file name must not match; \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"recursive": {
+			"title": "Recursive",
+			"description": "Also look in subdirectories",
+			"type": "boolean",
+			"default": false
+		},
+		"binary": {
+			"title": "Binary",
+			"description": "Keep the content as bytes instead of text",
+			"type": "boolean",
+			"default": false
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the file: UTF-8, ISO-8859-1 or US-ASCII",
+			"type": "string",
+			"default": "utf-8"
+		},
+		"delete": {
+			"title": "Delete",
+			"description": "Delete the file once it is read; otherwise it stays",
+			"type": "boolean",
+			"default": false
+		},
+		"autoCreate": {
+			"title": "Create directory",
+			"description": "Accepted for compatibility; a missing directory holds no files",
+			"type": "boolean",
+			"default": false
+		},
+		"maxMessagesPerPoll": {
+			"title": "Files per poll",
+			"description": "Accepted for compatibility; one file enriches the message",
+			"type": "integer",
+			"default": 1
+		}
+	},
+	"additionalProperties": false
+}

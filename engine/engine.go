@@ -165,6 +165,9 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 			if err := r.retry(ctx, n, func() error { return p.Consume(ctx, msg) }); err != nil {
 				return nil, &StepError{n.ID, msg, err}
 			}
+		case stepdef.Looper:
+			r.trail = append(r.trail, n.Kind+":"+n.ID)
+			return r.loop(ctx, n, msg, p)
 		case stepdef.RouterProcessor:
 			var routes []stepdef.Route
 			err := r.retry(ctx, n, func() (err error) {
@@ -218,6 +221,11 @@ func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, r
 	g, gathers := n.Processor.(stepdef.Gatherer)
 	out, outcomes, err := r.runRoutes(ctx, n, msg, routes, gathers)
 	if err != nil || !gathers {
+		if err != nil && gathers {
+			if cleanup, ok := n.Processor.(stepdef.GatherAborter); ok {
+				err = errors.Join(err, cleanup.AbortGather(msg))
+			}
+		}
 		return out, err
 	}
 	next, err := g.Gather(ctx, msg, outcomes)
@@ -229,6 +237,29 @@ func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, r
 	}
 	out, _, err = r.runRoutes(ctx, n, msg, next, false)
 	return out, err
+}
+
+// loop runs the rounds of Looper n, which msg entered, and returns the message
+// that comes out of the last one.
+func (r *run) loop(ctx context.Context, n *flowdef.Node, msg message.Message, l stepdef.Looper) (message.Message, error) {
+	prev := msg
+	for round := 0; ; round++ {
+		var routes []stepdef.Route
+		var last bool
+		err := r.retry(ctx, n, func() (err error) {
+			routes, last, err = l.Round(ctx, msg, prev, round)
+			return err
+		})
+		if err != nil {
+			return nil, &StepError{n.ID, prev, err}
+		}
+		if prev, _, err = r.runRoutes(ctx, n, prev, routes, false); err != nil {
+			return nil, err
+		}
+		if last {
+			return prev, nil
+		}
+	}
 }
 
 // runRoutes runs routes one after another. With gather it collects their

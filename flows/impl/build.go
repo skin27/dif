@@ -29,12 +29,15 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		return nil, fmt.Errorf("expected exactly one flow, found %d", len(flows))
 	}
 
-	messages := map[string]dilMessage{}
+	core := coreRefs{messages: map[string]dilMessage{}, resources: map[string]string{}}
 	for _, m := range doc.DIL.Core.Messages.Message {
-		messages[m.Name] = m
+		core.messages[m.Name] = m
+	}
+	for _, r := range doc.DIL.Core.Resources.Resource {
+		core.resources[r.Name] = r.Content
 	}
 
-	f, err := build(flows[0], messages, newProcessor)
+	f, err := build(flows[0], core, newProcessor)
 	if err != nil {
 		return nil, fmt.Errorf("flow %s: %w", flows[0].ID, err)
 	}
@@ -51,7 +54,13 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 	return f, nil
 }
 
-func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+// coreRefs are what steps can refer to in dil.core: messages and resources, by name.
+type coreRefs struct {
+	messages  map[string]dilMessage
+	resources map[string]string
+}
+
+func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
@@ -77,15 +86,21 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
 		}
 
-		opts, err := resolveMessage(s, messages)
+		opts, uri, err := resolveRefs(s, core)
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
-		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: knownURI(s), Options: opts}
+		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts}
 		if n.Kind == flowdef.Source && n.URI == "flowlink" && opts["flowId"] == nil {
 			// A flow link source listens for its own flow, which DIL leaves out.
 			n.Options = maps.Clone(opts)
 			n.Options["flowId"] = df.ID
+		}
+		if n.Kind == flowdef.Source && s.URI == "queue" && opts["path"] == nil {
+			// A queue source with no queue name listens on the queue named
+			// after its flow, as queue actions address it.
+			n.Options = maps.Clone(opts)
+			n.Options["path"] = df.ID
 		}
 
 		var ins []string
@@ -187,11 +202,39 @@ func build(df dilFlow, messages map[string]dilMessage, newProcessor func(*flowde
 }
 
 // unknownSteps names the steps that DIL exports with the URI "unknown", by
-// their type (any if empty) and an option only that step has.
-var unknownSteps = []struct{ kind, option, uri string }{
-	{"", "deadLetterQueue", "deadletter"},
-	{"", "targetFlowId", "flowlink"},
-	{flowdef.Source, "transport", "flowlink"},
+// what only that step has in its type and options.
+var unknownSteps = []struct {
+	uri   string
+	match func(dilStep) bool
+}{
+	{"deadletter", hasOption("", "deadLetterQueue")},
+	{"flowlink", hasOption("", "targetFlowId")},
+	{"flowlink", hasOption(flowdef.Source, "transport")},
+	{"flv", hasRule("subcollection")},
+	{"exceltoxml", hasRule("worksheet")},
+	// formtoxml has no options at all, so any other option-less action is taken for it.
+	{"formtoxml", func(s dilStep) bool { return s.Type == flowdef.Action && len(s.Options) == 0 }},
+}
+
+// hasOption matches a step of the type (any if empty) with the option.
+func hasOption(kind, option string) func(dilStep) bool {
+	return func(s dilStep) bool {
+		_, ok := s.Options[option]
+		return ok && (kind == "" || kind == s.Type)
+	}
+}
+
+// hasRule matches a step whose option rules is a list with a rule that has the key.
+func hasRule(key string) func(dilStep) bool {
+	return func(s dilStep) bool {
+		rules, _ := s.Options["rules"].([]any)
+		for _, r := range rules {
+			if rule, _ := r.(map[string]any); rule[key] != nil {
+				return true
+			}
+		}
+		return false
+	}
 }
 
 // knownURI returns the step's URI; for "unknown", the URI of the step its
@@ -199,12 +242,36 @@ var unknownSteps = []struct{ kind, option, uri string }{
 func knownURI(s dilStep) string {
 	if s.URI == "unknown" {
 		for _, u := range unknownSteps {
-			if _, ok := s.Options[u.option]; ok && (u.kind == "" || u.kind == s.Type) {
+			if u.match(s) {
 				return u.uri
 			}
 		}
 	}
 	return s.URI
+}
+
+// jsonOptionSteps are the steps whose option rules is a list of objects. The
+// steps' schemas only have scalar options, so they get the list as JSON text.
+var jsonOptionSteps = map[string]bool{"flv": true, "exceltoxml": true}
+
+// stepOptions returns the options and URI of a step that refers to nothing in
+// dil.core.
+func stepOptions(s dilStep) (map[string]any, string, error) {
+	uri := knownURI(s)
+	if scheme, _, _ := strings.Cut(uri, ":"); !jsonOptionSteps[scheme] {
+		return s.Options, uri, nil
+	}
+	rules, ok := s.Options["rules"]
+	if _, isText := rules.(string); !ok || isText {
+		return s.Options, uri, nil
+	}
+	data, err := json.Marshal(rules)
+	if err != nil {
+		return nil, "", err
+	}
+	opts := maps.Clone(s.Options)
+	opts["rules"] = string(data)
+	return opts, uri, nil
 }
 
 // errorHandler returns the error handler an error step defines, and the id of
@@ -279,19 +346,32 @@ func nonNegativeInt(v any) (int, error) {
 	return int(n), nil
 }
 
-// resolveMessage returns the step's options. A step whose URI refers to a core
-// message, <scheme>:message:<name> (such as setheaders), also gets the
-// option "headers": that message's headers as a JSON array of
-// {name, value, language}. The processor then needs no knowledge of DIL.
-func resolveMessage(s dilStep, messages map[string]dilMessage) (map[string]any, error) {
-	_, rest, _ := strings.Cut(s.URI, ":")
+// resolveRefs returns the step's options and URI, resolving what the URI refers
+// to in dil.core, so the processor needs no knowledge of DIL:
+//
+//   - <scheme>:message:<name> (such as setheaders) adds the option "headers":
+//     that message's headers as a JSON array of {name, value, language}
+//   - <scheme>:ref:<name> (such as jsonvalidator) adds the option "resource":
+//     that resource's content; the URI becomes <scheme>
+func resolveRefs(s dilStep, core coreRefs) (map[string]any, string, error) {
+	scheme, rest, _ := strings.Cut(s.URI, ":")
+	if name, ok := strings.CutPrefix(rest, "ref:"); ok {
+		content, ok := core.resources[name]
+		if !ok {
+			return nil, "", fmt.Errorf("resource %q not found in dil.core.resources", name)
+		}
+		opts := make(map[string]any, len(s.Options)+1)
+		maps.Copy(opts, s.Options)
+		opts["resource"] = content
+		return opts, scheme, nil
+	}
 	name, ok := strings.CutPrefix(rest, "message:")
 	if !ok {
-		return s.Options, nil
+		return stepOptions(s)
 	}
-	m, ok := messages[name]
+	m, ok := core.messages[name]
 	if !ok {
-		return nil, fmt.Errorf("message %q not found in dil.core.messages", name)
+		return nil, "", fmt.Errorf("message %q not found in dil.core.messages", name)
 	}
 
 	headers := make([]map[string]string, 0, len(m.Headers.Header))
@@ -300,10 +380,10 @@ func resolveMessage(s dilStep, messages map[string]dilMessage) (map[string]any, 
 	}
 	data, err := json.Marshal(headers)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	opts := make(map[string]any, len(s.Options)+1)
 	maps.Copy(opts, s.Options)
 	opts["headers"] = string(data)
-	return opts, nil
+	return opts, s.URI, nil
 }

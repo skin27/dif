@@ -17,8 +17,8 @@ import (
 // slices) or XML (as a string). Metadata is internal to DIF; HTTP explicitly
 // maps TraceID to DIF-Trace-Id without exposing other metadata.
 //
-// A Message is a plain map so it can be serialized, which is the extension
-// point for persisting state in a later iteration.
+// A Message is a plain map. Durable channels use a type-preserving encoding
+// for supported values and reject unsupported values before admission.
 type Message map[string]any
 
 // Fixed keys.
@@ -34,6 +34,13 @@ const (
 	MessageID     = "Message-Id"
 	CorrelationID = "Correlation-Id"
 	CausationID   = "Causation-Id"
+
+	// Request headers identify a single asynchronous exchange within a conversation.
+	ReplyTo       = "Reply-To"
+	RequestID     = "Request-Id"
+	ReplyDeadline = "Reply-Deadline" // RFC 3339 nano, absolute response deadline
+	ReplyStatus   = "Reply-Status"   // success, error, or timeout
+	ReplyReason   = "Reply-Reason"   // classification of an unmatched response
 
 	MetadataPrefix = "metadata."
 	TraceID        = MetadataPrefix + "traceid"

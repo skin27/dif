@@ -12,10 +12,11 @@
 								{
 									"id": "4941b913-8bff-403e-a6a4-1d2c78bad6a5",
 									"type": "source",
-									"uri": "https://0.0.0.0:9001/_new2/httpsinbound",
+									"uri": "https://0.0.0.0:9001/_new2/queueOutbound",
 									"options": {
 										"matchPrefix": false,
-										"preserveHttpHeaders": false
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
 									},
 									"links": {
 										"link": {
@@ -54,7 +55,9 @@
 									"uri": "queue",
 									"options": {
 										"transport": "activemq",
-										"exchangePattern": "InOut"
+										"exchangePattern": "InOut",
+										"targetQueueId": "69f4498f607cff0016000078",
+										"requestTimeout": "20000"
 									},
 									"blocks": {
 										"block": {
@@ -84,7 +87,7 @@
 						"options": {
 							"environment": "test",
 							"tenant": "_new2",
-							"version": 1
+							"version": 4
 						}
 					}
 				}

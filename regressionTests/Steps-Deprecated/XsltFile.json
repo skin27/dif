@@ -1,0 +1,66 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a9679e4a44b2e0011000000",
+						"name": "XsltFile",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "109a56ec-c038-41b6-8676-7e77b286bee1",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XsltFile",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "e0d9446e-a238-409b-ba9f-daeb4f6e5593",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e0d9446e-a238-409b-ba9f-daeb4f6e5593",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<html>\n\n<body style=\"font-family:Arial;font-size:12pt;background-color:#EEEEEE\">\n\t<div style=\"background-color:teal;color:white;padding:4px\">\n\t\t<span style=\"font-weight:bold\">Belgian Waffles - </span>$5.95\n\t</div>\n\t<div style=\"margin-left:20px;margin-bottom:1em;font-size:10pt\">\n\t\t<p>Two of our famous Belgian Waffles with plenty of real maple\n\t\t\tsyrup<span style=\"font-style:italic\"> (650 calories per serving)</span></p>\n\t</div>\n\t<div style=\"background-color:teal;color:white;padding:4px\">\n\t\t<span style=\"font-weight:bold\">Strawberry Belgian Waffles - </span>$7.95\n\t</div>\n\t<div style=\"margin-left:20px;margin-bottom:1em;font-size:10pt\">\n\t\t<p>Light Belgian waffles covered with strawberries and whipped\n\t\t\tcream<span style=\"font-style:italic\"> (900 calories per serving)</span></p>\n\t</div>\n\t<div style=\"background-color:teal;color:white;padding:4px\">\n\t\t<span style=\"font-weight:bold\">Berry-Berry Belgian Waffles - </span>$8.95\n\t</div>\n\t<div style=\"margin-left:20px;margin-bottom:1em;font-size:10pt\">\n\t\t<p>Light Belgian waffles covered with an assortment of fresh berries and whipped\n\t\t\tcream<span style=\"font-style:italic\"> (900 calories per serving)</span></p>\n\t</div>\n\t<div style=\"background-color:teal;color:white;padding:4px\">\n\t\t<span style=\"font-weight:bold\">French Toast - </span>$4.50\n\t</div>\n\t<div style=\"margin-left:20px;margin-bottom:1em;font-size:10pt\">\n\t\t<p>Thick slices made from our homemade sourdough\n\t\t\tbread<span style=\"font-style:italic\"> (600 calories per serving)</span></p>\n\t</div>\n\t<div style=\"background-color:teal;color:white;padding:4px\">\n\t\t<span style=\"font-weight:bold\">Homestyle Breakfast - </span>$6.95\n\t</div>\n\t<div style=\"margin-left:20px;margin-bottom:1em;font-size:10pt\">\n\t\t<p>Two eggs, bacon or sausage, toast, and our ever-popular hash\n\t\t\tbrowns<span style=\"font-style:italic\"> (950 calories per serving)</span></p>\n\t</div>\n</body>\n\n</html>"
+									},
+									"links": {
+										"link": {
+											"id": "e0d9446e-a238-409b-ba9f-daeb4f6e5593",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a9679e4a44b2e0011000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

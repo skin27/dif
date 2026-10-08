@@ -1,0 +1,194 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69e8de3a19cee6000c000255",
+						"name": "OutboundSamba_all_headers",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1de9aa06-83e1-4ca5-a67a-b133b03a506f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/OutboundSamba_all_headers",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8dcf657a-aa24-4e6e-ac16-03193af4b411",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8dcf657a-aa24-4e6e-ac16-03193af4b411",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "OutboundSambaAllHeaders"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8dcf657a-aa24-4e6e-ac16-03193af4b411",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "59e9a2a7-5073-4025-9ce7-78f678a282a7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "59e9a2a7-5073-4025-9ce7-78f678a282a7",
+									"type": "action",
+									"uri": "setheaders:message:59e9a2a7-5073-4025-9ce7-78f678a282a7",
+									"links": {
+										"link": [
+											{
+												"id": "59e9a2a7-5073-4025-9ce7-78f678a282a7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c5728c26-99f8-47bd-ae00-08804c879bc2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c5728c26-99f8-47bd-ae00-08804c879bc2",
+									"type": "action",
+									"uri": "smb://${header.Username}@${header.Host}:${header.Port}/${header.ShareName}/development/Regression Tests/test",
+									"options": {
+										"fileName": "${header.FileName}",
+										"charset": "utf-8",
+										"autoCreate": true,
+										"fileExist": "Override",
+										"password": "${header.Password}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "c5728c26-99f8-47bd-ae00-08804c879bc2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b7e0a8ac-2ea0-4b0d-831a-7d6396e9f4a1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b7e0a8ac-2ea0-4b0d-831a-7d6396e9f4a1",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "b7e0a8ac-2ea0-4b0d-831a-7d6396e9f4a1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "80e2d72f-d224-4185-b5bc-8b9fd5007c54",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "59e9a2a7-5073-4025-9ce7-78f678a282a7",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Username",
+								"value": "dovetail"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Password",
+								"value": "dovetail"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Host",
+								"value": "api-testing.dovetail.world"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Port",
+								"value": "445"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "ShareName",
+								"value": "Data"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Path",
+								"value": "next\\Regression Tests\\test"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "FileName",
+								"value": "OutboundSambaAllHeaders.txt"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Charset",
+								"value": "utf-8"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

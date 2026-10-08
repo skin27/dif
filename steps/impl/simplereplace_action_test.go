@@ -22,7 +22,7 @@ func TestSimpleReplace(t *testing.T) {
 
 func TestSimpleReplaceInvalid(t *testing.T) {
 	p := mustProcessor(t, stepdef.Action, "simplereplace", nil).(stepdef.ActionProcessor)
-	if _, err := p.Process(context.Background(), message.New("${date:now}")); err == nil || !strings.Contains(err.Error(), "body: unsupported simple expression ${date:now}") {
+	if _, err := p.Process(context.Background(), message.New("${exchangeId}")); err == nil || !strings.Contains(err.Error(), "body: unsupported simple expression ${exchangeId}") {
 		t.Errorf("err = %v, want unsupported expression", err)
 	}
 	wantInvalid(t, stepdef.Action, "simplereplace", map[string]any{"language": "simple"}, "unknown option language")

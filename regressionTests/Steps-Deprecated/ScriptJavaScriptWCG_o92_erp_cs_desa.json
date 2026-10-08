@@ -1,0 +1,167 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695bd955f716860011000215",
+						"name": "ScriptJavaScriptWCG_o92_erp_cs_desa",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "443daa00-4939-4797-b651-422c7199af5f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ScriptJavaScriptWCG_o92_erp_cs_desa",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "7d12b654-bc0f-4a62-bad0-910d2e04417d",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7d12b654-bc0f-4a62-bad0-910d2e04417d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<root>abc</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7d12b654-bc0f-4a62-bad0-910d2e04417d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9433f1bd-c657-47bd-915c-fa4de15d4bd9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9433f1bd-c657-47bd-915c-fa4de15d4bd9",
+									"type": "action",
+									"uri": "setheaders:message:9433f1bd-c657-47bd-915c-fa4de15d4bd9",
+									"links": {
+										"link": [
+											{
+												"id": "9433f1bd-c657-47bd-915c-fa4de15d4bd9",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "893af2ea-177b-4929-9a1a-0805caf5ad53",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "893af2ea-177b-4929-9a1a-0805caf5ad53",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "Javascript step has been removed."
+									},
+									"links": {
+										"link": [
+											{
+												"id": "893af2ea-177b-4929-9a1a-0805caf5ad53",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "337ef7c3-ddfa-4cbd-8b86-80f19aa6c022",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "337ef7c3-ddfa-4cbd-8b86-80f19aa6c022",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "337ef7c3-ddfa-4cbd-8b86-80f19aa6c022",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "73623c30-2b0b-44e9-a0d9-ebd51c6f3bb3",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "9433f1bd-c657-47bd-915c-fa4de15d4bd9",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "ReturnUrl_NL",
+								"value": "https://dovetail.nl"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "ReturnUrl_US",
+								"value": "https://dovetail.com"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "Admin",
+								"value": "02"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "dynamicUrl",
+								"value": "https://dovetail.com"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

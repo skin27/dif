@@ -1,0 +1,136 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a4fce51d751da001200027f",
+						"name": "CB_Enrich",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9bbef0d5-2a6d-447a-864f-0030efa9c696",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Enrich",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "a6d763a7-1474-4c99-a88b-19f909673a2f",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a6d763a7-1474-4c99-a88b-19f909673a2f",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a6d763a7-1474-4c99-a88b-19f909673a2f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9e4f0a7b-9255-4489-86a7-8252dd21a8c2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9e4f0a7b-9255-4489-86a7-8252dd21a8c2",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichMethod": "override",
+										"useErrorRoute": true,
+										"enrichType": "override"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9e4f0a7b-9255-4489-86a7-8252dd21a8c2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "4397d636-e764-4f6d-a8e7-cebe3ecac136",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "e1f6e0b9-2055-4d9d-9a6a-fe28a75b7ab9",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "4397d636-e764-4f6d-a8e7-cebe3ecac136",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Message Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "4397d636-e764-4f6d-a8e7-cebe3ecac136",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e1f6e0b9-2055-4d9d-9a6a-fe28a75b7ab9",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<persons>\n\t<person>\n\t\t<name>Bill Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Milly Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": {
+											"id": "e1f6e0b9-2055-4d9d-9a6a-fe28a75b7ab9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cd1bff19-e324-4197-b307-76f17c076aad",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

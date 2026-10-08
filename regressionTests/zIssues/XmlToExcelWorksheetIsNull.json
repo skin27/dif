@@ -1,0 +1,119 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a58c3522c5fba000b000051",
+						"name": "XmlToExcelWorksheetIsNull",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c25bc181-4102-4922-b1aa-ab209c9ee3fe",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToExcelWorksheetIsNull",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "a05df484-e228-45fd-8e9b-f73730e06f79",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a05df484-e228-45fd-8e9b-f73730e06f79",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n   <items>\n      <Number>1001</Number>\n      <ID>1</ID>\n      <Name>Pete</Name>\n   </items>\n   <items>\n      <Number>1002</Number>\n      <ID>2</ID>\n      <Name>John</Name>\n   </items>\n   <items>\n      <Number>1003</Number>\n      <ID>3</ID>\n      <Name>Frank</Name>\n   </items>\n   <items>\n      <Number>1004</Number>\n      <ID>4</ID>\n      <Name>Max</Name>\n   </items>\n</root>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a05df484-e228-45fd-8e9b-f73730e06f79",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b131e88b-1e45-470e-953d-ce16c7e9a101",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b131e88b-1e45-470e-953d-ce16c7e9a101",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"orderHeaders": "unordered",
+										"excelFormat": "xlsx",
+										"useCustomWorksheets": true,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJQZW9wbGVcIixcInhQYXRoRXhwcmVzc2lvblwiOlwiL3Jvb3QvaXRlbXNcIn0iXQ==)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b131e88b-1e45-470e-953d-ce16c7e9a101",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "db0d2640-493a-4fb7-aed7-f3a0e3e26bdc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "db0d2640-493a-4fb7-aed7-f3a0e3e26bdc",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": true
+									},
+									"links": {
+										"link": {
+											"id": "db0d2640-493a-4fb7-aed7-f3a0e3e26bdc",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a58c3522c5fba000b000053",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,244 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "697219789e55ca000e00009f",
+						"name": "RemoveHeaders_one_wildcard",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "06cdd762-eab6-4afe-9181-d1a116a5f27f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/RemoveHeaders_one_wildcard",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "a3f2aa29-62fe-41e3-96ca-7207476918cf",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a3f2aa29-62fe-41e3-96ca-7207476918cf",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "config"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a3f2aa29-62fe-41e3-96ca-7207476918cf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "381d7967-9cee-467b-a4b9-f18eaf9b98cc",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "381d7967-9cee-467b-a4b9-f18eaf9b98cc",
+									"type": "action",
+									"uri": "setheaders:message:381d7967-9cee-467b-a4b9-f18eaf9b98cc",
+									"links": {
+										"link": [
+											{
+												"id": "381d7967-9cee-467b-a4b9-f18eaf9b98cc",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "320d9754-7614-432c-acb8-1cb0147280c8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "320d9754-7614-432c-acb8-1cb0147280c8",
+									"type": "action",
+									"uri": "setheaders:message:320d9754-7614-432c-acb8-1cb0147280c8",
+									"links": {
+										"link": [
+											{
+												"id": "320d9754-7614-432c-acb8-1cb0147280c8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a3b26535-254a-4122-8623-5e3492550e48",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a3b26535-254a-4122-8623-5e3492550e48",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "status*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a3b26535-254a-4122-8623-5e3492550e48",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d23ebe07-60c8-4a75-ada3-b40c96e5296f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d23ebe07-60c8-4a75-ada3-b40c96e5296f",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "check*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d23ebe07-60c8-4a75-ada3-b40c96e5296f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d71ff18d-a114-4c75-925c-2776e8ffd542",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d71ff18d-a114-4c75-925c-2776e8ffd542",
+									"type": "action",
+									"uri": "setheaders:message:d71ff18d-a114-4c75-925c-2776e8ffd542",
+									"links": {
+										"link": [
+											{
+												"id": "d71ff18d-a114-4c75-925c-2776e8ffd542",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "18031335-99c5-4b9f-8168-5c2ada3dc766",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "18031335-99c5-4b9f-8168-5c2ada3dc766",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "18031335-99c5-4b9f-8168-5c2ada3dc766",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "697219789e55ca000e0000a1",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "381d7967-9cee-467b-a4b9-f18eaf9b98cc",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_${header.config}"
+							}
+						}
+					},
+					{
+						"name": "320d9754-7614-432c-acb8-1cb0147280c8",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "status_cs",
+									"value": "123"
+								},
+								{
+									"type": "header",
+									"language": "constant",
+									"name": "check_cs",
+									"value": "456"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "cs_headers_before",
+									"value": "${header.status_cs},${header.check_cs}"
+								}
+							]
+						}
+					},
+					{
+						"name": "d71ff18d-a114-4c75-925c-2776e8ffd542",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "cs_headers_after",
+								"value": "${header.status_cs},${header.check_cs}"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

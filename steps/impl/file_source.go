@@ -70,11 +70,19 @@ func newFileSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 }
 
 func (s fileSource) Run(ctx context.Context, emit stepdef.Emit) error {
+	return s.RunReady(ctx, emit, func() {})
+}
+
+func (s fileSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
 	if s.autoCreate {
 		if err := os.MkdirAll(s.dir, 0o755); err != nil {
 			return err
 		}
 	}
+	if _, err := s.list(); err != nil {
+		return err
+	}
+	ready()
 
 	for wait := s.initialDelay; ; wait = s.delay {
 		select {

@@ -1,0 +1,159 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69665e63bf1e3b000c000101",
+						"name": "Enrich_xml_bodyType_overwrite",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6ae03b10-093f-4293-bbed-408d9bc63ed5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Enrich_xml_bodyType_overwrite",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "401169ba-4d78-43e2-8f68-2e3d8abc1dcf",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "401169ba-4d78-43e2-8f68-2e3d8abc1dcf",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichType": "override",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "401169ba-4d78-43e2-8f68-2e3d8abc1dcf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "91e44a7e-416c-4975-bc4d-62326d4f7fe2",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "7ed01a95-a66c-4880-9a80-327fa9b7d178",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "91e44a7e-416c-4975-bc4d-62326d4f7fe2",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "91e44a7e-416c-4975-bc4d-62326d4f7fe2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7ed01a95-a66c-4880-9a80-327fa9b7d178",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bicycle_parts>Moof<bicycle_parts>\n"
+									},
+									"links": {
+										"link": {
+											"id": "7ed01a95-a66c-4880-9a80-327fa9b7d178",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9e9858d9-5f56-4ec0-aa7e-642c73cf4e08",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									},
+									"links": {
+										"link": {
+											"id": "a5ddf3aa-17d0-45de-b474-7c3c7b094ed8",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a5ddf3aa-17d0-45de-b474-7c3c7b094ed8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${exception.message}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a5ddf3aa-17d0-45de-b474-7c3c7b094ed8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ffc4d0ec-fe5e-452a-9074-079c4e2eec23",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ffc4d0ec-fe5e-452a-9074-079c4e2eec23",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ffc4d0ec-fe5e-452a-9074-079c4e2eec23",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

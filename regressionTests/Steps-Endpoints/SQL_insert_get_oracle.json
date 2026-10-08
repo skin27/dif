@@ -1,0 +1,217 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69b2d4a7dd4df80017000032",
+						"name": "SQL_insert_get_oracle",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "15cc0d6f-c8d0-4cbb-a393-2c5712894550",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SQL_insert_get_oracle",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "dbc267f0-8414-40e1-be00-cdfff9e1121b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "dbc267f0-8414-40e1-be00-cdfff9e1121b",
+									"type": "action",
+									"uri": "setheaders:message:dbc267f0-8414-40e1-be00-cdfff9e1121b",
+									"links": {
+										"link": [
+											{
+												"id": "dbc267f0-8414-40e1-be00-cdfff9e1121b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "845214b0-1cc1-442a-adab-a8075a19f007",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "845214b0-1cc1-442a-adab-a8075a19f007",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "INSERT INTO SCOTT.BONUS (ENAME, JOB, SAL, COMM) VALUES ('Kees', 'Farmer', ${random(100)}, ${random(10)})"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "845214b0-1cc1-442a-adab-a8075a19f007",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a4fb2370-4cda-44e6-a96d-8c42008d4bb2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a4fb2370-4cda-44e6-a96d-8c42008d4bb2",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": true,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "oracle",
+										"database": "xe",
+										"host": "api-testing.dovetail.world",
+										"port": "1521",
+										"username": "system",
+										"password": "oracle"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a4fb2370-4cda-44e6-a96d-8c42008d4bb2",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0c00111f-ba66-4a42-935c-239250f78583",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0c00111f-ba66-4a42-935c-239250f78583",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "SELECT * FROM SCOTT.BONUS"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0c00111f-ba66-4a42-935c-239250f78583",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5f234581-63b3-4022-aad6-3df11a3ebd1f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5f234581-63b3-4022-aad6-3df11a3ebd1f",
+									"type": "action",
+									"uri": "sql",
+									"options": {
+										"query": "${body}",
+										"useSSL": true,
+										"tlsVersion": "TLSv1",
+										"escapeChars": false,
+										"connectionType": "oracle",
+										"database": "xe",
+										"host": "api-testing.dovetail.world",
+										"port": "1521",
+										"username": "system",
+										"password": "oracle"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5f234581-63b3-4022-aad6-3df11a3ebd1f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "39c2ef05-6b4f-4c4b-8b9e-45258e751cc7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "39c2ef05-6b4f-4c4b-8b9e-45258e751cc7",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "39c2ef05-6b4f-4c4b-8b9e-45258e751cc7",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7b4e36f2-b82c-40f2-ba8f-80be80368a1a",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "dbc267f0-8414-40e1-be00-cdfff9e1121b",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "timestamp",
+								"value": "${date-with-timezone:now:Europe/Amsterdam:yyyy-MM-dd'T'HH:mm:ss}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "EmployeeID",
+								"value": "${random(100000)}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:topic-source",
+	"title": "topic source",
+	"description": "Subscribes to a named in-memory topic while running, with a separate buffer and no replay after stopping.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"description": "Logical topic name from topic:<name>",
+			"type": "string"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

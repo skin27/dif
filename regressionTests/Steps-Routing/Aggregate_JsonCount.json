@@ -1,0 +1,251 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695be08ff71686000b000354",
+						"name": "Aggregate_JsonCount",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "a43f5bf1-9ce6-4800-bac5-d81d0184577d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Aggregate_JsonCount",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d4f3b6bc-a15e-4969-a49b-074dfcd2549c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d4f3b6bc-a15e-4969-a49b-074dfcd2549c",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "{\n    \"store\": {\n        \"book\": [\n            {\n                \"category\": \"reference\",\n                \"author\": \"Nigel Rees\",\n                \"title\": \"Sayings of the Century\",\n                \"price\": 8.95\n            },\n            {\n                \"category\": \"fiction\",\n                \"author\": \"Evelyn Waugh\",\n                \"title\": \"Sword of Honour\",\n                \"price\": 12.99\n            },\n            {\n                \"category\": \"fiction\",\n                \"author\": \"Herman Melville\",\n                \"title\": \"Moby Dick\",\n                \"isbn\": \"0-553-21311-3\",\n                \"price\": 8.99\n            },\n            {\n                \"category\": \"fiction\",\n                \"author\": \"J. R. R. Tolkien\",\n                \"title\": \"The Lord of the Rings\",\n                \"isbn\": \"0-395-19395-8\",\n                \"price\": 22.99\n            }\n        ],\n        \"bicycle\": {\n            \"color\": \"red\",\n            \"price\": 19.95\n        }\n    }\n}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d4f3b6bc-a15e-4969-a49b-074dfcd2549c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "df769534-2b17-445b-a23b-769e3ceecbb5",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "df769534-2b17-445b-a23b-769e3ceecbb5",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "jsonpath",
+										"aggregateType": "json",
+										"streaming": false,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "df769534-2b17-445b-a23b-769e3ceecbb5",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bf70facf-4261-4a8d-a5b8-10e2bebe924f",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "83f1f746-972e-4cf2-824f-7d8b807164b1",
+												"bound": "out",
+												"expression": " $.store.book",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bf70facf-4261-4a8d-a5b8-10e2bebe924f",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "bf70facf-4261-4a8d-a5b8-10e2bebe924f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "83f1f746-972e-4cf2-824f-7d8b807164b1",
+									"type": "action",
+									"uri": "setheaders:message:83f1f746-972e-4cf2-824f-7d8b807164b1",
+									"links": {
+										"link": [
+											{
+												"id": "83f1f746-972e-4cf2-824f-7d8b807164b1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a9bbc4d9-df7d-4cad-a3f3-734d805b751d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a9bbc4d9-df7d-4cad-a3f3-734d805b751d",
+									"type": "action",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a9bbc4d9-df7d-4cad-a3f3-734d805b751d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5a2a76d9-7d8f-4029-b4a8-a615d87b3e81",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5a2a76d9-7d8f-4029-b4a8-a615d87b3e81",
+									"type": "action",
+									"uri": "aggregate",
+									"options": {
+										"aggregateType": "json"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5a2a76d9-7d8f-4029-b4a8-a615d87b3e81",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fef79c78-f204-4392-86b7-c6b03199f9ef",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fef79c78-f204-4392-86b7-c6b03199f9ef",
+									"type": "action",
+									"uri": "setheaders:message:fef79c78-f204-4392-86b7-c6b03199f9ef",
+									"links": {
+										"link": [
+											{
+												"id": "fef79c78-f204-4392-86b7-c6b03199f9ef",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d8192b81-e401-4599-b49e-17871d9075f2",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d8192b81-e401-4599-b49e-17871d9075f2",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "d8192b81-e401-4599-b49e-17871d9075f2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695be08ff71686000b000356",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "83f1f746-972e-4cf2-824f-7d8b807164b1",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_${header.CamelSplitIndex}"
+							}
+						}
+					},
+					{
+						"name": "fef79c78-f204-4392-86b7-c6b03199f9ef",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "simple",
+								"name": "breadcrumbId",
+								"value": "${header.breadcrumbId}_${random(100)}"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

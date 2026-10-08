@@ -1,0 +1,129 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "697390a9f624bf000f000107",
+						"name": "SimpleHeadersTransformations_07",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "b4ca8d9d-6811-47f4-a2c0-a158fda6471d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SimpleHeadersTransformations_07",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "01db56e8-dde2-4586-babe-d2ae0a6efa71",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "01db56e8-dde2-4586-babe-d2ae0a6efa71",
+									"type": "action",
+									"uri": "setheaders:message:01db56e8-dde2-4586-babe-d2ae0a6efa71",
+									"links": {
+										"link": [
+											{
+												"id": "01db56e8-dde2-4586-babe-d2ae0a6efa71",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "b261cf92-0411-43f2-8cad-d541b7913467",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "b261cf92-0411-43f2-8cad-d541b7913467",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": false,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"orderHeaders": "unordered",
+										"excelFormat": "xlsx",
+										"useCustomWorksheets": true,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJicmVha2Zhc3RfbWVudVwiLFwieFBhdGhFeHByZXNzaW9uXCI6XCIvL2JyZWFrZmFzdF9tZW51L2Zvb2RcIn0iXQ==)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b261cf92-0411-43f2-8cad-d541b7913467",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d3667f73-fb69-48e1-bb25-42d0198e3062",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d3667f73-fb69-48e1-bb25-42d0198e3062",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d3667f73-fb69-48e1-bb25-42d0198e3062",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "7e38c49f-9b12-4049-a85d-954a1afe882f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "01db56e8-dde2-4586-babe-d2ae0a6efa71",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "breadcrumbId",
+							"value": "${header.breadcrumbId}_${header.number}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

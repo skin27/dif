@@ -1,0 +1,117 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54ced8aa93e3000c0002a5",
+						"name": "CB_Xslt",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "c2fa3f40-2d96-4148-9415-310d1864643b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_Xslt",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "100882e1-2b8d-4b36-a796-fb263036b9a1",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "100882e1-2b8d-4b36-a796-fb263036b9a1",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "100882e1-2b8d-4b36-a796-fb263036b9a1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "2bc9c0bb-5147-41d9-aa7f-e321669da978",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "2bc9c0bb-5147-41d9-aa7f-e321669da978",
+									"type": "action",
+									"uri": "xslt:ref:a95dcb50-acef-42b9-a1be-07c7aa259a28",
+									"links": {
+										"link": [
+											{
+												"id": "2bc9c0bb-5147-41d9-aa7f-e321669da978",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cdb246a9-903d-4cab-b2c6-8cd599c9300a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cdb246a9-903d-4cab-b2c6-8cd599c9300a",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "cdb246a9-903d-4cab-b2c6-8cd599c9300a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b4c6d962-6731-4f2c-90fb-fb387dd7df44",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "a95dcb50-acef-42b9-a1be-07c7aa259a28",
+					"content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n    <xsl:output method=\"xml\" indent=\"yes\"/>\n    <xsl:template match=\"/\">\n        <root>\n            <xsl:apply-templates select=\"persons\"/>\n        </root>\n    </xsl:template>\n    <xsl:template match=\"persons/person/name\">\n        <div style=\"color:green\">\n            <xsl:value-of select=\".\"/>\n        </div>\n    </xsl:template>\n</xsl:stylesheet>"
+				}
+			}
+		}
+	}
+}

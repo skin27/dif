@@ -1,0 +1,171 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54cda7aa93e30015000179",
+						"name": "CB_SetHeaders",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "655ad7e6-13d9-4767-9473-d1869b20f03a",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CB_SetHeaders",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "27a068b9-8f27-4bc9-b86b-532721500172",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "27a068b9-8f27-4bc9-b86b-532721500172",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<persons>\n\t<person>\n\t\t<name>John Doe</name>\n\t</person>\n\t<person>\n\t\t<name>Jane Doe</name>\n\t</person>\n</persons>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "27a068b9-8f27-4bc9-b86b-532721500172",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fb49a71c-31e5-4242-acf3-330fcd5e6282",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fb49a71c-31e5-4242-acf3-330fcd5e6282",
+									"type": "action",
+									"uri": "setheaders:message:fb49a71c-31e5-4242-acf3-330fcd5e6282",
+									"options": {
+										"expression": "${variable:group:694aca3eda8dd5001600023e:MetaData.FlowVersion}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fb49a71c-31e5-4242-acf3-330fcd5e6282",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "abfb401e-244d-4a06-a6e6-80dba2b1dbd4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "abfb401e-244d-4a06-a6e6-80dba2b1dbd4",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Headers:\n\nLastname: ${headers.lastName}\nFirtname:  ${headers.firstName}\n\nMessage Body:\n\n${bodyAs(String)}"
+									},
+									"links": {
+										"link": {
+											"id": "abfb401e-244d-4a06-a6e6-80dba2b1dbd4",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "c44bdbc7-9752-4125-b9f0-2a2256dd1db2",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "fb49a71c-31e5-4242-acf3-330fcd5e6282",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "lastName",
+								"value": "Doe"
+							},
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "messageTimestamp",
+								"value": "John"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "FlowVersion",
+								"value": "${variable:group:694aca3eda8dd5001600023e:MetaData.FlowVersion}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "TenantName",
+								"value": "${variable:group:694aca3eda8dd5001600023e:MetaData.TenantName}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "EnvironmentName",
+								"value": "${variable:group:694aca3eda8dd5001600023e:MetaData.EnvironmentName}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "Frontend",
+								"value": "${variable:group:694aca3eda8dd5001600023e:MetaData.Frontend}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "FlowName",
+								"value": "${variable:group:694aca3eda8dd5001600023e:MetaData.FlowName}"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "FlowID",
+								"value": "${variable:group:694aca3eda8dd5001600023e:MetaData.FlowID}"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

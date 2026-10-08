@@ -1,0 +1,125 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695fc625f71686001b0000bc",
+						"name": "CsvToXml_default_exception_no_heade",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "954be1f5-db49-4d9d-8e4b-ae3d80089f9b",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CsvToXml_default_exception_no_heade",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9c2c14af-669f-43d5-a097-f55e67e7f6cf",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9c2c14af-669f-43d5-a097-f55e67e7f6cf",
+									"type": "action",
+									"uri": "csvtoxml",
+									"options": {
+										"delimiter": ",",
+										"useHeaders": false,
+										"encoding": "UTF-8"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9c2c14af-669f-43d5-a097-f55e67e7f6cf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bd608a60-0be0-424d-ad4f-c34a3f460bd8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bd608a60-0be0-424d-ad4f-c34a3f460bd8",
+									"type": "action",
+									"uri": "setheaders:message:bd608a60-0be0-424d-ad4f-c34a3f460bd8",
+									"links": {
+										"link": [
+											{
+												"id": "bd608a60-0be0-424d-ad4f-c34a3f460bd8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "c2f22029-5eef-4815-a59f-ced5a3622c37",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "c2f22029-5eef-4815-a59f-ced5a3622c37",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "c2f22029-5eef-4815-a59f-ced5a3622c37",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "79bc8566-2d33-4361-b81d-d4c768756a08",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "bd608a60-0be0-424d-ad4f-c34a3f460bd8",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "xpath",
+							"name": "number",
+							"value": "//Number/text()"
+						}
+					}
+				}
+			}
+		}
+	}
+}

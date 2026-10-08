@@ -1,0 +1,129 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69739cb1f624bf0016000138",
+						"name": "XmlToCsv_order_quote",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "54a265a3-9de0-4e9f-8b8b-d9fd17aee54f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/XmlToCsv_order_quote",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "05fc138c-7f48-45c9-bbcb-540c4e301246",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "05fc138c-7f48-45c9-bbcb-540c4e301246",
+									"type": "action",
+									"uri": "setheaders:message:05fc138c-7f48-45c9-bbcb-540c4e301246",
+									"links": {
+										"link": [
+											{
+												"id": "05fc138c-7f48-45c9-bbcb-540c4e301246",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d10ba925-3b1c-445c-a7fc-959c9547c04b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d10ba925-3b1c-445c-a7fc-959c9547c04b",
+									"type": "action",
+									"uri": "xmltocsv",
+									"options": {
+										"includeHeader": false,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"delimiter": ",",
+										"lineSeparator": "linefeed",
+										"orderHeaders": "descending",
+										"quoteFields": "non_integer_fields"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d10ba925-3b1c-445c-a7fc-959c9547c04b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d6da7340-c5b6-4557-a640-ce778e1c81ab",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d6da7340-c5b6-4557-a640-ce778e1c81ab",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "d6da7340-c5b6-4557-a640-ce778e1c81ab",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d6ff245c-a70f-460f-afa0-c9218ef5ebec",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "05fc138c-7f48-45c9-bbcb-540c4e301246",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "simple",
+							"name": "breadcrumbId",
+							"value": "${header.breadcrumbId}_${header.number}"
+						}
+					}
+				}
+			}
+		}
+	}
+}

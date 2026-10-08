@@ -1,0 +1,10 @@
+{
+  "dil": {"integrations": {"integration": {"flows": {"flow": {
+    "id": "tap-consumer",
+    "steps": {"step": [
+      {"id": "in", "type": "source", "uri": "queue:orders.audit", "links": {"link": [{"id": "slow", "bound": "out"}]}},
+      {"id": "slow", "type": "action", "uri": "delay", "options": {"milliseconds": 1000}, "links": {"link": [{"id": "slow", "bound": "in"}, {"id": "log", "bound": "out"}]}},
+      {"id": "log", "type": "sink", "uri": "log", "options": {"showBody": true}, "links": {"link": [{"id": "log", "bound": "in"}]}}
+    ]}
+  }}}}}
+}

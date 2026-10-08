@@ -1,0 +1,90 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "697247dff624bf001100005c",
+						"name": "SetBody_text_constant",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6d3ee346-f200-401a-9413-d47798611ef0",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetBody_text_constant",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "47f55e44-69c5-4611-8ec7-58c34688deff",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "47f55e44-69c5-4611-8ec7-58c34688deff",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "!@#%^*()_+\n{}\n[]\n:|\n;\n<>?\n,./\nevery\nsingle\nword\nshould\nbe\ndisplayed\non\na\nseparate\nline\\n\\n\\n\nExcept this line"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "47f55e44-69c5-4611-8ec7-58c34688deff",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ed61fe1c-124c-469b-8d49-eaae553fbc89",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ed61fe1c-124c-469b-8d49-eaae553fbc89",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "ed61fe1c-124c-469b-8d49-eaae553fbc89",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5ec5249f-c636-4da6-92f1-b10c8375f534",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

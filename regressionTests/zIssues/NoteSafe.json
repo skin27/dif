@@ -1,0 +1,87 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a96c7f3a44b2e00160002b1",
+						"name": "NoteSafe",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "19820267-f234-41af-b2ec-616a3a935ade",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/NoteSafe",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "0a90bba8-bb0a-4ced-9a43-7a3bf4566fdd",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0a90bba8-bb0a-4ced-9a43-7a3bf4566fdd",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0a90bba8-bb0a-4ced-9a43-7a3bf4566fdd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "aafe64e9-4fa1-4406-8a84-901138832449",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "aafe64e9-4fa1-4406-8a84-901138832449",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple"
+									},
+									"links": {
+										"link": {
+											"id": "aafe64e9-4fa1-4406-8a84-901138832449",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a96c7f3a44b2e00160002b3",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

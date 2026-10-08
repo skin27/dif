@@ -1,0 +1,98 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a54f850aa93e3001500048a",
+						"name": "SetTenantVariables4Movies",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "34758ad4-7bbd-4993-89c4-ca7a7d530ffd",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetTenantVariables4Movies",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8dd3d877-bb79-4413-80b0-23db970e180c",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8dd3d877-bb79-4413-80b0-23db970e180c",
+									"type": "action",
+									"uri": "settenantvariable:Filmtotaal_apikey",
+									"options": {
+										"language": "simple",
+										"value": "ZHZmcmJxbDFxdmx0bHZ5ZWQ0eTdhOWN3eDY0dmZ6anM=",
+										"encrypt": true,
+										"flowName": "SetTenantVariables4Movies",
+										"groupName": "zzArchive",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8dd3d877-bb79-4413-80b0-23db970e180c",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d7ba4837-42a1-4d1e-a6e3-79d700a184d9",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d7ba4837-42a1-4d1e-a6e3-79d700a184d9",
+									"type": "sink",
+									"uri": "settenantvariable:Movies_apikey",
+									"options": {
+										"language": "simple",
+										"value": "NmVmOGFkNjc=",
+										"encrypt": true,
+										"flowName": "SetTenantVariables4Movies",
+										"groupName": "zzArchive",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": {
+											"id": "d7ba4837-42a1-4d1e-a6e3-79d700a184d9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a54f850aa93e3001500048c",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

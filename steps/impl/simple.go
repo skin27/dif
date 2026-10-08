@@ -13,14 +13,17 @@ import (
 type expression []segment
 
 type segment struct {
-	text string // literal text; used when key is empty
-	key  string // message key whose value is inserted
-	fail error  // evaluating the segment fails with this error
+	text string        // literal text; used when key and fn are empty
+	key  string        // message key whose value is inserted
+	fn   func() string // computes the value on every evaluation, such as the date
+	fail error         // evaluating the segment fails with this error
 }
 
 // compileExpression compiles expr in language "constant" (literal text) or
 // "simple", which supports ${body} (also written ${bodyAs(String)}),
-// ${header.<name>} and ${headers.<name>}. ${bodyAs(<type>)} with any other
+// ${header.<name>}, ${headers.<name>}, ${random(<max>)}, ${random(<min>,<max>)},
+// ${date:now:<format>} and ${date-with-timezone:now:<zone>:<format>} (Java
+// date formats, such as yyyy-MM-dd HH:mm:ss). ${bodyAs(<type>)} with any other
 // type compiles, but fails when evaluated, as converting the body does in
 // Camel; anything else is rejected.
 func compileExpression(language, expr string) (expression, error) {
@@ -57,6 +60,9 @@ func simpleRef(ref string) (segment, error) {
 	if ref == "body" || ref == "bodyAs(String)" { // values are rendered as text anyway
 		return segment{key: message.Body}, nil
 	}
+	if fn, ok, err := simpleFunction(ref); ok || err != nil {
+		return segment{fn: fn}, err
+	}
 	if typ, ok := strings.CutPrefix(ref, "bodyAs("); ok && strings.HasSuffix(typ, ")") && isTypeName(typ[:len(typ)-1]) {
 		typ = typ[:len(typ)-1]
 		return segment{fail: fmt.Errorf("${bodyAs(%s)}: the body cannot be converted to %s; only String is supported", typ, typ)}, nil
@@ -77,7 +83,7 @@ func isTypeName(s string) bool {
 
 // eval returns the expression's value for m. A missing key gives "".
 func (e expression) eval(m message.Message) (string, error) {
-	if len(e) == 1 && e[0].key == "" && e[0].fail == nil {
+	if len(e) == 1 && e[0].key == "" && e[0].fn == nil && e[0].fail == nil {
 		return e[0].text, nil
 	}
 	var b strings.Builder
@@ -85,6 +91,8 @@ func (e expression) eval(m message.Message) (string, error) {
 		switch {
 		case s.fail != nil:
 			return "", s.fail
+		case s.fn != nil:
+			b.WriteString(s.fn())
 		case s.key == "":
 			b.WriteString(s.text)
 		default:

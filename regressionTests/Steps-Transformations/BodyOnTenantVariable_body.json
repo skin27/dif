@@ -1,0 +1,141 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695faacbf716860011000000",
+						"name": "BodyOnTenantVariable_body",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "4c8e359b-d543-4806-a0ad-1a19d5473a55",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/BodyOnTenantVariable_body",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "b90be1d9-f860-4434-aa13-e40a5efc6d57",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b90be1d9-f860-4434-aa13-e40a5efc6d57",
+									"type": "action",
+									"uri": "settenantvariable:Body",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "constant",
+										"value": "TkE=",
+										"flowName": "BodyOnTenantVariable_body",
+										"groupName": "Steps-Transformations",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "b90be1d9-f860-4434-aa13-e40a5efc6d57",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "988236e0-4269-4306-8c8b-bf57880bfc9e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "988236e0-4269-4306-8c8b-bf57880bfc9e",
+									"type": "action",
+									"uri": "gettenantvariable:Body",
+									"options": {
+										"headerName": "Body",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "988236e0-4269-4306-8c8b-bf57880bfc9e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0501448b-fa71-4a79-a003-7eb10852eb6d",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0501448b-fa71-4a79-a003-7eb10852eb6d",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.Body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0501448b-fa71-4a79-a003-7eb10852eb6d",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8f944f25-39ad-4795-9912-00493dedf23c",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8f944f25-39ad-4795-9912-00493dedf23c",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "8f944f25-39ad-4795-9912-00493dedf23c",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "695faacbf716860011000002",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

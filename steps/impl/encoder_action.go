@@ -84,3 +84,17 @@ func (c charset) append(b []byte, r rune) []byte {
 	}
 	return append(b, '?')
 }
+
+// text decodes data in c.
+func (c charset) text(data []byte) string {
+	if c == utf8Charset {
+		return string(data)
+	}
+	out := make([]byte, 0, len(data))
+	for len(data) > 0 {
+		r, n := c.decode(data)
+		out = utf8.AppendRune(out, r)
+		data = data[n:]
+	}
+	return string(out)
+}

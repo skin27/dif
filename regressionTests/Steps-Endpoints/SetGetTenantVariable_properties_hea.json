@@ -1,0 +1,186 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7af2d1b55b6d000c000216",
+						"name": "SetGetTenantVariable_properties_hea",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1b489b1c-1934-4ef7-a044-6c26804d6a2c",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetGetTenantVariable_properties_hea",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "cad1ec54-9d8f-4885-bb32-a95909c7dc55",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "cad1ec54-9d8f-4885-bb32-a95909c7dc55",
+									"type": "action",
+									"uri": "setheaders:message:cad1ec54-9d8f-4885-bb32-a95909c7dc55",
+									"options": {
+										"expression": "OauthGmailNoreply"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cad1ec54-9d8f-4885-bb32-a95909c7dc55",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "edd4d201-582f-4c0e-9cc0-76945007cbb6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "edd4d201-582f-4c0e-9cc0-76945007cbb6",
+									"type": "action",
+									"uri": "settenantvariable:SetGetTenantVariable_properties_hea_${header.config}",
+									"options": {
+										"encrypt": true,
+										"protectedValue": false,
+										"language": "simple",
+										"value": "JHtoZWFkZXIuZmxvd19uYW1lfV8ke2hlYWRlci52YWx1ZX0=",
+										"flowName": "SetGetTenantVariable_properties_hea",
+										"groupName": "Steps-Endpoints",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "edd4d201-582f-4c0e-9cc0-76945007cbb6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6419d457-f12b-45b5-b284-55e2123c0e45",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6419d457-f12b-45b5-b284-55e2123c0e45",
+									"type": "action",
+									"uri": "gettenantvariable:SetGetTenantVariable_properties_hea_${header.config}",
+									"options": {
+										"headerName": "tenantVar",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6419d457-f12b-45b5-b284-55e2123c0e45",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0c3a7a91-f55e-4144-a1f4-e1012f9d05b8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0c3a7a91-f55e-4144-a1f4-e1012f9d05b8",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${header.tenantVar}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "0c3a7a91-f55e-4144-a1f4-e1012f9d05b8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "817aa8e2-3490-4dd5-a658-befd336c3919",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "817aa8e2-3490-4dd5-a658-befd336c3919",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "817aa8e2-3490-4dd5-a658-befd336c3919",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e8d2d7c7-ebbc-403d-af82-ca188f9eaeaa",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "cad1ec54-9d8f-4885-bb32-a95909c7dc55",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "constant",
+								"name": "value",
+								"value": "1234567890"
+							},
+							{
+								"type": "header",
+								"language": "simple",
+								"name": "flow_name",
+								"value": "OauthGmailNoreply"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,102 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69de48f3d9461a00180000ad",
+						"name": "ForceInboundSftp_issue",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "6948c4a9-24b3-40fd-92fb-e6db92166747",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ForceInboundSftp69de48f3d9461a00180000ad",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "bec912d1-3f5e-4408-ab98-d7d4329aebd1",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "bec912d1-3f5e-4408-ab98-d7d4329aebd1",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022//next/Regression Tests/test/out",
+									"options": {
+										"recursive": false,
+										"fileName": "InboundOutboundFtpsTls.txt",
+										"binary": false,
+										"charset": "utf-8",
+										"maxMessagesPerPoll": "1",
+										"delete": false,
+										"moveFailed": "RAW(.error)",
+										"autoCreate": true,
+										"readLock": "none",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"abortMode": true,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "bec912d1-3f5e-4408-ab98-d7d4329aebd1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1598e2d5-1ff0-4f87-afa5-e6cb54c94165",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1598e2d5-1ff0-4f87-afa5-e6cb54c94165",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1598e2d5-1ff0-4f87-afa5-e6cb54c94165",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0b65a600-43a2-472d-97e2-27b419a58e2d",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

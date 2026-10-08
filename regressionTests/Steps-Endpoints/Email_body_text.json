@@ -1,0 +1,208 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694b98f7da8dd50016000035",
+						"name": "Email_body_text",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "29645cb9-6369-4431-aab5-e03c67a81240",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/Email_body_text",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "2bcc8029-28e7-49a4-bb0b-18a299702969",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "2bcc8029-28e7-49a4-bb0b-18a299702969",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "config"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "2bcc8029-28e7-49a4-bb0b-18a299702969",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "68d41532-671d-43f7-ae3d-461c29fd9d04",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "68d41532-671d-43f7-ae3d-461c29fd9d04",
+									"type": "action",
+									"uri": "setheaders:message:68d41532-671d-43f7-ae3d-461c29fd9d04",
+									"links": {
+										"link": [
+											{
+												"id": "68d41532-671d-43f7-ae3d-461c29fd9d04",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "43fd5bf4-b978-46bb-bbc1-46ca550826f6",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "43fd5bf4-b978-46bb-bbc1-46ca550826f6",
+									"type": "action",
+									"uri": "smtp:smtp-relay.gmail.com:587",
+									"options": {
+										"to": "norman.hooghof@fluxygen.com",
+										"subject": "Dummy",
+										"exchangeBodyAs": "body",
+										"username": "norman.hooghof@fluxygen.com",
+										"fromEmailPreference": "norman.hooghof@fluxygen.com",
+										"from": "norman.hooghof@fluxygen.com",
+										"authenticationType": "oauth2",
+										"accessToken": "ENC(xEjQSPSte8Wc6yBVjrKddA==|ioqB8P0CfqTNjAfP5TtU3Q==|V9UFK+6U7xiIwUYFupJGQw==)",
+										"tenantDbName": "regressiontests"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "43fd5bf4-b978-46bb-bbc1-46ca550826f6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e91bd78e-be4b-45f5-bfcb-60b0c35108f3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e91bd78e-be4b-45f5-bfcb-60b0c35108f3",
+									"type": "action",
+									"uri": "setheaders:message:e91bd78e-be4b-45f5-bfcb-60b0c35108f3",
+									"links": {
+										"link": [
+											{
+												"id": "e91bd78e-be4b-45f5-bfcb-60b0c35108f3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cf6d28b8-87a2-4e4d-9438-2df783d3a202",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cf6d28b8-87a2-4e4d-9438-2df783d3a202",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "cf6d28b8-87a2-4e4d-9438-2df783d3a202",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d40ac619-cafb-4117-8b74-97b7e91a60a2",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "68d41532-671d-43f7-ae3d-461c29fd9d04",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "serverTmp",
+									"value": "https://next.dovetail.world"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "server",
+									"value": "next"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "subject",
+									"value": "Email body ${header.server} test"
+								}
+							]
+						}
+					},
+					{
+						"name": "e91bd78e-be4b-45f5-bfcb-60b0c35108f3",
+						"headers": {
+							"header": [
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessageId",
+									"value": "${header.CamelMailMessageId}"
+								},
+								{
+									"type": "header",
+									"language": "simple",
+									"name": "mailMessage",
+									"value": "${header.mailMessageId.replaceAll('<.*@|>','')}"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	}
+}

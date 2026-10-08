@@ -1,0 +1,196 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695e7259f7168600100001d8",
+						"name": "SplitJson_json_aggr_rr_streaming",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "52b7eb08-4671-4c4d-8b99-d83b37139809",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SplitJson_json_aggr_rr_streaming",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d6eaf59c-762c-4f67-be99-a0e9f256854b",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d6eaf59c-762c-4f67-be99-a0e9f256854b",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "[\n  {\n    \"id\": 1,\n    \"titel\": \"The Dark Knight\",\n    \"jaar\": 2008,\n    \"genre\": [\"Action\", \"Crime\", \"Drama\"],\n    \"regisseur\": \"Christopher Nolan\",\n    \"acteurs\": [\"Christian Bale\", \"Heath Ledger\", \"Aaron Eckhart\"],\n    \"duur_in_minuten\": 152\n  },\n  {\n    \"id\": 2,\n    \"titel\": \"Inception\",\n    \"jaar\": 2010,\n    \"genre\": [\"Action\", \"Sci-Fi\", \"Thriller\"],\n    \"regisseur\": \"Christopher Nolan\",\n    \"acteurs\": [\"Leonardo DiCaprio\", \"Joseph Gordon-Levitt\", \"Elliot Page\"],\n    \"duur_in_minuten\": 148\n  }\n]\n"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d6eaf59c-762c-4f67-be99-a0e9f256854b",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ac144471-6028-42c1-8ae6-f1260c288403",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ac144471-6028-42c1-8ae6-f1260c288403",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "jsonpath",
+										"aggregateType": "json",
+										"streaming": true,
+										"parallelProcessing": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "ac144471-6028-42c1-8ae6-f1260c288403",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a72588bf-0a68-4f27-a6d9-04dfbb512a1d",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "436f8d53-0134-4ffd-be30-effa5f7595d7",
+												"bound": "out",
+												"expression": "$[*]",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a72588bf-0a68-4f27-a6d9-04dfbb512a1d",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "a72588bf-0a68-4f27-a6d9-04dfbb512a1d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "436f8d53-0134-4ffd-be30-effa5f7595d7",
+									"type": "action",
+									"uri": "setheaders:message:436f8d53-0134-4ffd-be30-effa5f7595d7",
+									"links": {
+										"link": [
+											{
+												"id": "436f8d53-0134-4ffd-be30-effa5f7595d7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e3fc0e00-2cea-45df-9c09-95305dc24d3e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e3fc0e00-2cea-45df-9c09-95305dc24d3e",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "{\"title\":\"${header.title}\"}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e3fc0e00-2cea-45df-9c09-95305dc24d3e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "addfc8ec-c8c1-4fb5-9c61-11d072093eec",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "addfc8ec-c8c1-4fb5-9c61-11d072093eec",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "${body}"
+									},
+									"links": {
+										"link": {
+											"id": "addfc8ec-c8c1-4fb5-9c61-11d072093eec",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "787012a6-08ff-423c-84fe-fc8dba2b451f",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "436f8d53-0134-4ffd-be30-effa5f7595d7",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "jsonpath",
+							"name": "title",
+							"value": "@.titel"
+						}
+					}
+				}
+			}
+		}
+	}
+}

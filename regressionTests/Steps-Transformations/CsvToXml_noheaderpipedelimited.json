@@ -1,0 +1,91 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "695fc657f716860011000078",
+						"name": "CsvToXml_noheaderpipedelimited",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "2fc0afb8-3ce0-4684-9b99-b47290477434",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/CsvToXml_noheaderpipedelimited",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "8a2a1a6d-fc8f-45a5-b383-f1de4d3fe073",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8a2a1a6d-fc8f-45a5-b383-f1de4d3fe073",
+									"type": "action",
+									"uri": "csvtoxml",
+									"options": {
+										"delimiter": "|",
+										"useHeaders": false,
+										"encoding": "UTF-8"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8a2a1a6d-fc8f-45a5-b383-f1de4d3fe073",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0b30dfc8-1e1c-48d4-a5d8-a809393be403",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0b30dfc8-1e1c-48d4-a5d8-a809393be403",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "0b30dfc8-1e1c-48d4-a5d8-a809393be403",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "a4d2fba8-c413-4d5d-b40a-f078468f339b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,115 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69550821f716860012000054",
+						"name": "ArchiveUnpack_1_file",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0fdcfd5d-4d91-4ebc-8384-7c7ee8bd3ab3",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ArchiveUnpack_1_file",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "d47fea69-56fc-4965-a9cc-235d5a5147ee",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d47fea69-56fc-4965-a9cc-235d5a5147ee",
+									"type": "action",
+									"uri": "unzip",
+									"links": {
+										"link": [
+											{
+												"id": "d47fea69-56fc-4965-a9cc-235d5a5147ee",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d3de6e5e-1a88-4526-9ffd-bfba3ca97ab7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d3de6e5e-1a88-4526-9ffd-bfba3ca97ab7",
+									"type": "action",
+									"uri": "sftp:api-testing.dovetail.world:2022/next/Regression Tests/test/20251231/out/",
+									"options": {
+										"charset": "utf-8",
+										"fileExist": "Override",
+										"userName": "dovetail",
+										"password": "RAW(Unmwrnf4bM3RUwoG)",
+										"binary": false,
+										"passiveMode": true,
+										"disconnect": true,
+										"autoCreate": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d3de6e5e-1a88-4526-9ffd-bfba3ca97ab7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "902cdcab-beb2-42df-b020-30ab08da2b6e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "902cdcab-beb2-42df-b020-30ab08da2b6e",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "902cdcab-beb2-42df-b020-30ab08da2b6e",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "523848bd-a179-4456-814f-d1978382f613",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

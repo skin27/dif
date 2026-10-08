@@ -1,0 +1,162 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7d6ddbc6e07b000c000035",
+						"name": "SetHeaders_jsonpath",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "32805aa2-a89a-43c7-b92e-ff6d10e85c69",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetHeaders_jsonpath",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "8dec1fe7-7921-4dd2-af3f-5b1818235944",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "8dec1fe7-7921-4dd2-af3f-5b1818235944",
+									"type": "action",
+									"uri": "setheaders:message:8dec1fe7-7921-4dd2-af3f-5b1818235944",
+									"links": {
+										"link": [
+											{
+												"id": "8dec1fe7-7921-4dd2-af3f-5b1818235944",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "824f024b-ba1e-413d-972c-92eb35c2e2e4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "824f024b-ba1e-413d-972c-92eb35c2e2e4",
+									"type": "action",
+									"uri": "setheaders:message:824f024b-ba1e-413d-972c-92eb35c2e2e4",
+									"links": {
+										"link": [
+											{
+												"id": "824f024b-ba1e-413d-972c-92eb35c2e2e4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "67f175dd-6fed-458c-8fdb-431c4379af84",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "67f175dd-6fed-458c-8fdb-431c4379af84",
+									"type": "action",
+									"uri": "setheaders:message:67f175dd-6fed-458c-8fdb-431c4379af84",
+									"links": {
+										"link": [
+											{
+												"id": "67f175dd-6fed-458c-8fdb-431c4379af84",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "90e70fa0-7fb2-44a9-bb77-247b3a12eb50",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "90e70fa0-7fb2-44a9-bb77-247b3a12eb50",
+									"type": "sink",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "author|price|color"
+									},
+									"links": {
+										"link": {
+											"id": "90e70fa0-7fb2-44a9-bb77-247b3a12eb50",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a7d6ddbc6e07b000c000037",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "8dec1fe7-7921-4dd2-af3f-5b1818235944",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "jsonpath",
+								"name": "author",
+								"value": "$.store.book[0].author"
+							}
+						}
+					},
+					{
+						"name": "824f024b-ba1e-413d-972c-92eb35c2e2e4",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "jsonpath",
+								"name": "price",
+								"value": "$..book[?(@.price<8.99)].price"
+							}
+						}
+					},
+					{
+						"name": "67f175dd-6fed-458c-8fdb-431c4379af84",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "jsonpath",
+								"name": "color",
+								"value": "$..bicycle.color"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:xmltoedi-action",
+	"title": "xmltoedi action",
+	"description": "Converts the XML that editoxml produces back into delimited EDI, with the delimiters of its <delimiters> element (default LB ~ ^ !).",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

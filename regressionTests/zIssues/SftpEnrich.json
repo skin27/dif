@@ -1,0 +1,126 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a7db742096a4300110005b0",
+						"name": "SftpEnrich",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e959d864-e7a9-41e9-9e0d-8a8c97400e00",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SftpEnrich",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "56f66a38-cd42-4e48-878e-f9722530abec",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "56f66a38-cd42-4e48-878e-f9722530abec",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "Test"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "56f66a38-cd42-4e48-878e-f9722530abec",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "97e5ee31-a347-4b5a-942a-78ccab15d15e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "97e5ee31-a347-4b5a-942a-78ccab15d15e",
+									"type": "action",
+									"uri": "sftpenrich:api-testing.dovetail.world:2022//next/Regression Tests/test/out/",
+									"options": {
+										"recursive": false,
+										"fileName": "OauthGmailNoreply.txt",
+										"binary": false,
+										"charset": "utf-8",
+										"maxMessagesPerPoll": 1,
+										"delete": false,
+										"move": "RAW(.archive)",
+										"moveFailed": "RAW(.error)",
+										"autoCreate": true,
+										"readLock": "none",
+										"userName": "dovetail",
+										"password": "ENC(odMIe1Ddd33Ya7AzlNsp9w==|w8af9gUvX4YFXbUEVMJ6aw==|eMHXTipZkJDpRAj7lrlGoTS3CBmPRmJHCtsYXeEXG5+KCWpZZJlhRkZTOG0pAxZu6WhY/vWNWjfjLulu19kqouRCC2nRbFvsLkiYD3HJ7W286nnb4PoKHKC5SoW6vht6Sv/k3CVQQsyv9Mhr+JDkqg==)",
+										"abortMode": false,
+										"disconnect": true,
+										"passiveMode": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "97e5ee31-a347-4b5a-942a-78ccab15d15e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1dfaed22-83d7-4ea6-bcb4-f94cbf138a81",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1dfaed22-83d7-4ea6-bcb4-f94cbf138a81",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1dfaed22-83d7-4ea6-bcb4-f94cbf138a81",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "0380bc4c-a3b1-4dba-9e81-a48883dcb6e9",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

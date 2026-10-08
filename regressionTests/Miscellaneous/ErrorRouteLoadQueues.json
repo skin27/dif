@@ -1,0 +1,125 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a69f2c4f705b3000c0000d3",
+						"name": "ErrorRouteLoadQueues",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "5cb11473-1b43-438d-b54c-9f3aa904c572",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ErrorRouteLoadQueues",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "e8e18cd4-8b7a-43d7-8e16-f1b77cb40c59",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "e8e18cd4-8b7a-43d7-8e16-f1b77cb40c59",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "ErrorRouteLoadQueues has been removed"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "e8e18cd4-8b7a-43d7-8e16-f1b77cb40c59",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "0cf72295-01b3-443a-9768-3ba261c5c152",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "0cf72295-01b3-443a-9768-3ba261c5c152",
+									"type": "action",
+									"uri": "setheaders:message:0cf72295-01b3-443a-9768-3ba261c5c152",
+									"links": {
+										"link": [
+											{
+												"id": "0cf72295-01b3-443a-9768-3ba261c5c152",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "24179cc9-a7f2-454e-a8db-1526282c385a",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "24179cc9-a7f2-454e-a8db-1526282c385a",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "24179cc9-a7f2-454e-a8db-1526282c385a",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "b3d24ee9-4b5c-4c54-8cdf-018016568b71",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": {
+					"name": "0cf72295-01b3-443a-9768-3ba261c5c152",
+					"headers": {
+						"header": {
+							"type": "header",
+							"language": "constant",
+							"name": "CamelHttpResponseCode",
+							"value": "500"
+						}
+					}
+				}
+			}
+		}
+	}
+}

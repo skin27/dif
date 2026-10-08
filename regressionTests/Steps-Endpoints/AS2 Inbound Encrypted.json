@@ -1,0 +1,76 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "694abc11da8dd5000c000097",
+						"name": "AS2 Inbound Encrypted",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "e66873f0-67ef-4d1d-b411-a55e0bf01a65",
+									"type": "source",
+									"uri": "as2",
+									"options": {
+										"flowNameAsEndpoint": true,
+										"as2From": "DOVETAIL_OUTBOUND",
+										"as2To": "DOVETAIL_INBOUND",
+										"as2MessageStructure": "ENCRYPTED",
+										"alias": "Seacon Logistics 2030",
+										"password": "]z@4&w0\\2Sz6OL",
+										"serverPortNumber": "9002",
+										"requestUriPattern": "/AS2InboundEncrypted",
+										"serverFqdn": "dovetail.world",
+										"signingPrivateKey": "http://nginx:8080/private_keys/694abc11da8dd5000c000097?version=0&tenant=regressiontests&step=e66873f0-67ef-4d1d-b411-a55e0bf01a65&key=privateKey",
+										"signingCertificateChain": "http://nginx:8080/private_keys/694abc11da8dd5000c000097?version=0&tenant=regressiontests&step=e66873f0-67ef-4d1d-b411-a55e0bf01a65&key=privateKey",
+										"decryptingPrivateKey": "http://nginx:8080/private_keys/694abc11da8dd5000c000097?version=0&tenant=regressiontests&step=e66873f0-67ef-4d1d-b411-a55e0bf01a65&key=privateKey"
+									},
+									"links": {
+										"link": {
+											"id": "1b10a445-debf-4096-86cb-8a4116dda1d9",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1b10a445-debf-4096-86cb-8a4116dda1d9",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1b10a445-debf-4096-86cb-8a4116dda1d9",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "694abc11da8dd5000c000099",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -115,3 +115,18 @@ func TestSetBodyRestoresOriginalBody(t *testing.T) {
 		t.Errorf("body = %v, want the original body", out[message.Body])
 	}
 }
+
+func TestJSONValidator(t *testing.T) {
+	// As in examples/experimental/jsonvalidator.json: firstName must be a boolean.
+	schema := `{"$id": "https://example.com/person.schema.json", "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Person", "type": "object",
+		"properties": {"firstName": {"type": "boolean", "description": "x"}, "age": {"type": "integer", "minimum": 0}}}`
+	p := mustProcessor(t, stepdef.Action, "jsonvalidator", map[string]any{"resource": schema}).(stepdef.ActionProcessor)
+	if _, err := p.Process(context.Background(), message.New(`{"firstName": true, "age": 21}`)); err != nil {
+		t.Errorf("valid: %v", err)
+	}
+	if _, err := p.Process(context.Background(), message.New(`{"firstName": "John", "age": 21}`)); err == nil || err.Error() != "body is not valid: /firstName: want boolean, got string" {
+		t.Errorf("invalid: err = %v", err)
+	}
+	wantInvalid(t, stepdef.Action, "jsonvalidator", nil, "missing required option resource")
+	wantInvalid(t, stepdef.Action, "jsonvalidator", map[string]any{"resource": "{"}, "schema is not JSON")
+}

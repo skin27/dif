@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-DIF is a dependency-free Go integration framework. `cmd/dif/` contains the executable; `cli/` implements interactive commands; `api/` exposes the public API. `engine/` runs flows and manages lifecycle, while `message/` defines messages. `flows/definition/` holds the internal flow model and `flows/impl/` parses and builds DIL JSON flows. Keep the engine independent of DIL.
+DIF is a Go integration framework with no dependencies beyond the SFTP client (`github.com/pkg/sftp` and `golang.org/x/crypto`). `cmd/dif/` contains the executable; `cli/` implements interactive commands; `api/` exposes the public API. `engine/` runs flows and manages lifecycle, while `message/` defines messages. `flows/definition/` holds the internal flow model and `flows/impl/` parses and builds DIL JSON flows. Keep the engine independent of DIL.
 
 `steps/definition/` defines processor contracts, `steps/registry/` registers and validates steps, and `steps/impl/` contains built-in processors and embedded schemas. `keystore/` handles PKCS#12 files. Tests live beside source files as `*_test.go`; runnable fixtures live in `testdata/`, and broader flow examples in `examples/`. `steps/` also contains legacy designer assets and documentation.
 
@@ -39,7 +39,7 @@ During implementation:
 
 ## Coding Style & Naming Conventions
 
-Format changed Go files with `gofmt`; use its tab indentation and standard Go naming conventions. Keep package names lowercase, exported identifiers in PascalCase, and implementation files descriptive, such as `file_source.go`. Use only the standard library and keep processors pluggable without engine changes.
+Format changed Go files with `gofmt`; use its tab indentation and standard Go naming conventions. Keep package names lowercase, exported identifiers in PascalCase, and implementation files descriptive, such as `file_source.go`. Use the standard library; the only dependencies are those of the SFTP client, so adding another needs approval. Keep processors pluggable without engine changes.
 
 For new built-in steps, add a schema at `steps/impl/schemas/<name>-<kind>.json` and register the processor in `steps/impl/builtin.go`. Keep option descriptions short and defaults consistent with implementation.
 

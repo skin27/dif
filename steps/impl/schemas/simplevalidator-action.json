@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:simplevalidator-action",
+	"title": "simplevalidator action",
+	"description": "Passes the message on when a simple condition holds for it, and fails it otherwise.",
+	"type": "object",
+	"properties": {
+		"expression": {
+			"title": "Condition",
+			"description": "A simple condition, such as ${body} contains 'hello'",
+			"type": "string"
+		}
+	},
+	"required": ["expression"],
+	"additionalProperties": false
+}

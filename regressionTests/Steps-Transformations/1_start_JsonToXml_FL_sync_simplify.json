@@ -1,0 +1,232 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a956b61bff351000c000246",
+						"name": "1_start_JsonToXml_FL_sync_simplify",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "1fd195a6-1e0f-4c82-a9e2-5937a9ee10b5",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/1_start_JsonToXml_FL_sync_simplify",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "5c18f99d-c4d2-4f73-8b9b-5cbc7918fb18",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "5c18f99d-c4d2-4f73-8b9b-5cbc7918fb18",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "5c18f99d-c4d2-4f73-8b9b-5cbc7918fb18",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6a08f536-c8dd-4599-bb4f-e83a7b6b6efa",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6a08f536-c8dd-4599-bb4f-e83a7b6b6efa",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<lines>\n    <line>1</line>\n    <line>2</line>\n    <line>3</line>\n    <line>4</line>\n    <line>5</line>\n    <line>6</line>\n    <line>7</line>\n    <line>8</line>\n    <line>9</line>\n    <line>10</line>\n    <line>11</line>\n    <line>12</line>\n    <line>13</line>\n    <line>14</line>\n    <line>15</line>\n    <line>16</line>\n    <line>17</line>\n    <line>18</line>\n    <line>19</line>\n    <line>20</line>\n    <line>21</line>\n    <line>22</line>\n    <line>23</line>\n    <line>24</line>\n    <line>25</line>\n    <line>26</line>\n    <line>27</line>\n    <line>28</line>\n    <line>29</line>\n    <line>30</line>\n    <line>31</line>\n    <line>32</line>\n    <line>33</line>\n    <line>34</line>\n    <line>35</line>\n    <line>36</line>\n    <line>37</line>\n    <line>38</line>\n    <line>39</line>\n    <line>40</line>\n    <line>41</line>\n    <line>42</line>\n    <line>43</line>\n    <line>44</line>\n    <line>45</line>\n    <line>46</line>\n    <line>47</line>\n    <line>48</line>\n    <line>49</line>\n    <line>50</line>\n    <line>51</line>\n    <line>52</line>\n    <line>53</line>\n    <line>54</line>\n    <line>55</line>\n    <line>56</line>\n    <line>57</line>\n    <line>58</line>\n    <line>59</line>\n    <line>60</line>\n    <line>61</line>\n    <line>62</line>\n    <line>63</line>\n    <line>64</line>\n    <line>65</line>\n    <line>66</line>\n    <line>67</line>\n    <line>68</line>\n    <line>69</line>\n    <line>70</line>\n    <line>71</line>\n    <line>72</line>\n    <line>73</line>\n    <line>74</line>\n    <line>75</line>\n    <line>76</line>\n    <line>77</line>\n    <line>78</line>\n    <line>79</line>\n    <line>80</line>\n    <line>81</line>\n    <line>82</line>\n    <line>83</line>\n    <line>84</line>\n    <line>85</line>\n    <line>86</line>\n    <line>87</line>\n    <line>88</line>\n    <line>89</line>\n    <line>90</line>\n    <line>91</line>\n    <line>92</line>\n    <line>93</line>\n    <line>94</line>\n    <line>95</line>\n    <line>96</line>\n    <line>97</line>\n    <line>98</line>\n    <line>99</line>\n    <line>100</line>\n</lines>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6a08f536-c8dd-4599-bb4f-e83a7b6b6efa",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "7636af18-5e0f-4648-92a2-b20a51027acf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "7636af18-5e0f-4648-92a2-b20a51027acf",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "7636af18-5e0f-4648-92a2-b20a51027acf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "ce2cdc4e-5ffb-4aa0-bb63-85d4a8e999c1",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "1868706b-9e32-4032-81df-09d55dacb17f",
+												"bound": "out",
+												"expression": "//line",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "ce2cdc4e-5ffb-4aa0-bb63-85d4a8e999c1",
+									"type": "router",
+									"uri": "wiretap",
+									"links": {
+										"link": [
+											{
+												"id": "ce2cdc4e-5ffb-4aa0-bb63-85d4a8e999c1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "5a514b13-7ebb-41cb-a000-81d2478b7d1d",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "380cd165-9c5d-4f73-996f-a107adf95250",
+												"bound": "out",
+												"rule": "wiretap",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "5a514b13-7ebb-41cb-a000-81d2478b7d1d",
+									"type": "sink",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq",
+										"targetQueueId": "6a956c4bbff351001600020d",
+										"exchangePattern": "InOnly",
+										"requestTimout": "20000"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "5a514b13-7ebb-41cb-a000-81d2478b7d1d",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "380cd165-9c5d-4f73-996f-a107adf95250",
+									"type": "sink",
+									"uri": "queue",
+									"options": {
+										"transport": "activemq",
+										"targetQueueId": "6a956e88bff351000c0002e6",
+										"exchangePattern": "InOnly",
+										"requestTimout": "20000"
+									},
+									"blocks": {
+										"block": {
+											"id": "activemq-connection",
+											"type": "connection"
+										}
+									},
+									"links": {
+										"link": {
+											"id": "380cd165-9c5d-4f73-996f-a107adf95250",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1868706b-9e32-4032-81df-09d55dacb17f",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<lines>\n    <line>1</line>\n    <line>2</line>\n    <line>3</line>\n    <line>4</line>\n    <line>5</line>\n    <line>6</line>\n    <line>7</line>\n    <line>8</line>\n    <line>9</line>\n    <line>10</line>\n    <line>11</line>\n    <line>12</line>\n    <line>13</line>\n    <line>14</line>\n    <line>15</line>\n    <line>16</line>\n    <line>17</line>\n    <line>18</line>\n    <line>19</line>\n    <line>20</line>\n    <line>21</line>\n    <line>22</line>\n    <line>23</line>\n    <line>24</line>\n    <line>25</line>\n    <line>26</line>\n    <line>27</line>\n    <line>28</line>\n    <line>29</line>\n    <line>30</line>\n    <line>31</line>\n    <line>32</line>\n    <line>33</line>\n    <line>34</line>\n    <line>35</line>\n    <line>36</line>\n    <line>37</line>\n    <line>38</line>\n    <line>39</line>\n    <line>40</line>\n    <line>41</line>\n    <line>42</line>\n    <line>43</line>\n    <line>44</line>\n    <line>45</line>\n    <line>46</line>\n    <line>47</line>\n    <line>48</line>\n    <line>49</line>\n    <line>50</line>\n    <line>51</line>\n    <line>52</line>\n    <line>53</line>\n    <line>54</line>\n    <line>55</line>\n    <line>56</line>\n    <line>57</line>\n    <line>58</line>\n    <line>59</line>\n    <line>60</line>\n    <line>61</line>\n    <line>62</line>\n    <line>63</line>\n    <line>64</line>\n    <line>65</line>\n    <line>66</line>\n    <line>67</line>\n    <line>68</line>\n    <line>69</line>\n    <line>70</line>\n    <line>71</line>\n    <line>72</line>\n    <line>73</line>\n    <line>74</line>\n    <line>75</line>\n    <line>76</line>\n    <line>77</line>\n    <line>78</line>\n    <line>79</line>\n    <line>80</line>\n    <line>81</line>\n    <line>82</line>\n    <line>83</line>\n    <line>84</line>\n    <line>85</line>\n    <line>86</line>\n    <line>87</line>\n    <line>88</line>\n    <line>89</line>\n    <line>90</line>\n    <line>91</line>\n    <line>92</line>\n    <line>93</line>\n    <line>94</line>\n    <line>95</line>\n    <line>96</line>\n    <line>97</line>\n    <line>98</line>\n    <line>99</line>\n    <line>100</line>\n</lines>"
+									},
+									"links": {
+										"link": {
+											"id": "1868706b-9e32-4032-81df-09d55dacb17f",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a956b61bff351000c000248",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"connections": {
+				"connection": {
+					"id": "activemq-connection",
+					"name": "activemq",
+					"type": "activemq",
+					"keys": {
+						"jmsprovider": "classic",
+						"pooled": "true",
+						"url": "tcp://assimbly-broker-test:61616",
+						"username": "admin",
+						"password": "admin"
+					}
+				}
+			}
+		}
+	}
+}

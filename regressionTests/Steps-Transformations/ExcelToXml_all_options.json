@@ -1,0 +1,89 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6967c033633fc0001200001c",
+						"name": "ExcelToXml_all_options",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "0ac345d6-9c49-4e3a-a64c-2a3496b3004e",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/ExcelToXml_all_options",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "23fb5d76-ebc5-4d72-a110-22c7ed8d6282",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "23fb5d76-ebc5-4d72-a110-22c7ed8d6282",
+									"type": "action",
+									"uri": "exceltoxml",
+									"options": {
+										"rules": "[{\"name\":\"AllFalse\",\"worksheet\":\"Blad1\",\"cellRange\":\"A1:C30\",\"transpose\":false,\"headerRow\":false,\"discardEmpty\":false},{\"name\":\"Transpose\",\"worksheet\":\"Blad1\",\"cellRange\":\"A1:C30\",\"transpose\":true,\"headerRow\":false,\"discardEmpty\":false},{\"name\":\"HasHeaderRow\",\"worksheet\":\"Blad1\",\"cellRange\":\"A1:C30\",\"transpose\":false,\"headerRow\":true,\"discardEmpty\":false},{\"name\":\"DiscardEmptyCells\",\"worksheet\":\"Blad1\",\"cellRange\":\"A1:C30\",\"transpose\":false,\"headerRow\":false,\"discardEmpty\":true},{\"name\":\"AllTrue\",\"worksheet\":\"Blad1\",\"cellRange\":\"A1:C30\",\"transpose\":true,\"headerRow\":true,\"discardEmpty\":true}]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "23fb5d76-ebc5-4d72-a110-22c7ed8d6282",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "e472072b-8202-45ba-b970-e9c102979a5b",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "e472072b-8202-45ba-b970-e9c102979a5b",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "e472072b-8202-45ba-b970-e9c102979a5b",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6967c033633fc0001200001e",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,167 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:sftpenrich-action",
+	"title": "sftpenrich action",
+	"description": "Replaces the body with the content of the first file of an SFTP directory that the options select (a content enricher that polls); sets file.name and Content-Type. The file is then deleted or moved to the folder move. Without a file the message passes on unchanged, or fails with abortMode.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address",
+			"description": "From the URI: sftp:[//][user@]host[:port]/directory. The directory is below the login directory; after a double slash (host//dir) it is absolute",
+			"type": "string"
+		},
+		"userName": {
+			"title": "User name",
+			"description": "User to log in as",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Password",
+			"description": "Password; env DIF_SFTP_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"disconnect": {
+			"title": "Disconnect",
+			"description": "Close the connection after each use; false keeps it open between uses, until it is idle for 30 seconds",
+			"type": "boolean",
+			"default": true
+		},
+		"passiveMode": {
+			"title": "Passive mode",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "boolean",
+			"default": true
+		},
+		"privateKey": {
+			"title": "Private key",
+			"description": "File with the private key to log in with; instead of or besides the password",
+			"type": "string",
+			"default": ""
+		},
+		"privateKeyPassphrase": {
+			"title": "Key passphrase",
+			"description": "Passphrase of an encrypted private key; env DIF_SFTP_PRIVATE_KEY_PASSPHRASE (or its _FILE companion)",
+			"type": "string"
+		},
+		"knownHostsFile": {
+			"title": "Known hosts",
+			"description": "known_hosts file to check the server key against; \"\" for ~/.ssh/known_hosts",
+			"type": "string",
+			"default": ""
+		},
+		"strictHostKeyChecking": {
+			"title": "Check host key",
+			"description": "false trusts any server, which leaves the connection open to impersonation",
+			"type": "boolean",
+			"default": true
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to connect and log in",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"recursive": {
+			"title": "Recursive",
+			"description": "Also look in subdirectories, except those starting with a dot and the folders move and moveFailed",
+			"type": "boolean",
+			"default": false
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Only the file with this name; not with include or exclude",
+			"type": "string",
+			"default": ""
+		},
+		"include": {
+			"title": "Include",
+			"description": "Regular expression the file name must match; \"\" for any",
+			"type": "string",
+			"default": ""
+		},
+		"exclude": {
+			"title": "Exclude",
+			"description": "Regular expression the file name must not match; \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"binary": {
+			"title": "Binary",
+			"description": "Keep the content as bytes instead of text",
+			"type": "boolean",
+			"default": false
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the files: UTF-8, ISO-8859-1 or US-ASCII",
+			"type": "string",
+			"default": "utf-8"
+		},
+		"sortBy": {
+			"title": "Sort by",
+			"description": "Order of the files; by name if empty",
+			"type": "string",
+			"enum": [
+				"",
+				"file:name",
+				"reverse:file:name",
+				"file:modified",
+				"reverse:file:modified"
+			],
+			"default": ""
+		},
+		"maxMessagesPerPoll": {
+			"title": "Files per poll",
+			"description": "Accepted for compatibility; one file enriches the message",
+			"type": "integer",
+			"minimum": -1,
+			"default": 1
+		},
+		"delete": {
+			"title": "Delete",
+			"description": "Delete the file once it is consumed, instead of moving it",
+			"type": "boolean",
+			"default": false
+		},
+		"move": {
+			"title": "Move to",
+			"description": "Folder the file is moved to once read, below the directory (or absolute); \"\" leaves it",
+			"type": "string",
+			"default": ".archive"
+		},
+		"moveFailed": {
+			"title": "Move failed to",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ".error"
+		},
+		"autoCreate": {
+			"title": "Auto create",
+			"description": "Accepted for compatibility; a missing directory holds no files",
+			"type": "boolean",
+			"default": true
+		},
+		"readLock": {
+			"title": "Read lock",
+			"description": "changed: only take a file that has not changed for a second",
+			"type": "string",
+			"enum": [
+				"none",
+				"changed"
+			],
+			"default": "none"
+		},
+		"abortMode": {
+			"title": "Abort mode",
+			"description": "Fail the message if there is no file, instead of passing it on unchanged",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"required": [
+		"path"
+	],
+	"additionalProperties": false
+}

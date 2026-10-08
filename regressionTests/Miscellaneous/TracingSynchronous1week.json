@@ -1,0 +1,623 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "6a55e21638693b0016000049",
+						"name": "TracingSynchronous1week",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "73fc8c22-34af-42ec-84bf-0bfb32e06a9d",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/TracingSynchronous1week",
+									"options": {
+										"matchOnUriPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut",
+										"authenticationPreemptive": false
+									},
+									"links": {
+										"link": {
+											"id": "6494c3aa-b5ce-460b-a240-e592a42859a6",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6494c3aa-b5ce-460b-a240-e592a42859a6",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "<?xml version=\"1.0\" encoding=\"UTF-8\"?> <items> <item> <ID>1</ID> <Name>Pete</Name> <Number>1001</Number> </item> <item> <ID>2</ID> <Name>John</Name> <Number>1002</Number> </item> <item> <ID>3</ID> <Name>Frank</Name> <Number>1003</Number> </item> <item> <ID>4</ID> <Name>Max</Name> <Number>1004</Number> </item> </items>"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6494c3aa-b5ce-460b-a240-e592a42859a6",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8fb7adff-a085-4e6d-a881-ca581378e2a4",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8fb7adff-a085-4e6d-a881-ca581378e2a4",
+									"type": "action",
+									"uri": "xmltocsv",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"delimiter": ",",
+										"lineSeparator": "linefeed",
+										"orderHeaders": "unordered",
+										"quoteFields": "all_fields"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "8fb7adff-a085-4e6d-a881-ca581378e2a4",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "a1a3f1ae-2a98-4518-8723-125ece373a54",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "a1a3f1ae-2a98-4518-8723-125ece373a54",
+									"type": "action",
+									"uri": "csvtoxml",
+									"options": {
+										"delimiter": ",",
+										"useHeader": true,
+										"encoding": "UTF-8"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "a1a3f1ae-2a98-4518-8723-125ece373a54",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "fedaefa2-f449-4bf1-8ff0-1e054fcea5b1",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "fedaefa2-f449-4bf1-8ff0-1e054fcea5b1",
+									"type": "action",
+									"uri": "xmltojson",
+									"options": {
+										"forceTopLevelObject": true,
+										"skipWhitespace": false,
+										"trimSpaces": false,
+										"skipNamespaces": false,
+										"removeNamespacePrefixes": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "fedaefa2-f449-4bf1-8ff0-1e054fcea5b1",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "58d78169-3558-402c-b018-280f897fc2f7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "58d78169-3558-402c-b018-280f897fc2f7",
+									"type": "action",
+									"uri": "jsontoxmlsimple",
+									"options": {
+										"addRoot": true,
+										"rootTag": "root",
+										"checkJsonKeys": false,
+										"changeArrayElements": false,
+										"arrayElementName": "element"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "58d78169-3558-402c-b018-280f897fc2f7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "d63cb113-4a4f-40fb-b3c9-65c8da18dcdd",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "d63cb113-4a4f-40fb-b3c9-65c8da18dcdd",
+									"type": "action",
+									"uri": "xmltoexcel",
+									"options": {
+										"includeHeader": true,
+										"includeIndexColumn": false,
+										"indexColumnName": "line",
+										"orderHeaders": "unordered",
+										"excelFormat": "xlsx",
+										"useCustomWorksheets": true,
+										"worksheets": "RAW(WyJ7XCJuYW1lXCI6XCJQZW9wbGVcIixcInhQYXRoRXhwcmVzc2lvblwiOlwiL3Jvb3QvaXRlbXNcIn0iXQ==)"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "d63cb113-4a4f-40fb-b3c9-65c8da18dcdd",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "01ad645d-c787-4f23-bb99-2797b94cb8f3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "01ad645d-c787-4f23-bb99-2797b94cb8f3",
+									"type": "action",
+									"uri": "exceltoxml",
+									"options": {
+										"rules": "[{\"name\":\"person\",\"worksheet\":\"people\",\"cellRange\":\"A1:C5\",\"transpose\":false,\"headerRow\":true,\"discardEmpty\":false},{\"name\":\"item\",\"worksheet\":\"people\",\"cellRange\":\"A1:C5\",\"transpose\":true,\"headerRow\":false,\"discardEmpty\":false}]"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "01ad645d-c787-4f23-bb99-2797b94cb8f3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "6d8ebe8f-e8df-481d-83a1-bf472fa5a6ac",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "6d8ebe8f-e8df-481d-83a1-bf472fa5a6ac",
+									"type": "router",
+									"uri": "splitandaggregate",
+									"options": {
+										"language": "xpath",
+										"aggregateType": "xml",
+										"streaming": false,
+										"parallelProcessing": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "6d8ebe8f-e8df-481d-83a1-bf472fa5a6ac",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "38b60bb3-5f00-4599-b4a4-ae9bec686294",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "051fa27d-4878-4e54-819e-bddfd5ad6d49",
+												"bound": "out",
+												"expression": "//excelRow",
+												"rule": "split",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "38b60bb3-5f00-4599-b4a4-ae9bec686294",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "environment"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "38b60bb3-5f00-4599-b4a4-ae9bec686294",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "362924b2-4214-45b1-9733-d62d44dd0396",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "362924b2-4214-45b1-9733-d62d44dd0396",
+									"type": "action",
+									"uri": "texttobase64",
+									"links": {
+										"link": [
+											{
+												"id": "362924b2-4214-45b1-9733-d62d44dd0396",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3dbb2f58-d494-4055-a088-41064ad04057",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3dbb2f58-d494-4055-a088-41064ad04057",
+									"type": "action",
+									"uri": "base64totext",
+									"links": {
+										"link": [
+											{
+												"id": "3dbb2f58-d494-4055-a088-41064ad04057",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3a8775d2-29f6-4f94-ad70-dd544c2701a7",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3a8775d2-29f6-4f94-ad70-dd544c2701a7",
+									"type": "action",
+									"uri": "xmltojsonsimple",
+									"options": {
+										"removeRoot": false,
+										"removeNamespaces": false,
+										"keepStrings": false,
+										"hasTypes": false,
+										"typeValueMismatch": "original"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3a8775d2-29f6-4f94-ad70-dd544c2701a7",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cd87a573-0eba-4180-8975-fd1df53151d8",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cd87a573-0eba-4180-8975-fd1df53151d8",
+									"type": "action",
+									"uri": "jsontoxml",
+									"options": {
+										"elementName": "element",
+										"arrayName": "array",
+										"rootName": "root",
+										"namespaceLenient": false,
+										"typeHints": false
+									},
+									"links": {
+										"link": [
+											{
+												"id": "cd87a573-0eba-4180-8975-fd1df53151d8",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "78d773ca-0bad-47fc-aee8-173ffc8a3b87",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "78d773ca-0bad-47fc-aee8-173ffc8a3b87",
+									"type": "action",
+									"uri": "replace",
+									"options": {
+										"regex": "<root><Aggregated>",
+										"flags": "s",
+										"replaceWith": "<employees>",
+										"group": 0
+									},
+									"links": {
+										"link": [
+											{
+												"id": "78d773ca-0bad-47fc-aee8-173ffc8a3b87",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "705e03e3-6347-49cb-95af-93e00e448881",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "705e03e3-6347-49cb-95af-93e00e448881",
+									"type": "action",
+									"uri": "replace",
+									"options": {
+										"regex": "</Aggregated></root>",
+										"flags": "s",
+										"replaceWith": "</employees>",
+										"group": 0
+									},
+									"links": {
+										"link": [
+											{
+												"id": "705e03e3-6347-49cb-95af-93e00e448881",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "f61fb141-d7dc-490c-90f4-cd4daf664acf",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "f61fb141-d7dc-490c-90f4-cd4daf664acf",
+									"type": "router",
+									"uri": "enrich",
+									"options": {
+										"enrichMethod": "xml",
+										"useErrorRoute": true
+									},
+									"links": {
+										"link": [
+											{
+												"id": "f61fb141-d7dc-490c-90f4-cd4daf664acf",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "36ede10c-619c-4099-8766-c4f9f0f976f3",
+												"bound": "out",
+												"transport": "sync"
+											},
+											{
+												"id": "d3c722aa-194b-437e-96fa-3fecdccdeb77",
+												"bound": "out",
+												"rule": "enrich",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "36ede10c-619c-4099-8766-c4f9f0f976f3",
+									"type": "action",
+									"uri": "xslt:ref:6d5cd13f-40dc-4ed3-9eda-638f7ea7c079",
+									"links": {
+										"link": [
+											{
+												"id": "36ede10c-619c-4099-8766-c4f9f0f976f3",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "1056d649-9718-4c90-8f87-3bb1d648b611",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "1056d649-9718-4c90-8f87-3bb1d648b611",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "1056d649-9718-4c90-8f87-3bb1d648b611",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "d3c722aa-194b-437e-96fa-3fecdccdeb77",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<jobs>\n     <job>carpenter</job>\n     <job>mason</job>\n     <job>painter</job>\n</jobs>"
+									},
+									"links": {
+										"link": {
+											"id": "d3c722aa-194b-437e-96fa-3fecdccdeb77",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "051fa27d-4878-4e54-819e-bddfd5ad6d49",
+									"type": "action",
+									"uri": "setheaders:message:051fa27d-4878-4e54-819e-bddfd5ad6d49",
+									"links": {
+										"link": [
+											{
+												"id": "051fa27d-4878-4e54-819e-bddfd5ad6d49",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "3142af3b-5cd1-4075-ac7a-652678bd3557",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "3142af3b-5cd1-4075-ac7a-652678bd3557",
+									"type": "router",
+									"uri": "content",
+									"options": {
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "3142af3b-5cd1-4075-ac7a-652678bd3557",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "db301581-097e-472e-ad2d-e787e9b00eb1",
+												"bound": "out",
+												"pattern": "InOut",
+												"transport": "sync"
+											},
+											{
+												"id": "1918410d-9e76-478a-8cc8-c0fcfacdb2f2",
+												"bound": "out",
+												"expression": "${header.name} != 'Pete'",
+												"language": "simple",
+												"pattern": "InOut",
+												"rule": "not_pete",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "db301581-097e-472e-ad2d-e787e9b00eb1",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<employee/>"
+									},
+									"links": {
+										"link": {
+											"id": "db301581-097e-472e-ad2d-e787e9b00eb1",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "1918410d-9e76-478a-8cc8-c0fcfacdb2f2",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "<employee>\n     <id>${header.id}</id>\n     <name>${header.name}</name>\n</employee>"
+									},
+									"links": {
+										"link": {
+											"id": "1918410d-9e76-478a-8cc8-c0fcfacdb2f2",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "6a55e21638693b001600004b",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"resources": {
+				"resource": {
+					"name": "6d5cd13f-40dc-4ed3-9eda-638f7ea7c079",
+					"content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n    <xsl:output method=\"xml\" indent=\"yes\"/>\n    \n    <xsl:template match=\"/\">\n        <Enriched>\n            <employees>\n                <employee>\n                    <xsl:apply-templates select=\"/Enriched/employees/employee/element\"/>\n                </employee>\n            </employees>\n        </Enriched>\n    </xsl:template>\n    \n    <xsl:template match=\"element\">\n        <element>\n            <xsl:copy-of select=\"name\"/>\n            <xsl:copy-of select=\"id\"/>\n            <job>\n                <xsl:choose>\n                    <xsl:when test=\"name='John'\">carpenter</xsl:when>\n                    <xsl:when test=\"name='Frank'\">mason</xsl:when>\n                    <xsl:when test=\"name='Max'\">painter</xsl:when>\n                </xsl:choose>\n            </job>\n        </element>\n    </xsl:template>\n    \n</xsl:stylesheet>"
+				}
+			},
+			"messages": {
+				"message": {
+					"name": "051fa27d-4878-4e54-819e-bddfd5ad6d49",
+					"headers": {
+						"header": [
+							{
+								"type": "header",
+								"language": "xpath",
+								"name": "number",
+								"value": "//Number/text()"
+							},
+							{
+								"type": "header",
+								"language": "xpath",
+								"name": "ID",
+								"value": "//ID/text()"
+							},
+							{
+								"type": "header",
+								"language": "xpath",
+								"name": "Name",
+								"value": "//Name/text()"
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+}

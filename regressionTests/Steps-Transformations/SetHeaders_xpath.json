@@ -1,0 +1,246 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "69738774f624bf000c000000",
+						"name": "SetHeaders_xpath",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "caeb50d2-1d46-4b76-a3fb-b97cc536fa9f",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/regressiontests/SetHeaders_xpath",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "eebe19be-a90d-4016-a607-035ca994f706",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "eebe19be-a90d-4016-a607-035ca994f706",
+									"type": "action",
+									"uri": "setheaders:message:eebe19be-a90d-4016-a607-035ca994f706",
+									"links": {
+										"link": [
+											{
+												"id": "eebe19be-a90d-4016-a607-035ca994f706",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "67e75408-3a1c-4a27-9b5a-a8bf95321f9f",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "67e75408-3a1c-4a27-9b5a-a8bf95321f9f",
+									"type": "action",
+									"uri": "setheaders:message:67e75408-3a1c-4a27-9b5a-a8bf95321f9f",
+									"links": {
+										"link": [
+											{
+												"id": "67e75408-3a1c-4a27-9b5a-a8bf95321f9f",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "cf879893-19a1-437d-8347-36263729e353",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "cf879893-19a1-437d-8347-36263729e353",
+									"type": "action",
+									"uri": "setheaders:message:cf879893-19a1-437d-8347-36263729e353",
+									"links": {
+										"link": [
+											{
+												"id": "cf879893-19a1-437d-8347-36263729e353",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "8526cf6a-f439-4778-85ad-ccdbea2c8b6e",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "8526cf6a-f439-4778-85ad-ccdbea2c8b6e",
+									"type": "action",
+									"uri": "setheaders:message:8526cf6a-f439-4778-85ad-ccdbea2c8b6e",
+									"links": {
+										"link": [
+											{
+												"id": "8526cf6a-f439-4778-85ad-ccdbea2c8b6e",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "bde09593-f3aa-455c-a461-36b727f7e572",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "bde09593-f3aa-455c-a461-36b727f7e572",
+									"type": "action",
+									"uri": "setheaders:message:bde09593-f3aa-455c-a461-36b727f7e572",
+									"links": {
+										"link": [
+											{
+												"id": "bde09593-f3aa-455c-a461-36b727f7e572",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "68dc6fb1-ceba-40ea-837e-59afbbf29930",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "68dc6fb1-ceba-40ea-837e-59afbbf29930",
+									"type": "action",
+									"uri": "removeheaders",
+									"options": {
+										"pattern": "*",
+										"excludePattern": "max|avg|distinctValues|datetime|value"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "68dc6fb1-ceba-40ea-837e-59afbbf29930",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "25ccdc31-039b-4954-af67-cd4d9335b7f3",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "25ccdc31-039b-4954-af67-cd4d9335b7f3",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "25ccdc31-039b-4954-af67-cd4d9335b7f3",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "77edb9f5-9cd1-4c57-b14a-94369b7ce0de",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"maximumRedeliveries": 0,
+										"redeliveryDelay": 0
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "regressiontests",
+							"version": 9
+						}
+					}
+				}
+			}
+		},
+		"core": {
+			"messages": {
+				"message": [
+					{
+						"name": "eebe19be-a90d-4016-a607-035ca994f706",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "max",
+								"value": "max(//orderline/item)"
+							}
+						}
+					},
+					{
+						"name": "67e75408-3a1c-4a27-9b5a-a8bf95321f9f",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "avg",
+								"value": "avg(//order/orderlines/orderline/value)"
+							}
+						}
+					},
+					{
+						"name": "cf879893-19a1-437d-8347-36263729e353",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "distinctValues",
+								"value": "distinct-values(string-join((//item),\"--\"))"
+							}
+						}
+					},
+					{
+						"name": "8526cf6a-f439-4778-85ad-ccdbea2c8b6e",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "datetime",
+								"value": "year-from-dateTime(//datetime/text())"
+							}
+						}
+					},
+					{
+						"name": "bde09593-f3aa-455c-a461-36b727f7e572",
+						"headers": {
+							"header": {
+								"type": "header",
+								"language": "xpath",
+								"name": "value",
+								"value": "//orderline[1]/value/number()"
+							}
+						}
+					}
+				]
+			}
+		}
+	}
+}
