@@ -342,7 +342,7 @@ func TestExamplesThatLoad(t *testing.T) {
 		return strings.Join(loaded, " ")
 	}
 
-	want := "aggregate.json base64ToText.json contentrouter.json csvtoxml.json deadletter.json editoxml.json emailinbound.json emailoutbound.json encoder.json enrich.json errorHandler.json exceltoxml.json " +
+	want := "aggregate.json as2Inbound.json as2Outbound.json base64ToText.json contentrouter.json csvtoxml.json deadletter.json editoxml.json emailinbound.json emailoutbound.json encoder.json enrich.json errorHandler.json exceltoxml.json " +
 		"fileEnrich.json fileInbound.json fileOutbound.json filter.json flowLinkInbound.json flowLinkOutbound.json flowlinkAsynInbound.json flowlinkAsyncOutbound.json flv.json formToXml.json getTenantVariable.json " +
 		"googleDriveOutbound.json googledriveInbound.json httpsInbound.json jsontoxml.json jsontoxmlsimple.json log.json multipart.json pedroteste.json queueAsynchronousOutbound.json queueInbound.json queueOutbound.json recipient.json " +
 		"removeCookie.json removeHeaders.json removeTenantVariable.json repeater.json replace.json sambaEnrich.json sambaInbound.json sambaOutbound.json scheduler.json setBody.json setCookie.json setOneWay.json setRequestReply.json " +

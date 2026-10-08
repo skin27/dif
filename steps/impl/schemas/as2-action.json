@@ -1,0 +1,161 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:as2-action",
+	"title": "as2 action",
+	"description": "Sends the body to a trading partner by AS2 (RFC 4130): compressed, signed and encrypted as as2MessageStructure says, in a POST to the partner, and checks the receipt (MDN) in the response. The body goes on unchanged; the headers AS2-Message-Id, AS2-MDN-Disposition, AS2-MDN-Signed and http.status are set. Asynchronous receipts are not supported.",
+	"type": "object",
+	"properties": {
+		"hostName": {
+			"title": "Host",
+			"description": "Host name of the partner's AS2 server",
+			"type": "string"
+		},
+		"targetPortNumber": {
+			"title": "Port",
+			"description": "Port of the partner; https is used for 443 and 8443, and when sslContext is set, else http",
+			"type": "string",
+			"default": ""
+		},
+		"port": {
+			"title": "Port (alias)",
+			"description": "The same as targetPortNumber, which wins",
+			"type": "string",
+			"default": ""
+		},
+		"requestUri": {
+			"title": "Request URI",
+			"description": "Path of the partner's AS2 endpoint, such as /as2/inbound",
+			"type": "string",
+			"default": ""
+		},
+		"uri": {
+			"title": "URI (alias)",
+			"description": "The same as requestUri, which wins",
+			"type": "string",
+			"default": ""
+		},
+		"as2From": {
+			"title": "AS2-From",
+			"description": "AS2 identifier of this side",
+			"type": "string"
+		},
+		"as2To": {
+			"title": "AS2-To",
+			"description": "AS2 identifier of the partner",
+			"type": "string"
+		},
+		"subject": {
+			"title": "Subject",
+			"description": "Subject of the message; a header subject of the message overrides it",
+			"type": "string",
+			"default": ""
+		},
+		"ediMessageContentType": {
+			"title": "Content type",
+			"description": "Content type of the document, such as application/edifact or application/edi-x12; else messageContentType, else application/edifact",
+			"type": "string",
+			"default": ""
+		},
+		"messageContentType": {
+			"title": "Content type (alias)",
+			"description": "Used when ediMessageContentType is not set",
+			"type": "string",
+			"default": ""
+		},
+		"as2MessageStructure": {
+			"title": "Structure",
+			"description": "PLAIN, SIGNED, ENCRYPTED, SIGNED_ENCRYPTED, PLAIN_COMPRESSED, SIGNED_COMPRESSED, ENCRYPTED_COMPRESSED or ENCRYPTED_COMPRESSED_SIGNED. Compressed first, then signed, then encrypted",
+			"type": "string",
+			"default": "PLAIN"
+		},
+		"signingAlgorithm": {
+			"title": "Signing algorithm",
+			"description": "SHA1WITHRSA, SHA256WITHRSA, SHA384WITHRSA or SHA512WITHRSA; it is also the digest of the receipt's integrity check",
+			"type": "string",
+			"default": "SHA256WITHRSA"
+		},
+		"encryptingAlgorithm": {
+			"title": "Encrypting algorithm",
+			"description": "AES128_CBC, AES192_CBC, AES256_CBC or DES_EDE3_CBC",
+			"type": "string",
+			"default": "AES128_CBC"
+		},
+		"certificateForSigning": {
+			"title": "Signing key",
+			"description": "The private key and certificate this side signs with: PEM text, the address (http:// or https://) of PEM, or the path of a PEM file or PKCS#12 keystore (opened with password)",
+			"type": "string",
+			"default": ""
+		},
+		"certificateForEncrypt": {
+			"title": "Partner certificate",
+			"description": "The partner's certificate, to encrypt for; it also decides whom a signed receipt must be from: PEM text, the address (http:// or https://) of PEM, or the path of a PEM file or PKCS#12 keystore (opened with password)",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Keystore password",
+			"description": "Password of a PKCS#12 keystore in certificateForSigning or certificateForEncrypt",
+			"type": "string",
+			"default": ""
+		},
+		"keyAlias": {
+			"title": "Key alias",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "string",
+			"default": ""
+		},
+		"sslContext": {
+			"title": "SSL context",
+			"description": "Accepted for compatibility: it selects https. The trust store options are what trusts the partner's certificate",
+			"type": "string",
+			"default": ""
+		},
+		"mdn": {
+			"title": "Receipt",
+			"description": "sync: ask for a receipt and fail if it is missing, reports a problem or has another integrity check; none: do not ask",
+			"type": "string",
+			"default": "sync",
+			"enum": [
+				"sync",
+				"none"
+			]
+		},
+		"dispositionNotificationTo": {
+			"title": "Receipt address",
+			"description": "Value of Disposition-Notification-To; as2From if empty",
+			"type": "string",
+			"default": ""
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds a call may take, and the fetch of a key from an address",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"connectTimeout": {
+			"title": "Connect timeout",
+			"description": "Milliseconds the connection may take to set up",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust for https calls (also to fetch keys); \"\" trusts the system's roots",
+			"type": "string",
+			"default": ""
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		}
+	},
+	"required": [
+		"hostName",
+		"as2From",
+		"as2To"
+	],
+	"additionalProperties": false
+}
