@@ -1273,7 +1273,7 @@ flows, custom steps and broken fixtures are skipped. See
 
 ## Future work
 
-- More sources and steps (imaps, xslt, …); FTPS; multiple flows per file
+- More steps (`pdftotext`, `headerstopdf`, `edifacttoxml`, the AI and `jolt`/`jslt`/`jsonata` family, `awss3`, `restopenapi`); multiple flows per file
 - Message definitions for `xmltoedifact` (EDIFACT directories such as d96a),
   to restore the positions of omitted elements, and a matching EDIFACT to XML
 - Persisted tenant variables (the seam is `tenantStore`) and cookies
