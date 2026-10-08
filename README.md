@@ -1,7 +1,7 @@
 # DIF — Data Integration Framework
 
 A minimal Go prototype of an integration framework (the standard library only,
-apart from the SFTP client: see [FTP and SFTP](#ftp-and-sftp)) built on
+apart from the few libraries that AGENTS.md lists) built on
 Flow-Based Programming, Enterprise Integration Patterns and DIL
 (Data Integration Language). Background: [Integration Language Design](https://raymondmeester.medium.com/integration-language-design-da4cf51a05c0).
 
@@ -582,9 +582,12 @@ using anything else fails registration.
 | `wastebin` | action or sink | – | Drops the message: the steps after it never get it |
 | `jsonvalidator:ref:<resource>` | action | – (the schema is the DIL resource) | Validates a JSON body against the JSON Schema in `dil.core.resources`, as `validate` does |
 | `fileenrich:<dir>` | action | `fileName`, `include`, `exclude` (regular expressions on the name), `recursive` (false), `binary` (false), `charset` UTF-8, ISO-8859-1 or US-ASCII (utf-8), `delete` (false) | Replaces the body with the content of the first file (by name) the options select, and sets `file.name` and Content-Type; without one the message passes on unchanged. The file stays unless `delete` |
-| `ftp:<host>[:<port>]/<dir>` | source | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `delay`, `initialDelay` (60000), `maxMessagesPerPoll` (1; 0 or -1 for all), `autoCreate` (true), `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000), `passiveMode` (true; false is rejected) | Polls an FTP directory and produces a message per file; see [FTP and SFTP](#ftp-and-sftp) |
-| `ftp:<host>[:<port>]/<dir>` | sink | `fileName`, `binary`, `charset`, `autoCreate` (true), `fileExist` Override\|Append\|Fail\|Ignore (Override), `implicit` (false; FTPS is rejected), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Writes the body to a file in the directory |
+| `ftp:<host>[:<port>]/<dir>` | source | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `delay`, `initialDelay` (60000), `maxMessagesPerPoll` (1; 0 or -1 for all), `autoCreate` (true), `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000), `passiveMode` (true; false is rejected) | Polls an FTP directory and produces a message per file; see [FTP, FTPS and SFTP](#ftp-ftps-and-sftp) |
+| `ftp:<host>[:<port>]/<dir>` | sink | `fileName`, `binary`, `charset`, `autoCreate` (true), `fileExist` Override\|Append\|Fail\|Ignore (Override), `implicit` (false; true is rejected, use `ftps`), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Writes the body to a file in the directory |
 | `ftpenrich:<host>[:<port>]/<dir>` | action | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `abortMode` (false), `autoCreate`, `maxMessagesPerPoll` (no effect), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Replaces the body with the content of the first file; moves or deletes it afterwards |
+| `ftps:<host>[:<port>]/<dir>` | source | as the `ftp` source, and `implicit` (false), `trustStoreFile`, `trustStorePassword` | The `ftp` source over TLS; env `DIF_FTPS_PASSWORD` |
+| `ftps:<host>[:<port>]/<dir>` | sink | as the `ftp` sink with `implicit`, and `trustStoreFile`, `trustStorePassword` | The `ftp` sink over TLS |
+| `ftpsenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, and `implicit`, `trustStoreFile`, `trustStorePassword` | `ftpenrich` over TLS |
 | `sftp:<host>[:<port>]/<dir>` | source | as `ftp`, and `privateKey` (a file), `privateKeyPassphrase` (env `DIF_SFTP_PRIVATE_KEY_PASSPHRASE`), `knownHostsFile`, `strictHostKeyChecking` (true); `passiveMode` has no effect | Polls an SFTP directory |
 | `sftp:<host>[:<port>]/<dir>` | sink | as the `ftp` sink, with the `sftp` connection options | Writes the body to a file |
 | `sftpenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, with the `sftp` connection options | Replaces the body with the content of the first file |
@@ -1117,14 +1120,14 @@ system refuses the login.
 The value `ENC(...)` in `core.connections` is not read: DIF does not use connection
 blocks.
 
-### FTP and SFTP
+### FTP, FTPS and SFTP
 
-The `ftp` and `sftp` steps work on a directory of a remote server as the `file`
+The `ftp`, `ftps` and `sftp` steps work on a directory of a remote server as the `file`
 steps do on a local one, and are the same apart from the connection:
 
 - The URI is `ftp:[//][user@]host[:port]/directory`. The directory is below the
   login directory; `ftp:host//a/b` is the absolute `/a/b`. Ports default to 21
-  and 22. `RAW(...)` around a value (as DIL writes passwords and folder names) is
+  (`ftps`: 990 with `implicit`) and 22. `RAW(...)` around a value (as DIL writes passwords and folder names) is
   removed.
 - The **source** polls every `delay` ms, reads up to `maxMessagesPerPoll` files
   and emits a message each: the body is the content, `file.name` the path below
@@ -1145,10 +1148,20 @@ steps do on a local one, and are the same apart from the connection:
   `abortMode`.
 - `disconnect` false keeps the connection open between uses, and closes it
   after 30 seconds idle; a failed use opens a new one.
-- Not supported, and rejected: FTPS (`implicit`), active FTP (`passiveMode`
-  false). Other options of the Java platform (`stopIfNoFileFound`,
+- Not supported, and rejected: `implicit` on `ftp` (use `ftps`), active FTP
+  (`passiveMode` false). Other options of the Java platform (`stopIfNoFileFound`,
   `maxMessagesPerPoll` of an enricher, `hostName` and `port`, which the URI
   gives) have no effect or are not offered.
+- **`ftps`** (source, sink and `ftpsenrich`) is FTP over TLS (RFC 4217), as Camel's
+  `ftps` component: explicitly, `AUTH TLS` before the login, or with `implicit`
+  true TLS from the first byte; then `PBSZ 0` and `PROT P`, so the data
+  connections are TLS too. They resume the TLS session of the control connection,
+  which servers often require, and their handshake follows the transfer command.
+  The server's certificate is checked against `trustStoreFile` (a PKCS#12 trust
+  store, `security/outbound-truststore.p12` by default, as for the https steps;
+  `trustStorePassword`, env `DIF_TRUSTSTORE_PASSWORD`), or the system's roots if
+  it is empty. The password comes from `DIF_FTPS_PASSWORD` if the option is not
+  given. A server that does not do TLS fails the connection.
 - FTP is plain text: the password and the files cross the network unencrypted.
   It is written with the standard library: passive mode (EPSV, then PASV, always
   to the address it connected to), and MLSD or, if the server has no MLSD, `LIST`
@@ -1158,7 +1171,7 @@ steps do on a local one, and are the same apart from the connection:
   missing file or an unknown server fails the connection with a hint; the Java
   platform does not check. `strictHostKeyChecking` false turns the check off,
   which leaves the connection open to impersonation. SFTP uses
-  `github.com/pkg/sftp` and `golang.org/x/crypto/ssh`: DIF's only dependencies.
+  `github.com/pkg/sftp` and `golang.org/x/crypto/ssh`.
   `socketTimeout` bounds connecting and logging in; an operation on an open SFTP
   connection ends when the flow stops.
 

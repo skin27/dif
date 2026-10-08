@@ -51,6 +51,7 @@ func Register(r *registry.Registry) error {
 		{"topic", stepdef.Source, "Publish-Subscribe Channel", newTopicSource, nil},
 		{"googledrive", stepdef.Source, pollingConsumer, newDriveSource, nil},
 		{"ftp", stepdef.Source, pollingConsumer, newRemoteSource(ftpProtocol), nil},
+		{"ftps", stepdef.Source, pollingConsumer, newRemoteSource(ftpsProtocol), nil},
 		{"sftp", stepdef.Source, pollingConsumer, newRemoteSource(sftpProtocol), nil},
 		{"flowlink", stepdef.Source, "", newFlowLinkSource, []string{"flowlink-async"}},
 		{"repeater", stepdef.Source, "", newTimerSource, nil},
@@ -99,6 +100,7 @@ func Register(r *registry.Registry) error {
 		{"jsonvalidator", stepdef.Action, "", newJSONValidator, nil},
 		{"fileenrich", stepdef.Action, contentEnricher, newFileEnrichAction, nil},
 		{"ftpenrich", stepdef.Action, contentEnricher, newRemoteEnrich(ftpProtocol), nil},
+		{"ftpsenrich", stepdef.Action, contentEnricher, newRemoteEnrich(ftpsProtocol), nil},
 		{"sftpenrich", stepdef.Action, contentEnricher, newRemoteEnrich(sftpProtocol), nil},
 		{"settenantvariable", stepdef.Action, "", newSetTenantVariableAction, nil},
 		{"gettenantvariable", stepdef.Action, "", newGetTenantVariableAction, nil},
@@ -133,6 +135,7 @@ func Register(r *registry.Registry) error {
 		{"wastebin", stepdef.Sink, "", newWastebinSink, nil},
 		{"oauth2token", stepdef.Sink, "", newOAuth2TokenSink, nil},
 		{"ftp", stepdef.Sink, "", newRemoteSink(ftpProtocol), nil},
+		{"ftps", stepdef.Sink, "", newRemoteSink(ftpsProtocol), nil},
 		{"sftp", stepdef.Sink, "", newRemoteSink(sftpProtocol), nil},
 	}
 	for _, b := range builtins {

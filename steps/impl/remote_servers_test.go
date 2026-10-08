@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/tls"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -24,6 +25,8 @@ import (
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
+
+	"dif/keystore"
 )
 
 // remoteEnv is a server for the tests of the ftp and sftp steps, which run
@@ -61,6 +64,8 @@ func (e remoteEnv) local(p string) string { return filepath.Join(e.root, filepat
 func forEachProtocol(t *testing.T, test func(t *testing.T, e remoteEnv)) {
 	t.Helper()
 	t.Run("ftp", func(t *testing.T) { test(t, newFTPEnv(t, nil)) })
+	t.Run("ftps", func(t *testing.T) { test(t, newFTPSEnv(t, false, nil)) })
+	t.Run("ftps-implicit", func(t *testing.T) { test(t, newFTPSEnv(t, true, nil)) })
 	t.Run("sftp", func(t *testing.T) { test(t, newSFTPEnv(t)) })
 }
 
@@ -71,6 +76,26 @@ func newFTPEnv(t *testing.T, configure func(*fakeFTP)) remoteEnv {
 	}
 	f.start()
 	return remoteEnv{"ftp", f.root, f.ln.Addr().String(), map[string]any{"userName": f.user, "password": f.pass}, f.connCount}
+}
+
+// newFTPSEnv is an FTP server that speaks TLS, explicit (AUTH TLS) or implicit,
+// with the identity of the https tests, which the client trusts.
+func newFTPSEnv(t *testing.T, implicit bool, configure func(*fakeFTP)) remoteEnv {
+	f := newFakeFTP(t)
+	cert, err := keystore.LoadIdentity(testIdentity, testPassword)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.tlsConfig, f.implicit = &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}, implicit
+	if configure != nil {
+		configure(f)
+	}
+	f.start()
+	login := map[string]any{
+		"userName": f.user, "password": f.pass, "implicit": implicit,
+		"trustStoreFile": testTrustStore, "trustStorePassword": testPassword,
+	}
+	return remoteEnv{"ftps", f.root, f.ln.Addr().String(), login, f.connCount}
 }
 
 func newSFTPEnv(t *testing.T) remoteEnv {
@@ -91,9 +116,20 @@ type fakeFTP struct {
 	hang                   bool // RETR never completes
 	stop                   chan struct{}
 
-	mu    sync.Mutex
-	conns int
-	cmds  []string
+	// FTPS: tlsConfig makes it a server that speaks TLS, from the first byte if implicit,
+	// else after AUTH TLS. Data connections are TLS after PROT P.
+	tlsConfig    *tls.Config
+	implicit     bool
+	requireReuse bool // a data connection must resume the TLS session of the control connection
+	noCloseNote  bool // data connections are closed without close_notify, as many servers do
+
+	mu       sync.Mutex
+	conns    int
+	cmds     []string
+	tlsData  int // data connections that were TLS
+	resumed  int // of those, the ones that resumed a session
+	authTLS  int // control connections upgraded with AUTH
+	pbszProt []string
 }
 
 func newFakeFTP(t *testing.T) *fakeFTP {
@@ -139,6 +175,9 @@ func (f *fakeFTP) serve() {
 		f.mu.Lock()
 		f.conns++
 		f.mu.Unlock()
+		if f.tlsConfig != nil && f.implicit {
+			c = tls.Server(c, f.tlsConfig)
+		}
 		go f.handle(c)
 	}
 }
@@ -148,7 +187,7 @@ func (f *fakeFTP) path(p string) string {
 }
 
 func (f *fakeFTP) handle(c net.Conn) {
-	defer c.Close()
+	defer func() { c.Close() }()
 	r := textproto.NewReader(bufio.NewReader(c))
 	w := func(format string, args ...any) { fmt.Fprintf(c, format+"\r\n", args...) }
 	w("220 fake ftp")
@@ -158,6 +197,7 @@ func (f *fakeFTP) handle(c net.Conn) {
 		user       string
 		authed     bool
 		renameFrom string
+		protected  bool // PROT P: the data connections are TLS
 	)
 	defer func() {
 		if data != nil {
@@ -175,7 +215,39 @@ func (f *fakeFTP) handle(c net.Conn) {
 		if err != nil {
 			return nil
 		}
+		if protected {
+			tc := tls.Server(dc, f.tlsConfig)
+			tc.SetDeadline(time.Now().Add(5 * time.Second))
+			if err := tc.Handshake(); err != nil {
+				dc.Close()
+				w("425 TLS negotiation failed")
+				return nil
+			}
+			tc.SetDeadline(time.Time{})
+			resumed := tc.ConnectionState().DidResume
+			f.mu.Lock()
+			f.tlsData++
+			if resumed {
+				f.resumed++
+			}
+			f.mu.Unlock()
+			if f.requireReuse && !resumed {
+				tc.Close()
+				w("425 TLS session reuse required")
+				return nil
+			}
+			return tc
+		}
 		return dc
+	}
+	// closeData ends a data connection, with close_notify unless the server is
+	// one that does not send it.
+	closeData := func(dc net.Conn) {
+		if tc, ok := dc.(*tls.Conn); ok && f.noCloseNote {
+			tc.NetConn().Close()
+			return
+		}
+		dc.Close()
 	}
 	listen := func() int {
 		if data != nil {
@@ -197,6 +269,25 @@ func (f *fakeFTP) handle(c net.Conn) {
 		verb = strings.ToUpper(verb)
 
 		switch verb {
+		case "AUTH":
+			if f.tlsConfig == nil || f.implicit || (strings.ToUpper(arg) != "TLS" && strings.ToUpper(arg) != "SSL") {
+				w("504 not supported")
+				continue
+			}
+			w("234 AUTH %s ok", arg)
+			c = tls.Server(c, f.tlsConfig)
+			r = textproto.NewReader(bufio.NewReader(c))
+			f.mu.Lock()
+			f.authTLS++
+			f.mu.Unlock()
+			continue
+		case "PBSZ":
+			w("200 PBSZ=0")
+			continue
+		case "PROT":
+			protected = strings.ToUpper(arg) == "P"
+			w("200 protection set")
+			continue
 		case "USER":
 			user = arg
 			w("331 password please")
@@ -261,7 +352,7 @@ func (f *fakeFTP) handle(c net.Conn) {
 				}
 				fmt.Fprint(dc, f.listLine(verb, fi), "\r\n")
 			}
-			dc.Close()
+			closeData(dc)
 			w("226 done")
 		case "RETR":
 			b, err := os.ReadFile(p)
@@ -280,7 +371,7 @@ func (f *fakeFTP) handle(c net.Conn) {
 				return
 			}
 			dc.Write(b)
-			dc.Close()
+			closeData(dc)
 			w("226 done")
 		case "STOR", "APPE":
 			if _, err := os.Stat(filepath.Dir(p)); err != nil {

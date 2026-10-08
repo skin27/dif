@@ -1,13 +1,13 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "dif:step:ftp-sink",
-	"title": "ftp sink",
-	"description": "Writes the message body to a file in a directory of an FTP server.",
+	"$id": "dif:step:ftps-sink",
+	"title": "ftps sink",
+	"description": "Writes the message body to a file in a directory of an FTPS server.",
 	"type": "object",
 	"properties": {
 		"path": {
 			"title": "Address",
-			"description": "From the URI: ftp:[//][user@]host[:port]/directory. The directory is below the login directory; after a double slash (host//dir) it is absolute",
+			"description": "From the URI: ftps:[//][user@]host[:port]/directory. The directory is below the login directory; after a double slash (host//dir) it is absolute",
 			"type": "string"
 		},
 		"userName": {
@@ -18,7 +18,7 @@
 		},
 		"password": {
 			"title": "Password",
-			"description": "Password; env DIF_FTP_PASSWORD (or its _FILE companion)",
+			"description": "Password; env DIF_FTPS_PASSWORD (or its _FILE companion)",
 			"type": "string"
 		},
 		"disconnect": {
@@ -68,23 +68,27 @@
 			"title": "If the file exists",
 			"description": "Override, Append, Fail (fail the message) or Ignore (write nothing)",
 			"type": "string",
-			"enum": [
-				"Override",
-				"Append",
-				"Fail",
-				"Ignore"
-			],
+			"enum": ["Override", "Append", "Fail", "Ignore"],
 			"default": "Override"
 		},
 		"implicit": {
 			"title": "Implicit FTPS",
-			"description": "ftp is plain text; true is rejected (use ftps)",
+			"description": "true: TLS from the first byte, on port 990 unless the address has a port; false: the client asks for TLS with AUTH TLS (explicit FTPS)",
 			"type": "boolean",
 			"default": false
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": "security/outbound-truststore.p12"
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
 		}
 	},
-	"required": [
-		"path"
-	],
+	"required": ["path"],
 	"additionalProperties": false
 }
