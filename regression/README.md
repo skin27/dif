@@ -103,3 +103,10 @@ Flows with an encrypted value fail to build without it, as they should
 (`TestEncryptedFlowsNeedThePassword`).
 
 Credentials that were committed before are in the git history: rotate them.
+
+## Plan
+
+The work on DIL compatibility goes in phases (harness and sanitizer, `ENC(...)`,
+options and output fidelity, expression engines, small steps, larger steps). The
+phase list, the status and the handover for the next phase are in
+[docs/handover-phase-3.md](../docs/handover-phase-3.md).
