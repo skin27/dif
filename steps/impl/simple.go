@@ -4,102 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-
-	"dif/message"
 )
 
-// expression is a compiled setbody/setheader expression: literal text with
-// references to message keys in between.
-type expression []segment
-
-type segment struct {
-	text string        // literal text; used when key and fn are empty
-	key  string        // message key whose value is inserted
-	fn   func() string // computes the value on every evaluation, such as the date
-	fail error         // evaluating the segment fails with this error
-}
-
-// compileExpression compiles expr in language "constant" (literal text) or
-// "simple", which supports ${body} (also written ${bodyAs(String)}),
-// ${header.<name>}, ${headers.<name>}, ${random(<max>)}, ${random(<min>,<max>)},
-// ${date:now:<format>} and ${date-with-timezone:now:<zone>:<format>} (Java
-// date formats, such as yyyy-MM-dd HH:mm:ss). ${bodyAs(<type>)} with any other
-// type compiles, but fails when evaluated, as converting the body does in
-// Camel; anything else is rejected.
-func compileExpression(language, expr string) (expression, error) {
-	if language == "constant" {
-		return expression{{text: expr}}, nil
-	}
-
-	var e expression
-	for {
-		i := strings.Index(expr, "${")
-		if i < 0 {
-			if expr != "" {
-				e = append(e, segment{text: expr})
-			}
-			return e, nil
-		}
-		j := strings.IndexByte(expr[i:], '}')
-		if j < 0 {
-			return nil, fmt.Errorf("unclosed ${ in expression")
-		}
-		seg, err := simpleRef(expr[i+2 : i+j])
-		if err != nil {
-			return nil, err
-		}
-		if i > 0 {
-			e = append(e, segment{text: expr[:i]})
-		}
-		e = append(e, seg)
-		expr = expr[i+j+1:]
-	}
-}
-
-func simpleRef(ref string) (segment, error) {
-	if ref == "body" || ref == "bodyAs(String)" { // values are rendered as text anyway
-		return segment{key: message.Body}, nil
-	}
-	if fn, ok, err := simpleFunction(ref); ok || err != nil {
-		return segment{fn: fn}, err
-	}
-	if typ, ok := strings.CutPrefix(ref, "bodyAs("); ok && strings.HasSuffix(typ, ")") && isTypeName(typ[:len(typ)-1]) {
-		typ = typ[:len(typ)-1]
-		return segment{fail: fmt.Errorf("${bodyAs(%s)}: the body cannot be converted to %s; only String is supported", typ, typ)}, nil
-	}
-	for _, prefix := range []string{"header.", "headers."} {
-		if name, ok := strings.CutPrefix(ref, prefix); ok && name != "" {
-			return segment{key: name}, nil
-		}
-	}
-	return segment{}, fmt.Errorf("unsupported simple expression ${%s}; use ${body} or ${header.<name>}", ref)
-}
+// The simple language is compiled in simple_compile.go and the files after
+// it. This file holds what a message value looks like as text.
 
 // isTypeName reports whether s looks like a Java type name, such as String,
 // java.lang.Integer or byte[].
 func isTypeName(s string) bool {
 	return s != "" && strings.Trim(s, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.$[]") == ""
-}
-
-// eval returns the expression's value for m. A missing key gives "".
-func (e expression) eval(m message.Message) (string, error) {
-	if len(e) == 1 && e[0].key == "" && e[0].fn == nil && e[0].fail == nil {
-		return e[0].text, nil
-	}
-	var b strings.Builder
-	for _, s := range e {
-		switch {
-		case s.fail != nil:
-			return "", s.fail
-		case s.fn != nil:
-			b.WriteString(s.fn())
-		case s.key == "":
-			b.WriteString(s.text)
-		default:
-			b.WriteString(text(m[s.key]))
-		}
-	}
-	return b.String(), nil
 }
 
 // text renders a message value as text; JSON values are rendered as JSON.

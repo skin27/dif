@@ -32,8 +32,8 @@ import (
 // With retryRequests a call that cannot connect, or that the server answers
 // with 503, is tried again up to retryAttempts times, retryInterval apart.
 type httpsAction struct {
-	url            string     // the address, unless it has ${...} parts
-	dynamicURL     expression // the address with ${...} parts, evaluated for each message; nil if url is it
+	url            string      // the address, unless it has ${...} parts
+	dynamicURL     *expression // the address with ${...} parts, evaluated for each message; nil if url is it
 	method         string
 	client         *http.Client
 	throwOnFailure bool
@@ -62,9 +62,11 @@ func newHTTPSAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	}
 	var err error
 	if target := p["path"].(string); strings.Contains(target, "${") {
-		if a.dynamicURL, err = compileExpression("simple", target); err != nil {
+		x, err := compileExpression("simple", target)
+		if err != nil {
 			return nil, fmt.Errorf("uri: %w", err)
 		}
+		a.dynamicURL = &x
 	} else if a.url, err = httpsURL(target); err != nil {
 		return nil, fmt.Errorf("uri: %w", err)
 	}

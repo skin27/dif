@@ -31,6 +31,9 @@ func compileJSONPath(expr string) (jsonPath, error) {
 		switch {
 		case strings.HasPrefix(rest, ".."):
 			return nil, unsupportedJSONPath(expr)
+		case strings.HasPrefix(rest, ".["): // $.a.[*] is $.a[*]
+			rest = rest[1:]
+			continue
 		case rest[0] == '.':
 			end := strings.IndexAny(rest[1:], ".[") + 1
 			if end == 0 {
@@ -67,6 +70,16 @@ func compileJSONPath(expr string) (jsonPath, error) {
 
 func unsupportedJSONPath(expr string) error {
 	return fmt.Errorf("unsupported jsonpath %q; DIF supports $ followed by .name, ['name'], [n], .* and [*]", expr)
+}
+
+// definite reports whether the path selects at most one value: it has no *.
+func (p jsonPath) definite() bool {
+	for _, s := range p {
+		if s.all {
+			return false
+		}
+	}
+	return true
 }
 
 // eval returns the values the path selects in v, a decoded JSON document.

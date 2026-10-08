@@ -78,8 +78,8 @@ func TestPredicateFailsAtRuntime(t *testing.T) {
 func TestPredicateInvalid(t *testing.T) {
 	for _, tt := range []struct{ lang, expr, want string }{
 		{"groovy", "true", `language "groovy" is not supported`},
-		{"simple", "${body} == 'a' && ${body} == 'b'", "combining conditions is not supported"},
-		{"simple", "${body} == 'a' or ${body} == 'b'", "combining conditions is not supported"},
+		{"simple", "${body} == 'a' and ${body} == 'b'", "combine conditions with && and ||"},
+		{"simple", "${body} == 'a' or ${body} == 'b'", "combine conditions with && and ||"},
 		{"simple", "${date:now} == 'x'", "${date:now}: want ${date:now:<format>}"},
 		{"simple", "${body} == ${random(x)}", "${random(x)}: want random(<max>)"},
 		{"simple", "${body} == ${exchangeId}", "unsupported simple expression ${exchangeId}"},

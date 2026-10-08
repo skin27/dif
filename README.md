@@ -604,16 +604,40 @@ Camel keeps the round of a loop in the exchange property `CamelLoopIndex`, so
 and in DIF alike; DIF has no exchange properties and sets the headers
 `loop.index` and `loop.size` instead, as `split` sets `split.index`.
 
-Language `constant` is the literal text; `simple` replaces `${body}` (also
-written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}`, and
-evaluates `${random(<max>)}` and `${random(<min>,<max>)}` (an integer from min, default
-0, up to max), `${date:now:<format>}` and
-`${date-with-timezone:now:<zone>:<format>}` (the current time; `<format>` is a
-Java date format such as `yyyy-MM-dd HH:mm:ss`, `<zone>` an IANA zone such as
-`Europe/Amsterdam`).
-`${bodyAs(<type>)}` with another type loads but fails the message when it is
-evaluated, as the conversion does in Camel (`deadletter.json` relies on it).
-Other `${…}` expressions are rejected when the flow is loaded.
+Language `constant` is the literal text. Language `simple` is the simple
+language of Camel (camel-core-languages 4.x), built on the standard library: text
+with `${...}` references in it, which may be nested, as in
+`${uppercase('Hello ${body}')}`. The expression of a flow is trimmed first, as
+Camel's DSL does; the body of a message that `simplereplace` evaluates is not.
+
+| Reference | Value |
+|---|---|
+| `${body}`, `${bodyAs(String)}`, `${in.body}` | the body; `${bodyAs(<type>)}` with another type loads but fails the message when evaluated, as the conversion does in Camel (`deadletter.json` relies on it) |
+| `${header.<name>}`, `${headers.<name>}`, `${header:<name>}`, `${header[<name>]}` | the header. Names are not told apart by case (the https source writes a request header `condition` as `Condition`). A name with dots, such as `file.name`, is a name as a whole |
+| after a value: `.trim()`, `.length`, `.substring(2)`, `.replaceAll(re,repl)`, `.toUpperCase()`, `.split(',')[1]`, ... | the methods of Java's String, List and Map that flows use (OGNL); `?.` stops at nothing |
+| `${random(<max>)}`, `${random(<min>,<max>)}` | an integer from min (default 0) up to max |
+| `${date:now:<format>}`, `${date-with-timezone:now:<zone>:<format>}` | the current time; `<format>` is a Java date format such as `yyyy-MM-dd HH:mm:ss`, `<zone>` an IANA zone such as `Europe/Amsterdam` |
+| `${capitalize(x)}`, `${uppercase(x)}`, `${lowercase(x)}`, `${trim(x)}`, `${normalizeWhitespace(x)}`, `${quote(x)}`, `${safeQuote(x)}`, `${unquote(x)}`, `${length(x)}`, `${size(x)}`, `${val(x)}` | text functions; without `x` they work on the body |
+| `${concat(a,b,sep)}`, `${pad(x,width,sep)}`, `${replace(from,to,x)}`, `${substring(head,tail,x)}`, `${substringBefore(x,t)}`, `${substringAfter(x,t)}`, `${substringBetween(x,after,before)}`, `${contains(x,t)}` | text functions with arguments, in Camel's order |
+| `${sum(...)}`, `${min(...)}`, `${max(...)}`, `${average(...)}`, `${abs(x)}`, `${ceil(x)}`, `${floor(x)}` | whole numbers; an argument may be a list or comma separated text |
+| `${join(sep,prefix,x)}`, `${split(x,regex)}`, `${distinct(...)}`, `${reverse(...)}`, `${sort(x,reverse)}`, `${range(min,max)}` | lists; a list is written `[a, b]`, as Java does |
+| `${hash(x,alg)}` | lower case hexadecimal digest; MD5, SHA-1, SHA-224/256/384/512 (default SHA-256), SHA3-224/256/384/512 |
+| `${jsonpath(path)}`, `${jsonpath(path,Integer)}` | on the body: the value, or a list for a path with `*` |
+| `${empty(String)}`, `${iif(cond,a,b)}`, `${not(cond)}`, `${isEmpty(x)}`, `${isNumeric(x)}`, `${uuid}`, `${null}` | |
+| `${int:...}`, `${long:...}`, `${boolean:...}`, `${string:...}` | the value as that type |
+
+Operators, as in Camel: between values `?:` (the right side when the left is
+nothing, false, empty or 0) and `~>` and `?~>` (the left value is the body for the
+function on the right); after a value `++` and `--`; in a function
+`${header.n > 10 ? 'big' : 'small'}`. Conditions (`content`, `filter`, `iif`) use
+`==`, `!=`, `=~`, `!=~`, `>`, `>=`, `<`, `<=`, `contains`, `!contains`, `~~`,
+`!~~`, `regex`, `!regex`, `in`, `!in`, `is`, `!is`, `range`, `!range`,
+`startsWith`, `endsWith`, `!startsWith`, `!endsWith`, joined by `&&` and `||`;
+the operators have a space on both sides, and numbers are compared as numbers.
+Not (yet) supported: the `$init{...}init$` block, `${variable...}`,
+`${exception...}`, `${jq(...)}`, `${xpath(...)}`, and the functions that need
+the Camel exchange (`${exchangeId}`, `${routeId}`, `exchangeProperty`, ...).
+Other `${...}` expressions are rejected when the flow is loaded.
 
 ### Exchange patterns
 
@@ -912,7 +936,7 @@ on the standard library; anything else is rejected when the flow is loaded:
 
 | Language | Supported | Condition holds when |
 |---|---|---|
-| `simple` | `<expr> == <value>`, `!=`, `contains`; a value is `'quoted'`, a number or an expression. Without an operator, the expression must be `true`. No `&&` / `\|\|` | the comparison holds |
+| `simple` | the conditions of Camel's simple language: `==`, `!=`, `>`, `contains`, `regex`, `in`, `range`, `startsWith`, ... joined by `&&` and `\|\|` (see above). Without an operator, the expression must be `true` | the condition holds |
 | `xpath` | absolute paths of element names, `*` for any: `/persons/person`; namespace prefixes are ignored. As a condition also `<path> = 'literal'` and `!=` | the path selects an element (whose text equals the literal) |
 | `jsonpath` | `$` with `.name`, `['name']`, `[n]` (negative from the end), `.*`, `[*]` | the path selects a value other than `null` or `false` |
 
