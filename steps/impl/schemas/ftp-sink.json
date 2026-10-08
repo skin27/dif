@@ -78,7 +78,7 @@
 		},
 		"implicit": {
 			"title": "Implicit FTPS",
-			"description": "FTPS is not supported; true is rejected",
+			"description": "ftp is plain text; true is rejected (use ftps)",
 			"type": "boolean",
 			"default": false
 		}

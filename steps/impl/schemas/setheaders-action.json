@@ -17,7 +17,7 @@
 		},
 		"writeAsString": {
 			"title": "Write as string",
-			"description": "Accepted for compatibility; has no effect yet. For jsonpath headers: write a JSON result as text, not as a value",
+			"description": "For jsonpath headers: write the result as JSON, so that a text has its quotes (\"red\"), not as the value (red)",
 			"type": "boolean",
 			"default": false
 		},

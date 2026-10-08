@@ -1,7 +1,7 @@
 # DIF — Data Integration Framework
 
 A minimal Go prototype of an integration framework (the standard library only,
-apart from the SFTP client: see [FTP and SFTP](#ftp-and-sftp)) built on
+apart from the few libraries that AGENTS.md lists) built on
 Flow-Based Programming, Enterprise Integration Patterns and DIL
 (Data Integration Language). Background: [Integration Language Design](https://raymondmeester.medium.com/integration-language-design-da4cf51a05c0).
 
@@ -375,7 +375,7 @@ timestamps, the parent's ID as causation, and inherited correlation and trace
 IDs. Nested splits reference their immediate parent. Custom processors can
 use `m.Child(body)`; like `Copy`, it shares nested values, which must not be
 mutated in place. Split-and-aggregate resumes the original message after
-gathering; standalone aggregation retains the completing message's identity.
+gathering; standalone aggregation releases a child of the group's last message.
 
 HTTPS/REST requests and successful replies carry the three identity headers
 and `DIF-Trace-Id`. Sources preserve supplied IDs and initialize missing ones;
@@ -454,6 +454,14 @@ goroutines). Then:
   the routes to run next, which run as above. A failed route does not stop the
   message; the gatherer decides (returning the route's error keeps its step
   and message for the error route).
+- A **releaser** (`stepdef.Releaser`, such as `aggregate` with a timer) holds
+  messages and passes them on by itself. The engine runs its `Release` in a
+  goroutine of its own while the flow runs, as it runs a source, and gives it
+  `send`: a message sent enters the flow after the releaser's step, as a message
+  of its own that nobody waits for. It is processed like any other (one at a
+  time, not while the flow is paused, with the flow's error route), and counts
+  in the flow's status. `Release` returns when the flow stops; what the
+  processor still holds then is lost.
 - A **looper** (`stepdef.Looper`, such as `loop` and `dowhile`) runs its
   routes in rounds: it has `Round` instead of `Route`, which the engine calls
   with the message that entered the router and the one the round before
@@ -477,8 +485,13 @@ It works like Camel's dead letter channel:
    failing). A forced stop ends the wait.
 2. **Error route.** If the step keeps failing and the error step has an
    outbound link, the message goes along that route, with the headers
-   `error.message` (what went wrong) and `error.step` (the step's id). The
-   error is then handled: the message counts as processed, the error route's
+   `error.message` (what went wrong), `error.step` (the step's id),
+   `error.class` (the Go type of the error at the bottom of the chain) and
+   `error.stacktrace` (the error with every step and cause it wraps). They
+   are what `${exception.message}`, `${exception.class}`,
+   `${exception.stacktrace}` and `${exception}` (class and message) read in a
+   simple expression; on any other message there is no exception. The https
+   source does not return them. The error is then handled: the message counts as processed, the error route's
    outcome is what an https source replies (200), and the trail shows
    `error:<id>` before the error route's steps. The flow log adds
    `(error route handled: <error>)`.
@@ -541,9 +554,11 @@ using anything else fails registration.
 | `rest` | action | `method` (post), `host` (`https://localhost:9002`), `path` (required), `produces` ("": Content-Type of the request when the message sets none), `consumes` ("": its Accept header), `trustStoreFile`, `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (true) | Calls `host`/`path` as the https action does |
 | `graphql` | action | `url` (or `graphql:<url>`), `query` ("": the body), `variables` (a JSON object), `accessToken` (bearer), `trustStoreFile` ("": the system's roots), `socketTimeout` ms (30000) | Posts the query as JSON and replaces the body with the response; an error status fails the message |
 | `smtp:<host>:<port>`, `smtps:<host>:<port>` | action | `to` (required; commas or semicolons), `from` (username), `replyTo`, `subject` (the header `subject` overrides it), `exchangeBodyAs` body or attachment (body), `emailBody`, `contentType`, `username`, `password` (else `DIF_SMTP_PASSWORD`), `accessToken`, `trustStoreFile` ("": the system's roots), `timeout` ms (30000) | Sends the message as an email and passes it on unchanged: the body is the text, or, with `emailBody` or `exchangeBodyAs` attachment, attached (named after `file.name`) to the text `emailBody`. smtp requires STARTTLS, smtps uses TLS from the start; it logs in with PLAIN (password) or XOAUTH2 (accessToken), else not at all |
-| `setheaders:message:<name>` | action | `expression`, `writeAsString` (no effect) | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
+| `setheaders:message:<name>` | action | `expression`, `writeAsString` (false) | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant, simple (default), xpath or jsonpath. A jsonpath header is the value the path selects in the body (several values: a list `[a, b]`); with `writeAsString` it is written as JSON, so a text has its quotes |
 | `base64totext` | action | – | Decodes a base64 body to text (whitespace ignored, padding optional) |
-| `texttobase64` | action | – | Encodes the body as base64, without line breaks |
+| `texttobase64`, `binarytobase64` | action | – | Encodes the body as base64, without line breaks |
+| `base64tobinary` | action | – | Decodes a base64 body like `base64totext`, but the body becomes the bytes, not text, so a binary file stays exact for the steps after it |
+| `setbodyasstring` | action | – | Makes the body a string: bytes become their text, a decoded JSON body its JSON |
 | `repeater[:<name>]` | source | `period` ms (10000), `repeatCount` (0 or less = unlimited) | The timer source with Camel's repeater defaults |
 | `quartz:<name>` | source | `cron` (required), `timeZone` (local) | Emits a message without a body, with header `quartz.firetime` (RFC 3339), at every time the Quartz cron expression matches: `seconds minutes hours day-of-month month day-of-week [year]`, e.g. `0 0 3 * * ?` (03:00 daily). Supports `*`, `?`, values, ranges, steps, lists and names (`JAN`, `MON`; day-of-week 1–7 is SUN–SAT); not `L`, `W`, `#` or a year other than `*`. Times missed while the flow is busy or paused are skipped. Daylight saving time: a time that does not exist that day is skipped (as in Quartz), and a fixed time fires once when the clocks go back |
 | `rest` | source | `method` get, post, put, delete, patch, head, … (get), `path` (required), `produces` (""), `consumes` (no effect), `exchangePattern` InOut or InOnly (InOut), `address` (0.0.0.0:9002), `serverIdentityFile`, `serverIdentityPassword` | Receives HTTPS requests with one method on a path of the REST address and replies with the flow's outcome; `produces` is the reply's Content-Type when the message sets none. See [HTTPS](#https) |
@@ -567,16 +582,19 @@ using anything else fails registration.
 | `wastebin` | action or sink | – | Drops the message: the steps after it never get it |
 | `jsonvalidator:ref:<resource>` | action | – (the schema is the DIL resource) | Validates a JSON body against the JSON Schema in `dil.core.resources`, as `validate` does |
 | `fileenrich:<dir>` | action | `fileName`, `include`, `exclude` (regular expressions on the name), `recursive` (false), `binary` (false), `charset` UTF-8, ISO-8859-1 or US-ASCII (utf-8), `delete` (false) | Replaces the body with the content of the first file (by name) the options select, and sets `file.name` and Content-Type; without one the message passes on unchanged. The file stays unless `delete` |
-| `ftp:<host>[:<port>]/<dir>` | source | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `delay`, `initialDelay` (60000), `maxMessagesPerPoll` (1; 0 or -1 for all), `autoCreate` (true), `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000), `passiveMode` (true; false is rejected) | Polls an FTP directory and produces a message per file; see [FTP and SFTP](#ftp-and-sftp) |
-| `ftp:<host>[:<port>]/<dir>` | sink | `fileName`, `binary`, `charset`, `autoCreate` (true), `fileExist` Override\|Append\|Fail\|Ignore (Override), `implicit` (false; FTPS is rejected), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Writes the body to a file in the directory |
+| `ftp:<host>[:<port>]/<dir>` | source | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `delay`, `initialDelay` (60000), `maxMessagesPerPoll` (1; 0 or -1 for all), `autoCreate` (true), `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000), `passiveMode` (true; false is rejected) | Polls an FTP directory and produces a message per file; see [FTP, FTPS and SFTP](#ftp-ftps-and-sftp) |
+| `ftp:<host>[:<port>]/<dir>` | sink | `fileName`, `binary`, `charset`, `autoCreate` (true), `fileExist` Override\|Append\|Fail\|Ignore (Override), `implicit` (false; true is rejected, use `ftps`), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Writes the body to a file in the directory |
 | `ftpenrich:<host>[:<port>]/<dir>` | action | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `abortMode` (false), `autoCreate`, `maxMessagesPerPoll` (no effect), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Replaces the body with the content of the first file; moves or deletes it afterwards |
+| `ftps:<host>[:<port>]/<dir>` | source | as the `ftp` source, and `implicit` (false), `trustStoreFile`, `trustStorePassword` | The `ftp` source over TLS; env `DIF_FTPS_PASSWORD` |
+| `ftps:<host>[:<port>]/<dir>` | sink | as the `ftp` sink with `implicit`, and `trustStoreFile`, `trustStorePassword` | The `ftp` sink over TLS |
+| `ftpsenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, and `implicit`, `trustStoreFile`, `trustStorePassword` | `ftpenrich` over TLS |
 | `sftp:<host>[:<port>]/<dir>` | source | as `ftp`, and `privateKey` (a file), `privateKeyPassphrase` (env `DIF_SFTP_PRIVATE_KEY_PASSPHRASE`), `knownHostsFile`, `strictHostKeyChecking` (true); `passiveMode` has no effect | Polls an SFTP directory |
 | `sftp:<host>[:<port>]/<dir>` | sink | as the `ftp` sink, with the `sftp` connection options | Writes the body to a file |
 | `sftpenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, with the `sftp` connection options | Replaces the body with the content of the first file |
-| `settenantvariable:<name>` | action | `language` simple or constant (simple), `value`, `tenantDbName` (default); `encrypt`, `protectedValue`, `groupName`, `flowName` (no effect) | Sets the tenant variable to the value. Tenant variables are shared by all flows of the process and kept in memory |
+| `settenantvariable:<name>` | action | `language` simple, constant, xpath or jsonpath (simple), `value`, `tenantDbName` (default); `encrypt`, `protectedValue`, `groupName`, `flowName` (no effect) | Sets the tenant variable to the value. DIL carries the value in base64 (`dGVzdA==` is `test`); the DIL parser decodes it, and takes a value that is no base64 text as it is. Tenant variables are shared by all flows of the process and kept in memory |
 | `gettenantvariable:<name>` | action | `headerName` (required), `tenantDbName` (default) | Sets the header to the tenant variable ("" if not set) |
 | `removetenantvariable:<name>` | action | `tenantDbName` (default) | Removes the tenant variable |
-| `oauth2token:<id>` | sink | `tokenName` (required: tenant variables, separated by commas), `tenantDbName` (default), `expiryDelay` (60 seconds), `tokenUrl` and `clientId` (both needed to create the step), `grantType` client_credentials\|refresh_token (client_credentials), `clientSecret` (env `DIF_OAUTH2_CLIENT_SECRET`), `refreshToken` (env `DIF_OAUTH2_REFRESH_TOKEN`), `scope`, `clientAuthentication` basic\|post (basic), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Fetches an OAuth2 access token and sets it in each variable of `tokenName` and in the same name with the suffix `_Temp`. A message that reaches the sink renews the token only if it expires within `expiryDelay`, so a repeater in front of it is a token service. The Java platform keeps the endpoint and credentials in the tenant's configuration; DIF takes them from the options, so `examples/setoauth2-*.json` validate but do not load until they name a `tokenUrl` and `clientId` |
+| `oauth2token:<id>` | sink | `tokenName` (required: tenant variables, separated by commas), `tenantDbName` (default), `expiryDelay` (60 seconds), `tokenUrl` and `clientId` (both needed to create the step), `grantType` client_credentials\|refresh_token (refresh_token if a refresh token is set, else client_credentials), `clientSecret`, `refreshToken`, `scope`, `clientAuthentication` basic\|post (basic), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Fetches an OAuth2 access token and sets it in each variable of `tokenName` and in the same name with the suffix `_Temp`. A message that reaches the sink renews the token only if it expires within `expiryDelay`, so a repeater in front of it is a token service. The Java platform keeps the endpoint and credentials in the tenant's OAuth configuration, and the flows name only the token. DIF takes `tokenUrl`, `clientId`, `clientSecret`, `refreshToken` and `scope` from the option, else from the environment variable `DIF_OAUTH2_<TOKEN>_<SETTING>`, where `<TOKEN>` is a name in `tokenName` in capitals (other characters as `_`; the names are tried in turn) and `<SETTING>` is `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET`, `REFRESH_TOKEN` or `SCOPE`, else from `DIF_OAUTH2_<SETTING>` for all tokens. Each variable has a `_FILE` companion for a mounted secret. For `OauthTokenGoogleDrive`: `DIF_OAUTH2_OAUTHTOKENGOOGLEDRIVE_TOKEN_URL`, `..._CLIENT_ID`, `..._CLIENT_SECRET` and `..._REFRESH_TOKEN`. A flow without them does not load, and the error names the variables |
 | `googledrive:<folderId>` | source | `accessToken` (required; `@{name}` is replaced by the tenant variable `name` at each call), `filterFiles` (a file name), `moveTo` (.done), `gSuiteFiles` Ignore, `initialDelay` (1000), `delay` (5000), `tenant` (default), `flowId` (no effect), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Polls a Google Drive folder with the Drive v3 API and produces a message per file: the body is the content, the headers are `file.name` and `googledrive.id`. Subfolders and Google's own formats (Docs, Sheets, ...) are skipped. A consumed file is moved to the subfolder `moveTo`, which is created if needed. A failed poll, such as one before the token exists, is logged and tried again |
 | `googledrive:<folderId>` | action | `accessToken` (required), `fileName`, `fileExist` Override\|Fail\|Ignore (Override), `tenant` (default), `flowId` (no effect), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Writes the body to a file in the folder and sets `googledrive.id`. The name is `fileName`, else the header `file.name`, else `CamelFileName`; the file's Content-Type is the message's. Override replaces the content of a file with that name |
 | `setcookie` | action | `name`, `domain` (both required), `value`, `path` (/), `isSecure` (false) | Adds a cookie to the cookie store, which the https and rest actions send to its domain (and subdomains) and path |
@@ -588,32 +606,65 @@ using anything else fails registration.
 | `recipient` | router | – | Sends a copy to every link, in order; the outcome is the last one's |
 | `content` | router | `expression`, `namespace` (no effect; the conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
-| `split` | router or action | `language` xpath\|jsonpath (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. XML parts are the elements as written; JSON parts are JSON (strings as is) |
+| `split` | router or action | `language` xpath\|jsonpath\|tokenize\|xtokenize\|simple (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. The parts: for xpath the selected nodes (an element as XML), for jsonpath the selected values as JSON (strings as is; one selected array is split), for tokenize what lies between the occurrences of the text, trimmed and not empty, for xtokenize the elements of an XML path (`//product`, or just a name), for simple the elements of the list the expression gives (`${body.split(',')}`) or the parts of a text between commas. An xpath or jsonpath with `${...}`, such as `${header.expression}`, is evaluated for every message |
 | `enrich` | router | `enrichType` override\|xml\|json (xml; the designer also writes it as `enrichMethod` or `enrichFileType`, which win), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
-| `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0); `completionTimeout`, `completionInterval` (must be 0: not supported yet) | Collects messages and passes one on when the group is complete: the last part of a split (`split.complete`) or `completionSize` messages. That message goes on with the aggregate as body and without the split headers; the others stop here. One group at a time (the Kamelet correlates all messages); a new split (`split.index` 0) starts a new group |
-| `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split`, aggregates what comes out (a gatherer) and sends the message with the aggregate along the other link. A failed part fails the message |
+| `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0), `completionTimeout` (0), `completionInterval` (0), the last two in milliseconds | Collects messages. A group is complete with the last part of a split (`split.complete`), with `completionSize` messages, when `completionTimeout` has passed since its last message came, and every `completionInterval`. The complete group is released as a message of its own, made from the group's last message (a new message ID, caused by it, without the split headers), with the aggregate as body; it goes on along the link and what comes of it is ignored (a failure is logged, or, when a timer completed the group, handled by the flow's error route). The message that came in carries on as it came, so a request gets its reply at once. A body that is not XML or JSON fails when it comes in. One group at a time (the Kamelet correlates all messages); without a timer a new split (`split.index` 0) starts a new group. A group a timer has not completed when the flow stops is lost. Inside the `split` route of a `splitandaggregate`, the aggregate's type decides how that aggregates the parts |
+| `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split`, aggregates what comes out (a gatherer) and sends the message with the aggregate along the other link; with nothing to split the message goes on as it is. A failed part fails the message |
+| `splitwithnamespace` | router or action | as `split` with `language` xpath only, and `nsprefix` and `namespace` (given together) | `split` whose xpath may use the prefix `nsprefix`, which stands for `namespace` (`/root/h:table`); an element is written with the declarations its names need |
+| `splitandaggregatewithnamespace` | router | as `splitandaggregate` with `language` xpath only, and `nsprefix` and `namespace` | `splitandaggregate` whose xpath may use the prefix `nsprefix` |
 | `if` | router or action | – (the condition is on the link with rule `if`) | Sends the message along the `if` link when its condition holds, else along the link without a condition; as an action the message stops there |
 | `loop` | router or action | `language` simple\|constant (simple), `expression` (1), `copy` (false); the link with rule `loop` may set both | Sends the message along the `loop` link the given number of times, each round with the message the round before produced (with `copy`: a copy of the message as it entered) and headers `loop.index` (from 0) and `loop.size`; then along the other link, if any. As an action the rest of the flow runs once per round |
 | `dowhile` | router or action | `language` simple\|xpath\|jsonpath (simple), `expression`, `maxLoops` (1000), `copy` (no effect); the link with rule `dowhile` may set the condition | Sends the message along the `dowhile` link as long as the condition holds for it (checked before every round, at most `maxLoops` times), with header `loop.index`; then along the other link, if any |
 
 Aggregates are, for XML, the parts' root elements in `<Aggregated>…</Aggregated>`
-and, for JSON, an array of the parts.
+after an XML declaration and, for JSON, an array of the parts.
 
 Camel keeps the round of a loop in the exchange property `CamelLoopIndex`, so
 `${header.CamelLoopIndex}` in `examples/experimental/loop.json` is empty there
 and in DIF alike; DIF has no exchange properties and sets the headers
 `loop.index` and `loop.size` instead, as `split` sets `split.index`.
 
-Language `constant` is the literal text; `simple` replaces `${body}` (also
-written `${bodyAs(String)}`), `${header.<name>}` and `${headers.<name>}`, and
-evaluates `${random(<max>)}` and `${random(<min>,<max>)}` (an integer from min, default
-0, up to max), `${date:now:<format>}` and
-`${date-with-timezone:now:<zone>:<format>}` (the current time; `<format>` is a
-Java date format such as `yyyy-MM-dd HH:mm:ss`, `<zone>` an IANA zone such as
-`Europe/Amsterdam`).
-`${bodyAs(<type>)}` with another type loads but fails the message when it is
-evaluated, as the conversion does in Camel (`deadletter.json` relies on it).
-Other `${…}` expressions are rejected when the flow is loaded.
+Language `constant` is the literal text. Language `simple` is the simple
+language of Camel (camel-core-languages 4.x), built on the standard library: text
+with `${...}` references in it, which may be nested, as in
+`${uppercase('Hello ${body}')}`. The expression of a flow is trimmed first, as
+Camel's DSL does; the body of a message that `simplereplace` evaluates is not.
+
+| Reference | Value |
+|---|---|
+| `${body}`, `${bodyAs(String)}`, `${in.body}` | the body; `${bodyAs(<type>)}` with another type loads but fails the message when evaluated, as the conversion does in Camel (`deadletter.json` relies on it) |
+| `${header.<name>}`, `${headers.<name>}`, `${header:<name>}`, `${header[<name>]}` | the header. Names are not told apart by case (the https source writes a request header `condition` as `Condition`). A name with dots, such as `file.name`, is a name as a whole |
+| after a value: `.trim()`, `.length`, `.substring(2)`, `.replaceAll(re,repl)`, `.toUpperCase()`, `.split(',')[1]`, ... | the methods of Java's String, List and Map that flows use (OGNL); `?.` stops at nothing |
+| `${random(<max>)}`, `${random(<min>,<max>)}` | an integer from min (default 0) up to max |
+| `${date:now:<format>}`, `${date-with-timezone:now:<zone>:<format>}` | the current time; `<format>` is a Java date format such as `yyyy-MM-dd HH:mm:ss`, `<zone>` an IANA zone such as `Europe/Amsterdam` |
+| `${capitalize(x)}`, `${uppercase(x)}`, `${lowercase(x)}`, `${trim(x)}`, `${normalizeWhitespace(x)}`, `${quote(x)}`, `${safeQuote(x)}`, `${unquote(x)}`, `${length(x)}`, `${size(x)}`, `${val(x)}` | text functions; without `x` they work on the body |
+| `${concat(a,b,sep)}`, `${pad(x,width,sep)}`, `${replace(from,to,x)}`, `${substring(head,tail,x)}`, `${substringBefore(x,t)}`, `${substringAfter(x,t)}`, `${substringBetween(x,after,before)}`, `${contains(x,t)}` | text functions with arguments, in Camel's order |
+| `${sum(...)}`, `${min(...)}`, `${max(...)}`, `${average(...)}`, `${abs(x)}`, `${ceil(x)}`, `${floor(x)}` | whole numbers; an argument may be a list or comma separated text |
+| `${join(sep,prefix,x)}`, `${split(x,regex)}`, `${distinct(...)}`, `${reverse(...)}`, `${sort(x,reverse)}`, `${range(min,max)}` | lists; a list is written `[a, b]`, as Java does |
+| `${hash(x,alg)}` | lower case hexadecimal digest; MD5, SHA-1, SHA-224/256/384/512 (default SHA-256), SHA3-224/256/384/512 |
+| `${jsonpath(path)}`, `${jsonpath(path,Integer)}` | on the body: the value, or a list for a path with `*` |
+| `${xpath(expression)}` | on the body: the text of the first item the XPath 2.0 expression selects |
+| `${jq(program)}`, `${jq(program,Integer)}` | the [jq](https://jqlang.github.io/jq/) program ([gojq](https://github.com/itchyny/gojq)) on the body (JSON): nothing is empty, one result is that value (a text as it is, an object or array as JSON), several are a list. The program has `$headers`, `$body`, `header("name")` and `body`, and is stopped after 10 seconds. Write a `}` in it as `\}`, as in any block |
+| `${file:name}`, `${file:name.ext}`, `${file:name.ext.single}`, `${file:name.noext}`, `${file:onlyname}`, `${file:parent}`, `${file:path}`, `${file:length}`, ... | the file headers `CamelFileName` (else `file.name`), `CamelFileNameOnly`, `CamelFileParent`, `CamelFilePath`, `CamelFileAbsolute`, `CamelFileAbsolutePath`, `CamelFileLength`, `CamelFileLastModified`; `.ext` is after the first dot of the name, `.single` after the last |
+| `${flowId}`, `${flowName}`, `${flowVersion}`, `${tenant}`, `${environment}`, and `${variable:group:<id>:MetaData.FlowID}` (also `FlowName`, `FlowVersion`, `TenantName`, `EnvironmentName`) | the flow's own properties; a DIL flow has them in its `options` (`tenant`, `environment`, `version`) |
+| `${exception}`, `${exception.message}`, `${exception.class}`, `${exception.stacktrace}` | the error on a message that goes along the error route |
+| `${headers}`, `${variable.<name>}`, `${variables}` | all headers, written `{a=1, b=2}`; variables, which an `$init` block sets and which stay on the message |
+| `${empty(String)}`, `${iif(cond,a,b)}`, `${not(cond)}`, `${isEmpty(x)}`, `${isNumeric(x)}`, `${uuid}`, `${null}` | |
+| `${int:...}`, `${long:...}`, `${boolean:...}`, `${string:...}` | the value as that type |
+
+Operators, as in Camel: between values `?:` (the right side when the left is
+nothing, false, empty or 0) and `~>` and `?~>` (the left value is the body for the
+function on the right); after a value `++` and `--`; in a function
+`${header.n > 10 ? 'big' : 'small'}`. Conditions (`content`, `filter`, `iif`) use
+`==`, `!=`, `=~`, `!=~`, `>`, `>=`, `<`, `<=`, `contains`, `!contains`, `~~`,
+`!~~`, `regex`, `!regex`, `in`, `!in`, `is`, `!is`, `range`, `!range`,
+`startsWith`, `endsWith`, `!startsWith`, `!endsWith`, joined by `&&` and `||`;
+the operators have a space on both sides, and numbers are compared as numbers.
+An expression may start with an init block that sets variables, as in Camel:
+`$init{ $limit := 18; $who := ${uppercase(${body})}; }init$` and then
+`$who is over $limit`. Not supported: the functions that need the Camel exchange (`${exchangeId}`, `${routeId}`,
+`exchangeProperty`, ...).
+Other `${...}` expressions are rejected when the flow is loaded.
 
 ### Exchange patterns
 
@@ -907,17 +958,24 @@ the target has not taken by then is dropped, so it is never processed late.
 `flowLinkOutbound.json` and `flowLinkInbound.json` show it: run both, and a
 request to the outbound flow is logged by the inbound one.
 
-Conditions (`content`, `filter`) and split expressions use small subsets, built
-on the standard library; anything else is rejected when the flow is loaded:
+Conditions (`content`, `filter`) and split expressions are written in these languages; anything
+else is rejected when the flow is loaded:
 
 | Language | Supported | Condition holds when |
 |---|---|---|
-| `simple` | `<expr> == <value>`, `!=`, `contains`; a value is `'quoted'`, a number or an expression. Without an operator, the expression must be `true`. No `&&` / `\|\|` | the comparison holds |
-| `xpath` | absolute paths of element names, `*` for any: `/persons/person`; namespace prefixes are ignored. As a condition also `<path> = 'literal'` and `!=` | the path selects an element (whose text equals the literal) |
-| `jsonpath` | `$` with `.name`, `['name']`, `[n]` (negative from the end), `.*`, `[*]` | the path selects a value other than `null` or `false` |
+| `simple` | the conditions of Camel's simple language: `==`, `!=`, `>`, `contains`, `regex`, `in`, `range`, `startsWith`, ... joined by `&&` and `\|\|` (see above). Without an operator, the expression must be `true` | the condition holds |
+| `xpath` | XPath 2.0 (also functions such as `count()`, `max()`, `distinct-values()`, `year-from-dateTime()`, `if … then … else`, `for … return`): `//person[@id = 1]/name/text()`, `//*:film`, `count(//a) > 2`. Names are namespace aware, as in XPath: `*:name` is a name in any namespace, and the content router binds the prefix `ns` to its option `namespace`. A plain path of element names (`/persons/person`) is found by scanning the document, without a tree | the expression selects a node, or its value is true, a number other than 0 or a text that is not empty |
+| `jsonpath` | as Jayway (Camel): `$.store.book[0].author`, `$..author` (deep scan), `[*]`, unions `['a','b']` and `[0,1]`, slices `[:2]`, filters `[?(@.price < 10 && @.isbn)]` with `==` `!=` `<` `<=` `>` `>=` `=~` `in` `nin` `subsetof` `anyof` `noneof` `size` `empty` `contains` and `!`, and the functions `.length()` `.size()` `.min()` `.max()` `.avg()` `.sum()` `.first()` `.last()` `.keys()` `.index(n)`. `@` is the root, in a filter the element tested. Members are visited in key order, not in document order | the path selects a value other than `null` or `false` |
 
 A body that is not XML or JSON matches no xpath or jsonpath condition; a split
-of such a body fails the message.
+of such a body fails the message. An xpath that is not valid, or calls a function that does not exist,
+is rejected when the flow is loaded. The XPath 2.0 processor is
+[github.com/knroy/go-xml](https://github.com/knroy/go-xml) (pure Go), which also
+reads the document into a tree of about 35 times its size; a DOCTYPE in the body is refused.
+The text of a selected element is its XML with the namespace declarations it uses;
+of an attribute, a text node or a value, the value. The `xpath` language of
+`setheaders` and `settenantvariable` sets the text of the first item the expression selects.
+`${xpath(expression)}` in a simple expression does the same on the body.
 
 ### Converters
 
@@ -940,6 +998,7 @@ libraries the DIL components were built on:
 | `exceltoxml` | `rules` (required; as for `flv`) | xlsx (not xls) to XML: `<workbook>` holds an element per rule, named after its `name`, else its `worksheet`, with a `<row>` per row of the rule's cells and an element per cell (`field1`, `field2`, … or the header names). A rule has `worksheet` (the first if empty), `cellRange` (`A2:C4`; the whole used range if empty), `transpose`, `headerRow` (the first row names the fields) and `discardEmpty` (leave out empty cells and rows). Values only: strings and numbers; dates are Excel's serial numbers |
 | `xmltoexcel` | `includeHeader`, `includeIndexColumn` (false), `indexColumnName` (line), `orderHeaders` unordered\|ordered\|ascending\|descending, `excelFormat` xlsx, `useCustomWorksheets` (false), `worksheets` | XML to xlsx with `xmltocsv`'s mapping: each child of the root is a row, each of its children a cell. Numbers are numeric cells, all else text. With `useCustomWorksheets`, `worksheets` (a JSON list of `{name, xPathExpression}`, also as `RAW(<base64>)`) makes a worksheet per entry whose rows are the elements the path selects (the root's children if it is empty) |
 | `xmltoedifact` | `edifactType` (no effect) | The XML form of an EDIFACT interchange, as Smooks writes it (`env:UNB`, `iftmin:BGM`, composites such as `c:C002`), to EDIFACT with the default delimiters, one line without breaks. An element named by three upper-case characters is a segment, its children are its elements and a child with children a composite; the elements above (interchange, message, segment groups) are walked through. It is structural: DIF has no message definitions, so an element the XML omits is not restored as an empty position (`BGM+340+347605` where `BGM+340++347605` was meant). Keep a position by leaving the element in the XML, empty |
+| `docconverter` | `convert` xmltojson\|csvtoxml\|… (any of csv, xml, json, yaml to another; xmltojson) | Converts the body between CSV, XML, JSON and YAML through one tree of ordered objects. CSV is the table the platform writes, `rows`, a `row` per record, an `item` per cell, all text (`{"rows":{"row":[{"item":["a","b"]}]}}`); to CSV only such a table converts (cells quoted where CSV needs it), anything else fails the message. XML is read as `xmltojsonsimple` reads it and written as `jsontoxmlsimple` writes it; CSV to XML starts with `<?xml version='1.0' encoding='UTF-8'?>`. JSON and YAML keep their types; XML and CSV have none, so they stay text in JSON and a number, `true`, `false` or `null` is that value in YAML. YAML is written as Jackson writes it: `---`, strings in double quotes; from XML its members come in the order of a Java HashMap, as the platform's output does. A YAML document is read with the first of several, aliases resolved |
 
 The Kamelets only pass these options on to Assimbly's components, so where a
 detail is not defined by json-lib or org.json (the CSV element names, the
@@ -968,7 +1027,15 @@ parameters = message headers too, so `?config=A` sets the header `config`, unles
 request header has that name, and `body` and `metadata.*` are never set from the
 query; plus `http.method`, `http.path`, `http.query` and `http.uri` with
 `preserveHttpHeaders`), and the caller gets the final message body back, with
-its `Content-Type` header (default `text/plain; charset=utf-8`).
+its `Content-Type` header (default `text/plain; charset=utf-8`) and the other
+headers of the message, as Camel's HTTP consumers return them. Not returned
+are `body`, `metadata.*`, `http.*` and `error.*`, the headers of one HTTP hop
+(`Connection`, `Content-Length`, `Host`, `Transfer-Encoding`, ...), the
+credentials `Authorization`, `Proxy-Authorization` and `Cookie`, and `Date`;
+neither are values that have no text form (maps, lists, bytes). Line breaks in a
+value become spaces. A flow that wants a header out of the reply
+sets it; one that wants to keep the request's headers private starts with
+`removeheaders`.
 
 | Outcome | Response |
 |---|---|
@@ -1053,14 +1120,14 @@ system refuses the login.
 The value `ENC(...)` in `core.connections` is not read: DIF does not use connection
 blocks.
 
-### FTP and SFTP
+### FTP, FTPS and SFTP
 
-The `ftp` and `sftp` steps work on a directory of a remote server as the `file`
+The `ftp`, `ftps` and `sftp` steps work on a directory of a remote server as the `file`
 steps do on a local one, and are the same apart from the connection:
 
 - The URI is `ftp:[//][user@]host[:port]/directory`. The directory is below the
   login directory; `ftp:host//a/b` is the absolute `/a/b`. Ports default to 21
-  and 22. `RAW(...)` around a value (as DIL writes passwords and folder names) is
+  (`ftps`: 990 with `implicit`) and 22. `RAW(...)` around a value (as DIL writes passwords and folder names) is
   removed.
 - The **source** polls every `delay` ms, reads up to `maxMessagesPerPoll` files
   and emits a message each: the body is the content, `file.name` the path below
@@ -1081,10 +1148,20 @@ steps do on a local one, and are the same apart from the connection:
   `abortMode`.
 - `disconnect` false keeps the connection open between uses, and closes it
   after 30 seconds idle; a failed use opens a new one.
-- Not supported, and rejected: FTPS (`implicit`), active FTP (`passiveMode`
-  false). Other options of the Java platform (`stopIfNoFileFound`,
+- Not supported, and rejected: `implicit` on `ftp` (use `ftps`), active FTP
+  (`passiveMode` false). Other options of the Java platform (`stopIfNoFileFound`,
   `maxMessagesPerPoll` of an enricher, `hostName` and `port`, which the URI
   gives) have no effect or are not offered.
+- **`ftps`** (source, sink and `ftpsenrich`) is FTP over TLS (RFC 4217), as Camel's
+  `ftps` component: explicitly, `AUTH TLS` before the login, or with `implicit`
+  true TLS from the first byte; then `PBSZ 0` and `PROT P`, so the data
+  connections are TLS too. They resume the TLS session of the control connection,
+  which servers often require, and their handshake follows the transfer command.
+  The server's certificate is checked against `trustStoreFile` (a PKCS#12 trust
+  store, `security/outbound-truststore.p12` by default, as for the https steps;
+  `trustStorePassword`, env `DIF_TRUSTSTORE_PASSWORD`), or the system's roots if
+  it is empty. The password comes from `DIF_FTPS_PASSWORD` if the option is not
+  given. A server that does not do TLS fails the connection.
 - FTP is plain text: the password and the files cross the network unencrypted.
   It is written with the standard library: passive mode (EPSV, then PASV, always
   to the address it connected to), and MLSD or, if the server has no MLSD, `LIST`
@@ -1094,7 +1171,7 @@ steps do on a local one, and are the same apart from the connection:
   missing file or an unknown server fails the connection with a hint; the Java
   platform does not check. `strictHostKeyChecking` false turns the check off,
   which leaves the connection open to impersonation. SFTP uses
-  `github.com/pkg/sftp` and `golang.org/x/crypto/ssh`: DIF's only dependencies.
+  `github.com/pkg/sftp` and `golang.org/x/crypto/ssh`.
   `socketTimeout` bounds connecting and logging in; an operation on an open SFTP
   connection ends when the flow stops.
 
@@ -1109,8 +1186,8 @@ pedroteste, queueAsynchronousOutbound, queueInbound, queueOutbound, recipient,
 removeCookie, removeHeaders, removeTenantVariable, repeater, replace,
 scheduler, setBody, setCookie, setOneWay, setRequestReply, setTenantVariable,
 sftpEnrich, sftpInbound, sftpOutbound, simplereplace, split, splitAndAggregate, test, textToBase64, throttle, unzip,
-wiretap, xmltocsv, xmltoedi, xmltoedifact, xmltoexcel, xmltojson, xmltojsonsimple and zip. `setoauth2-CustomForBVG` and `setoauth2-GoogleDrive` validate but need a
-`tokenUrl` and `clientId` (see `oauth2token`). The others use steps without a processor
+wiretap, xmltocsv, xmltoedi, xmltoedifact, xmltoexcel, xmltojson, xmltojsonsimple and zip. `setoauth2-CustomForBVG` and `setoauth2-GoogleDrive` validate but need an
+endpoint and a client, in the options or the environment (see `oauth2token`). The others use steps without a processor
 yet (rabbitmq, xslt, …; `examples/experimental/` holds more of them) or
 expressions such as `groovy`; `httpsOutbound.json` has no steps but its error
 step. The flows `testdata/hello.json` and `testdata/timer.json` are DIF's own,
@@ -1126,9 +1203,9 @@ setBodyByHeader, setHeaderByBody, setUUID, simplevalidator and wastebin.
 | Package            | Role                                                                     |
 |--------------------|--------------------------------------------------------------------------|
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
-| `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `Looper`, `SinkProcessor`) and `Definition` |
+| `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `Releaser`, `Looper`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple, xpath and jsonpath subsets |
+| `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, base64tobinary, texttobase64, binarytobase64, setbodyasstring, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, docconverter, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple language, XPath 2.0 and the jsonpath subset |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
 | `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
@@ -1188,8 +1265,8 @@ flows, custom steps and broken fixtures are skipped. See
   to restore the positions of omitted elements, and a matching EDIFACT to XML
 - Persisted tenant variables (the seam is `tenantStore`) and cookies
 - A CLI command to inspect/replay durable queues and parked dead letters
-- Aggregation by time (`completionTimeout`, `completionInterval`) and by
-  correlation key; it needs a timer that emits into the flow
+- Aggregation by correlation key (the aggregate has one group), and groups
+  that survive a restart
 - More expression languages and simple-language functions (`${exchangeId}`, …)
 - More error handling: exponential backoff, retrying only some errors, keeping the original message
 - Concurrent message execution within a flow (processors are already safe for it)

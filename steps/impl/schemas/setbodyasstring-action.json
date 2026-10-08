@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:setbodyasstring-action",
+	"title": "setbodyasstring action",
+	"description": "Makes the body a string: bytes become their text, a decoded JSON body its JSON.",
+	"type": "object",
+	"properties": {},
+	"additionalProperties": false
+}

@@ -72,7 +72,7 @@ func TestFTPCommandInjection(t *testing.T) {
 	var f *fakeFTP
 	e := newFTPEnv(t, func(ff *fakeFTP) { f = ff })
 	write(t, e.local("victim.txt"), "V")
-	c, err := dialFTP(context.Background(), e.host, "dif", "s3cret", 5*time.Second)
+	c, err := dialFTP(context.Background(), e.host, "dif", "s3cret", 5*time.Second, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -359,7 +359,7 @@ func TestRemoteOptionValidation(t *testing.T) {
 	}
 	// FTP.
 	invalid(stepdef.Source, "ftp:h/d", with(map[string]any{"passiveMode": false}), "active mode is not supported")
-	invalid(stepdef.Sink, "ftp:h/d", with(map[string]any{"implicit": true}), "FTPS is not supported")
+	invalid(stepdef.Sink, "ftp:h/d", with(map[string]any{"implicit": true}), "ftp is plain text; use ftps")
 	mustProcessor(t, stepdef.Sink, "ftp:h/d", with(map[string]any{"implicit": false}))
 	invalid(stepdef.Source, "ftp:h/d", with(map[string]any{"privateKey": "k"}), "unknown option")
 	// SFTP.

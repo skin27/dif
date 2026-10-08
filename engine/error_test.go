@@ -55,6 +55,9 @@ func TestRunErrorRoute(t *testing.T) {
 	if m[message.Body] != "-xz" || m[ErrorMessage] != "boom" || m[ErrorStep] != "x" {
 		t.Errorf("message = %v, want the failed message through z with the error headers", m)
 	}
+	if m[ErrorClass] != "*errors.errorString" || m[ErrorStackTrace] != "step x: boom" {
+		t.Errorf("error.class = %v, error.stacktrace = %v, want the type of the error and the step with the error", m[ErrorClass], m[ErrorStackTrace])
+	}
 	if got := strings.Join(res.Trail, " "); got != "source:a error:h action:z" {
 		t.Errorf("trail = %q", got)
 	}

@@ -42,6 +42,12 @@ const (
 	ReplyStatus   = "Reply-Status"   // success, error, or timeout
 	ReplyReason   = "Reply-Reason"   // classification of an unmatched response
 
+	// Headers the engine sets on a message it sends along the error route.
+	ErrorMessage    = "error.message"    // what went wrong
+	ErrorStep       = "error.step"       // id of the step that failed
+	ErrorClass      = "error.class"      // the type of the error
+	ErrorStackTrace = "error.stacktrace" // the error with everything it wraps, one cause after the other
+
 	MetadataPrefix = "metadata."
 	TraceID        = MetadataPrefix + "traceid"
 	Timestamp      = MetadataPrefix + "timestamp" // RFC 3339 string

@@ -155,3 +155,15 @@ func TestFlvInvalidRules(t *testing.T) {
 	}
 	wantInvalid(t, stepdef.Action, "flv", map[string]any{"HDR": "header[0]"}, "option HDR: field header has a length of 0")
 }
+
+// What the loader binds to every step is no rule of the flv step, whose
+// options are its rules.
+func TestFlvSkipsLoaderBindings(t *testing.T) {
+	p, err := newFlvAction("flv", stepdef.Params{"HDR": "header[3]body[5]", FlowRuntimeKey: nil})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p == nil {
+		t.Fatal("no processor")
+	}
+}

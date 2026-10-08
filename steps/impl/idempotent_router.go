@@ -35,7 +35,7 @@ func newIdempotentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) 
 	if !r.HasNamespace(namespace) {
 		return nil, fmt.Errorf("configure idempotency namespace %q in the channel runtime", namespace)
 	}
-	key, err := compileExpression("simple", p["key"].(string))
+	key, err := compileExpressionIn(flowOf(p), "simple", p["key"].(string))
 	if err != nil {
 		return nil, err
 	}

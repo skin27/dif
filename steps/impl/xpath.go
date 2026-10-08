@@ -8,21 +8,20 @@ import (
 	"strings"
 )
 
-// xpath is a compiled XPath expression of the subset DIF supports: an
-// absolute path of element names, such as /persons/person or /a/*/c.
-// Namespace prefixes in the path are ignored; elements match on local name.
-type xpath []string
+// plainPath is a compiled XPath expression of the simplest kind: an absolute
+// path of element names, such as /persons/person or /a/*/c. It is evaluated by
+// scanning the document, without building a tree (see xpath2.go for the rest).
+// As in XPath, a name without a prefix is the name of an element that is in no
+// namespace; * is any element.
+type plainPath []string
 
-func compileXPath(expr string) (xpath, error) {
+func compilePlainPath(expr string) (plainPath, error) {
 	expr = strings.TrimSpace(expr)
 	if !strings.HasPrefix(expr, "/") || strings.HasPrefix(expr, "//") {
 		return nil, unsupportedXPath(expr)
 	}
-	var x xpath
+	var x plainPath
 	for s := range strings.SplitSeq(expr[1:], "/") {
-		if _, local, ok := strings.Cut(s, ":"); ok {
-			s = local
-		}
 		if s != "*" && !isXMLName(s) {
 			return nil, unsupportedXPath(expr)
 		}
@@ -32,7 +31,7 @@ func compileXPath(expr string) (xpath, error) {
 }
 
 func unsupportedXPath(expr string) error {
-	return fmt.Errorf("unsupported xpath %q; DIF supports absolute paths of element names, such as /a/b or /a/*", expr)
+	return fmt.Errorf("not a plain path of element names, such as /a/b or /a/*: %q", expr)
 }
 
 func isXMLName(s string) bool {
@@ -55,7 +54,7 @@ type xmlNode struct {
 
 // selectXML returns the elements of the XML document data that x selects,
 // in document order.
-func (x xpath) selectXML(data []byte) ([]xmlNode, error) {
+func (x plainPath) selectXML(data []byte) ([]xmlNode, error) {
 	var (
 		nodes  []xmlNode
 		depth  int
@@ -79,7 +78,7 @@ func (x xpath) selectXML(data []byte) ([]xmlNode, error) {
 		case xml.StartElement:
 			root = true
 			depth++
-			if match == depth-1 && depth <= len(x) && (x[depth-1] == "*" || x[depth-1] == t.Name.Local) {
+			if match == depth-1 && depth <= len(x) && (x[depth-1] == "*" || x[depth-1] == t.Name.Local && t.Name.Space == "") {
 				match = depth
 				if depth == len(x) {
 					inNode, start = true, offset
@@ -105,48 +104,6 @@ func (x xpath) selectXML(data []byte) ([]xmlNode, error) {
 		return nil, fmt.Errorf("body is not XML: no root element")
 	}
 	return nodes, nil
-}
-
-// xpathPredicate is a condition on an XML body: a path, true when it selects
-// an element, or a path compared with = or != to a literal, true when one of
-// the selected elements' text is (not) equal to it.
-type xpathPredicate struct {
-	path    xpath
-	op      string // "", "=" or "!="
-	literal string
-}
-
-func compileXPathPredicate(expr string) (xpathPredicate, error) {
-	var p xpathPredicate
-	path := expr
-	if i := strings.IndexByte(expr, '='); i >= 0 { // a path holds no =, so the first one is the operator
-		path, p.op = expr[:i], "="
-		if strings.HasSuffix(path, "!") {
-			path, p.op = path[:len(path)-1], "!="
-		}
-		p.literal = unquote(strings.TrimSpace(expr[i+1:]))
-	}
-	var err error
-	p.path, err = compileXPath(path)
-	return p, err
-}
-
-// match reports whether the predicate holds for the XML document data. A
-// body that is not XML matches nothing.
-func (p xpathPredicate) match(data []byte) bool {
-	nodes, err := p.path.selectXML(data)
-	if err != nil {
-		return false
-	}
-	if p.op == "" {
-		return len(nodes) > 0
-	}
-	for _, n := range nodes {
-		if (n.text == p.literal) == (p.op == "=") {
-			return true
-		}
-	}
-	return false
 }
 
 // unquote removes the single or double quotes around s, if it has them.

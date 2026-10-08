@@ -1,0 +1,17 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:docconverter-action",
+	"title": "docconverter action",
+	"description": "Converts the body between CSV, XML, JSON and YAML. CSV is a table (rows, row, item) with text values; to CSV only such a table converts. XML is read and written as xmltojsonsimple and jsontoxmlsimple do. XML and CSV become YAML with numbers, true, false and null as such, and from XML the members are in the order of a Java HashMap, as on the platform.",
+	"type": "object",
+	"properties": {
+		"convert": {
+			"title": "Convert",
+			"description": "The conversion: the format of the body, to, the format of the result",
+			"type": "string",
+			"enum": ["csvtoxml", "csvtojson", "csvtoyaml", "xmltocsv", "xmltojson", "xmltoyaml", "jsontocsv", "jsontoxml", "jsontoyaml", "yamltocsv", "yamltoxml", "yamltojson"],
+			"default": "xmltojson"
+		}
+	},
+	"additionalProperties": false
+}

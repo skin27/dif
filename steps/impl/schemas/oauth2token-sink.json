@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:oauth2token-sink",
 	"title": "oauth2token sink",
-	"description": "Fetches an OAuth2 access token from a token endpoint and keeps it in tenant variables, renewing it when it expires within expiryDelay. Every message that reaches the step triggers the check (put a repeater in front); the message is not used. The token is set in each variable of tokenName and in the same name with the suffix _Temp. Unlike the Java platform, DIF takes the endpoint and credentials from these options and the environment, not from a tenant configuration.",
+	"description": "Fetches an OAuth2 access token from a token endpoint and keeps it in tenant variables, renewing it when it expires within expiryDelay. Every message that reaches the step triggers the check (put a repeater in front); the message is not used. The token is set in each variable of tokenName and in the same name with the suffix _Temp. The Java platform keeps the endpoint and credentials in the tenant's OAuth configuration; DIF takes each setting from its option, else from the environment variable DIF_OAUTH2_<TOKEN>_<SETTING> (TOKEN: a name in tokenName in capitals, other characters as _; SETTING: TOKEN_URL, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN or SCOPE; the names in turn), else DIF_OAUTH2_<SETTING>. Each variable has a _FILE companion.",
 	"type": "object",
 	"properties": {
 		"path": {
@@ -30,36 +30,35 @@
 		},
 		"tokenUrl": {
 			"title": "Token endpoint",
-			"description": "https URL of the token endpoint (http only for localhost); required to create the step",
+			"description": "https URL of the token endpoint (http only for localhost); env TOKEN_URL (see above); required to create the step",
 			"type": "string",
 			"default": ""
 		},
 		"grantType": {
 			"title": "Grant type",
-			"description": "client_credentials needs clientSecret; refresh_token needs refreshToken",
+			"description": "client_credentials needs clientSecret; refresh_token needs refreshToken. Not given: refresh_token if a refresh token is set, else client_credentials",
 			"type": "string",
-			"enum": ["client_credentials", "refresh_token"],
-			"default": "client_credentials"
+			"enum": ["client_credentials", "refresh_token"]
 		},
 		"clientId": {
 			"title": "Client id",
-			"description": "OAuth2 client id; required to create the step",
+			"description": "OAuth2 client id; env CLIENT_ID (see above); required to create the step",
 			"type": "string",
 			"default": ""
 		},
 		"clientSecret": {
 			"title": "Client secret",
-			"description": "OAuth2 client secret; env DIF_OAUTH2_CLIENT_SECRET (or its _FILE companion)",
+			"description": "OAuth2 client secret; env CLIENT_SECRET (see above)",
 			"type": "string"
 		},
 		"refreshToken": {
 			"title": "Refresh token",
-			"description": "Refresh token for the refresh_token grant; env DIF_OAUTH2_REFRESH_TOKEN (or its _FILE companion)",
+			"description": "Refresh token for the refresh_token grant; env REFRESH_TOKEN (see above)",
 			"type": "string"
 		},
 		"scope": {
 			"title": "Scope",
-			"description": "Requested scopes, separated by spaces; \"\" for the server's default",
+			"description": "Requested scopes, separated by spaces; env SCOPE (see above); \"\" for the server's default",
 			"type": "string",
 			"default": ""
 		},

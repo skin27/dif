@@ -1,12 +1,14 @@
 package impl
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"maps"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	flowdef "dif/flows/definition"
 	"dif/message"
@@ -68,6 +70,8 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		outLinks = map[*flowdef.Node][]dilLink{} // node -> outbound links
 		errh     *flowdef.ErrorHandler
 		errLink  string // outbound link of the error step: the start of the error route
+		flow     = &flowdef.Flow{ID: df.ID, Name: df.Name, Version: versionText(df.Options.Version),
+			Tenant: df.Options.Tenant, Environment: df.Options.Environment}
 	)
 
 	for _, s := range df.Steps.Step {
@@ -90,7 +94,7 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
-		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts}
+		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Flow: flow}
 		if n.Kind == flowdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") && opts["flowId"] == nil {
 			// A flow link source listens for its own flow, which DIL leaves out.
 			n.Options = maps.Clone(opts)
@@ -198,7 +202,21 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		n.Processor = p
 	}
 
-	return &flowdef.Flow{ID: df.ID, Name: df.Name, Source: source, Error: errh}, nil
+	flow.Source, flow.Error = source, errh
+	return flow, nil
+}
+
+// versionText is the version of a flow as text: DIL writes it as a number.
+func versionText(v any) string {
+	switch x := v.(type) {
+	case nil:
+		return ""
+	case float64:
+		return strconv.FormatFloat(x, 'f', -1, 64)
+	case string:
+		return x
+	}
+	return fmt.Sprint(v)
 }
 
 // unknownSteps names the steps that DIL exports with the URI "unknown", by
@@ -258,7 +276,11 @@ var jsonOptionSteps = map[string]bool{"flv": true, "exceltoxml": true}
 // dil.core.
 func stepOptions(s dilStep) (map[string]any, string, error) {
 	uri := knownURI(s)
-	if scheme, _, _ := strings.Cut(uri, ":"); !jsonOptionSteps[scheme] {
+	scheme, _, _ := strings.Cut(uri, ":")
+	if scheme == "settenantvariable" {
+		return decodedValue(s.Options), uri, nil
+	}
+	if !jsonOptionSteps[scheme] {
 		return s.Options, uri, nil
 	}
 	rules, ok := s.Options["rules"]
@@ -272,6 +294,28 @@ func stepOptions(s dilStep) (map[string]any, string, error) {
 	opts := maps.Clone(s.Options)
 	opts["rules"] = string(data)
 	return opts, uri, nil
+}
+
+// decodedValue returns the options of a settenantvariable step with its value
+// as text. DIL carries that value in base64, such as dGVzdA== for test. A value
+// that is no base64, or does not decode to text, is already the text itself.
+func decodedValue(opts map[string]any) map[string]any {
+	v, ok := opts["value"].(string)
+	if !ok || v == "" {
+		return opts
+	}
+	raw, err := base64.StdEncoding.DecodeString(v)
+	if err != nil || !utf8.Valid(raw) {
+		return opts
+	}
+	for _, r := range string(raw) {
+		if r < ' ' && r != '\n' && r != '\r' && r != '\t' {
+			return opts
+		}
+	}
+	out := maps.Clone(opts)
+	out["value"] = string(raw)
+	return out
 }
 
 // errorHandler returns the error handler an error step defines, and the id of

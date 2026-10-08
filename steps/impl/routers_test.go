@@ -92,7 +92,7 @@ func TestContentRouter(t *testing.T) {
 	}{
 		{[]stepdef.Link{{}, {Rule: "b"}}, "outbound links 0 and 1 both have no condition"},
 		{[]stepdef.Link{{Rule: "r", Language: "groovy", Expression: "true"}}, `outbound link 0 (rule r): language "groovy" is not supported`},
-		{[]stepdef.Link{{Rule: "r", Language: "xpath", Expression: "//a"}}, "outbound link 0 (rule r): unsupported xpath"},
+		{[]stepdef.Link{{Rule: "r", Language: "xpath", Expression: "//a["}}, `outbound link 0 (rule r): xpath "//a["`},
 	} {
 		if _, err := newRouter(stepdef.Router, "content", nil, tt.links...); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("err = %v, want containing %q", err, tt.want)
@@ -121,7 +121,7 @@ func TestFilter(t *testing.T) {
 
 	wantInvalid(t, stepdef.Action, "filter", nil, "missing required option expression")
 	wantInvalid(t, stepdef.Action, "filter", map[string]any{"language": "groovy", "expression": "true"}, `option language: "groovy" is not one of`)
-	if _, err := newRouter(stepdef.Action, "filter", map[string]any{"language": "xpath", "expression": "//a"}, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), "option expression: unsupported xpath") {
+	if _, err := newRouter(stepdef.Action, "filter", map[string]any{"language": "xpath", "expression": "//a["}, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), `option expression: xpath "//a["`) {
 		t.Errorf("err = %v", err)
 	}
 	if _, err := newRouter(stepdef.Router, "filter", map[string]any{"expression": "true"}, stepdef.Link{}, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), "needs one outbound link, has 2") {
@@ -132,12 +132,12 @@ func TestFilter(t *testing.T) {
 func TestSplitXML(t *testing.T) {
 	m := message.New(persons)
 	m["h"] = "v"
-	links := []stepdef.Link{{}, {Rule: "split", Language: "xpath", Expression: "/persons/person"}} // as in examples/split.json
-	routes := route(t, "split", map[string]any{"expression": "/persons/person", "exchangePattern": "InOnly"}, links, m)
+	links := []stepdef.Link{{}, {Rule: "split", Language: "xpath", Expression: "/persons/*[local-name() = 'person']"}} // as in examples/split.json
+	routes := route(t, "split", map[string]any{"expression": "/persons/*[local-name() = 'person']", "exchangePattern": "InOnly"}, links, m)
 	if len(routes) != 3 {
 		t.Fatalf("routes = %s, want 2 parts and the message", summary(routes))
 	}
-	for i, want := range []string{`<person id="1"><name>John Doe</name></person>`, `<p:person><name>Jane <b>Doe</b></name></p:person>`} {
+	for i, want := range []string{`<person id="1"><name>John Doe</name></person>`, `<p:person xmlns:p="urn:p"><name>Jane <b>Doe</b></name></p:person>`} {
 		p := routes[i].Message
 		if routes[i].Next != 1 || p[message.Body] != want || p["h"] != "v" || p[SplitIndex] != i || p[SplitSize] != 2 || p[SplitComplete] != (i == 1) {
 			t.Errorf("part %d = %+v", i, routes[i])
@@ -190,8 +190,8 @@ func TestSplitInvalid(t *testing.T) {
 		{map[string]any{"expression": "/a"}, []stepdef.Link{}, "needs an outbound link with rule split"},
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}, {Rule: "split"}}, "needs one outbound link with rule split and at most one other"},
 		{map[string]any{"expression": "/a"}, []stepdef.Link{{Rule: "split"}, {}, {}}, "needs one outbound link with rule split and at most one other"},
-		{map[string]any{"expression": "//a"}, []stepdef.Link{{Rule: "split"}}, "option expression: unsupported xpath"},
-		{map[string]any{"language": "simple", "expression": "${body}"}, []stepdef.Link{{Rule: "split"}}, `option language: "simple" is not one of`},
+		{map[string]any{"expression": "//a["}, []stepdef.Link{{Rule: "split"}}, `option expression: xpath "//a["`},
+		{map[string]any{"language": "groovy", "expression": "x"}, []stepdef.Link{{Rule: "split"}}, `option language: "groovy" is not one of`},
 		{nil, []stepdef.Link{{Rule: "split"}}, "missing required option expression"},
 	} {
 		if _, err := newRouter(stepdef.Router, "split", tt.opts, tt.links...); err == nil || !strings.Contains(err.Error(), tt.want) {
@@ -213,5 +213,67 @@ func TestContentRouterAcceptsDesignerOptions(t *testing.T) {
 		if len(routes) != 1 || routes[0].Next != want {
 			t.Errorf("config %s: routes = %v, want link %d", config, routes, want)
 		}
+	}
+}
+
+const tables = `<root><h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Apples</h:td></h:tr></h:table>` +
+	`<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Oranges</h:td></h:tr></h:table></root>`
+
+func TestSplitWithNamespace(t *testing.T) {
+	opts := map[string]any{"expression": "/root/h:table", "nsprefix": "h", "namespace": "http://www.w3.org/TR/html4/"}
+	r, err := newRouter(stepdef.Router, "splitwithnamespace", opts, stepdef.Link{}, stepdef.Link{Rule: "split"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	routes, err := r.Route(context.Background(), message.New(tables))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `1:<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Apples</h:td></h:tr></h:table> ` +
+		`1:<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Oranges</h:td></h:tr></h:table> 0:` + tables
+	if got := summary(routes); got != want {
+		t.Errorf("routes = %s, want the two tables, then the message", got)
+	}
+
+	// Without the binding the prefix is unknown, and the plain split cannot use it.
+	if _, err := newRouter(stepdef.Router, "split", map[string]any{"expression": "/root/h:table"}, stepdef.Link{}, stepdef.Link{Rule: "split"}); err == nil {
+		t.Error("split accepted a prefix that stands for nothing")
+	}
+	for _, tt := range []struct {
+		opts map[string]any
+		want string
+	}{
+		{map[string]any{"expression": "/a", "nsprefix": "h"}, "nsprefix and namespace go together"},
+		{map[string]any{"expression": "/a", "namespace": "urn:x"}, "nsprefix and namespace go together"},
+		{map[string]any{"expression": "/a", "nsprefix": "a:b", "namespace": "urn:x"}, "is not an XML prefix"},
+		{map[string]any{"expression": "/h:a", "nsprefix": "g", "namespace": "urn:x"}, "option expression"},
+	} {
+		if _, err := newRouter(stepdef.Router, "splitwithnamespace", tt.opts, stepdef.Link{}, stepdef.Link{Rule: "split"}); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: err = %v, want containing %q", tt.opts, err, tt.want)
+		}
+	}
+}
+
+func TestSplitAndAggregateWithNamespace(t *testing.T) {
+	// As in the fixture: the expression is on the split link.
+	opts := map[string]any{"nsprefix": "h", "namespace": "http://www.w3.org/TR/html4/", "aggregateType": "xml"}
+	r, err := newRouter(stepdef.Router, "splitandaggregatewithnamespace", opts, stepdef.Link{}, stepdef.Link{Rule: "split", Expression: "/root/h:table"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := message.New(tables)
+	routes, err := r.Route(context.Background(), m)
+	if err != nil || len(routes) != 2 {
+		t.Fatalf("routes = %v, %v", routes, err)
+	}
+	outcomes := []stepdef.Outcome{{Message: routes[0].Message}, {Message: routes[1].Message}}
+	next, err := r.(stepdef.Gatherer).Gather(context.Background(), m, outcomes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := aggregateStart + `<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Apples</h:td></h:tr></h:table>` +
+		`<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Oranges</h:td></h:tr></h:table></Aggregated>`
+	if len(next) != 1 || next[0].Message[message.Body] != want {
+		t.Errorf("routes = %+v, want the aggregate of the tables", next)
 	}
 }

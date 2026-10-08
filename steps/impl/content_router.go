@@ -23,6 +23,10 @@ type when struct {
 
 func newContentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	r := contentRouter{otherwise: -1}
+	var ns map[string]string // the prefix ns in an xpath condition stands for the option namespace
+	if uri, _ := p["namespace"].(string); uri != "" {
+		ns = map[string]string{"ns": uri}
+	}
 	for i, l := range p[stepdef.Links].([]stepdef.Link) {
 		if l.Expression == "" {
 			if r.otherwise >= 0 {
@@ -35,7 +39,7 @@ func newContentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		if lang == "" {
 			lang = "simple"
 		}
-		cond, err := compilePredicate(lang, l.Expression)
+		cond, err := compilePredicateNS(flowOf(p), ns, lang, l.Expression)
 		if err != nil {
 			return nil, fmt.Errorf("outbound link %d (rule %s): %w", i, l.Rule, err)
 		}

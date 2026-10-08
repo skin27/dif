@@ -42,53 +42,113 @@ type oauth2TokenSink struct {
 
 func newOAuth2TokenSink(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	s := &oauth2TokenSink{
-		tenant:   p["tenantDbName"].(string),
-		expiry:   time.Duration(p["expiryDelay"].(int)) * time.Second,
-		tokenURL: p["tokenUrl"].(string),
-		clientID: p["clientId"].(string),
-		basic:    p["clientAuthentication"] == "basic",
+		tenant: p["tenantDbName"].(string),
+		expiry: time.Duration(p["expiryDelay"].(int)) * time.Second,
+		basic:  p["clientAuthentication"] == "basic",
 	}
+	var tokens []string // the names the settings are looked up by
 	for _, name := range strings.Split(p["tokenName"].(string), ",") {
 		if name = strings.TrimSpace(name); name != "" {
+			tokens = append(tokens, name)
 			s.names = append(s.names, name, name+"_Temp")
 		}
 	}
-	if len(s.names) == 0 {
+	if len(tokens) == 0 {
 		return nil, fmt.Errorf("option tokenName: no variable name")
 	}
 
+	var err error
+	setting := func(option, name string) (string, error) { return oauth2Setting(p, tokens, option, name) }
+	if s.tokenURL, err = setting("tokenUrl", "TOKEN_URL"); err != nil {
+		return nil, err
+	}
 	if s.tokenURL == "" {
-		return nil, fmt.Errorf("option tokenUrl: required; the flow must name the OAuth2 token endpoint")
+		return nil, fmt.Errorf("option tokenUrl: required; the flow must name the OAuth2 token endpoint, or set %s", oauth2EnvHint(tokens, "TOKEN_URL"))
 	}
 	u, err := url.Parse(s.tokenURL)
 	if err != nil || u.Host == "" || (u.Scheme != "https" && !(u.Scheme == "http" && isLoopback(u.Hostname()))) {
 		return nil, fmt.Errorf("option tokenUrl: want https://host/path (http only for localhost), got %q", s.tokenURL)
 	}
+	if s.clientID, err = setting("clientId", "CLIENT_ID"); err != nil {
+		return nil, err
+	}
 	if s.clientID == "" {
-		return nil, fmt.Errorf("option clientId: required")
+		return nil, fmt.Errorf("option clientId: required; or set %s", oauth2EnvHint(tokens, "CLIENT_ID"))
+	}
+	if s.secret, err = setting("clientSecret", "CLIENT_SECRET"); err != nil {
+		return nil, err
+	}
+	if s.refreshToken, err = setting("refreshToken", "REFRESH_TOKEN"); err != nil {
+		return nil, err
+	}
+	scope, err := setting("scope", "SCOPE")
+	if err != nil {
+		return nil, err
 	}
 
-	grant := p["grantType"].(string)
+	grant, _ := p["grantType"].(string)
+	if grant == "" { // a refresh token means that grant
+		if grant = "client_credentials"; s.refreshToken != "" {
+			grant = "refresh_token"
+		}
+	}
 	s.form = url.Values{"grant_type": {grant}}
-	if scope := p["scope"].(string); scope != "" {
+	if scope != "" {
 		s.form.Set("scope", scope)
-	}
-	if s.secret, err = optionOrEnv(p, "clientSecret", "DIF_OAUTH2_CLIENT_SECRET"); err != nil {
-		return nil, err
-	}
-	if s.refreshToken, err = optionOrEnv(p, "refreshToken", "DIF_OAUTH2_REFRESH_TOKEN"); err != nil {
-		return nil, err
 	}
 	switch {
 	case grant == "client_credentials" && s.secret == "":
-		return nil, fmt.Errorf("option clientSecret: required for client_credentials; or set DIF_OAUTH2_CLIENT_SECRET")
+		return nil, fmt.Errorf("option clientSecret: required for client_credentials; or set %s", oauth2EnvHint(tokens, "CLIENT_SECRET"))
 	case grant == "refresh_token" && s.refreshToken == "":
-		return nil, fmt.Errorf("option refreshToken: required for refresh_token; or set DIF_OAUTH2_REFRESH_TOKEN")
+		return nil, fmt.Errorf("option refreshToken: required for refresh_token; or set %s", oauth2EnvHint(tokens, "REFRESH_TOKEN"))
 	}
 	if s.client, err = httpsClient(p); err != nil {
 		return nil, err
 	}
 	return s, nil
+}
+
+// The settings of a token that the flow does not give are the tenant's OAuth
+// configuration of the Java platform; DIF reads them from the environment,
+// as DIF_OAUTH2_<TOKEN>_<SETTING>, where TOKEN is a name in tokenName in
+// capitals and SETTING is TOKEN_URL, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN
+// or SCOPE. Each variable has a _FILE companion (see environmentSecret). The
+// names are tried in order, and DIF_OAUTH2_<SETTING> is for all tokens.
+
+// oauth2Setting returns a setting of the token: the option if the flow gives
+// it (an empty secret counts, as an option without a default; an empty
+// tokenUrl, clientId or scope, which default to "", does not), else the
+// environment's, else "".
+func oauth2Setting(p stepdef.Params, tokens []string, option, setting string) (string, error) {
+	if v, ok := p[option].(string); ok && (v != "" || option == "clientSecret" || option == "refreshToken") {
+		return v, nil
+	}
+	for _, t := range tokens {
+		if v, ok, err := environmentSecret(oauth2Env(t, setting)); err != nil || ok {
+			return v, err
+		}
+	}
+	v, _, err := environmentSecret("DIF_OAUTH2_" + setting)
+	return v, err
+}
+
+// oauth2Env is the environment variable of a setting of a token.
+func oauth2Env(token, setting string) string {
+	name := strings.Map(func(r rune) rune {
+		switch {
+		case r >= 'a' && r <= 'z':
+			return r - 'a' + 'A'
+		case r >= 'A' && r <= 'Z', r >= '0' && r <= '9':
+			return r
+		}
+		return '_'
+	}, token)
+	return "DIF_OAUTH2_" + name + "_" + setting
+}
+
+// oauth2EnvHint names the variables that give a setting, for an error.
+func oauth2EnvHint(tokens []string, setting string) string {
+	return oauth2Env(tokens[0], setting) + " or DIF_OAUTH2_" + setting
 }
 
 // optionOrEnv returns the string option, else the environment secret.

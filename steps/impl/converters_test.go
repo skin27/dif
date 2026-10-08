@@ -239,7 +239,7 @@ func TestXMLToCSVXPath(t *testing.T) {
 	if got := convert(t, "xmltocsv", map[string]any{"xPathExpression": " "}, xml); got != "2John,,\n,9,Not\n" {
 		t.Errorf("blank xpath: got %q, want the root's children as records (list, then item)", got)
 	}
-	wantInvalid(t, stepdef.Action, "xmltocsv", map[string]any{"xPathExpression": "item["}, "option xPathExpression: unsupported xpath")
+	wantInvalid(t, stepdef.Action, "xmltocsv", map[string]any{"xPathExpression": "item["}, `option xPathExpression: xpath "item["`)
 }
 
 func TestCSVToXMLUseHeaders(t *testing.T) {

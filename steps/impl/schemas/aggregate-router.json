@@ -2,12 +2,12 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:aggregate-router",
 	"title": "aggregate router",
-	"description": "Collects messages; when the group is complete (the last part of a split, or completionSize messages), passes on the last message with the aggregate of their bodies. In DIL it is an action.",
+	"description": "Collects messages; when the group is complete (the last part of a split, completionSize messages, completionTimeout without a new message, or every completionInterval), releases a message with the aggregate of their bodies, made from the last, along the link, ignoring what comes of it. The message that came in carries on as it came. A body that is no XML or JSON fails. Without a timer the first part of a split drops what a failed split left. A group a timer has not completed when the flow stops is lost. In DIL it is an action.",
 	"type": "object",
 	"properties": {
 		"aggregateType": {
 			"title": "Aggregate type",
-			"description": "XML: the parts' root elements in <Aggregated>; JSON: an array of the parts",
+			"description": "XML: the parts' root elements in <Aggregated>, after an XML declaration; JSON: an array of the parts",
 			"type": "string",
 			"enum": ["xml", "text/xml", "application/xml", "json", "application/json"],
 			"default": "xml"
@@ -21,14 +21,14 @@
 		},
 		"completionTimeout": {
 			"title": "Completion timeout",
-			"description": "Not supported yet; must be 0",
+			"description": "Milliseconds without a new message that complete the group; 0: none",
 			"type": "integer",
 			"minimum": 0,
 			"default": 0
 		},
 		"completionInterval": {
 			"title": "Completion interval",
-			"description": "Not supported yet; must be 0",
+			"description": "Milliseconds between the completions of the group; 0: none",
 			"type": "integer",
 			"minimum": 0,
 			"default": 0

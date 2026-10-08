@@ -73,6 +73,7 @@ type envelope struct {
 	reply    func(message.Message, error)
 	release  func()
 	complete func(error) error
+	from     *flowdef.Node // set: msg enters the flow after this step, which released it; else at the source
 }
 
 // ID returns the flow's id.
@@ -457,12 +458,30 @@ func (r *Runner) loop(ctx, sourceCtx, msgCtx context.Context, done, ready chan s
 		}()
 	}
 
+	var releasing sync.WaitGroup
+	for _, n := range releasers(r.flow) {
+		releasing.Add(1)
+		go func() {
+			defer releasing.Done()
+			send := func(m message.Message) error { return r.emit(ctx, envelope{msg: m, from: n}) }
+			if err := n.Processor.(stepdef.Releaser).Release(ctx, send); err != nil && ctx.Err() == nil {
+				stepdef.Logger(ctx).Printf("step %s stopped releasing: %v", n.ID, err)
+			}
+		}()
+	}
+
 	for {
 		select {
 		case e := <-r.inbox:
 			r.inFlight.Add(1)
 			started := time.Now()
-			res, err := execute(msgCtx, r.flow, e.msg, e.reply) // replies to the sender
+			var res *Result
+			var err error
+			if e.from != nil {
+				res, err = release(msgCtx, r.flow, e.from, e.msg)
+			} else {
+				res, err = execute(msgCtx, r.flow, e.msg, e.reply) // replies to the sender
+			}
 			if err != nil && msgCtx.Err() != nil {
 				err = fmt.Errorf("aborted by forced stop: %w", err)
 			}
@@ -488,6 +507,7 @@ func (r *Runner) loop(ctx, sourceCtx, msgCtx context.Context, done, ready chan s
 			}
 		case <-ctx.Done():
 			err := <-srcErr
+			releasing.Wait()
 			r.mu.Lock()
 			r.state, r.err, r.resume, r.since = Stopped, err, nil, time.Time{}
 			r.abort() // release msgCtx

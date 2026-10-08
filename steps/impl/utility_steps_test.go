@@ -103,7 +103,7 @@ func TestSimpleValidator(t *testing.T) {
 	}
 	wantInvalid(t, stepdef.Action, "simplevalidator", nil, "missing required option expression")
 	wantInvalid(t, stepdef.Action, "simplevalidator", map[string]any{"expression": " "}, "empty condition")
-	wantInvalid(t, stepdef.Action, "simplevalidator", map[string]any{"expression": "${a} == 1 && ${b} == 2"}, "combining conditions")
+	wantInvalid(t, stepdef.Action, "simplevalidator", map[string]any{"expression": "${a} == 1 and ${b} == 2"}, "combine conditions with && and ||")
 }
 
 func TestCounter(t *testing.T) {

@@ -2,7 +2,6 @@ package impl
 
 import (
 	"fmt"
-	"strings"
 
 	"dif/message"
 )
@@ -13,102 +12,55 @@ type predicate func(message.Message) (bool, error)
 
 // compilePredicate compiles a condition in one of these languages:
 //
-//   - simple: ${...} == 'literal', !=, or contains; the right side may also
-//     be a simple expression. Without an operator, the expression must
-//     evaluate to "true".
-//   - xpath: a path, or a path = or != 'literal' (see xpathPredicate)
+//   - simple: the conditions of Camel's simple language, such as
+//     ${header.n} > 10 && ${body} contains 'x' (see simple_ops.go). Without an
+//     operator, the expression must evaluate to "true".
+//   - xpath: an XPath 2.0 expression, true when it selects a node or its value
+//     is true (see xpath2.go)
 //   - jsonpath: a path, true when it selects a value other than null or false
+//
+// An xpath or jsonpath with ${...} in it, such as ${header.expression}, is a
+// simple template evaluated for every message.
 func compilePredicate(language, expr string) (predicate, error) {
-	switch language {
-	case "simple":
-		return compileSimplePredicate(expr)
-	case "xpath":
-		p, err := compileXPathPredicate(expr)
-		if err != nil {
-			return nil, err
-		}
-		return func(m message.Message) (bool, error) { return p.match(bytesOf(m[message.Body])), nil }, nil
-	case "jsonpath":
-		p, err := compileJSONPath(expr)
-		if err != nil {
-			return nil, err
-		}
-		return func(m message.Message) (bool, error) { return p.matchJSON(m[message.Body]), nil }, nil
-	}
-	return nil, fmt.Errorf("language %q is not supported; use simple, xpath or jsonpath", language)
+	return compilePredicateIn(nil, language, expr)
 }
 
-// simpleOperators are the comparisons a simple predicate supports.
-var simpleOperators = []string{" == ", " != ", " contains "}
+// compilePredicateIn compiles a condition for a flow with the given properties.
+func compilePredicateIn(flow *flowProperties, language, expr string) (predicate, error) {
+	return compilePredicateNS(flow, nil, language, expr)
+}
 
-func compileSimplePredicate(expr string) (predicate, error) {
-	op, i := findOutsideRefs(expr, simpleOperators)
-	if _, j := findOutsideRefs(expr, []string{" && ", " || ", " and ", " or "}); j >= 0 {
-		return nil, fmt.Errorf("simple predicate %q: combining conditions is not supported", expr)
-	}
-	if i < 0 {
-		e, err := compileExpression("simple", expr)
+// compilePredicateNS compiles a condition whose xpath may use the prefixes in ns.
+func compilePredicateNS(flow *flowProperties, ns map[string]string, language, expr string) (predicate, error) {
+	switch language {
+	case "simple":
+		return compileSimplePredicate(flow, expr)
+	case "xpath":
+		get, err := perMessage(flow, expr, func(s string) (xpath, error) { return compileXPathNS(s, ns) })
 		if err != nil {
 			return nil, err
 		}
 		return func(m message.Message) (bool, error) {
-			v, err := e.eval(m)
-			return strings.EqualFold(strings.TrimSpace(v), "true"), err
+			q, err := get(m)
+			if err != nil {
+				return false, err
+			}
+			// A body that is not XML matches nothing.
+			ok, err := q.boolean(bytesOf(m[message.Body]))
+			return ok && err == nil, nil
 		}, nil
-	}
-
-	left, err := compileExpression("simple", strings.TrimSpace(expr[:i]))
-	if err != nil {
-		return nil, err
-	}
-	rightText := strings.TrimSpace(expr[i+len(op):])
-	right := expression{{text: unquote(rightText)}}
-	if unquote(rightText) == rightText {
-		if right, err = compileExpression("simple", rightText); err != nil {
+	case "jsonpath":
+		get, err := perMessage(flow, expr, compileJSONPath)
+		if err != nil {
 			return nil, err
 		}
+		return func(m message.Message) (bool, error) {
+			p, err := get(m)
+			if err != nil {
+				return false, err
+			}
+			return p.matchJSON(m[message.Body]), nil
+		}, nil
 	}
-
-	compare := map[string]func(a, b string) bool{
-		" == ":       func(a, b string) bool { return a == b },
-		" != ":       func(a, b string) bool { return a != b },
-		" contains ": strings.Contains,
-	}[op]
-	return func(m message.Message) (bool, error) {
-		l, err := left.eval(m)
-		if err != nil {
-			return false, err
-		}
-		r, err := right.eval(m)
-		return compare(l, r), err
-	}, nil
-}
-
-// findOutsideRefs returns the first of ops that occurs in s outside ${...}
-// references and quoted literals, and its index; -1 if none does.
-func findOutsideRefs(s string, ops []string) (string, int) {
-	var quote byte
-	for i := 0; i < len(s); i++ {
-		switch c := s[i]; {
-		case quote != 0:
-			if c == quote {
-				quote = 0
-			}
-			continue
-		case c == '\'' || c == '"':
-			quote = c
-			continue
-		case strings.HasPrefix(s[i:], "${"):
-			if j := strings.IndexByte(s[i:], '}'); j >= 0 {
-				i += j
-				continue
-			}
-		}
-		for _, op := range ops {
-			if strings.HasPrefix(s[i:], op) {
-				return op, i
-			}
-		}
-	}
-	return "", -1
+	return nil, fmt.Errorf("language %q is not supported; use simple, xpath or jsonpath", language)
 }

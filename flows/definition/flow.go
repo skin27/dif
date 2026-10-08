@@ -26,15 +26,19 @@ type Node struct {
 	Next      []*Node           // targets of the outbound links
 	Links     []stepdef.Link    // the outbound links' rules and conditions, parallel to Next; nil if they have none
 	Processor stepdef.Processor // the step's processor
+	Flow      *Flow             // the flow the step is in
 }
 
 // Flow is a graph of nodes starting at Source.
 type Flow struct {
-	ID     string
-	Name   string
-	Source *Node
-	Input  message.Message // headers and body of the configured message; nil if there is none
-	Error  *ErrorHandler   // what to do when a step fails; nil: the message fails
+	ID          string
+	Name        string
+	Version     string // the version of the flow; "" if it has none
+	Tenant      string // the tenant the flow belongs to; "" if it has none
+	Environment string // the environment it runs in, such as test; "" if it has none
+	Source      *Node
+	Input       message.Message // headers and body of the configured message; nil if there is none
+	Error       *ErrorHandler   // what to do when a step fails; nil: the message fails
 }
 
 // ErrorHandler is what a flow does when a step fails: try the step again,

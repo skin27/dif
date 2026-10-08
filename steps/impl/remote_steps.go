@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -33,6 +34,7 @@ type remoteProtocol struct {
 
 var (
 	ftpProtocol  = remoteProtocol{"ftp", "21"}
+	ftpsProtocol = remoteProtocol{"ftps", "21"} // 990 with implicit TLS
 	sftpProtocol = remoteProtocol{"sftp", "22"}
 )
 
@@ -50,7 +52,11 @@ type remoteTarget struct {
 }
 
 func newRemoteTarget(proto remoteProtocol, p stepdef.Params) (*remoteTarget, error) {
-	u, err := parseRemoteURI(p["path"].(string), proto.port)
+	port := proto.port
+	if proto.scheme == "ftps" && p["implicit"] == true {
+		port = "990"
+	}
+	u, err := parseRemoteURI(p["path"].(string), port)
 	if err != nil {
 		return nil, fmt.Errorf("uri: %w", err)
 	}
@@ -69,15 +75,28 @@ func newRemoteTarget(proto remoteProtocol, p stepdef.Params) (*remoteTarget, err
 	t := &remoteTarget{scheme: proto.scheme, host: u.host, dir: u.dir}
 	var dial func(ctx context.Context) (remoteFS, error)
 	switch proto.scheme {
-	case "ftp":
+	case "ftp", "ftps":
 		if p["passiveMode"] == false {
 			return nil, fmt.Errorf("option passiveMode: active mode is not supported")
 		}
-		if p["implicit"] == true {
-			return nil, fmt.Errorf("option implicit: FTPS is not supported; ftp is plain text")
+		var secure *ftpTLS
+		if proto.scheme == "ftps" {
+			roots, err := outboundRoots(p)
+			if err != nil {
+				return nil, err
+			}
+			secure = &ftpTLS{
+				config: &tls.Config{
+					RootCAs: roots, MinVersion: tls.VersionTLS12, ServerName: u.host,
+					ClientSessionCache: tls.NewLRUClientSessionCache(4),
+				},
+				implicit: p["implicit"] == true,
+			}
+		} else if p["implicit"] == true {
+			return nil, fmt.Errorf("option implicit: ftp is plain text; use ftps")
 		}
 		dial = func(ctx context.Context) (remoteFS, error) {
-			c, err := dialFTP(ctx, u.addr(), user, password, timeout)
+			c, err := dialFTP(ctx, u.addr(), user, password, timeout, secure)
 			if err != nil {
 				return nil, err
 			}

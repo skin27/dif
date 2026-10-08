@@ -23,8 +23,10 @@ type Result struct {
 
 // Headers the engine sets on a message it sends along the error route.
 const (
-	ErrorMessage = "error.message" // what went wrong
-	ErrorStep    = "error.step"    // id of the step that failed
+	ErrorMessage    = message.ErrorMessage
+	ErrorStep       = message.ErrorStep
+	ErrorClass      = message.ErrorClass
+	ErrorStackTrace = message.ErrorStackTrace
 )
 
 // StepError is the failure of a step, with the message the step got.
@@ -90,6 +92,12 @@ func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*
 	if err != nil {
 		return nil, err
 	}
+	return r.finish(ctx, start, n, msg)
+}
+
+// finish passes msg through the path that starts at step n, and the error route
+// handles a failure.
+func (r *run) finish(ctx context.Context, start time.Time, n *flowdef.Node, msg message.Message) (*Result, error) {
 	if n != nil {
 		out, err := r.path(ctx, n, msg)
 		if err != nil {
@@ -102,6 +110,43 @@ func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*
 		msg = out
 	}
 	return &Result{Message: msg, Trail: r.trail, Duration: time.Since(start)}, nil
+}
+
+// release runs msg, which the processor of step at passed on by itself (see
+// stepdef.Releaser), from the step after it. Nobody waits for its reply.
+func release(ctx context.Context, f *flowdef.Flow, at *flowdef.Node, msg message.Message) (*Result, error) {
+	msg.EnsureIdentity()
+	delete(msg, message.ExchangePattern) // the sender of the messages it comes from is not waiting for it
+	r := &run{trail: []string{at.Kind + ":" + at.ID}, errh: f.Error}
+	n, err := nextStep(at)
+	if err != nil {
+		return nil, err
+	}
+	return r.finish(ctx, time.Now(), n, msg)
+}
+
+// releasers returns the steps of f whose processors are stepdef.Releasers.
+func releasers(f *flowdef.Flow) []*flowdef.Node {
+	var found []*flowdef.Node
+	seen := map[*flowdef.Node]bool{}
+	var walk func(n *flowdef.Node)
+	walk = func(n *flowdef.Node) {
+		if n == nil || seen[n] {
+			return
+		}
+		seen[n] = true
+		if _, ok := n.Processor.(stepdef.Releaser); ok {
+			found = append(found, n)
+		}
+		for _, next := range n.Next {
+			walk(next)
+		}
+	}
+	walk(f.Source)
+	if f.Error != nil {
+		walk(f.Error.Route)
+	}
+	return found
 }
 
 // run is the state of one message execution.
@@ -128,6 +173,7 @@ func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
 	}
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
+	m[ErrorClass], m[ErrorStackTrace] = errorClass(se.Err), err.Error()
 	r.trail = append(r.trail, "error:"+r.errh.ID)
 	addTrail(m, "error:"+r.errh.ID)
 	out, routeErr := r.path(ctx, r.errh.Route, m)
@@ -135,6 +181,18 @@ func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
 		return nil, fmt.Errorf("%w; error route: %w", err, routeErr)
 	}
 	return out, nil
+}
+
+// errorClass is the type of the error at the bottom of the chain of errors
+// that err wraps, such as *fs.PathError.
+func errorClass(err error) string {
+	for {
+		next := errors.Unwrap(err)
+		if next == nil {
+			return fmt.Sprintf("%T", err)
+		}
+		err = next
+	}
 }
 
 // path passes msg through step n and the steps after it, to the end of the

@@ -50,7 +50,7 @@ func (r *Runtime) LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, 
 		return nil, err
 	}
 	f, err := flowimpl.Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
-		return steps.ProcessorWithParams(n, stepdef.Params{stepimpl.ChannelRuntimeKey: r.channels})
+		return steps.ProcessorWithParams(n, stepdef.Params{stepimpl.ChannelRuntimeKey: r.channels, stepimpl.FlowRuntimeKey: n.Flow})
 	})
 	if err != nil {
 		return nil, fmt.Errorf("runtime load: %w", err)

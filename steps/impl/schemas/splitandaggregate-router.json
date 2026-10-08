@@ -7,9 +7,9 @@
 	"properties": {
 		"language": {
 			"title": "Language",
-			"description": "Language of the expression: xpath (/a/b) or jsonpath ($.a[*])",
+			"description": "Language of the expression: xpath (//a), jsonpath ($.a[*]), tokenize (the text to split at), xtokenize (an XML element path or name) or simple (an expression that gives a list, such as ${body.split(',')})",
 			"type": "string",
-			"enum": ["xpath", "jsonpath"],
+			"enum": ["xpath", "jsonpath", "tokenize", "xtokenize", "simple"],
 			"default": "xpath"
 		},
 		"expression": {

@@ -31,8 +31,13 @@ type dilIntegration struct {
 }
 
 type dilFlow struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Options struct {
+		Tenant      string `json:"tenant"`
+		Environment string `json:"environment"`
+		Version     any    `json:"version"` // a number or a text
+	} `json:"options"`
 	Steps struct {
 		Step oneOrMany[dilStep] `json:"step"`
 	} `json:"steps"`

@@ -8,7 +8,7 @@ DIF is a Go integration framework that stays close to the standard library (see 
 
 ## Build, Test, and Development Commands
 
-Use Go 1.24 or newer from the repository root:
+Use Go 1.25 or newer from the repository root:
 
 - `go build ./cmd/dif` — build the CLI executable.
 - `go run ./cmd/dif` — open the interactive CLI.
@@ -49,7 +49,8 @@ Use the standard library first. These dependencies are approved; add one only wh
 
 - `github.com/pkg/sftp` and `golang.org/x/crypto`: the SFTP client (in use).
 - `gopkg.in/yaml.v3`: reading the Postman collections in `regression/postman` (in use), and the `docconverter` step.
-- `github.com/itchyny/gojq`: the `jq` function of the simple language.
+- `github.com/knroy/go-xml`: the XPath 2.0 processor of the `xpath` language (in use), and the XSLT 2.0 processor of the `xslt` step. It is a young project (v1.6.0, October 2026) that needs Go 1.25; `steps/impl/xpath2.go` is the only file that imports it for XPath, so it can be replaced.
+- `github.com/itchyny/gojq`: the `jq` function of the simple language (in use).
 - `github.com/hirochachacha/go-smb2`: the `smb` and `smbenrich` steps.
 - `github.com/emersion/go-imap/v2`: the `imaps` source.
 - `database/sql` drivers for postgres, mysql, oracle and mssql: the `sql` and `sql2` steps. The drivers are chosen when the step is implemented.

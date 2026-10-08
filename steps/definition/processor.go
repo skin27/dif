@@ -119,6 +119,19 @@ type Looper interface {
 	Round(ctx context.Context, in, prev message.Message, round int) (routes []Route, last bool, err error)
 }
 
+// A Releaser is a processor that holds messages and passes them on later on
+// its own, such as an aggregate that completes a group by time. It is run like
+// a source: when its flow starts the engine calls Release in a goroutine of its
+// own, with send, and Release returns when ctx is done, which is when the flow
+// stops. send hands m to the flow as a message of its own, which enters at the
+// step's outbound link (a Releaser has one); it waits while the flow is
+// paused, and fails when ctx is done. The flow's error route handles a
+// failure of the message, as that of any other message. What the processor
+// still holds when the flow stops is lost.
+type Releaser interface {
+	Release(ctx context.Context, send func(m message.Message) error) error
+}
+
 // Outcome is what came out of a route: the message at the end of its path,
 // or the error that stopped it.
 type Outcome struct {

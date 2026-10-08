@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -18,12 +19,13 @@ import (
 
 // ftpClient is a small FTP client (RFC 959, with MLSD, EPSV and SIZE where
 // the server has them): binary transfers over passive data connections, in
-// plain text. It is a remoteFS.
+// plain text, or, for FTPS (RFC 4217), over TLS. It is a remoteFS.
 type ftpClient struct {
 	ctl     *textproto.Conn
 	conn    net.Conn
 	host    string // the server's address, where data connections go
 	timeout time.Duration
+	tls     *tls.Config // set for FTPS: the control and data connections are TLS
 
 	noMLSD, noEPSV bool // the server does not have them
 
@@ -50,26 +52,82 @@ func (c deadlineConn) Write(p []byte) (int, error) {
 	return c.Conn.Write(p)
 }
 
+// ftpTLS is how an FTPS connection is secured.
+type ftpTLS struct {
+	// config names the server (ServerName) and the roots to trust. Its session
+	// cache lets the data connections resume the session of the control
+	// connection, which servers often require.
+	config   *tls.Config
+	implicit bool // TLS from the first byte (port 990), else the client asks with AUTH TLS
+}
+
 // dialFTP connects to the server and logs in. An empty user logs in as
-// anonymous.
-func dialFTP(ctx context.Context, addr, user, password string, timeout time.Duration) (*ftpClient, error) {
+// anonymous. With secure the connection is FTPS: the control connection is TLS
+// (at once if implicit, else after AUTH TLS) and so are the data connections
+// (PBSZ 0, PROT P).
+func dialFTP(ctx context.Context, addr, user, password string, timeout time.Duration, secure *ftpTLS) (*ftpClient, error) {
 	d := net.Dialer{Timeout: timeout}
 	conn, err := d.DialContext(ctx, "tcp", addr)
 	if err != nil {
 		return nil, err
 	}
 	host, _, _ := net.SplitHostPort(conn.RemoteAddr().String())
-	c := &ftpClient{ctl: textproto.NewConn(deadlineConn{conn, timeout}), conn: conn, host: host, timeout: timeout}
-	if err := c.login(user, password); err != nil {
-		conn.Close()
+	c := &ftpClient{conn: conn, host: host, timeout: timeout}
+	if secure != nil {
+		c.tls = secure.config
+		if secure.implicit {
+			if err := c.secureControl(ctx); err != nil {
+				conn.Close()
+				return nil, err
+			}
+		}
+	}
+	if c.ctl == nil {
+		c.ctl = textproto.NewConn(deadlineConn{conn, timeout})
+	}
+	if err := c.login(ctx, user, password, secure != nil && !secure.implicit); err != nil {
+		c.conn.Close()
 		return nil, err
 	}
 	return c, nil
 }
 
-func (c *ftpClient) login(user, password string) error {
+// secureControl makes the control connection TLS.
+func (c *ftpClient) secureControl(ctx context.Context) error {
+	tc := tls.Client(deadlineConn{c.conn, c.timeout}, c.tls)
+	if err := tc.HandshakeContext(ctx); err != nil {
+		return fmt.Errorf("TLS handshake: %w", err)
+	}
+	c.conn, c.ctl = tc, textproto.NewConn(tc) // the deadlines are those of the connection below it
+	return nil
+}
+
+func (c *ftpClient) login(ctx context.Context, user, password string, upgrade bool) error {
 	if _, _, err := c.ctl.ReadResponse(220); err != nil {
 		return fmt.Errorf("greeting: %w", err)
+	}
+	if upgrade {
+		code, msg, err := c.cmd("AUTH TLS")
+		if err == nil && code != 234 {
+			code, msg, err = c.cmd("AUTH SSL") // what older servers call it
+		}
+		if err != nil {
+			return err
+		}
+		if code != 234 {
+			return fmt.Errorf("the server does not do FTPS: AUTH: %d %s", code, msg)
+		}
+		if err := c.secureControl(ctx); err != nil {
+			return err
+		}
+	}
+	if c.tls != nil { // no buffer, and data connections that are TLS too
+		if _, _, err := c.expect(2, "PBSZ 0"); err != nil {
+			return err
+		}
+		if _, _, err := c.expect(200, "PROT P"); err != nil {
+			return err
+		}
 	}
 	if user == "" {
 		user, password = "anonymous", "anonymous@"
@@ -149,7 +207,8 @@ var pasvPort = regexp.MustCompile(`(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)`)
 
 // openData opens a passive data connection to the server's own address; the
 // address in its reply is ignored, which also keeps the server from sending
-// the client elsewhere.
+// the client elsewhere. For FTPS the TLS handshake follows the transfer
+// command (see secureData): a server accepts the connection only then.
 func (c *ftpClient) openData(ctx context.Context) (net.Conn, error) {
 	var port string
 	if !c.noEPSV {
@@ -186,6 +245,16 @@ func (c *ftpClient) openData(ctx context.Context) (net.Conn, error) {
 	return deadlineConn{conn, c.timeout}, nil
 }
 
+// secureData makes the data connection TLS, once the server has accepted it
+// (it did, with the reply to the transfer command).
+func (c *ftpClient) secureData(ctx context.Context, dc net.Conn) (net.Conn, error) {
+	tc := tls.Client(dc, c.tls) // dc has the deadlines
+	if err := tc.HandshakeContext(ctx); err != nil {
+		return nil, fmt.Errorf("data connection: TLS handshake: %w", err)
+	}
+	return tc, nil
+}
+
 // transfer runs a command that moves data: it sends data (an upload) or
 // returns what the server sends.
 func (c *ftpClient) transfer(cmd string, upload bool, data []byte) ([]byte, error) {
@@ -196,12 +265,22 @@ func (c *ftpClient) transfer(cmd string, upload bool, data []byte) ([]byte, erro
 	c.mu.Lock()
 	c.data = dc
 	c.mu.Unlock()
-	defer dc.Close()
+	defer func() { dc.Close() }()
 	name, _, _ := strings.Cut(cmd, " ")
 	if code, msg, err := c.cmd("%s", cmd); err != nil {
 		return nil, err
 	} else if code != 125 && code != 150 {
 		return nil, ftpError(name, code, msg)
+	}
+	if c.tls != nil {
+		tc, err := c.secureData(context.Background(), dc)
+		if err != nil {
+			return nil, err
+		}
+		dc = tc
+		c.mu.Lock()
+		c.data = dc
+		c.mu.Unlock()
 	}
 
 	var got []byte
@@ -209,6 +288,9 @@ func (c *ftpClient) transfer(cmd string, upload bool, data []byte) ([]byte, erro
 		_, err = dc.Write(data)
 	} else {
 		got, err = io.ReadAll(io.LimitReader(dc, maxBodySize+1))
+		if c.tls != nil && errors.Is(err, io.ErrUnexpectedEOF) {
+			err = nil // a server may close the data connection without close_notify; the 226 says the transfer is complete
+		}
 		if err == nil && len(got) > maxBodySize {
 			err = fmt.Errorf("%s: more than %d bytes", name, maxBodySize)
 		}

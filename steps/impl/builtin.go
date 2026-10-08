@@ -51,6 +51,7 @@ func Register(r *registry.Registry) error {
 		{"topic", stepdef.Source, "Publish-Subscribe Channel", newTopicSource, nil},
 		{"googledrive", stepdef.Source, pollingConsumer, newDriveSource, nil},
 		{"ftp", stepdef.Source, pollingConsumer, newRemoteSource(ftpProtocol), nil},
+		{"ftps", stepdef.Source, pollingConsumer, newRemoteSource(ftpsProtocol), nil},
 		{"sftp", stepdef.Source, pollingConsumer, newRemoteSource(sftpProtocol), nil},
 		{"flowlink", stepdef.Source, "", newFlowLinkSource, []string{"flowlink-async"}},
 		{"repeater", stepdef.Source, "", newTimerSource, nil},
@@ -62,7 +63,9 @@ func Register(r *registry.Registry) error {
 		{"passthrough", stepdef.Action, "", newPassthrough, nil},
 		{"setheaders", stepdef.Action, "", newSetHeadersAction, nil},
 		{"base64totext", stepdef.Action, messageTranslator, newBase64ToTextAction, nil},
-		{"texttobase64", stepdef.Action, messageTranslator, newTextToBase64Action, nil},
+		{"base64tobinary", stepdef.Action, messageTranslator, newBase64ToBinaryAction, nil},
+		{"texttobase64", stepdef.Action, messageTranslator, newTextToBase64Action, []string{"binarytobase64"}},
+		{"setbodyasstring", stepdef.Action, messageTranslator, newSetBodyAsStringAction, nil},
 		{"https", stepdef.Action, "", newHTTPSAction, nil},
 		{"rest", stepdef.Action, requestReply, newRestAction, nil},
 		{"graphql", stepdef.Action, requestReply, newGraphQLAction, nil},
@@ -87,6 +90,7 @@ func Register(r *registry.Registry) error {
 		{"editoxml", stepdef.Action, messageTranslator, newEDIToXMLAction, nil},
 		{"xmltoedi", stepdef.Action, messageTranslator, newXMLToEDIAction, nil},
 		{"xmltoedifact", stepdef.Action, messageTranslator, newXMLToEDIFACTAction, nil},
+		{"docconverter", stepdef.Action, messageTranslator, newDocConverterAction, nil},
 		{"formtoxml", stepdef.Action, messageTranslator, newFormToXMLAction, nil},
 		{"flv", stepdef.Action, messageTranslator, newFlvAction, nil},
 		{"exceltoxml", stepdef.Action, messageTranslator, newExcelToXMLAction, nil},
@@ -96,6 +100,7 @@ func Register(r *registry.Registry) error {
 		{"jsonvalidator", stepdef.Action, "", newJSONValidator, nil},
 		{"fileenrich", stepdef.Action, contentEnricher, newFileEnrichAction, nil},
 		{"ftpenrich", stepdef.Action, contentEnricher, newRemoteEnrich(ftpProtocol), nil},
+		{"ftpsenrich", stepdef.Action, contentEnricher, newRemoteEnrich(ftpsProtocol), nil},
 		{"sftpenrich", stepdef.Action, contentEnricher, newRemoteEnrich(sftpProtocol), nil},
 		{"settenantvariable", stepdef.Action, "", newSetTenantVariableAction, nil},
 		{"gettenantvariable", stepdef.Action, "", newGetTenantVariableAction, nil},
@@ -119,22 +124,26 @@ func Register(r *registry.Registry) error {
 		{"wastebin", stepdef.Router, "", newWastebin, nil},
 		{"filter", stepdef.Router, messageFilter, newFilterRouter, nil},
 		{"split", stepdef.Router, splitter, newSplitRouter, nil},
+		{"splitwithnamespace", stepdef.Router, splitter, newSplitWithNamespaceRouter, nil},
 		{"enrich", stepdef.Router, contentEnricher, newEnrichRouter, nil},
 		{"aggregate", stepdef.Router, aggregator, newAggregateRouter, nil},
 		{"idempotent", stepdef.Router, "Idempotent Receiver", newIdempotentRouter, nil},
 		{"splitandaggregate", stepdef.Router, composedMessageProcessor, newSplitAndAggregateRouter, nil},
+		{"splitandaggregatewithnamespace", stepdef.Router, composedMessageProcessor, newSplitAndAggregateWithNamespaceRouter, nil},
 		{"file", stepdef.Sink, "", newFileSink, nil},
 		{"deadletter", stepdef.Sink, deadLetterChannel, newDeadLetterSink, nil},
 		{"wastebin", stepdef.Sink, "", newWastebinSink, nil},
 		{"oauth2token", stepdef.Sink, "", newOAuth2TokenSink, nil},
 		{"ftp", stepdef.Sink, "", newRemoteSink(ftpProtocol), nil},
+		{"ftps", stepdef.Sink, "", newRemoteSink(ftpsProtocol), nil},
 		{"sftp", stepdef.Sink, "", newRemoteSink(sftpProtocol), nil},
 	}
 	for _, b := range builtins {
-		var bindings []string
+		// Every built-in step may refer to its flow in an expression.
+		bindings := []string{FlowRuntimeKey}
 		switch b.name {
 		case "queue", "topic", "flowlink", "deadletter", "idempotent", "request", "reply":
-			bindings = []string{ChannelRuntimeKey}
+			bindings = append(bindings, ChannelRuntimeKey)
 		}
 		schema, err := schemas.ReadFile("schemas/" + b.name + "-" + b.kind + ".json")
 		if err != nil {

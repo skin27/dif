@@ -1,0 +1,164 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:ftps-source",
+	"title": "ftps source",
+	"description": "Polls a directory of an FTPS server and produces a message for every file. The body is the content; the header file.name is the file path below the directory. Once the flow has processed a file it is deleted or moved to the folder move; if processing failed, it is moved to moveFailed. A failed poll, such as a server that is down, is logged and tried again.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Address",
+			"description": "From the URI: ftps:[//][user@]host[:port]/directory. The directory is below the login directory; after a double slash (host//dir) it is absolute",
+			"type": "string"
+		},
+		"userName": {
+			"title": "User name",
+			"description": "User to log in as; anonymous if empty",
+			"type": "string",
+			"default": ""
+		},
+		"password": {
+			"title": "Password",
+			"description": "Password; env DIF_FTPS_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		},
+		"disconnect": {
+			"title": "Disconnect",
+			"description": "Close the connection after each use; false keeps it open between uses, until it is idle for 30 seconds",
+			"type": "boolean",
+			"default": true
+		},
+		"passiveMode": {
+			"title": "Passive mode",
+			"description": "Passive mode is the only one supported; false is rejected",
+			"type": "boolean",
+			"default": true
+		},
+		"socketTimeout": {
+			"title": "Timeout",
+			"description": "Milliseconds to connect and log in; also for a stalled transfer",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
+		"recursive": {
+			"title": "Recursive",
+			"description": "Also look in subdirectories, except those starting with a dot and the folders move and moveFailed",
+			"type": "boolean",
+			"default": false
+		},
+		"fileName": {
+			"title": "File name",
+			"description": "Only the file with this name; not with include or exclude",
+			"type": "string",
+			"default": ""
+		},
+		"include": {
+			"title": "Include",
+			"description": "Regular expression the file name must match; \"\" for any",
+			"type": "string",
+			"default": ""
+		},
+		"exclude": {
+			"title": "Exclude",
+			"description": "Regular expression the file name must not match; \"\" for none",
+			"type": "string",
+			"default": ""
+		},
+		"binary": {
+			"title": "Binary",
+			"description": "Keep the content as bytes instead of text",
+			"type": "boolean",
+			"default": false
+		},
+		"charset": {
+			"title": "Charset",
+			"description": "Charset of the files: UTF-8, ISO-8859-1 or US-ASCII",
+			"type": "string",
+			"default": "utf-8"
+		},
+		"sortBy": {
+			"title": "Sort by",
+			"description": "Order of the files; by name if empty",
+			"type": "string",
+			"enum": ["", "file:name", "reverse:file:name", "file:modified", "reverse:file:modified"],
+			"default": ""
+		},
+		"delay": {
+			"title": "Delay",
+			"description": "Milliseconds between two polls",
+			"type": "integer",
+			"minimum": 1,
+			"default": 60000
+		},
+		"initialDelay": {
+			"title": "Initial delay",
+			"description": "Milliseconds before the first poll",
+			"type": "integer",
+			"minimum": 0,
+			"default": 60000
+		},
+		"stopIfNoFileFound": {
+			"title": "Stop if no file",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "boolean",
+			"default": true
+		},
+		"maxMessagesPerPoll": {
+			"title": "Files per poll",
+			"description": "Most files consumed per poll; 0 or -1 for no limit",
+			"type": "integer",
+			"minimum": -1,
+			"default": 1
+		},
+		"delete": {
+			"title": "Delete",
+			"description": "Delete the file once it is consumed, instead of moving it",
+			"type": "boolean",
+			"default": false
+		},
+		"move": {
+			"title": "Move to",
+			"description": "Folder a consumed file is moved to, below the directory (or absolute); required if not deleting",
+			"type": "string",
+			"default": ".archive"
+		},
+		"moveFailed": {
+			"title": "Move failed to",
+			"description": "Folder a file is moved to if the flow fails to process it; \"\" leaves it, to be consumed again",
+			"type": "string",
+			"default": ".error"
+		},
+		"autoCreate": {
+			"title": "Auto create",
+			"description": "Create the directory if it does not exist",
+			"type": "boolean",
+			"default": true
+		},
+		"readLock": {
+			"title": "Read lock",
+			"description": "changed: only take a file that has not changed since the last poll",
+			"type": "string",
+			"enum": ["none", "changed"],
+			"default": "none"
+		},
+		"implicit": {
+			"title": "Implicit FTPS",
+			"description": "true: TLS from the first byte, on port 990 unless the address has a port; false: the client asks for TLS with AUTH TLS (explicit FTPS)",
+			"type": "boolean",
+			"default": false
+		},
+		"trustStoreFile": {
+			"title": "Trust store",
+			"description": "PKCS#12 keystore with the certificates to trust; \"\" trusts the system's roots",
+			"type": "string",
+			"default": "security/outbound-truststore.p12"
+		},
+		"trustStorePassword": {
+			"title": "Trust store password",
+			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
+			"type": "string"
+		}
+	},
+	"required": ["path"],
+	"additionalProperties": false
+}

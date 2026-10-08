@@ -35,7 +35,7 @@ func TestSetHeadersInvalid(t *testing.T) {
 		t.Helper()
 		wantInvalid(t, stepdef.Action, "setheaders:message:x", map[string]any{"headers": headers}, want)
 	}
-	invalid(`[{"name": "random", "value": "new Random().nextInt(10)", "language": "groovy"}]`, `header random: language "groovy" is not supported`)
+	invalid(`[{"name": "random", "value": "new Random().nextInt(10)", "language": "groovy"}]`, `header random: language "groovy" is not supported; use constant, simple, xpath or jsonpath`)
 	invalid(`[{"name": "x", "value": "${bodyAs}"}]`, "header x: unsupported simple expression")
 	invalid(`[{"name": "body", "value": "x"}]`, "reserved for the body")
 	invalid(`[{"name": "metadata.traceid", "value": "x"}]`, "reserved for metadata")

@@ -78,14 +78,14 @@ func TestPredicateFailsAtRuntime(t *testing.T) {
 func TestPredicateInvalid(t *testing.T) {
 	for _, tt := range []struct{ lang, expr, want string }{
 		{"groovy", "true", `language "groovy" is not supported`},
-		{"simple", "${body} == 'a' && ${body} == 'b'", "combining conditions is not supported"},
-		{"simple", "${body} == 'a' or ${body} == 'b'", "combining conditions is not supported"},
+		{"simple", "${body} == 'a' and ${body} == 'b'", "combine conditions with && and ||"},
+		{"simple", "${body} == 'a' or ${body} == 'b'", "combine conditions with && and ||"},
 		{"simple", "${date:now} == 'x'", "${date:now}: want ${date:now:<format>}"},
 		{"simple", "${body} == ${random(x)}", "${random(x)}: want random(<max>)"},
 		{"simple", "${body} == ${exchangeId}", "unsupported simple expression ${exchangeId}"},
 		{"simple", "${bodyAs(String} == 'x'", "unsupported simple expression ${bodyAs(String}"},
-		{"xpath", "//person", "unsupported xpath"},
-		{"jsonpath", "$..author", "unsupported jsonpath"},
+		{"xpath", "//person[", `xpath "//person["`},
+		{"jsonpath", "$.a[", `jsonpath "$.a["`},
 	} {
 		if _, err := compilePredicate(tt.lang, tt.expr); err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("%s %q: err = %v, want containing %q", tt.lang, tt.expr, err, tt.want)

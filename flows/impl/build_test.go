@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -414,5 +415,65 @@ func TestFlowLinkAsyncSourceGetsItsFlowID(t *testing.T) {
 	}
 	if source == nil || source.URI != "flowlink-async" || source.Options["flowId"] != "flow-1" {
 		t.Errorf("source = %+v, want flowlink-async with the flow id flow-1", source)
+	}
+}
+
+// The options of a flow (its tenant, environment and version, a number in DIL)
+// are the properties of the flow and of every step in it.
+func TestParseFlowProperties(t *testing.T) {
+	for options, want := range map[string]flowdef.Flow{
+		`{"tenant":"acme","environment":"test","version":9}`: {Tenant: "acme", Environment: "test", Version: "9"},
+		`{"tenant":"acme","version":"2.1"}`:                  {Tenant: "acme", Version: "2.1"},
+		`{"version":1.5}`:                                    {Version: "1.5"},
+		`{}`:                                                 {},
+	} {
+		doc := `{"dil":{"integrations":{"integration":{"flows":{"flow":{"id":"f","name":"n","options":` + options +
+			`,"steps":{"step":[` + src + `,` + sink + `]}}}}}}}`
+		f, err := Parse([]byte(doc), newNoop)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if f.ID != "f" || f.Name != "n" || f.Tenant != want.Tenant || f.Environment != want.Environment || f.Version != want.Version {
+			t.Errorf("%s: flow = %+v, want %+v", options, f, want)
+		}
+		for n := f.Source; n != nil; {
+			if n.Flow != f {
+				t.Errorf("%s: step %s does not know its flow", options, n.ID)
+			}
+			if len(n.Next) == 0 {
+				break
+			}
+			n = n.Next[0]
+		}
+	}
+}
+
+// DIL carries the value of settenantvariable in base64; a value that is no
+// base64 text is taken as it is.
+func TestParseTenantVariableValue(t *testing.T) {
+	for value, want := range map[string]string{
+		"dGVzdA==":                 "test",
+		"JHtoZWFkZXIudmFyVmFsdWV9": "${header.varValue}",
+		"TXlWYWx1ZQ==":             "MyValue",
+		"token-${header.user}":     "token-${header.user}", // not base64
+		"Constant":                 "Constant",             // base64, but not text
+		"":                         "",
+		"AAEC":                     "AAEC", // decodes to control characters
+	} {
+		doc := flow(src + `,{"id":"b","type":"action","uri":"settenantvariable:v","options":{"value":` + strconv.Quote(value) +
+			`},"links":{"link":[{"id":"b","bound":"in"},{"id":"c","bound":"out"}]}},{"id":"c","type":"sink","links":{"link":{"id":"c","bound":"in"}}}`)
+		var got string
+		_, err := Parse([]byte(doc), func(n *flowdef.Node) (stepdef.Processor, error) {
+			if n.URI == "settenantvariable:v" {
+				got, _ = n.Options["value"].(string)
+			}
+			return noop{}, nil
+		})
+		if err != nil {
+			t.Fatalf("%q: %v", value, err)
+		}
+		if got != want {
+			t.Errorf("value %q = %q, want %q", value, got, want)
+		}
 	}
 }

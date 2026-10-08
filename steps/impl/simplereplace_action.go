@@ -17,7 +17,7 @@ func newSimpleReplaceAction(string, stepdef.Params) (stepdef.Processor, error) {
 }
 
 func (simpleReplaceAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	expr, err := compileExpression("simple", text(m[message.Body]))
+	expr, err := compileTemplate(text(m[message.Body]))
 	if err != nil {
 		return nil, fmt.Errorf("body: %w", err)
 	}

@@ -32,8 +32,8 @@ import (
 // With retryRequests a call that cannot connect, or that the server answers
 // with 503, is tried again up to retryAttempts times, retryInterval apart.
 type httpsAction struct {
-	url            string     // the address, unless it has ${...} parts
-	dynamicURL     expression // the address with ${...} parts, evaluated for each message; nil if url is it
+	url            string      // the address, unless it has ${...} parts
+	dynamicURL     *expression // the address with ${...} parts, evaluated for each message; nil if url is it
 	method         string
 	client         *http.Client
 	throwOnFailure bool
@@ -62,9 +62,11 @@ func newHTTPSAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	}
 	var err error
 	if target := p["path"].(string); strings.Contains(target, "${") {
-		if a.dynamicURL, err = compileExpression("simple", target); err != nil {
+		x, err := compileExpressionIn(flowOf(p), "simple", target)
+		if err != nil {
 			return nil, fmt.Errorf("uri: %w", err)
 		}
+		a.dynamicURL = &x
 	} else if a.url, err = httpsURL(target); err != nil {
 		return nil, fmt.Errorf("uri: %w", err)
 	}
@@ -111,15 +113,9 @@ func httpsURL(s string) (string, error) {
 // empty), takes at most connectTimeout ms (if the option is there) to connect,
 // and times out after socketTimeout ms.
 func httpsClient(p stepdef.Params) (*http.Client, error) {
-	var pool *x509.CertPool // nil: the system's roots
-	if file := p["trustStoreFile"].(string); file != "" {
-		pw, given, err := trustStorePassword.get(p)
-		if err != nil {
-			return nil, err
-		}
-		if pool, err = keystore.LoadTrustPool(file, pw); err != nil {
-			return nil, trustStorePassword.explain("trust store", err, given)
-		}
+	pool, err := outboundRoots(p)
+	if err != nil {
+		return nil, err
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	if ms, ok := p["connectTimeout"].(int); ok {
@@ -127,6 +123,25 @@ func httpsClient(p stepdef.Params) (*http.Client, error) {
 	}
 	transport.TLSClientConfig = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
 	return &http.Client{Transport: transport, Timeout: time.Duration(p["socketTimeout"].(int)) * time.Millisecond}, nil
+}
+
+// outboundRoots returns the certificates a step trusts for the servers it calls:
+// those of the PKCS#12 trust store trustStoreFile, opened with trustStorePassword,
+// or, if there is none, nil for the system's roots.
+func outboundRoots(p stepdef.Params) (*x509.CertPool, error) {
+	file, _ := p["trustStoreFile"].(string)
+	if file == "" {
+		return nil, nil
+	}
+	pw, given, err := trustStorePassword.get(p)
+	if err != nil {
+		return nil, err
+	}
+	pool, err := keystore.LoadTrustPool(file, pw)
+	if err != nil {
+		return nil, trustStorePassword.explain("trust store", err, given)
+	}
+	return pool, nil
 }
 
 func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
