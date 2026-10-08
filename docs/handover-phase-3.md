@@ -20,7 +20,7 @@ asks for one.
 | 0 | Harness, credential sanitizer, skip list | done |
 | 1 | `ENC(...)` decryption (`DIF_ENCRYPTION_PASSWORD`) | done |
 | 2 | Option, enum and alias fixes; output fidelity of `xmltojson`, `xmltojsonsimple`, `flv` | done (PR #2) |
-| **3** | **Expression engines: Simple functions, operators and `${exception.*}`; an XPath subset; JSONPath filters; `aggregate` timers; `${jq()}` via `gojq`; `oauth2token`** | **this handover** |
+| **3** | **Expression engines: Simple functions, operators and `${exception.*}`; XPath 2.0 (`github.com/knroy/go-xml`, not the planned subset); JSONPath filters; `aggregate` timers (a new `stepdef.Releaser`); `${jq()}` via `gojq`; `oauth2token` settings from `DIF_OAUTH2_*`** | **done: 487 of 635 flows build, 1,809 of 2,399 requests pass (this handover started from 369 and 1,694)** |
 | 4 | Small steps: `base64tobinary`, `binarytobase64`, `setbodyasstring`, the `*withnamespace` splits, `ftps`, `edifacttoxml`, `docconverter` (via `yaml.v3`) | open |
 | 5 | Larger steps: `xslt` (own, on the XPath work), `velocity`, `soap`, `smb`, `imaps`, `sql`/`sql2`; the rest decided per step | open |
 
