@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -468,4 +469,155 @@ func TestHTTPSSourceStopsWithIdleConnection(t *testing.T) {
 	if d := time.Since(start); d > time.Second {
 		t.Errorf("stopping took %v, want well under a second", d)
 	}
+}
+
+func TestHTTPSActionMethodsWithoutBody(t *testing.T) {
+	type request struct{ method, body string }
+	got := make(chan request, 1)
+	srv := testServer(t, func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		got <- request{r.Method, string(b)}
+	})
+	for method, wantBody := range map[string]string{"OPTIONS": "", "TRACE": "", "head": "", "DELETE": "payload", "PATCH": "payload"} {
+		out, err := newHTTPSActionT(t, srv.URL+"/x", map[string]any{"httpMethod": method}).Process(context.Background(), message.New("payload"))
+		if err != nil || out["http.status"] != 200 {
+			t.Fatalf("%s: %v, %v", method, out, err)
+		}
+		if r := <-got; r.method != strings.ToUpper(method) || r.body != wantBody {
+			t.Errorf("%s: server got %s with body %q, want the body %q", method, r.method, r.body, wantBody)
+		}
+	}
+}
+
+func TestHTTPSActionBasicAuthAndExcludedHeaders(t *testing.T) {
+	got := make(chan http.Header, 1)
+	srv := testServer(t, func(w http.ResponseWriter, r *http.Request) { got <- r.Header })
+
+	m := message.New("")
+	m["hello"] = "1"
+	m["Goodbye"] = "2"
+	m["keep"] = "3"
+	m["Authorization"] = "Bearer from-the-caller" // replaced by the step's credentials
+	opts := map[string]any{"authMethod": "basic", "authUsername": "tester", "authPassword": "s3cret", "excludeHeaders": "hello|goodbye"}
+	if _, err := newHTTPSActionT(t, srv.URL+"/x", opts).Process(context.Background(), m); err != nil {
+		t.Fatal(err)
+	}
+	h := <-got
+	if user, pw, ok := (&http.Request{Header: h}).BasicAuth(); !ok || user != "tester" || pw != "s3cret" {
+		t.Errorf("Authorization = %q, want Basic tester:s3cret", h.Get("Authorization"))
+	}
+	if h.Get("Hello") != "" || h.Get("Goodbye") != "" || h.Get("Keep") != "3" {
+		t.Errorf("headers = %v, want hello and goodbye left out and keep sent", h)
+	}
+
+	// Without authMethod Basic the step sends no credentials of its own.
+	m = message.New("")
+	if _, err := newHTTPSActionT(t, srv.URL+"/x", map[string]any{"authUsername": "tester", "authPassword": "x"}).Process(context.Background(), m); err != nil {
+		t.Fatal(err)
+	}
+	if h := <-got; h.Get("Authorization") != "" {
+		t.Errorf("Authorization = %q, want none", h.Get("Authorization"))
+	}
+}
+
+func TestHTTPSActionRetries(t *testing.T) {
+	var calls atomic.Int32
+	srv := testServer(t, func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		if calls.Add(1) < 3 {
+			http.Error(w, "busy", http.StatusServiceUnavailable)
+			return
+		}
+		io.WriteString(w, "done "+string(b))
+	})
+
+	retry := map[string]any{"httpMethod": "POST", "retryRequests": true, "retryAttempts": 3, "retryInterval": 1}
+	out, err := newHTTPSActionT(t, srv.URL+"/x", retry).Process(context.Background(), message.New("payload"))
+	if err != nil || out[message.Body] != "done payload" || calls.Load() != 3 {
+		t.Errorf("with retries: %v, %v after %d calls; want \"done payload\" after 3", out[message.Body], err, calls.Load())
+	}
+
+	// Without retryRequests the 503 is the answer; with too few attempts it still is.
+	for _, opts := range []map[string]any{{"retryAttempts": 3}, {"retryRequests": true, "retryAttempts": 1, "retryInterval": 1}} {
+		calls.Store(0)
+		out, err = newHTTPSActionT(t, srv.URL+"/x", opts).Process(context.Background(), message.New(nil))
+		if err != nil || out["http.status"] != 503 {
+			t.Errorf("%v: %v, %v; want the 503 as the answer", opts, out, err)
+		}
+	}
+
+	// A call that cannot connect is tried again, and a canceled one is not.
+	dead := httptest.NewTLSServer(http.NotFoundHandler())
+	url := dead.URL
+	dead.Close()
+	start := time.Now()
+	_, err = newHTTPSActionT(t, url, map[string]any{"retryRequests": true, "retryAttempts": 2, "retryInterval": 20}).Process(context.Background(), message.New(nil))
+	if err == nil || time.Since(start) < 40*time.Millisecond {
+		t.Errorf("unreachable server: err = %v after %v, want an error after two waits of 20ms", err, time.Since(start))
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	start = time.Now()
+	_, err = newHTTPSActionT(t, url, map[string]any{"retryRequests": true, "retryAttempts": 5, "retryInterval": 10000}).Process(ctx, message.New(nil))
+	if err == nil || time.Since(start) > time.Second {
+		t.Errorf("canceled: err = %v after %v, want an error at once", err, time.Since(start))
+	}
+}
+
+func TestHTTPSActionUseErrorRouteFailsOnErrorStatus(t *testing.T) {
+	srv := testServer(t, func(w http.ResponseWriter, r *http.Request) { http.Error(w, "nope", http.StatusNotFound) })
+	for _, on := range []bool{true, false} {
+		_, err := newHTTPSActionT(t, srv.URL+"/x", map[string]any{"useErrorRoute": on}).Process(context.Background(), message.New(nil))
+		if (err != nil) != on {
+			t.Errorf("useErrorRoute %v: err = %v", on, err)
+		}
+	}
+}
+
+func TestHTTPSActionDesignerOptions(t *testing.T) {
+	// The options of the designer that change nothing are accepted.
+	if _, err := newProcessor(stepdef.Action, "https://localhost/x", map[string]any{
+		"trustStoreFile": testTrustStore, "trustStorePassword": testPassword,
+		"maxTotalConnections": 20, "connectionsPerRoute": "2", "connectTimeout": 180000, "socketTimeout": 180000,
+		"authenticationPreemptive": true, "useCustomDateHeader": false, "sslContextParameters": "#sslContext", "mutualTls": false,
+	}); err != nil {
+		t.Errorf("designer options: %v", err)
+	}
+	wantInvalid(t, stepdef.Action, "https://localhost/x", map[string]any{"mutualTls": true}, "mutual TLS is not supported yet")
+	wantInvalid(t, stepdef.Action, "https://localhost/x", map[string]any{"authMethod": "MutualSSL"}, `option authMethod: "MutualSSL" is not one of "None", "Basic"`)
+	wantInvalid(t, stepdef.Action, "https://localhost/x", map[string]any{"authMethod": "Basic"}, "option authUsername: required with authMethod Basic")
+	wantInvalid(t, stepdef.Action, "https://localhost/x", map[string]any{"excludeHeaders": "(open"}, "option excludeHeaders:")
+	wantInvalid(t, stepdef.Action, "https://localhost/x", map[string]any{"connectTimeout": 0}, "option connectTimeout: 0 is less than 1")
+}
+
+func TestHTTPSActionAddressForms(t *testing.T) {
+	paths := make(chan string, 4)
+	srv := testServer(t, func(w http.ResponseWriter, r *http.Request) { paths <- r.URL.RequestURI() })
+
+	// The URI of the step, the address as the DIL writes it, and an address from the message.
+	for uri, want := range map[string]string{
+		srv.URL + "/a?x=1":                   "/a?x=1",
+		"https:" + srv.URL + "/b":            "/b",
+		"https:${header.url}":                "/from-header",
+		"https:" + srv.URL + "/c?id=${body}": "/c?id=42",
+	} {
+		m := message.New("42")
+		m["url"] = srv.URL + "/from-header"
+		if _, err := newHTTPSActionT(t, uri, nil).Process(context.Background(), m); err != nil {
+			t.Fatalf("%s: %v", uri, err)
+		}
+		if got := <-paths; got != want {
+			t.Errorf("%s: server got %s, want %s", uri, got, want)
+		}
+	}
+
+	// An address from the message must be an https address.
+	for _, bad := range []string{"", "http://example.com/x", "nohost", "ftp://example.com"} {
+		m := message.New(nil)
+		m["url"] = bad
+		if _, err := newHTTPSActionT(t, "https:${header.url}", nil).Process(context.Background(), m); err == nil || !strings.Contains(err.Error(), "want https://host[:port]/path") {
+			t.Errorf("url %q: err = %v, want an address error", bad, err)
+		}
+	}
+	wantInvalid(t, stepdef.Action, "https:http://example.com/x", nil, "want https://host[:port]/path")
 }

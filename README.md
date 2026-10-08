@@ -531,17 +531,17 @@ using anything else fails registration.
 | `message:<name>` | source | – | Produces nothing; messages are sent to the flow (`send`) |
 | `queue[:<name>]` | source | `transport` (activemq, no effect) | Emits the messages of the in-memory queue `<name>`, by default the one named after its flow id, as they arrive (headers and trace id kept); see [Queues](#queues) |
 | `deadletter` | sink | `deadLetterQueue` (DLQ), `connectionFactory` (no effect) | Puts a copy of the message on the in-memory queue `deadLetterQueue`; for error routes |
-| `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow; see [Flow links](#flow-links) |
-| `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda (sync), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000) | Sends a copy of the message to the flow `targetFlowId`; see [Flow links](#flow-links) |
-| `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
+| `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow (also called `flowlink-async`); see [Flow links](#flow-links) |
+| `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda (sync), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000; also written `requestTimout`) | Sends a copy of the message to the flow `targetFlowId`; the step is also called `flowlink-async`, see [Flow links](#flow-links) |
+| `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000; the designer writes `requestTimout`, which wins), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
 | `topic:<name>` | source | — | Creates an independent subscription while running; paused subscriptions buffer messages; see [Topics](#topics) |
 | `topic:<name>` | action | — | Publishes a copy to every active subscription without waiting for processing; see [Topics](#topics) |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` or `matchOnUriPrefix` (false), `exchangePattern` InOut\|InOnly (InOut), `preserveHttpHeaders` (false), `authenticationPreemptive` (no effect), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
-| `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD (GET), `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (false) | Calls the endpoint; the response becomes the message, see [HTTPS](#https) |
+| `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|TRACE (GET), `authMethod` None\|Basic (None) with `authUsername` and `authPassword`, `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `connectTimeout` ms (30000), `socketTimeout` ms (30000), `retryRequests` (false) with `retryAttempts` (5) and `retryInterval` ms (30000), `excludeHeaders` (regular expression), `throwExceptionOnFailure` or `useErrorRoute` (false); no effect: `authenticationPreemptive`, `maxTotalConnections`, `connectionsPerRoute`, `useCustomDateHeader`, `sslContextParameters` | Calls the endpoint, written `https://host/path` or, as DIL has it, `https:https://host/path`; the address may hold `${…}` parts, which are evaluated for each message. The response becomes the message, see [HTTPS](#https) |
 | `rest` | action | `method` (post), `host` (`https://localhost:9002`), `path` (required), `produces` ("": Content-Type of the request when the message sets none), `consumes` ("": its Accept header), `trustStoreFile`, `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (true) | Calls `host`/`path` as the https action does |
 | `graphql` | action | `url` (or `graphql:<url>`), `query` ("": the body), `variables` (a JSON object), `accessToken` (bearer), `trustStoreFile` ("": the system's roots), `socketTimeout` ms (30000) | Posts the query as JSON and replaces the body with the response; an error status fails the message |
 | `smtp:<host>:<port>`, `smtps:<host>:<port>` | action | `to` (required; commas or semicolons), `from` (username), `replyTo`, `subject` (the header `subject` overrides it), `exchangeBodyAs` body or attachment (body), `emailBody`, `contentType`, `username`, `password` (else `DIF_SMTP_PASSWORD`), `accessToken`, `trustStoreFile` ("": the system's roots), `timeout` ms (30000) | Sends the message as an email and passes it on unchanged: the body is the text, or, with `emailBody` or `exchangeBodyAs` attachment, attached (named after `file.name`) to the text `emailBody`. smtp requires STARTTLS, smtps uses TLS from the start; it logs in with PLAIN (password) or XOAUTH2 (accessToken), else not at all |
-| `setheaders:message:<name>` | action | – | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
+| `setheaders:message:<name>` | action | `expression`, `writeAsString` (no effect) | Sets all headers of the core message `<name>` (`dil.core.messages`); each header's `language` is constant or simple (default) |
 | `base64totext` | action | – | Decodes a base64 body to text (whitespace ignored, padding optional) |
 | `texttobase64` | action | – | Encodes the body as base64, without line breaks |
 | `repeater[:<name>]` | source | `period` ms (10000), `repeatCount` (0 or less = unlimited) | The timer source with Camel's repeater defaults |
@@ -981,11 +981,17 @@ share one listener, each on its own path (`matchPrefix` also serves the paths
 below it); a second flow on a path already served fails to start, and its log
 says why (`source stopped: path … is already served by another flow`).
 
-The `https` action calls an endpoint with the message: the body (not for GET and
-HEAD) and its string headers. It maps the trace ID to `DIF-Trace-Id` and never
+The `https` action calls an endpoint with the message: the body (with POST,
+PUT, PATCH and DELETE) and its string headers, except those that `excludeHeaders`
+matches. It maps the trace ID to `DIF-Trace-Id` and never
 sends other `metadata.*` or `http.*` headers. The response sets
 the body, `http.status` and `Content-Type`. An error status fails the message
-only with `throwExceptionOnFailure`.
+only with `throwExceptionOnFailure` (or `useErrorRoute`, the designer's name for
+it). With `authMethod` Basic the credentials go with every request. With
+`retryRequests` a call that cannot connect, or that the server answers with 503,
+is tried again `retryAttempts` times, `retryInterval` apart. Mutual TLS
+(`authMethod` MutualSSL, `mutualTls`) is not supported yet, and a flow that asks for it
+does not load.
 Cookies in the cookie store (see `setcookie`) for the host and path go along,
 and cookies the server sets are kept, for all flows of the process. An empty
 `trustStoreFile` trusts the system's root certificates instead of a trust store.

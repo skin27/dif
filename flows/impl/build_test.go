@@ -390,3 +390,29 @@ func TestKnownURI(t *testing.T) {
 		}
 	}
 }
+
+// TestFlowLinkAsyncSourceGetsItsFlowID checks that a flowlink-async source, which
+// is a flow link source, listens for its own flow like a flowlink source.
+func TestFlowLinkAsyncSourceGetsItsFlowID(t *testing.T) {
+	const flow = `{"dil": {"integrations": {"integration": {"flows": {"flow": {
+		"id": "flow-1", "name": "in", "type": "esb",
+		"steps": {"step": [
+			{"id": "s1", "type": "source", "uri": "flowlink-async", "options": {"transport": "async"},
+			 "links": {"link": {"id": "l1", "bound": "out"}}},
+			{"id": "s2", "type": "sink", "uri": "wastebin",
+			 "links": {"link": {"id": "l1", "bound": "in"}}}
+		]}}}}}}}`
+	var source *flowdef.Node
+	_, err := Parse([]byte(flow), func(n *flowdef.Node) (stepdef.Processor, error) {
+		if n.Kind == flowdef.Source {
+			source = n
+		}
+		return noop{}, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if source == nil || source.URI != "flowlink-async" || source.Options["flowId"] != "flow-1" {
+		t.Errorf("source = %+v, want flowlink-async with the flow id flow-1", source)
+	}
+}

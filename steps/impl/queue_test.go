@@ -209,3 +209,12 @@ func TestQueueDeliveryValidation(t *testing.T) {
 		t.Fatal("default queue delivery must still wait for processing")
 	}
 }
+
+func TestQueueMisspelledRequestTimeout(t *testing.T) {
+	a := mustProcessor(t, stepdef.Sink, "queue", map[string]any{
+		"targetQueueId": t.Name() + "-nobody", "exchangePattern": "InOut", "requestTimout": "20",
+	}).(stepdef.ActionProcessor)
+	if _, err := a.Process(context.Background(), message.New("x")); err == nil || !strings.Contains(err.Error(), "within 20ms") {
+		t.Errorf("err = %v, want the misspelled timeout of 20ms to apply", err)
+	}
+}

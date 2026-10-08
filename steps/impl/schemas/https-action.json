@@ -12,10 +12,44 @@
 		},
 		"httpMethod": {
 			"title": "HTTP method",
-			"description": "The body is sent with all methods but GET and HEAD",
+			"description": "The body is sent with POST, PUT, PATCH and DELETE",
 			"type": "string",
-			"enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"],
+			"enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"],
 			"default": "GET"
+		},
+		"authMethod": {
+			"title": "Authentication",
+			"description": "None, or Basic with authUsername and authPassword (MutualSSL is not supported yet)",
+			"type": "string",
+			"enum": ["None", "Basic"],
+			"default": "None"
+		},
+		"authUsername": {
+			"title": "Username",
+			"description": "User name for Basic authentication",
+			"type": "string"
+		},
+		"authPassword": {
+			"title": "Password",
+			"description": "Password for Basic authentication; may be an ENC(...) value",
+			"type": "string"
+		},
+		"authenticationPreemptive": {
+			"title": "Preemptive authentication",
+			"description": "Accepted for compatibility; has no effect, Basic credentials always go with the first request",
+			"type": "boolean",
+			"default": false
+		},
+		"mutualTls": {
+			"title": "Mutual TLS",
+			"description": "Not supported yet: true is rejected",
+			"type": "boolean",
+			"default": false
+		},
+		"sslContextParameters": {
+			"title": "SSL context",
+			"description": "Accepted for compatibility; has no effect, the trust store options decide whom to trust",
+			"type": "string"
 		},
 		"trustStoreFile": {
 			"title": "Trust store",
@@ -28,6 +62,13 @@
 			"description": "Trust store password; env DIF_TRUSTSTORE_PASSWORD (or its _FILE companion)",
 			"type": "string"
 		},
+		"connectTimeout": {
+			"title": "Connect timeout",
+			"description": "Milliseconds the connection may take to set up",
+			"type": "integer",
+			"minimum": 1,
+			"default": 30000
+		},
 		"socketTimeout": {
 			"title": "Timeout",
 			"description": "Milliseconds the whole call may take",
@@ -35,9 +76,58 @@
 			"minimum": 1,
 			"default": 30000
 		},
+		"maxTotalConnections": {
+			"title": "Maximum connections",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "integer",
+			"minimum": 1
+		},
+		"connectionsPerRoute": {
+			"title": "Connections per host",
+			"description": "Accepted for compatibility; has no effect",
+			"type": "integer",
+			"minimum": 1
+		},
+		"retryRequests": {
+			"title": "Retry requests",
+			"description": "Retry a call that cannot connect or that the server answers with 503, retryAttempts times, retryInterval ms apart",
+			"type": "boolean",
+			"default": false
+		},
+		"retryAttempts": {
+			"title": "Retry attempts",
+			"description": "With retryRequests: how many times to retry",
+			"type": "integer",
+			"minimum": 0,
+			"default": 5
+		},
+		"retryInterval": {
+			"title": "Retry interval",
+			"description": "With retryRequests: milliseconds between attempts",
+			"type": "integer",
+			"minimum": 0,
+			"default": 30000
+		},
+		"excludeHeaders": {
+			"title": "Exclude headers",
+			"description": "Regular expression for the names of the headers not to send, not case sensitive: hello|goodbye",
+			"type": "string"
+		},
 		"throwExceptionOnFailure": {
 			"title": "Fail on error status",
 			"description": "Fail the message when the response status is 400 or higher",
+			"type": "boolean",
+			"default": false
+		},
+		"useErrorRoute": {
+			"title": "Use error route",
+			"description": "Same as throwExceptionOnFailure (the designer's name); either one fails the message on an error status, so that the error route handles it",
+			"type": "boolean",
+			"default": false
+		},
+		"useCustomDateHeader": {
+			"title": "Custom date header",
+			"description": "Accepted for compatibility; has no effect, a date header of the message is always sent as it is",
 			"type": "boolean",
 			"default": false
 		}

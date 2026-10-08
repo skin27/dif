@@ -75,8 +75,18 @@ func newFlowLinkAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		targetID: id,
 		wait:     sync || inOut,
 		inOut:    inOut,
-		timeout:  time.Duration(p["requestTimeout"].(int)) * time.Millisecond,
+		timeout:  requestTimeout(p),
 	}, nil
+}
+
+// requestTimeout returns the time to wait for the target: the option
+// requestTimout, the designer's spelling, else requestTimeout.
+func requestTimeout(p stepdef.Params) time.Duration {
+	ms, ok := p["requestTimout"].(int)
+	if !ok {
+		ms = p["requestTimeout"].(int)
+	}
+	return time.Duration(ms) * time.Millisecond
 }
 
 type linkReply struct {

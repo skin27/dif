@@ -43,3 +43,17 @@ func TestSetHeadersInvalid(t *testing.T) {
 	invalid(`{"name": "x"}`, "option headers: want a JSON array")
 	wantInvalid(t, stepdef.Action, "setheaders:message:x", nil, "missing required option headers")
 }
+
+// TestSetHeadersAcceptsDesignerOptions checks the options the designer leaves
+// on a setheaders step: the headers are those of the core message, so neither
+// changes what the step does.
+func TestSetHeadersAcceptsDesignerOptions(t *testing.T) {
+	m := process(t, "setheaders:message:x", map[string]any{
+		"headers":       `[{"name": "a", "value": "1"}]`,
+		"expression":    "694aca3eda8dd5001600023e",
+		"writeAsString": "false",
+	}, message.New("x"))
+	if m["a"] != "1" {
+		t.Errorf("header a = %#v, want \"1\"", m["a"])
+	}
+}
