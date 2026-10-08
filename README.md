@@ -375,7 +375,7 @@ timestamps, the parent's ID as causation, and inherited correlation and trace
 IDs. Nested splits reference their immediate parent. Custom processors can
 use `m.Child(body)`; like `Copy`, it shares nested values, which must not be
 mutated in place. Split-and-aggregate resumes the original message after
-gathering; standalone aggregation retains the completing message's identity.
+gathering; standalone aggregation releases a child of the group's last message.
 
 HTTPS/REST requests and successful replies carry the three identity headers
 and `DIF-Trace-Id`. Sources preserve supplied IDs and initialize missing ones;
@@ -454,6 +454,14 @@ goroutines). Then:
   the routes to run next, which run as above. A failed route does not stop the
   message; the gatherer decides (returning the route's error keeps its step
   and message for the error route).
+- A **releaser** (`stepdef.Releaser`, such as `aggregate` with a timer) holds
+  messages and passes them on by itself. The engine runs its `Release` in a
+  goroutine of its own while the flow runs, as it runs a source, and gives it
+  `send`: a message sent enters the flow after the releaser's step, as a message
+  of its own that nobody waits for. It is processed like any other (one at a
+  time, not while the flow is paused, with the flow's error route), and counts
+  in the flow's status. `Release` returns when the flow stops; what the
+  processor still holds then is lost.
 - A **looper** (`stepdef.Looper`, such as `loop` and `dowhile`) runs its
   routes in rounds: it has `Round` instead of `Route`, which the engine calls
   with the message that entered the router and the one the round before
@@ -595,7 +603,7 @@ using anything else fails registration.
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
 | `split` | router or action | `language` xpath\|jsonpath\|tokenize\|xtokenize\|simple (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. The parts: for xpath the selected nodes (an element as XML), for jsonpath the selected values as JSON (strings as is; one selected array is split), for tokenize what lies between the occurrences of the text, trimmed and not empty, for xtokenize the elements of an XML path (`//product`, or just a name), for simple the elements of the list the expression gives (`${body.split(',')}`) or the parts of a text between commas. An xpath or jsonpath with `${...}`, such as `${header.expression}`, is evaluated for every message |
 | `enrich` | router | `enrichType` override\|xml\|json (xml; the designer also writes it as `enrichMethod` or `enrichFileType`, which win), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
-| `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0); `completionTimeout`, `completionInterval` (must be 0: not supported yet) | Collects messages and passes one on when the group is complete: the last part of a split (`split.complete`) or `completionSize` messages. That message goes on with the aggregate as body and without the split headers; the others stop here. One group at a time (the Kamelet correlates all messages); a new split (`split.index` 0) starts a new group |
+| `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0), `completionTimeout` (0), `completionInterval` (0), the last two in milliseconds | Collects messages. A group is complete with the last part of a split (`split.complete`), with `completionSize` messages, when `completionTimeout` has passed since its last message came, and every `completionInterval`. The complete group is released as a message of its own, made from the group's last message (a new message ID, caused by it, without the split headers), with the aggregate as body; it goes on along the link and what comes of it is ignored (a failure is logged, or, when a timer completed the group, handled by the flow's error route). The message that came in carries on as it came, so a request gets its reply at once. A body that is not XML or JSON fails when it comes in. One group at a time (the Kamelet correlates all messages); without a timer a new split (`split.index` 0) starts a new group. A group a timer has not completed when the flow stops is lost. Inside the `split` route of a `splitandaggregate`, the aggregate's type decides how that aggregates the parts |
 | `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split`, aggregates what comes out (a gatherer) and sends the message with the aggregate along the other link; with nothing to split the message goes on as it is. A failed part fails the message |
 | `if` | router or action | – (the condition is on the link with rule `if`) | Sends the message along the `if` link when its condition holds, else along the link without a condition; as an action the message stops there |
 | `loop` | router or action | `language` simple\|constant (simple), `expression` (1), `copy` (false); the link with rule `loop` may set both | Sends the message along the `loop` link the given number of times, each round with the message the round before produced (with `copy`: a copy of the message as it entered) and headers `loop.index` (from 0) and `loop.size`; then along the other link, if any. As an action the rest of the flow runs once per round |
@@ -1177,7 +1185,7 @@ setBodyByHeader, setHeaderByBody, setUUID, simplevalidator and wastebin.
 | Package            | Role                                                                     |
 |--------------------|--------------------------------------------------------------------------|
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
-| `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `Looper`, `SinkProcessor`) and `Definition` |
+| `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `Releaser`, `Looper`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
 | `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, texttobase64, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple language, XPath 2.0 and the jsonpath subset |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
@@ -1239,8 +1247,8 @@ flows, custom steps and broken fixtures are skipped. See
   to restore the positions of omitted elements, and a matching EDIFACT to XML
 - Persisted tenant variables (the seam is `tenantStore`) and cookies
 - A CLI command to inspect/replay durable queues and parked dead letters
-- Aggregation by time (`completionTimeout`, `completionInterval`) and by
-  correlation key; it needs a timer that emits into the flow
+- Aggregation by correlation key (the aggregate has one group), and groups
+  that survive a restart
 - More expression languages and simple-language functions (`${exchangeId}`, …)
 - More error handling: exponential backoff, retrying only some errors, keeping the original message
 - Concurrent message execution within a flow (processors are already safe for it)

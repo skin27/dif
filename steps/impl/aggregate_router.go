@@ -6,64 +6,167 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
 
-// aggregateRouter collects messages and passes one on when the group is
-// complete: the message that completed it, with the aggregate of the group's
-// bodies as body and without the split headers. Other messages stop here. In
-// DIL it is an action: a router with one outbound link.
+// aggregateRouter collects messages and, when a group is complete, releases
+// one message with the aggregate of the group's bodies as body: a message of its
+// own, made from the group's last, without the split headers, that goes on
+// along the link with its result ignored. The message that came in carries on
+// as it came, so a sender that waits for a reply gets it back at once, and a
+// split's parts, wherever they end, come out as they went in for the split to
+// aggregate. In DIL it is an action: a router with one outbound link.
 //
 // A group is complete with a message whose split.complete header is true
-// (the last part of a split), or when it holds completionSize messages. There
-// is one group at a time, as the Kamelet correlates all messages; the first
-// part of a split (split.index 0) starts a new one, dropping what is left of
-// an earlier split that failed.
+// (the last part of a split), when it holds completionSize messages, when
+// completionTimeout has passed since the last message came, and every
+// completionInterval. There is one group at a time, as the Kamelet correlates
+// all messages. Without a timer, the first part of a split (split.index 0)
+// starts a new one, dropping what is left of an earlier split that failed. A
+// message that cannot be aggregated (not XML or JSON) fails when it comes in.
+//
+// A group completed by a timer is released by the engine as a message of its
+// own (see stepdef.Releaser); one completed by a message goes on at once.
 type aggregateRouter struct {
-	xml  bool // aggregate as XML, else as JSON
-	size int  // completionSize; 0: complete only on split.complete
+	typ               string // aggregateType as the flow wrote it
+	xml               bool   // aggregate as XML, else as JSON
+	size              int    // completionSize; 0: complete only on split.complete
+	timeout, interval time.Duration
 
-	mu     sync.Mutex
-	bodies []any
+	mu    sync.Mutex
+	parts []string        // the group's bodies, each ready to be joined
+	last  message.Message // a copy of the group's last message; kept for a timer to use
+	seen  time.Time       // when it came
+	wake  chan struct{}   // tells Release the group changed
 }
 
 func newAggregateRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if n := len(p[stepdef.Links].([]stepdef.Link)); n != 1 {
 		return nil, fmt.Errorf("needs one outbound link, has %d", n)
 	}
-	for _, opt := range []string{"completionTimeout", "completionInterval"} {
-		if p[opt].(int) > 0 {
-			return nil, fmt.Errorf("option %s: completing by time is not supported yet; use completionSize or a split", opt)
-		}
-	}
-	return &aggregateRouter{xml: isXMLType(p["aggregateType"].(string)), size: p["completionSize"].(int)}, nil
+	typ := p["aggregateType"].(string)
+	return &aggregateRouter{
+		typ: typ, xml: isXMLType(typ), size: p["completionSize"].(int),
+		timeout:  time.Duration(p["completionTimeout"].(int)) * time.Millisecond,
+		interval: time.Duration(p["completionInterval"].(int)) * time.Millisecond,
+		wake:     make(chan struct{}, 1),
+	}, nil
 }
 
+// aggregateTypeKey is where the router leaves the type it aggregates as on the
+// messages that come in, for a splitandaggregate around it to aggregate the
+// parts as the same.
+const aggregateTypeKey = message.MetadataPrefix + "aggregatetype"
+
+func (a *aggregateRouter) timed() bool { return a.timeout > 0 || a.interval > 0 }
+
 func (a *aggregateRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
-	a.mu.Lock()
-	if m[SplitIndex] == 0 {
-		a.bodies = a.bodies[:0]
+	part, err := aggregatePart(a.xml, m[message.Body])
+	if err != nil {
+		return nil, fmt.Errorf("aggregate: %w", err)
 	}
-	a.bodies = append(a.bodies, m[message.Body])
-	if m[SplitComplete] != true && (a.size == 0 || len(a.bodies) < a.size) {
+	m[aggregateTypeKey] = a.typ
+
+	a.mu.Lock()
+	if m[SplitIndex] == 0 && !a.timed() {
+		a.parts = a.parts[:0]
+	}
+	a.parts = append(a.parts, part)
+	if m[SplitComplete] != true && (a.size == 0 || len(a.parts) < a.size) {
+		if a.timed() {
+			a.last, a.seen = m.Copy(), time.Now()
+			a.poke()
+		}
 		a.mu.Unlock()
 		return nil, nil
 	}
-	bodies := a.bodies
-	a.bodies = nil
-	a.mu.Unlock()
-
-	body, err := aggregateBodies(a.xml, bodies)
-	if err != nil {
-		return nil, err
+	parts := a.parts
+	a.parts, a.last = nil, nil
+	if a.timed() {
+		a.poke()
 	}
-	m[message.Body] = body
-	delete(m, SplitIndex)
-	delete(m, SplitSize)
-	delete(m, SplitComplete)
-	return []stepdef.Route{{Next: 0, Message: m}}, nil
+	a.mu.Unlock()
+	return []stepdef.Route{{Next: 0, Message: a.aggregate(m, parts), Detached: true}}, nil
+}
+
+// aggregate returns the message that holds parts, made from last.
+func (a *aggregateRouter) aggregate(last message.Message, parts []string) message.Message {
+	agg := last.Child(joinParts(a.xml, parts))
+	delete(agg, SplitIndex)
+	delete(agg, SplitSize)
+	delete(agg, SplitComplete)
+	delete(agg, aggregateTypeKey)
+	return agg
+}
+
+// poke tells Release that the group changed, without waiting.
+func (a *aggregateRouter) poke() {
+	select {
+	case a.wake <- struct{}{}:
+	default:
+	}
+}
+
+// Release completes the group by its timers, until ctx is done.
+func (a *aggregateRouter) Release(ctx context.Context, send func(message.Message) error) error {
+	if !a.timed() {
+		return nil
+	}
+	next := time.Now().Add(a.interval) // the end of the interval
+	for {
+		a.mu.Lock()
+		var wait time.Duration
+		timing := false
+		if a.interval > 0 {
+			wait, timing = time.Until(next), true
+		}
+		if d := time.Until(a.seen.Add(a.timeout)); a.timeout > 0 && len(a.parts) > 0 && (!timing || d < wait) {
+			wait, timing = d, true
+		}
+		a.mu.Unlock()
+
+		var due <-chan time.Time // stays nil, and so waits for a change, with no timer to wait for
+		var timer *time.Timer
+		if timing {
+			timer = time.NewTimer(max(wait, 0))
+			due = timer.C
+		}
+		select {
+		case <-ctx.Done():
+			if timer != nil {
+				timer.Stop()
+			}
+			return nil
+		case <-a.wake:
+			if timer != nil {
+				timer.Stop()
+			}
+			continue
+		case <-due:
+		}
+
+		now := time.Now()
+		a.mu.Lock()
+		ended := a.interval > 0 && !now.Before(next)
+		for ended && !now.Before(next) {
+			next = next.Add(a.interval)
+		}
+		var parts []string
+		var last message.Message
+		if len(a.parts) > 0 && (ended || a.timeout > 0 && !now.Before(a.seen.Add(a.timeout))) {
+			parts, last = a.parts, a.last
+			a.parts, a.last = nil, nil
+		}
+		a.mu.Unlock()
+		if parts != nil {
+			if err := send(a.aggregate(last, parts)); err != nil {
+				return nil // the flow is stopping
+			}
+		}
+	}
 }
 
 // splitAndAggregateRouter splits the body like the split router, sends every
@@ -107,13 +210,17 @@ func (r splitAndAggregateRouter) Gather(_ context.Context, m message.Message, ou
 		return []stepdef.Route{{Next: r.main, Message: m}}, nil
 	}
 	bodies := make([]any, len(outcomes))
+	asXML := r.xml
 	for i, o := range outcomes {
 		if o.Err != nil {
 			return nil, o.Err
 		}
 		bodies[i] = o.Message[message.Body]
+		if t, ok := o.Message[aggregateTypeKey].(string); ok { // an aggregate in the split route decides
+			asXML = isXMLType(t)
+		}
 	}
-	body, err := aggregateBodies(r.xml, bodies)
+	body, err := aggregateBodies(asXML, bodies)
 	if err != nil {
 		return nil, err
 	}
@@ -123,34 +230,47 @@ func (r splitAndAggregateRouter) Gather(_ context.Context, m message.Message, ou
 
 func isXMLType(t string) bool { return strings.Contains(t, "xml") }
 
+// aggregateStart opens an XML aggregate.
+const aggregateStart = `<Aggregated>`
+
 // aggregateBodies returns the aggregate of bodies: as XML, their root
 // elements in an Aggregated element; as JSON, an array of their values.
 func aggregateBodies(asXML bool, bodies []any) (string, error) {
-	var b bytes.Buffer
-	if asXML {
-		b.WriteString("<Aggregated>")
-		for i, body := range bodies {
-			data := bytesOf(body)
-			if _, err := parseXMLTree(data); err != nil {
-				return "", fmt.Errorf("aggregate part %d: %w", i+1, err)
-			}
-			start, end, _, _ := rootSpan(data)
-			b.Write(data[start:end])
-		}
-		b.WriteString("</Aggregated>")
-		return b.String(), nil
-	}
-	b.WriteByte('[')
+	parts := make([]string, len(bodies))
 	for i, body := range bodies {
-		v, err := readJSON(body)
+		part, err := aggregatePart(asXML, body)
 		if err != nil {
 			return "", fmt.Errorf("aggregate part %d: %w", i+1, err)
 		}
-		if i > 0 {
-			b.WriteByte(',')
-		}
-		writeJSON(&b, v)
+		parts[i] = part
 	}
-	b.WriteByte(']')
+	return joinParts(asXML, parts), nil
+}
+
+// aggregatePart checks that body is XML (or JSON) and returns the root element
+// (or its value in JSON, compact) that joinParts puts in the aggregate.
+func aggregatePart(asXML bool, body any) (string, error) {
+	if asXML {
+		data := bytesOf(body)
+		if _, err := parseXMLTree(data); err != nil {
+			return "", err
+		}
+		start, end, _, _ := rootSpan(data)
+		return string(data[start:end]), nil
+	}
+	v, err := readJSON(body)
+	if err != nil {
+		return "", err
+	}
+	var b bytes.Buffer
+	writeJSON(&b, v)
 	return b.String(), nil
+}
+
+// joinParts returns the aggregate of parts.
+func joinParts(asXML bool, parts []string) string {
+	if asXML {
+		return aggregateStart + strings.Join(parts, "") + "</Aggregated>"
+	}
+	return "[" + strings.Join(parts, ",") + "]"
 }

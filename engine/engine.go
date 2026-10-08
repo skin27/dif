@@ -92,6 +92,12 @@ func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*
 	if err != nil {
 		return nil, err
 	}
+	return r.finish(ctx, start, n, msg)
+}
+
+// finish passes msg through the path that starts at step n, and the error route
+// handles a failure.
+func (r *run) finish(ctx context.Context, start time.Time, n *flowdef.Node, msg message.Message) (*Result, error) {
 	if n != nil {
 		out, err := r.path(ctx, n, msg)
 		if err != nil {
@@ -104,6 +110,43 @@ func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*
 		msg = out
 	}
 	return &Result{Message: msg, Trail: r.trail, Duration: time.Since(start)}, nil
+}
+
+// release runs msg, which the processor of step at passed on by itself (see
+// stepdef.Releaser), from the step after it. Nobody waits for its reply.
+func release(ctx context.Context, f *flowdef.Flow, at *flowdef.Node, msg message.Message) (*Result, error) {
+	msg.EnsureIdentity()
+	delete(msg, message.ExchangePattern) // the sender of the messages it comes from is not waiting for it
+	r := &run{trail: []string{at.Kind + ":" + at.ID}, errh: f.Error}
+	n, err := nextStep(at)
+	if err != nil {
+		return nil, err
+	}
+	return r.finish(ctx, time.Now(), n, msg)
+}
+
+// releasers returns the steps of f whose processors are stepdef.Releasers.
+func releasers(f *flowdef.Flow) []*flowdef.Node {
+	var found []*flowdef.Node
+	seen := map[*flowdef.Node]bool{}
+	var walk func(n *flowdef.Node)
+	walk = func(n *flowdef.Node) {
+		if n == nil || seen[n] {
+			return
+		}
+		seen[n] = true
+		if _, ok := n.Processor.(stepdef.Releaser); ok {
+			found = append(found, n)
+		}
+		for _, next := range n.Next {
+			walk(next)
+		}
+	}
+	walk(f.Source)
+	if f.Error != nil {
+		walk(f.Error.Route)
+	}
+	return found
 }
 
 // run is the state of one message execution.
