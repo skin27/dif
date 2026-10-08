@@ -215,3 +215,65 @@ func TestContentRouterAcceptsDesignerOptions(t *testing.T) {
 		}
 	}
 }
+
+const tables = `<root><h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Apples</h:td></h:tr></h:table>` +
+	`<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Oranges</h:td></h:tr></h:table></root>`
+
+func TestSplitWithNamespace(t *testing.T) {
+	opts := map[string]any{"expression": "/root/h:table", "nsprefix": "h", "namespace": "http://www.w3.org/TR/html4/"}
+	r, err := newRouter(stepdef.Router, "splitwithnamespace", opts, stepdef.Link{}, stepdef.Link{Rule: "split"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	routes, err := r.Route(context.Background(), message.New(tables))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `1:<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Apples</h:td></h:tr></h:table> ` +
+		`1:<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Oranges</h:td></h:tr></h:table> 0:` + tables
+	if got := summary(routes); got != want {
+		t.Errorf("routes = %s, want the two tables, then the message", got)
+	}
+
+	// Without the binding the prefix is unknown, and the plain split cannot use it.
+	if _, err := newRouter(stepdef.Router, "split", map[string]any{"expression": "/root/h:table"}, stepdef.Link{}, stepdef.Link{Rule: "split"}); err == nil {
+		t.Error("split accepted a prefix that stands for nothing")
+	}
+	for _, tt := range []struct {
+		opts map[string]any
+		want string
+	}{
+		{map[string]any{"expression": "/a", "nsprefix": "h"}, "nsprefix and namespace go together"},
+		{map[string]any{"expression": "/a", "namespace": "urn:x"}, "nsprefix and namespace go together"},
+		{map[string]any{"expression": "/a", "nsprefix": "a:b", "namespace": "urn:x"}, "is not an XML prefix"},
+		{map[string]any{"expression": "/h:a", "nsprefix": "g", "namespace": "urn:x"}, "option expression"},
+	} {
+		if _, err := newRouter(stepdef.Router, "splitwithnamespace", tt.opts, stepdef.Link{}, stepdef.Link{Rule: "split"}); err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%v: err = %v, want containing %q", tt.opts, err, tt.want)
+		}
+	}
+}
+
+func TestSplitAndAggregateWithNamespace(t *testing.T) {
+	// As in the fixture: the expression is on the split link.
+	opts := map[string]any{"nsprefix": "h", "namespace": "http://www.w3.org/TR/html4/", "aggregateType": "xml"}
+	r, err := newRouter(stepdef.Router, "splitandaggregatewithnamespace", opts, stepdef.Link{}, stepdef.Link{Rule: "split", Expression: "/root/h:table"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := message.New(tables)
+	routes, err := r.Route(context.Background(), m)
+	if err != nil || len(routes) != 2 {
+		t.Fatalf("routes = %v, %v", routes, err)
+	}
+	outcomes := []stepdef.Outcome{{Message: routes[0].Message}, {Message: routes[1].Message}}
+	next, err := r.(stepdef.Gatherer).Gather(context.Background(), m, outcomes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := aggregateStart + `<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Apples</h:td></h:tr></h:table>` +
+		`<h:table xmlns:h="http://www.w3.org/TR/html4/"><h:tr><h:td>Oranges</h:td></h:tr></h:table></Aggregated>`
+	if len(next) != 1 || next[0].Message[message.Body] != want {
+		t.Errorf("routes = %+v, want the aggregate of the tables", next)
+	}
+}

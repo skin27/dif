@@ -179,6 +179,20 @@ type splitAndAggregateRouter struct {
 }
 
 func newSplitAndAggregateRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
+	return newSplitAndAggregate(p, nil)
+}
+
+// newSplitAndAggregateWithNamespaceRouter is splitandaggregate whose xpath may
+// use the prefix nsprefix, which stands for the namespace.
+func newSplitAndAggregateWithNamespaceRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
+	ns, err := splitNamespace(p)
+	if err != nil {
+		return nil, err
+	}
+	return newSplitAndAggregate(p, ns)
+}
+
+func newSplitAndAggregate(p stepdef.Params, ns map[string]string) (stepdef.Processor, error) {
 	links := p[stepdef.Links].([]stepdef.Link)
 	expr := p["expression"].(string)
 	if expr == "" { // DIL may keep it on the split link only
@@ -191,7 +205,7 @@ func newSplitAndAggregateRouter(_ string, p stepdef.Params) (stepdef.Processor, 
 	if expr == "" {
 		return nil, fmt.Errorf("needs an expression: the option expression or the split link's")
 	}
-	s, err := newSplitter(flowOf(p), links, p["language"].(string), expr)
+	s, err := newSplitter(flowOf(p), links, p["language"].(string), expr, ns)
 	if err != nil {
 		return nil, err
 	}

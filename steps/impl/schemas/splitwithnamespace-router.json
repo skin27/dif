@@ -1,0 +1,52 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:splitwithnamespace-router",
+	"title": "splitwithnamespace router",
+	"description": "Like split, with an xpath that may use the namespace prefix nsprefix: splits the body into parts and sends each part along the outbound link with rule split; the message itself continues on the other link.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Language of the expression; xpath",
+			"type": "string",
+			"enum": ["xpath"],
+			"default": "xpath"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "Selects the parts",
+			"type": "string"
+		},
+		"nsprefix": {
+			"title": "Namespace prefix",
+			"description": "The prefix of the xpath that stands for namespace",
+			"type": "string"
+		},
+		"namespace": {
+			"title": "Namespace",
+			"description": "The namespace of the prefix nsprefix",
+			"type": "string"
+		},
+		"streaming": {
+			"title": "Streaming",
+			"description": "Accepted for compatibility; has no effect yet",
+			"type": "boolean",
+			"default": false
+		},
+		"parallelProcessing": {
+			"title": "Parallel processing",
+			"description": "Accepted for compatibility; has no effect yet (parts are processed one after another)",
+			"type": "boolean",
+			"default": false
+		},
+		"exchangePattern": {
+			"title": "Exchange pattern",
+			"description": "Accepted for compatibility; has no effect yet",
+			"type": "string",
+			"enum": ["InOnly", "InOut"],
+			"default": "InOut"
+		}
+	},
+	"required": ["expression"],
+	"additionalProperties": false
+}

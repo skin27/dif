@@ -28,16 +28,47 @@ type splitRouter struct {
 }
 
 func newSplitRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
-	r, err := newSplitter(flowOf(p), p[stepdef.Links].([]stepdef.Link), p["language"].(string), p["expression"].(string))
+	r, err := newSplitter(flowOf(p), p[stepdef.Links].([]stepdef.Link), p["language"].(string), p["expression"].(string), nil)
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
+// newSplitWithNamespaceRouter is the split router whose xpath may use the prefix
+// nsprefix, which stands for the namespace.
+func newSplitWithNamespaceRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
+	ns, err := splitNamespace(p)
+	if err != nil {
+		return nil, err
+	}
+	r, err := newSplitter(flowOf(p), p[stepdef.Links].([]stepdef.Link), p["language"].(string), p["expression"].(string), ns)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// splitNamespace returns the namespace binding of the options nsprefix and
+// namespace, nil if they give none.
+func splitNamespace(p stepdef.Params) (map[string]string, error) {
+	prefix, _ := p["nsprefix"].(string)
+	uri, _ := p["namespace"].(string)
+	switch {
+	case prefix == "" && uri == "":
+		return nil, nil
+	case prefix == "" || uri == "":
+		return nil, fmt.Errorf("options nsprefix and namespace go together")
+	case strings.Contains(prefix, ":") || strings.ContainsAny(prefix, " \t\r\n"):
+		return nil, fmt.Errorf("option nsprefix: %q is not an XML prefix", prefix)
+	}
+	return map[string]string{prefix: uri}, nil
+}
+
 // newSplitter returns a splitRouter for links that splits by expression in
-// language (xpath, jsonpath, tokenize, xtokenize or simple).
-func newSplitter(flow *flowProperties, links []stepdef.Link, language, expression string) (splitRouter, error) {
+// language (xpath, jsonpath, tokenize, xtokenize or simple). The prefixes of an
+// xpath or xtokenize expression stand for the namespaces in ns.
+func newSplitter(flow *flowProperties, links []stepdef.Link, language, expression string, ns map[string]string) (splitRouter, error) {
 	r := splitRouter{split: -1, main: -1}
 	for i, l := range links {
 		target := &r.main
@@ -54,7 +85,7 @@ func newSplitter(flow *flowProperties, links []stepdef.Link, language, expressio
 	}
 
 	var err error
-	if r.parts, err = splitParts(flow, language, expression); err != nil {
+	if r.parts, err = splitParts(flow, language, expression, ns); err != nil {
 		return r, fmt.Errorf("option expression: %w", err)
 	}
 	return r, nil
@@ -73,7 +104,7 @@ func newSplitter(flow *flowProperties, links []stepdef.Link, language, expressio
 //
 // An expression with ${...} in it, such as ${header.expression}, is a simple
 // template evaluated for every message; its result is the xpath or jsonpath.
-func splitParts(flow *flowProperties, language, expression string) (func(message.Message) ([]string, error), error) {
+func splitParts(flow *flowProperties, language, expression string, ns map[string]string) (func(message.Message) ([]string, error), error) {
 	switch language {
 	case "xpath", "xtokenize":
 		pick := func(m message.Message, q xpath) ([]string, error) {
@@ -91,7 +122,7 @@ func splitParts(flow *flowProperties, language, expression string) (func(message
 			if language == "xtokenize" && !strings.Contains(s, "/") {
 				s = "//*:" + s // a name stands for the elements with that name
 			}
-			return compileXPath(s)
+			return compileXPathNS(s, ns)
 		}
 		return dynamicParts(flow, expression, compile, pick)
 	case "jsonpath":
