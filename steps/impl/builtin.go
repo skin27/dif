@@ -49,6 +49,7 @@ func Register(r *registry.Registry) error {
 		{"request", stepdef.Action, requestReply, newRequestAction, nil},
 		{"reply", stepdef.Sink, requestReply, newReplySink, nil},
 		{"topic", stepdef.Source, "Publish-Subscribe Channel", newTopicSource, nil},
+		{"event", stepdef.Source, "Publish-Subscribe Channel", newEventSource, nil},
 		{"googledrive", stepdef.Source, pollingConsumer, newDriveSource, nil},
 		{"ftp", stepdef.Source, pollingConsumer, newRemoteSource(ftpProtocol), nil},
 		{"ftps", stepdef.Source, pollingConsumer, newRemoteSource(ftpsProtocol), nil},
@@ -157,7 +158,7 @@ func Register(r *registry.Registry) error {
 		// Every built-in step may refer to its flow in an expression.
 		bindings := []string{FlowRuntimeKey}
 		switch b.name {
-		case "queue", "topic", "flowlink", "deadletter", "idempotent", "request", "reply":
+		case "queue", "topic", "event", "flowlink", "deadletter", "idempotent", "request", "reply":
 			bindings = append(bindings, ChannelRuntimeKey)
 		}
 		schema, err := schemas.ReadFile("schemas/" + b.name + "-" + b.kind + ".json")

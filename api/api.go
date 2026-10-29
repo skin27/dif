@@ -79,5 +79,5 @@ func LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Flow{Runner: engine.NewRunner(f, onResult)}, nil
+	return newFlow(f, onResult, defaultEvents), nil
 }

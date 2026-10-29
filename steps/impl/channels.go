@@ -36,6 +36,9 @@ var defaultChannels = func() *Channels {
 	return r
 }()
 
+// DefaultChannels returns the channels that flows loaded without a runtime share.
+func DefaultChannels() *Channels { return defaultChannels }
+
 func channelRuntime(p stepdef.Params) *Channels {
 	if r, ok := p[ChannelRuntimeKey].(*Channels); ok {
 		return r

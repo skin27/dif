@@ -583,6 +583,7 @@ using anything else fails registration.
 | `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000; the designer writes `requestTimout`, which wins), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
 | `topic:<name>` | source | — | Creates an independent subscription while running; paused subscriptions buffer messages; see [Topics](#topics) |
 | `topic:<name>` | action | — | Publishes a copy to every active subscription without waiting for processing; see [Topics](#topics) |
+| `event:<type>` | source | `flowId` ("": every flow) | Receives the events of the flows of the process: `flow.started`, `flow.paused`, `flow.resumed`, `flow.stopped`, `source.failed`, `exchange.completed`, `exchange.handled`, `exchange.failed`, or `*` for all; see [Events](#events) |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` or `matchOnUriPrefix` (false), `exchangePattern` InOut\|InOnly (InOut), `preserveHttpHeaders` (false), `authenticationPreemptive` (no effect), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
 | `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|TRACE (GET), `authMethod` None\|Basic (None) with `authUsername` and `authPassword`, `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `connectTimeout` ms (30000), `socketTimeout` ms (30000), `retryRequests` (false) with `retryAttempts` (5) and `retryInterval` ms (30000), `excludeHeaders` (regular expression), `throwExceptionOnFailure` or `useErrorRoute` (false); no effect: `authenticationPreemptive`, `maxTotalConnections`, `connectionsPerRoute`, `useCustomDateHeader`, `sslContextParameters` | Calls the endpoint, written `https://host/path` or, as DIL has it, `https:https://host/path`; the address may hold `${…}` parts, which are evaluated for each message. The response becomes the message, see [HTTPS](#https) |
 | `rest` | action | `method` (post), `host` (`https://localhost:9002`), `path` (required), `produces` ("": Content-Type of the request when the message sets none), `consumes` ("": its Accept header), `trustStoreFile`, `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (true) | Calls `host`/`path` as the https action does |
@@ -1015,6 +1016,44 @@ Detached taps retain their error isolation: a full buffer logs an enqueue error
 and the main path continues, losing that tap copy. Work elsewhere on the tap
 branch still runs sequentially. See [channel examples](testdata/examples/channels/README.md)
 for competing consumers, fan-out and a slow audit consumer.
+
+### Events
+
+What happens to a flow, and how its messages end, can start another flow: a
+flow whose source is `event:<type>` receives the events of the flows loaded in
+the same process (or the same `api.Runtime`), as Camel's `camelevent:` does.
+
+| Type | When |
+|---|---|
+| `flow.started`, `flow.paused`, `flow.resumed`, `flow.stopped` | the flow changes state; a stop event comes when the run has ended |
+| `source.failed` | the source of the flow failed |
+| `exchange.completed` | a message was processed to its end |
+| `exchange.handled` | a step failed and an error route took the message |
+| `exchange.failed` | a message failed (no error route, or the handler is unhandled) |
+
+The event is a message of its own: headers `event.type`, `event.time`,
+`event.flow.id`, `event.flow.name` and, as they apply, `event.step` (the step
+that failed), `event.duration` (milliseconds) and the `error.*` headers of an
+error route, so `${exception.message}` works. An exchange event has the
+`Correlation-Id` and trace of the message it is about and names that message
+as its cause (`Causation-Id`). The body is a JSON summary of the same facts;
+**an event never carries the payload** of the message.
+
+- Events cost nothing unless a flow listens: the engine asks first, and
+  nothing is made for a type nobody subscribed to.
+- An event source subscribes like a topic source: while the flow runs, with a
+  buffer of its own and no replay. Publishing never makes a flow wait. When a
+  buffer is full the event is dropped for every subscriber of that type (a
+  topic admits a message to all subscriptions or to none) and counted
+  (`Runtime.DroppedEvents`).
+- A message that comes from an event source gives no `exchange.*` events itself,
+  and neither do the messages that carry its `event.type` header on to other
+  flows, so a flow that reacts to failures cannot cause more of them. Events of
+  state changes are not suppressed.
+- In a service, event sources stop last, so they still see the last events of
+  the other flows.
+
+`testdata/examples/events/` logs a failure of another flow.
 
 ### Flow links
 

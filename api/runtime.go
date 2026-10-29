@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"dif/engine"
 	flowdef "dif/flows/definition"
 	flowimpl "dif/flows/impl"
 	"dif/internal/channels"
@@ -22,7 +21,10 @@ type ChannelStatus = channels.Status
 // Runtime owns an isolated set of local channels and their storage. Stop its
 // loaded flows before Close. The package-level Load functions remain compatible
 // and continue sharing the process's default in-memory channels.
-type Runtime struct{ channels *stepimpl.Channels }
+type Runtime struct {
+	channels *stepimpl.Channels
+	events   *eventObserver
+}
 
 func ValidateChannelConfig(config ChannelConfig) error { return channels.Validate(config) }
 
@@ -31,7 +33,7 @@ func NewRuntime(config ChannelConfig) (*Runtime, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Runtime{channels: r}, nil
+	return &Runtime{channels: r, events: newEventObserver(r)}, nil
 }
 func (r *Runtime) Close() error                  { return r.channels.Close() }
 func (r *Runtime) Failed() <-chan struct{}       { return r.channels.Failed() }
@@ -55,5 +57,5 @@ func (r *Runtime) LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, 
 	if err != nil {
 		return nil, fmt.Errorf("runtime load: %w", err)
 	}
-	return &Flow{Runner: engine.NewRunner(f, onResult)}, nil
+	return newFlow(f, onResult, r.events), nil
 }

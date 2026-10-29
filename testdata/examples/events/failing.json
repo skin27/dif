@@ -1,0 +1,78 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68f9a0c1aaa5120007000106",
+						"name": "eventsFailing",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "tick",
+									"type": "source",
+									"uri": "timer:tick",
+									"options": {
+										"period": 3000
+									},
+									"links": {
+										"link": {
+											"id": "check",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "check",
+									"type": "action",
+									"uri": "simplevalidator",
+									"options": {
+										"expression": "${body} regex '.*[02468]'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "check",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "done",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "done",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "done",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

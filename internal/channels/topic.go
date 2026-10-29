@@ -111,3 +111,16 @@ func (t *Topic) Publish(ctx context.Context, m message.Message, p Policy, track 
 		t.blocked--
 	}
 }
+
+// Subscribed reports whether the topic has a subscription that is still live,
+// so that a publisher can leave out what nobody would receive.
+func (t *Topic) Subscribed() bool {
+	t.r.mu.Lock()
+	defer t.r.mu.Unlock()
+	for _, s := range t.subs {
+		if s.ctx.Err() == nil {
+			return true
+		}
+	}
+	return false
+}

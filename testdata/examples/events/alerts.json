@@ -1,0 +1,56 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68f9a0c1aaa5120007000107",
+						"name": "eventsAlerts",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "on-failure",
+									"type": "source",
+									"uri": "event:exchange.failed",
+									"options": {
+										"flowId": "68f9a0c1aaa5120007000106"
+									},
+									"links": {
+										"link": {
+											"id": "alert",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "alert",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": true,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "alert",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}
