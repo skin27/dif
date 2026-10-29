@@ -49,6 +49,9 @@ func parseFlow(data []byte, construct func(*flowdef.Node) (stepdef.Processor, er
 	if e = d.PrepareMappings(ctx, mapping.Limits{}); e != nil {
 		return nil, e
 	}
+	if e = d.PrepareServices(ctx, mapping.Limits{}); e != nil {
+		return nil, e
+	}
 	checks, e := d.ProcessorChecks()
 	if e != nil {
 		return nil, e

@@ -207,19 +207,30 @@ func (d *Document) ProcessorChecks() ([]ProcessorCheck, error) {
 				return nil, fmt.Errorf("processor %q: map %q not found", p.Name, name)
 			}
 			uri = "mapper"
+		} else if name, ok := strings.CutPrefix(uri, "service:"); ok {
+			sb := d.serviceBindings()[name]
+			if sb == nil {
+				return nil, fmt.Errorf("processor %q: service %q not found", p.Name, name)
+			}
+			if err := checkServiceCallerStep(flowdef.Action, opts, dynamic, sb); err != nil {
+				return nil, fmt.Errorf("processor %q: %w", p.Name, err)
+			}
+			uri = "service"
+			bindings[mapping.ServiceBindingKey] = sb
 		}
 		out = append(out, ProcessorCheck{Node: &flowdef.Node{ID: p.Name, Kind: flowdef.Action, URI: uri, Options: opts, Bindings: bindings}, Dynamic: dynamic, Name: p.Name, Origin: d.origin})
 	}
 	return out, nil
 }
-func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Functions, map[string]ProcessorInfo, map[string]*mapping.Plan, error) {
+func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Functions, map[string]ProcessorInfo, map[string]*mapping.Plan, map[string]*mapping.ServiceBinding, error) {
 	df, err := d.weaveInterceptors(df)
 	if err != nil {
-		return df, nil, nil, nil, err
+		return df, nil, nil, nil, nil, err
 	}
 	scopes := map[string]*mapping.Functions{}
 	templates := map[string]ProcessorInfo{}
 	plans := d.mappingBindings()
+	services := d.serviceBindings()
 	defaultScope := d.functionBindings()
 	df.Steps.Step = append(oneOrMany[dilStep](nil), df.Steps.Step...)
 	for i, s := range df.Steps.Step {
@@ -229,14 +240,14 @@ func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Fu
 			continue
 		}
 		if s.Type != flowdef.Action && !(s.Type == flowdef.Sink && strings.HasPrefix(s.ID, InterceptorPrefix)) {
-			return df, nil, nil, nil, fmt.Errorf("processor %q must be an action", name)
+			return df, nil, nil, nil, nil, fmt.Errorf("processor %q must be an action", name)
 		}
 		owner, p := d.processorOwner(name)
 		if p == nil {
-			return df, nil, nil, nil, fmt.Errorf("processor %q not found", name)
+			return df, nil, nil, nil, nil, fmt.Errorf("processor %q not found", name)
 		}
-		fail := func(e error) (dilFlow, map[string]*mapping.Functions, map[string]ProcessorInfo, map[string]*mapping.Plan, error) {
-			return df, nil, nil, nil, fmt.Errorf("step %q processor %q (%s): %w", s.ID, name, owner.origin, e)
+		fail := func(e error) (dilFlow, map[string]*mapping.Functions, map[string]ProcessorInfo, map[string]*mapping.Plan, map[string]*mapping.ServiceBinding, error) {
+			return df, nil, nil, nil, nil, fmt.Errorf("step %q processor %q (%s): %w", s.ID, name, owner.origin, e)
 		}
 		for k := range s.Options {
 			if k != "arguments" {
@@ -305,10 +316,21 @@ func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Fu
 			}
 			plans[key] = plan
 			s.URI = "mapper:" + key
+		} else if svcName, ok := strings.CutPrefix(s.URI, "service:"); ok {
+			sb := owner.serviceBindings()[svcName]
+			if sb == nil {
+				return fail(fmt.Errorf("service %q not found", svcName))
+			}
+			key := "@processor/" + s.ID
+			for services[key] != nil {
+				key += "_"
+			}
+			services[key] = sb
+			s.URI = "service:" + key
 		}
 		scopes[s.ID] = owner.functionBindings()
 		templates[s.ID] = ProcessorInfo{Name: p.Name, Origin: owner.origin, connection: conn}
 		df.Steps.Step[i] = s
 	}
-	return df, scopes, templates, plans, nil
+	return df, scopes, templates, plans, services, nil
 }

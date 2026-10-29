@@ -1,6 +1,7 @@
 package mapping
 
 import (
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -43,7 +44,7 @@ func media(s string) (string, error) {
 		}
 	}
 	switch m {
-	case "application/json", "application/xml", "text/csv":
+	case "application/json", "application/xml", "text/csv", "text/plain":
 		return m, nil
 	}
 	return "", fmt.Errorf("unsupported mapping media type")
@@ -71,6 +72,66 @@ func compileFormat(f Format, l Limits) (contract, error) {
 	}
 	c.writer, e = compileSettings(f.Writer, c.media, true)
 	return c, e
+}
+
+// Contract checks message bodies against a compiled Format without mutating them.
+type Contract struct {
+	c      contract
+	limits Limits
+}
+
+func CompileContract(f Format, l Limits) (*Contract, error) {
+	var err error
+	l, err = l.Normalize()
+	if err != nil {
+		return nil, err
+	}
+	c, err := compileFormat(f, l)
+	if err != nil {
+		return nil, err
+	}
+	if c.media == "text/csv" && !c.reader.header && len(c.reader.columns) == 0 {
+		return nil, fmt.Errorf("CSV reader without header requires columns")
+	}
+	return &Contract{c: c, limits: l}, nil
+}
+
+func (c *Contract) Check(ctx context.Context, msg map[string]any) error {
+	if msg == nil {
+		return fmt.Errorf("message is nil")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	_, err := c.c.checkBody(msg, &budget{ctx: ctx, limits: c.limits})
+	return err
+}
+
+func (c contract) checkBody(msg map[string]any, b *budget) (missingContentType bool, err error) {
+	body, hasBody := msg["body"]
+	if !hasBody || body == nil {
+		return false, fmt.Errorf("format %q requires a body", c.name)
+	}
+	if ctRaw, ok := msg["Content-Type"]; ok && ctRaw != nil && ctRaw != "" {
+		ctStr, ok := ctRaw.(string)
+		if !ok {
+			return false, fmt.Errorf("Content-Type must be a string")
+		}
+		m, err := media(ctStr)
+		if err != nil || m != c.media {
+			return false, fmt.Errorf("Content-Type conflicts with format %q", c.name)
+		}
+	} else {
+		missingContentType = true
+	}
+	decoded, err := c.decode(body, b)
+	if err != nil {
+		return false, fmt.Errorf("format %q: %w", c.name, err)
+	}
+	if err := c.schema.check(decoded, b); err != nil {
+		return false, fmt.Errorf("format %q: %w", c.name, err)
+	}
+	return missingContentType, nil
 }
 func compileSettings(raw map[string]json.RawMessage, media string, writer bool) (settings, error) {
 	s := settings{delimiter: ',', header: true}
@@ -140,6 +201,11 @@ func (c contract) decode(body any, b *budget) (any, error) {
 		return readJSON(data, b)
 	case "application/xml":
 		return readXML(data, b)
+	case "text/plain":
+		if e := b.node(0); e != nil {
+			return nil, e
+		}
+		return string(data), nil
 	default:
 		return readCSV(string(data), c.reader, b)
 	}
@@ -154,6 +220,12 @@ func (c contract) encode(v any, b *budget) (string, error) {
 		e = w.xml(v)
 	case "text/csv":
 		e = w.csv(v, c.writer)
+	case "text/plain":
+		s, ok := v.(string)
+		if !ok {
+			return "", fmt.Errorf("plain text output must be a string")
+		}
+		e = w.put(s)
 	}
 	return w.s.String(), e
 }

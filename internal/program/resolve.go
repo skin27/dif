@@ -43,6 +43,7 @@ type DocumentInfo struct {
 	Processors   []flowimpl.ProcessorInfo   `json:"processors,omitempty"`
 	Connections  []flowimpl.ConnectionInfo  `json:"connections,omitempty"`
 	Maps         []mapping.Info             `json:"maps,omitempty"`
+	Services     []mapping.ServiceInfo      `json:"services,omitempty"`
 }
 type Entry struct {
 	Origin string
@@ -55,6 +56,7 @@ type Result struct {
 }
 
 type node struct {
+	key      string
 	name     string
 	doc      *flowimpl.Document
 	imports  map[string]*node
@@ -146,7 +148,11 @@ func Resolve(ctx context.Context, sources []Source, limits Limits) (*Result, err
 		for alias, dep := range n.imports {
 			imports[alias] = dep.doc
 		}
-		n.doc.BindScope(n.name, imports)
+		scopeKey := n.key
+		if strings.HasPrefix(scopeKey, "anonymous:") {
+			scopeKey = n.name
+		}
+		n.doc.BindScopeWithKey(n.name, scopeKey, imports)
 	}
 	functionLimits, _ := limits.Mapping.Normalize()
 	count, sourceSize := 0, 0
@@ -175,6 +181,12 @@ func Resolve(ctx context.Context, sources []Source, limits Limits) (*Result, err
 		}
 		n.info.Formats = n.doc.FormatInfo()
 		n.info.Maps = n.doc.MappingInfo()
+	}
+	for _, n := range r.order {
+		if err := n.doc.PrepareServices(ctx, limits.Mapping); err != nil {
+			return nil, fmt.Errorf("%s: %w", n.name, err)
+		}
+		n.info.Services = n.doc.ServiceInfo()
 	}
 	for _, n := range r.order {
 		checks, e := n.doc.ProcessorChecks()
@@ -281,7 +293,7 @@ func (r *resolver) visit(key string, source Source, depth int) (*node, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", source.Name, err)
 	}
-	n := &node{name: source.Name, doc: doc, imports: map[string]*node{}, visiting: true}
+	n := &node{key: key, name: source.Name, doc: doc, imports: map[string]*node{}, visiting: true}
 	n.info = DocumentInfo{Name: n.name, Imports: []Dependency{}, Integrations: doc.Integrations()}
 	r.nodes[key] = n
 	r.order = append(r.order, n)

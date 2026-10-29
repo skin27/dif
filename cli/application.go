@@ -235,6 +235,9 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 				for _, m := range doc.Maps {
 					fmt.Fprintf(stdout, "  MAP: %s (%s); %s -> %s\n", m.Name, m.Language, m.Input, m.Output)
 				}
+				for _, svc := range doc.Services {
+					fmt.Fprintf(stdout, "  SERVICE: %s (%s); %s -> %s\n", svc.Name, svc.ExchangePattern, contractPayloadLabel(svc.Input), contractPayloadLabel(svc.Output))
+				}
 			}
 		}
 		for _, flow := range program.Flows {
@@ -298,8 +301,19 @@ func writeJSON(stdout, stderr io.Writer, value any) int {
 	return 0
 }
 
+func contractPayloadLabel(s string) string {
+	if s == "" {
+		return "none"
+	}
+	return s
+}
+
 func describeFlow(out io.Writer, info *api.FlowInfo) {
-	fmt.Fprintf(out, "FLOW: %s\nNAME: %s\nSOURCE: %s\n\n", info.ID, info.Name, info.Source)
+	fmt.Fprintf(out, "FLOW: %s\nNAME: %s\nSOURCE: %s\n", info.ID, info.Name, info.Source)
+	if svc := info.Service; svc != nil {
+		fmt.Fprintf(out, "SERVICE: %s; pattern: %s; origin: %s\n", svc.Name, svc.ExchangePattern, svc.Origin)
+	}
+	fmt.Fprintln(out)
 	rows := [][]string{}
 	for _, s := range info.Steps {
 		links := []string{}
@@ -316,6 +330,9 @@ func describeFlow(out io.Writer, info *api.FlowInfo) {
 	for _, s := range info.Steps {
 		if m := s.Mapping; m != nil {
 			fmt.Fprintf(out, "MAP: %s; step: %s; language: %s; %s -> %s; origin: %s\n", m.Name, s.ID, m.Language, m.Input, m.Output, m.Origin)
+		}
+		if svc := s.Service; svc != nil && s.Kind != "source" {
+			fmt.Fprintf(out, "SERVICE: %s; step: %s; pattern: %s; origin: %s\n", svc.Name, s.ID, svc.ExchangePattern, svc.Origin)
 		}
 	}
 	describeError := func(e *api.ErrorInfo) {

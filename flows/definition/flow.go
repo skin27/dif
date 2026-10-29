@@ -3,6 +3,7 @@
 package definition
 
 import (
+	"context"
 	"time"
 
 	"dif/message"
@@ -40,9 +41,48 @@ type Flow struct {
 	Environment string // the environment it runs in, such as test; "" if it has none
 	Source      *Node
 	Input       message.Message // headers and body of the configured message; nil if there is none
+	Contract    *Contract       // optional service contract enforced at flow entry and reply; nil if none
 	Error       *ErrorHandler   // what to do when a step fails and no handler in Handlers matches; nil: the message fails
 	Handlers    []*ErrorHandler // handlers for particular failures, tried in order before Error; each has a Match
 }
+
+// Contract holds DSL-neutral service contract callbacks enforced by the engine.
+type Contract struct {
+	Name            string
+	Origin          string
+	ExchangePattern string
+	HasErrorFormat  bool
+	ValidateInput   func(ctx context.Context, m message.Message, wireHeaders bool) error
+	ValidateOutput  func(ctx context.Context, m message.Message) error
+	ValidateError   func(ctx context.Context, m message.Message) error
+}
+
+// ContractError reports a breach of an input, output, or error service contract.
+// It intentionally does not unwrap an inner error so errorClass resolves to *definition.ContractError.
+type ContractError struct {
+	Service string
+	Kind    string // "input", "output", or "error"
+	Reason  string
+}
+
+func (e *ContractError) Error() string {
+	if e.Service != "" {
+		return "service " + e.Service + " " + e.Kind + " contract: " + e.Reason
+	}
+	return e.Kind + " contract: " + e.Reason
+}
+
+// FaultError carries a structured fault reply message returned via return(status=error)
+// on a contracted flow. It intentionally does not unwrap an inner error so errorClass
+// resolves to *definition.FaultError.
+type FaultError struct {
+	Service    string
+	Reason     string
+	Message    message.Message
+	Contracted bool
+}
+
+func (e *FaultError) Error() string { return e.Reason }
 
 // ErrorHandlers returns every error handler of the flow in the order they are
 // tried: those with a Match, then the default one.

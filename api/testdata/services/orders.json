@@ -1,0 +1,198 @@
+{
+  "dil": {
+    "imports": {
+      "import": [
+        {
+          "path": "contracts.json",
+          "namespace": "orders"
+        },
+        {
+          "path": "provider.json",
+          "namespace": "impl"
+        }
+      ]
+    },
+    "core": {
+      "messages": {
+        "message": [
+          {
+            "name": "ValidOrder",
+            "body": "{\"sku\":\"BOOK-1\",\"quantity\":2}",
+            "headers": {
+              "header": {
+                "name": "Idempotency-Key",
+                "value": "idem-100"
+              }
+            }
+          },
+          {
+            "name": "OutOfStockOrder",
+            "body": "{\"sku\":\"OUT-OF-STOCK\",\"quantity\":1}",
+            "headers": {
+              "header": {
+                "name": "Idempotency-Key",
+                "value": "idem-200"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "integrations": {
+      "integration": {
+        "id": "order-client",
+        "name": "Order Client",
+        "flows": {
+          "flow": [
+            {
+              "id": "submit-order",
+              "name": "Submit Valid Order",
+              "options": {
+                "inputMessage": "ValidOrder"
+              },
+              "steps": {
+                "step": [
+                  {
+                    "id": "in",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": {
+                        "id": "c1",
+                        "bound": "out"
+                      }
+                    }
+                  },
+                  {
+                    "id": "place-order",
+                    "type": "action",
+                    "uri": "service:orders:PlaceOrder",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "c1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "c2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "out",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": {
+                        "id": "c2",
+                        "bound": "in"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "submit-out-of-stock",
+              "name": "Submit Out-Of-Stock Order",
+              "options": {
+                "inputMessage": "OutOfStockOrder"
+              },
+              "steps": {
+                "step": [
+                  {
+                    "id": "in",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": {
+                        "id": "f1",
+                        "bound": "out"
+                      }
+                    }
+                  },
+                  {
+                    "id": "place-order",
+                    "type": "action",
+                    "uri": "service:orders:PlaceOrder",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "f1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "f2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "out",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": {
+                        "id": "f2",
+                        "bound": "in"
+                      }
+                    }
+                  },
+                  {
+                    "id": "catch-fault",
+                    "type": "error",
+                    "uri": "failedexchange",
+                    "options": {
+                      "errorClass": "*FaultError"
+                    },
+                    "links": {
+                      "link": {
+                        "id": "err1",
+                        "bound": "out"
+                      }
+                    }
+                  },
+                  {
+                    "id": "expose-fault",
+                    "type": "action",
+                    "uri": "setbody",
+                    "options": {
+                      "expression": "${header.error.body}",
+                      "language": "simple"
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "err1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "err2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "err-out",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": {
+                        "id": "err2",
+                        "bound": "in"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

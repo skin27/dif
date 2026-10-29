@@ -40,13 +40,15 @@ var namespacePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_-]*$`)
 
 // Document is a decoded DIL document. Its definitions are private and immutable.
 type Document struct {
-	doc            dilDoc
-	origin         string
-	imports        map[string]*Document
-	compiledMaps   map[string]*mapping.Plan
-	functions      map[string]*mapping.Function
-	compiling      map[string]bool
-	functionLimits mapping.Limits
+	doc              dilDoc
+	origin           string
+	scopeKey         string
+	imports          map[string]*Document
+	compiledMaps     map[string]*mapping.Plan
+	compiledServices map[string]*mapping.ServiceBinding
+	functions        map[string]*mapping.Function
+	compiling        map[string]bool
+	functionLimits   mapping.Limits
 }
 
 type IntegrationInfo struct {
@@ -70,6 +72,7 @@ type FlowPlan struct {
 	data            []byte
 	input           []byte
 	mappings        map[string]*mapping.Plan
+	services        map[string]*mapping.ServiceBinding
 	scopes          map[string]*mapping.Functions
 	actionTemplates map[string]ProcessorInfo
 }
@@ -111,6 +114,11 @@ func DecodeDocument(data []byte) (*Document, error) {
 	}
 	for _, p := range d.doc.DIL.Core.Processors.Processor {
 		if err := check("processor", p.Name); err != nil {
+			return nil, err
+		}
+	}
+	for _, s := range d.doc.DIL.Core.Services.Service {
+		if err := check("service", s.Name); err != nil {
 			return nil, err
 		}
 	}
@@ -204,7 +212,7 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					processorRefs = append(processorRefs, ReferenceInfo{s.ID, "processor", name})
 				}
 			}
-			df, scopes, templates, maps, err := d.expandProcessors(df)
+			df, scopes, templates, maps, services, err := d.expandProcessors(df)
 			if err != nil {
 				return nil, err
 			}
@@ -228,6 +236,9 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 			if df.Options.InputMessage != "" {
 				refs = append(refs, ReferenceInfo{Kind: "message", Name: df.Options.InputMessage})
 			}
+			if df.Options.Service != "" {
+				refs = append(refs, ReferenceInfo{Kind: "service", Name: df.Options.Service})
+			}
 			for _, s := range df.Steps.Step {
 				// Error-handler options are validated by the graph builder, outside
 				// the step registry. Check them here without quoting their values.
@@ -242,6 +253,12 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 				scheme, rest, _ := strings.Cut(s.URI, ":")
 				if scheme == "mapper" {
 					refs = append(refs, ReferenceInfo{s.ID, "map", rest})
+					continue
+				}
+				if scheme == "service" {
+					if !strings.HasPrefix(rest, "@processor/") {
+						refs = append(refs, ReferenceInfo{s.ID, "service", rest})
+					}
 					continue
 				}
 				for _, kind := range []string{"ref", "message"} {
@@ -259,14 +276,14 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					refs = append(refs, ReferenceInfo{s.ID, "connection", name})
 				}
 			}
-			plans = append(plans, FlowPlan{ID: df.ID, Integration: integrationInfo(in), References: refs, data: data, input: inputData, mappings: maps, scopes: scopes, actionTemplates: templates})
+			plans = append(plans, FlowPlan{ID: df.ID, Integration: integrationInfo(in), References: refs, data: data, input: inputData, mappings: maps, services: services, scopes: scopes, actionTemplates: templates})
 		}
 	}
 	return plans, nil
 }
 
 func (p FlowPlan) Build(newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
-	f, err := parse(p.data, newProcessor, p.mappings, p.scopes, p.actionTemplates)
+	f, err := parse(p.data, newProcessor, p.mappings, p.services, p.scopes, p.actionTemplates)
 	if err != nil {
 		return nil, err
 	}

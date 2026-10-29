@@ -18,6 +18,7 @@ type FlowInfo struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
 	Source        string              `json:"source"`
+	Service       *ServiceInfo        `json:"service,omitempty"`
 	Steps         []NodeInfo          `json:"steps"`
 	Error         *ErrorInfo          `json:"error,omitempty"`
 	ErrorHandlers []ErrorInfo         `json:"errorHandlers,omitempty"`
@@ -27,6 +28,7 @@ type FlowInfo struct {
 type NodeInfo struct {
 	Processor *flowimpl.ProcessorInfo `json:"processor,omitempty"`
 	Mapping   *MapInfo                `json:"mapping,omitempty"`
+	Service   *ServiceInfo            `json:"service,omitempty"`
 	ID        string                  `json:"id"`
 	Kind      string                  `json:"kind"`
 	Step      string                  `json:"step"`
@@ -36,8 +38,16 @@ type NodeInfo struct {
 }
 
 type MapInfo = mapping.Info
+type ServiceInfo = mapping.ServiceInfo
+type HeaderInfo = mapping.HeaderInfo
 type FormatInfo = flowimpl.FormatInfo
 type MappingLimits = mapping.Limits
+
+func cloneServiceInfo(s ServiceInfo) *ServiceInfo {
+	s.InputHeaders = append([]HeaderInfo(nil), s.InputHeaders...)
+	s.OutputHeaders = append([]HeaderInfo(nil), s.OutputHeaders...)
+	return &s
+}
 
 type LinkInfo struct {
 	Target   string `json:"target"`
@@ -95,6 +105,9 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 		return nil, fmt.Errorf("flow has no id")
 	}
 	info := &FlowInfo{ID: f.ID, Name: f.Name, Source: f.Source.ID, Steps: []NodeInfo{}, Configuration: []ConfigurationInfo{}}
+	if sb, ok := f.Source.Bindings[flowimpl.FlowServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
+		info.Service = cloneServiceInfo(sb.Plan.Info())
+	}
 	ids := map[string]bool{}
 	for _, e := range f.ErrorHandlers() {
 		if e.ID == "" || ids[e.ID] {
@@ -126,6 +139,9 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 		if p, ok := n.Bindings[mapping.BindingKey].(*mapping.Plan); ok {
 			info := p.Info()
 			node.Mapping = &info
+		}
+		if sb, ok := n.Bindings[mapping.ServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
+			node.Service = cloneServiceInfo(sb.Plan.Info())
 		}
 		for i, target := range n.Next {
 			link := LinkInfo{Target: target.ID}

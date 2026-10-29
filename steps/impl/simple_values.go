@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"regexp"
@@ -103,6 +104,8 @@ func asNumber(v any) (n float64, isInt bool, ok bool) {
 		return float64(x), true, true
 	case float64:
 		return x, x == math.Trunc(x) && math.Abs(x) < 1e15, true
+	case json.Number:
+		return parseNumber(string(x))
 	case string:
 		return parseNumber(x)
 	case []byte:

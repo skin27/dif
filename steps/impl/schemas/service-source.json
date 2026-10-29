@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:service-source",
+  "title": "service source",
+  "description": "Exposes an internal provider flow for a named dil.core service contract: service:<name> or service:<namespace>:<name>.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}

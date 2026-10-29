@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"dif/engine"
 	flowdef "dif/flows/definition"
@@ -32,13 +33,22 @@ type ProgramInfo struct {
 	Flows     []ProgramFlowInfo     `json:"flows"`
 }
 
+const serviceBindingPrefix = "service\x00"
+
+type serviceTarget struct {
+	id, name string
+}
+
 // PreparedProgram owns snapshots and statically validated, immutable flow plans.
 // It is reusable: each Load constructs independent graphs and message defaults.
 type PreparedProgram struct {
-	resolved *program.Result
-	infos    []*FlowInfo
-	bindings map[string]bool
-	targets  map[string][]string
+	resolved         *program.Result
+	infos            []*FlowInfo
+	bindings         map[string]bool
+	targets          map[string][]string
+	serviceProviders map[string]string
+	serviceNames     map[string]string
+	serviceCalls     map[string][]serviceTarget
 }
 
 // PrepareProgram resolves and validates a group without constructing processors.
@@ -52,7 +62,14 @@ func PrepareProgram(ctx context.Context, sources []ProgramSource, limits Program
 	if err := validateProcessorChecks(r.ProcessorChecks); err != nil {
 		return nil, err
 	}
-	p := &PreparedProgram{resolved: r, bindings: map[string]bool{}, targets: map[string][]string{}}
+	p := &PreparedProgram{
+		resolved:         r,
+		bindings:         map[string]bool{},
+		targets:          map[string][]string{},
+		serviceProviders: map[string]string{},
+		serviceNames:     map[string]string{},
+		serviceCalls:     map[string][]serviceTarget{},
+	}
 	for _, entry := range r.Flows {
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -72,6 +89,16 @@ func PrepareProgram(ctx context.Context, sources []ProgramSource, limits Program
 				return nil, fmt.Errorf("flow %q: flowlink source flowId must match its flow id", f.ID)
 			}
 		}
+		if f.Source.URI == "service" {
+			if sb, ok := f.Source.Bindings[mapping.ServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
+				if prev, exists := p.serviceProviders[sb.ID]; exists {
+					return nil, fmt.Errorf("duplicate service provider for %q in flows %q and %q", sb.Name, prev, f.ID)
+				}
+				p.serviceProviders[sb.ID] = f.ID
+				p.serviceNames[sb.ID] = sb.Name
+				p.bindings[serviceBindingPrefix+sb.ID] = true
+			}
+		}
 		var visit func(*flowdef.Node)
 		visit = func(n *flowdef.Node) {
 			if n == nil {
@@ -80,6 +107,11 @@ func PrepareProgram(ctx context.Context, sources []ProgramSource, limits Program
 			if n.Kind != stepdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") {
 				if id, ok := n.Options["targetFlowId"].(string); ok {
 					p.targets[f.ID] = append(p.targets[f.ID], id)
+				}
+			}
+			if n.Kind != stepdef.Source && n.URI == "service" {
+				if sb, ok := n.Bindings[mapping.ServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
+					p.serviceCalls[f.ID] = append(p.serviceCalls[f.ID], serviceTarget{id: sb.ID, name: sb.Name})
 				}
 			}
 			for _, next := range n.Next {
@@ -110,6 +142,17 @@ func (p *PreparedProgram) CheckFlowLinks(existing map[string]bool) error {
 				return fmt.Errorf("flow %q: target %q has no compatible flowlink source", entry.Plan.ID, target)
 			}
 		}
+		for id, flowID := range p.serviceProviders {
+			if flowID == entry.Plan.ID && existing[serviceBindingPrefix+id] {
+				return fmt.Errorf("flow %q: duplicate service provider for %q", flowID, p.serviceNames[id])
+			}
+		}
+		for _, target := range p.serviceCalls[entry.Plan.ID] {
+			if p.bindings[serviceBindingPrefix+target.id] || existing[serviceBindingPrefix+target.id] {
+				continue
+			}
+			return fmt.Errorf("flow %q: missing service provider for %q", entry.Plan.ID, target.name)
+		}
 	}
 	return nil
 }
@@ -122,6 +165,11 @@ func (p *PreparedProgram) Info() *ProgramInfo {
 		doc.Integrations = append([]IntegrationInfo{}, doc.Integrations...)
 		doc.Formats = append([]FormatInfo{}, doc.Formats...)
 		doc.Maps = append([]MapInfo{}, doc.Maps...)
+		doc.Services = append([]ServiceInfo{}, doc.Services...)
+		for i := range doc.Services {
+			doc.Services[i].InputHeaders = append([]HeaderInfo{}, doc.Services[i].InputHeaders...)
+			doc.Services[i].OutputHeaders = append([]HeaderInfo{}, doc.Services[i].OutputHeaders...)
+		}
 		doc.Functions = append([]mapping.FunctionInfo{}, doc.Functions...)
 		for i := range doc.Functions {
 			doc.Functions[i].Parameters = append([]mapping.ParameterInfo{}, doc.Functions[i].Parameters...)
@@ -130,11 +178,15 @@ func (p *PreparedProgram) Info() *ProgramInfo {
 		for i := range doc.Processors {
 			doc.Processors[i].Parameters = append([]mapping.ParameterInfo{}, doc.Processors[i].Parameters...)
 		}
+		doc.Connections = append([]flowimpl.ConnectionInfo{}, doc.Connections...)
 		info.Documents = append(info.Documents, doc)
 	}
 	for i, e := range p.resolved.Flows {
 		// Inspection contains only safe scalar metadata and slices.
 		f := *p.infos[i]
+		if f.Service != nil {
+			f.Service = cloneServiceInfo(*f.Service)
+		}
 		f.Steps = append([]NodeInfo{}, f.Steps...)
 		for j := range f.Steps {
 			if f.Steps[j].Processor != nil {
@@ -145,6 +197,9 @@ func (p *PreparedProgram) Info() *ProgramInfo {
 			if f.Steps[j].Mapping != nil {
 				m := *f.Steps[j].Mapping
 				f.Steps[j].Mapping = &m
+			}
+			if f.Steps[j].Service != nil {
+				f.Steps[j].Service = cloneServiceInfo(*f.Steps[j].Service)
 			}
 			f.Steps[j].Links = append([]LinkInfo{}, f.Steps[j].Links...)
 		}
@@ -241,12 +296,15 @@ func InspectProgram(path string) (*ProgramInfo, error) {
 }
 func ValidateProgram(path string) error { _, err := InspectProgram(path); return err }
 
-// FlowBindings reports compatible already-registered flowlink sources.
+// FlowBindings reports compatible already-registered flowlink and service sources.
 func FlowBindings(runners []*engine.Runner) map[string]bool {
 	bindings := map[string]bool{}
 	for _, r := range runners {
 		in, _ := r.LocalChannels()
 		bindings[r.ID()] = in == "queue:flowlink:"+r.ID()
+		if id, ok := strings.CutPrefix(in, "queue:service:"); ok && id != "" {
+			bindings[serviceBindingPrefix+id] = true
+		}
 	}
 	return bindings
 }

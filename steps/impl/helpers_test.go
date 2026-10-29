@@ -109,7 +109,7 @@ func TestEverySchemaIsRegistered(t *testing.T) {
 			t.Errorf("%s: %v", f, err)
 		}
 	}
-	if len(files) != 115 {
-		t.Errorf("found %d schemas, want 115", len(files))
+	if len(files) != 118 {
+		t.Errorf("found %d schemas, want 118", len(files))
 	}
 }

@@ -23,10 +23,12 @@ type Result struct {
 
 // Headers the engine sets on a message it sends along the error route.
 const (
-	ErrorMessage    = message.ErrorMessage
-	ErrorStep       = message.ErrorStep
-	ErrorClass      = message.ErrorClass
-	ErrorStackTrace = message.ErrorStackTrace
+	ErrorMessage     = message.ErrorMessage
+	ErrorStep        = message.ErrorStep
+	ErrorClass       = message.ErrorClass
+	ErrorStackTrace  = message.ErrorStackTrace
+	ErrorBody        = message.ErrorBody
+	ErrorContentType = message.ErrorContentType
 )
 
 // StepError is the failure of a step, with the message the step got.
@@ -73,9 +75,17 @@ func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply fu
 		msg = message.Message{}
 	}
 	msg.EnsureIdentity()
-	r := &run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error, matched: f.Handlers, reply: reply} // the source produced msg
+	r := &run{
+		ctx:      ctx,
+		contract: f.Contract,
+		trail:    []string{f.Source.Kind + ":" + f.Source.ID},
+		errh:     f.Error,
+		matched:  f.Handlers,
+		reply:    reply,
+	} // the source produced msg
 	if reply != nil {
 		ctx = stepdef.WithReturn(ctx, r.returnReply)
+		r.ctx = ctx
 	}
 	res, err := r.flow(ctx, f, msg)
 	if r.reply != nil {
@@ -84,10 +94,18 @@ func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply fu
 			out = res.Message
 		}
 		replyErr := err
+		explicitFault := false
 		if r.returned != nil && err == nil && res != nil {
-			out, replyErr = r.returned.msg, r.returned.err
+			out, replyErr, explicitFault = r.returned.msg, r.returned.err, r.returned.err != nil
 		}
-		r.reply(out, replyErr)
+		r.deliverReply(out, replyErr, explicitFault)
+	} else if reply == nil && err == nil && res != nil && f.Contract != nil && f.Contract.ExchangePattern == message.InOut && f.Contract.ValidateOutput != nil {
+		if verr := f.Contract.ValidateOutput(ctx, res.Message); verr != nil {
+			r.contractErr = &flowdef.ContractError{Service: f.Contract.Name, Kind: "output", Reason: verr.Error()}
+		}
+	}
+	if err == nil && r.contractErr != nil {
+		err = r.contractErr
 	}
 	return res, err
 }
@@ -95,6 +113,8 @@ func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply fu
 // flow passes msg from the source of f to the end of its flow.
 func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, error) {
 	start := time.Now()
+	wire := msg[message.WireHeaders] == true
+	delete(msg, message.WireHeaders)
 	delete(msg, message.ExchangePattern) // the pattern of an exchange in another flow
 	msg[message.OriginalBody] = msg[message.Body]
 	if f.ID != "" {
@@ -105,6 +125,25 @@ func (r *run) flow(ctx context.Context, f *flowdef.Flow, msg message.Message) (*
 	n, err := nextStep(f.Source)
 	if err != nil {
 		return nil, err
+	}
+	if f.Contract != nil && f.Contract.ValidateInput != nil {
+		if verr := f.Contract.ValidateInput(ctx, msg, wire); verr != nil {
+			entryErr := &StepError{
+				Step:    f.Source.ID,
+				Message: msg,
+				Err:     &flowdef.ContractError{Service: f.Contract.Name, Kind: "input", Reason: verr.Error()},
+				URI:     f.Source.URI,
+			}
+			handled, unhandled, herr := r.handle(ctx, entryErr)
+			if herr != nil {
+				return nil, herr
+			}
+			res := &Result{Message: handled, Trail: r.trail, Duration: time.Since(start), Err: entryErr}
+			if unhandled {
+				return res, entryErr
+			}
+			return res, nil
+		}
 	}
 	return r.finish(ctx, start, n, msg)
 }
@@ -169,11 +208,14 @@ func releasers(f *flowdef.Flow) []*flowdef.Node {
 
 // run is the state of one message execution.
 type run struct {
-	trail    []string
-	errh     *flowdef.ErrorHandler        // the default error handler; nil if none
-	matched  []*flowdef.ErrorHandler      // handlers for particular failures, tried before errh
-	reply    func(message.Message, error) // the sender's, until it has its reply; nil if none
-	returned *returned                    // the reply a return step fixed for the end of the flow; nil if none
+	ctx         context.Context
+	contract    *flowdef.Contract
+	contractErr error
+	trail       []string
+	errh        *flowdef.ErrorHandler        // the default error handler; nil if none
+	matched     []*flowdef.ErrorHandler      // handlers for particular failures, tried before errh
+	reply       func(message.Message, error) // the sender's, until it has its reply; nil if none
+	returned    *returned                    // the reply a return step fixed for the end of the flow; nil if none
 }
 
 // returned is the reply a return step fixed.
@@ -182,16 +224,60 @@ type returned struct {
 	err error
 }
 
+// deliverReply validates an InOut reply or explicit fault against the flow contract
+// before handing it to the sender.
+func (r *run) deliverReply(out message.Message, replyErr error, explicitFault bool) {
+	if r.reply == nil {
+		return
+	}
+	send := r.reply
+	r.reply = nil
+	if c := r.contract; c != nil && c.ExchangePattern == message.InOut {
+		switch {
+		case replyErr == nil:
+			if c.ValidateOutput != nil {
+				if out == nil {
+					out = message.Message{}
+				}
+				if err := c.ValidateOutput(r.ctx, out); err != nil {
+					cerr := &flowdef.ContractError{Service: c.Name, Kind: "output", Reason: err.Error()}
+					r.contractErr = cerr
+					send(nil, cerr)
+					return
+				}
+			}
+		case explicitFault:
+			if c.ValidateError != nil {
+				if out == nil {
+					out = message.Message{}
+				}
+				if err := c.ValidateError(r.ctx, out); err != nil {
+					cerr := &flowdef.ContractError{Service: c.Name, Kind: "error", Reason: err.Error()}
+					r.contractErr = cerr
+					send(nil, cerr)
+					return
+				}
+			}
+			replyErr = &flowdef.FaultError{
+				Service:    c.Name,
+				Reason:     replyErr.Error(),
+				Message:    out.Copy(),
+				Contracted: true,
+			}
+		}
+	}
+	send(out, replyErr)
+}
+
 // replyIfOneWay replies to the sender once the exchange of m is one-way: with
 // the reply a return step fixed, else with m.
 func (r *run) replyIfOneWay(m message.Message) {
 	if r.reply != nil && m[message.ExchangePattern] == message.InOnly {
 		if r.returned != nil {
-			r.reply(r.returned.msg, r.returned.err)
+			r.deliverReply(r.returned.msg, r.returned.err, r.returned.err != nil)
 		} else {
-			r.reply(m.Copy(), nil)
+			r.deliverReply(m.Copy(), nil, false)
 		}
-		r.reply = nil
 	}
 }
 
@@ -205,8 +291,7 @@ func (r *run) returnReply(m message.Message, err error, detach bool) bool {
 		r.returned = &returned{m, err}
 		return true
 	}
-	r.reply(m, err)
-	r.reply = nil
+	r.deliverReply(m, err, err != nil)
 	return true
 }
 
@@ -241,6 +326,18 @@ func (r *run) handle(ctx context.Context, err error) (out message.Message, unhan
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
 	m[ErrorClass], m[ErrorStackTrace] = errorClass(se.Err), err.Error()
+	var fe *flowdef.FaultError
+	if errors.As(se.Err, &fe) && fe.Message != nil {
+		m[ErrorBody] = fe.Message[message.Body]
+		if ct, ok := fe.Message[message.ContentType].(string); ok && ct != "" {
+			m[ErrorContentType] = ct
+		} else {
+			delete(m, ErrorContentType)
+		}
+	} else {
+		delete(m, ErrorBody)
+		delete(m, ErrorContentType)
+	}
 	r.trail = append(r.trail, "error:"+h.ID)
 	addTrail(m, "error:"+h.ID)
 	out, routeErr := r.path(ctx, h.Route, m)

@@ -59,6 +59,7 @@ func Register(r *registry.Registry) error {
 		{"imaps", stepdef.Source, pollingConsumer, newIMAPSSource, nil},
 		{"as2", stepdef.Source, requestReply, newAS2Source, nil},
 		{"flowlink", stepdef.Source, "", newFlowLinkSource, []string{"flowlink-async"}},
+		{"service", stepdef.Source, requestReply, newServiceSource, nil},
 		{"repeater", stepdef.Source, "", newTimerSource, nil},
 		{"quartz", stepdef.Source, "", newQuartzSource, nil},
 		{"counter", stepdef.Source, "", newCounterSource, nil},
@@ -78,6 +79,7 @@ func Register(r *registry.Registry) error {
 		{"smtp", stepdef.Action, "", newSMTPAction(false), nil},
 		{"googledrive", stepdef.Action, "", newDriveAction, nil},
 		{"flowlink", stepdef.Action, "", newFlowLinkAction, []string{"flowlink-async"}},
+		{"service", stepdef.Action, requestReply, newServiceAction, nil},
 		{"queue", stepdef.Action, pointToPointChannel, newQueueAction, nil},
 		{"topic", stepdef.Action, "Publish-Subscribe Channel", newTopicAction, nil},
 		{"removeheaders", stepdef.Action, contentFilter, newRemoveHeadersAction, nil},
@@ -155,6 +157,7 @@ func Register(r *registry.Registry) error {
 		{"ftps", stepdef.Sink, "", newRemoteSink(ftpsProtocol), nil},
 		{"sftp", stepdef.Sink, "", newRemoteSink(sftpProtocol), nil},
 		{"smb", stepdef.Sink, "", newRemoteSink(smbProtocol), nil},
+		{"service", stepdef.Sink, pointToPointChannel, newServiceSink, nil},
 	}
 	for _, b := range builtins {
 		// Every built-in step may refer to its flow in an expression.
@@ -162,6 +165,8 @@ func Register(r *registry.Registry) error {
 		switch b.name {
 		case "mapper":
 			bindings = append(bindings, mapping.BindingKey)
+		case "service":
+			bindings = append(bindings, ChannelRuntimeKey, mapping.ServiceBindingKey)
 		case "queue", "topic", "event", "flowlink", "deadletter", "idempotent", "request", "reply":
 			bindings = append(bindings, ChannelRuntimeKey)
 		}

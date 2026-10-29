@@ -32,6 +32,9 @@ type dilDoc struct {
 			Maps struct {
 				Map oneOrMany[dilMap] `json:"map"`
 			} `json:"maps"`
+			Services struct {
+				Service oneOrMany[dilService] `json:"service"`
+			} `json:"services"`
 			Messages struct {
 				Message oneOrMany[dilMessage] `json:"message"`
 			} `json:"messages"`
@@ -60,6 +63,7 @@ type dilFlow struct {
 	Name    string `json:"name"`
 	Options struct {
 		InputMessage string `json:"inputMessage,omitempty"`
+		Service      string `json:"service,omitempty"`
 		Tenant       string `json:"tenant"`
 		Environment  string `json:"environment"`
 		Version      any    `json:"version"` // a number or a text

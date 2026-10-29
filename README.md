@@ -365,6 +365,8 @@ processor paths keep their existing working-directory semantics.
 | SQL2 `dataSource: "common:mainDatabase"` | Connection in that import |
 | Step option `connection: "common:partnerSftp"` | Typed connection in that import, see [Typed connections](#typed-connections) |
 | Flow `options.inputMessage: "common:sample"` | Input message selected from that import |
+| `service:common:PlaceOrder` | Service contract in that import, see [First-class service contracts](#first-class-service-contracts) |
+| Flow `options.service: "common:PlaceOrder"` | External transport flow bound to that service contract |
 
 Exact local names take precedence, including names containing colons. Each imported
 flow uses its own document's core and direct imports; imports do not re-export their
@@ -722,6 +724,8 @@ using anything else fails registration.
 | `deadletter` | sink | `deadLetterQueue` (DLQ), `connectionFactory` (no effect) | Puts a copy of the message on the in-memory queue `deadLetterQueue`; for error routes |
 | `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow (also called `flowlink-async`); see [Flow links](#flow-links) |
 | `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda\|activemq (sync; the last two act as async), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000; also written `requestTimout`) | Sends a copy of the message to the flow `targetFlowId`; the step is also called `flowlink-async`, see [Flow links](#flow-links) |
+| `service:<name>` | source | – | Implements the named `dil.core.services` capability (at most one provider per canonical service across a program/runtime); see [First-class service contracts](#first-class-service-contracts) |
+| `service:<name>` | action or sink | `delivery` processed\|enqueue (processed; `InOnly` only), `requestTimeout` ms (20000), `overflow` fail\|block (fail), `enqueueTimeout` ms (0) | Invokes the named service capability (`InOut` requires `action` and `processed`; `InOnly` supports `action` or `sink`); pre-validates input before channel admission |
 | `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000; the designer writes `requestTimout`, which wins), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
 | `topic:<name>` | source | — | Creates an independent subscription while running; paused subscriptions buffer messages; see [Topics](#topics) |
 | `topic:<name>` | action | — | Publishes a copy to every active subscription without waiting for processing; see [Topics](#topics) |
@@ -1583,3 +1587,22 @@ loads. Options the step sets itself win, and the step's `path` is relative to th
 connection's address. Connections with `keys`, as the Java platform exports them, are read as
 before. See the [language reference](docs/connections.md) and the
 [example](api/testdata/connections/README.md).
+
+## First-class service contracts
+
+Declare named capabilities in `dil.core.services.service` with `exchangePattern` (`InOut` or
+`InOnly`), `dil.core.formats` contracts for `input`, `output`, and structured `error` faults
+(including `text/plain` alongside JSON, XML, and CSV), and typed `inputHeaders` and
+`outputHeaders` (`string`, `number`, `boolean`, `array`, `object`, `any`, nullable `?`,
+`required`, and `default`).
+
+Implement and invoke internal capabilities with `service:<name>` (or `service:<namespace>:<name>`
+across `dil.imports`, resolved by canonical defining document so a single provider serves all
+import aliases), or bind external transport flows (`https`, `rest`, `queue`, `message`) with
+`flow.options.service`. Runtime gates validate inputs, normal replies, and explicit
+`return(status=error)` fault payloads (`*ContractError` and `*FaultError`), mapping input
+contract breaches to HTTP `400` and structured faults to HTTP `500` on `https`/`rest` and
+exposing `error.body` and `error.contentType` to internal callers' error routes. See the
+[language reference](docs/service-contracts.md) and
+[runnable example](api/testdata/services/README.md).
+
