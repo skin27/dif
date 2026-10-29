@@ -215,8 +215,8 @@ func newSplitAndAggregate(p stepdef.Params, ns map[string]string) (stepdef.Proce
 	return splitAndAggregateRouter{s, isXMLType(p["aggregateType"].(string))}, nil
 }
 
-func (r splitAndAggregateRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
-	return r.partRoutes(m)
+func (r splitAndAggregateRouter) Route(ctx context.Context, m message.Message) ([]stepdef.Route, error) {
+	return r.partRoutes(m, ctx)
 }
 
 func (r splitAndAggregateRouter) Gather(_ context.Context, m message.Message, outcomes []stepdef.Outcome) ([]stepdef.Route, error) {

@@ -28,9 +28,9 @@ type loopRouter struct {
 	body, after int // after is -1 if there is none
 	copy        bool
 
-	count func(message.Message) (int, error) // loop: the number of rounds
-	while predicate                          // dowhile: runs another round while it holds
-	max   int                                // dowhile: at most this many rounds
+	count func(message.Message, ...context.Context) (int, error) // loop: the number of rounds
+	while predicate                                              // dowhile: runs another round while it holds
+	max   int                                                    // dowhile: at most this many rounds
 }
 
 func newLoopRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
@@ -49,8 +49,8 @@ func newLoopRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		return nil, err
 	}
 	r.copy = p["copy"].(bool)
-	r.count = func(m message.Message) (int, error) {
-		s, err := e.eval(m)
+	r.count = func(m message.Message, contexts ...context.Context) (int, error) {
+		s, err := e.eval(m, contexts...)
 		if err != nil {
 			return 0, err
 		}
@@ -110,17 +110,17 @@ func loopLinks(p stepdef.Params, rule string) (r loopRouter, expr, lang string, 
 	return r, expr, lang, nil
 }
 
-func (r loopRouter) Round(_ context.Context, in, prev message.Message, round int) ([]stepdef.Route, bool, error) {
+func (r loopRouter) Round(ctx context.Context, in, prev message.Message, round int) ([]stepdef.Route, bool, error) {
 	more, size := false, 0
 	if r.count != nil {
 		var err error
-		if size, err = r.count(in); err != nil {
+		if size, err = r.count(in, ctx); err != nil {
 			return nil, false, err
 		}
 		more = round < size
 	} else if round < r.max {
 		var err error
-		if more, err = r.while(prev); err != nil {
+		if more, err = r.while(prev, ctx); err != nil {
 			return nil, false, err
 		}
 	}

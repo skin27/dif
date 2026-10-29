@@ -338,6 +338,147 @@ e.ListFlows(api.Started)              // [{hello started <startup time> 1 0}]: i
 e.Shutdown()
 ```
 
+## DIL documents and local imports
+
+A DIL file can contain multiple integrations and multiple flows. Keep using
+`dil.integrations.integration`, `flows.flow`, and the shared `dil.core` collections;
+each collection accepts an object or an array. All flows in a document share its
+messages, resources, and connections. Integration metadata does not change flow IDs.
+
+Import another local DIL file with:
+
+```json
+"imports": {
+  "import": {"path": "./common.json", "namespace": "common"}
+}
+```
+
+Place `imports` directly under `dil`. A reusable file may contain only `dil.core`,
+integrations, or both. Imported flows join the group once, even when several files
+import the same dependency. Paths are relative to the declaring document;
+processor paths keep their existing working-directory semantics.
+
+| Reference | Definition |
+|---|---|
+| `jsonvalidator:ref:common:customerSchema` | Resource in the direct `common` import |
+| `setheaders:message:common:defaults` | Message headers in that import |
+| SQL2 `dataSource: "common:mainDatabase"` | Connection in that import |
+| Flow `options.inputMessage: "common:sample"` | Input message selected from that import |
+
+Exact local names take precedence, including names containing colons. Each imported
+flow uses its own document's core and direct imports; imports do not re-export their
+dependencies. Namespaces qualify core references only. Flowlink targets, queues,
+topics, and runtime flow IDs retain their exact names.
+
+Without `options.inputMessage`, each flow uses its own document's first core message
+as its input default. Imported messages never become that default. Selection controls
+`NewMessage` and shell send/request defaults; it does not emit messages at startup.
+
+The shell `load`/`run`, foreground `run`, `validate`, and `describe` resolve groups.
+Duplicate core declarations of the same kind, import aliases, nonempty integration
+IDs within a document, and flow IDs across the group are rejected. Missing core
+references and missing or incompatible flowlink targets also fail static validation.
+The shell may link to compatible already-registered flows. Each positional shell
+file and its imports is loaded atomically; separate positional files are processed
+in order. Group startup readies consumers before activating sources and stops the
+attempted group if startup fails.
+
+See the runnable [composition example](api/testdata/program/README.md):
+
+```sh
+dif validate api/testdata/program/orders.json
+dif describe api/testdata/program/orders.json --output=json
+dif run --file=api/testdata/program/orders.json
+```
+
+Imports are local files only. HTTPS and anonymous byte inputs must be self-contained;
+byte callers can supply a trusted local `ProgramSource.Path` to enable imports.
+The default limits are 4 MiB per document, 64 MiB total, 256 files, and 32 import edges
+in a path. Import cycles fail with their chain. Files are snapshotted for both
+validation and construction. `--dir` includes imported files only once. Core-only
+documents can be validated and described, but a runnable group needs flows.
+
+For Go callers, `api.LoadProgram`, `(*api.Runtime).LoadProgram`,
+`api.InspectProgram`, and `api.ValidateProgram` operate on a local entrypoint.
+`api.PrepareProgram(ctx, sources, limits)` supports multiple inputs and immutable
+byte snapshots. Its `Info` method returns metadata without configured values;
+`CheckFlowLinks` accepts existing host bindings; `Load` constructs independent stopped
+flows from the validated snapshots. Register their runners together with
+`Engine.AddAll` and start them with `engine.StartGroup`. Validation does not initialize
+processors; processor-specific initialization may still fail during loading.
+
+Existing `Load`, `LoadBytes`, `Inspect`, and `InspectBytes` remain single-flow APIs:
+they reject multiple flows and imports, and preserve historical duplicate-core
+handling. Group validation intentionally rejects those ambiguous duplicates.
+Single-flow `describe` output retains its existing shape; group output adds document,
+import, integration, and reference metadata.
+
+## Core formats and mappings
+
+Define reusable mappings in `dil.core.maps.map`, with named input/output contracts
+in `dil.core.formats.format`. A flow invokes a map through the normal action URI
+`mapper:NormalizeOrder`, or `mapper:orders:NormalizeOrder` for an imported map.
+The map's dependencies resolve in its defining document.
+
+`difmap/1` constructs output from expressions, for example:
+
+```text
+{
+  id: string(payload.orderId),
+  customer: trim(payload.customer.name),
+  country: payload.customer.country default "NL",
+  lines: payload.lines map (line) -> {
+    sku: upper(line.sku),
+    quantity: number(line.qty)
+  }
+}
+```
+
+Maps support JSON, XML, and CSV contracts, optional JSON Schema validation, exact
+decimal arithmetic, immutable local bindings, filtering, conditions, and explicit
+conversions. `identity` and resource-backed `xslt` mappings reuse named contracts
+without a DIF expression. Existing transformation steps retain their behavior.
+Mapping source is an `expression` string or a core resource selected by `sourceRef`.
+
+Plans are compiled during validation, before processors are constructed. A mapping
+publishes its new body and Content-Type only after output validation and serialization
+succeed. Failures use existing error routes. See the
+[language reference](docs/mapping-language.md) and
+[runnable mapping example](api/testdata/mapping/README.md).
+
+## Core formats and mappings
+
+Define reusable mappings in `dil.core.maps.map`, with named input/output contracts
+in `dil.core.formats.format`. A flow invokes a map through the normal action URI
+`mapper:NormalizeOrder`, or `mapper:orders:NormalizeOrder` for an imported map.
+The map's dependencies resolve in its defining document.
+
+`difmap/1` constructs output from expressions, for example:
+
+```text
+{
+  id: string(payload.orderId),
+  customer: trim(payload.customer.name),
+  country: payload.customer.country default "NL",
+  lines: payload.lines map (line) -> {
+    sku: upper(line.sku),
+    quantity: number(line.qty)
+  }
+}
+```
+
+Maps support JSON, XML, and CSV contracts, optional JSON Schema validation, exact
+decimal arithmetic, immutable local bindings, filtering, conditions, and explicit
+conversions. `identity` and resource-backed `xslt` mappings reuse named contracts
+without a DIF expression. Existing transformation steps retain their behavior.
+Mapping source is an `expression` string or a core resource selected by `sourceRef`.
+
+Plans are compiled during validation, before processors are constructed. A mapping
+publishes its new body and Content-Type only after output validation and serialization
+succeed. Failures use existing error routes. See the
+[language reference](docs/mapping-language.md) and
+[runnable mapping example](api/testdata/mapping/README.md).
+
 ## Message
 
 A message is one mutable map (`message.Message`, a `map[string]any`) holding:
@@ -1017,6 +1158,52 @@ and the main path continues, losing that tap copy. Work elsewhere on the tap
 branch still runs sequentially. See [channel examples](testdata/examples/channels/README.md)
 for competing consumers, fan-out and a slow audit consumer.
 
+### Interceptors
+
+Work that belongs to many steps, such as an audit trail or a log line before
+every call, can be declared once instead of tapped into each flow by hand. In
+the `dil.core` of a document:
+
+```json
+{"dil": {"core": {"interceptors": {"interceptor": [
+  {"name": "audit",
+   "pointcut": {"flows": ["orders*"], "uris": ["https", "sql*"], "kinds": ["action"]},
+   "action": {"uri": "topic:audit"}},
+  {"name": "arrival", "at": "entry",
+   "action": {"uri": "logger", "options": {"expression": "arrival of ${header.Message-Id}"}}}
+]}}}}
+```
+
+- `at` is `before` (the default): in front of every step the pointcut selects;
+  or `entry`: in front of the first step after the source, as Camel's
+  `interceptFrom`.
+- The pointcut is made of patterns (`*` any text, `?` one character), and a
+  step must satisfy every list that is given: `flows` (the flow's id or name),
+  `steps` (the step's id), `uris` (the scheme of the step's URI) and `kinds`
+  (`action`, `router` or `sink`). Without a pointcut every step of every flow of
+  the document is selected.
+- The action is one action with a `uri` and `options`, such as `logger`, `log`,
+  `topic`, `queue` or a [reusable processor](docs/functions-language.md#reusable-actions)
+  (`processor:name`, its `arguments` among the options). It is a tap: the loader
+  puts a `wiretap` router in front of the step, which passes the message on and
+  sends a copy to the action. What happens to the copy never changes or fails
+  the message; a failure is logged as that of a detached route. The action runs
+  in line, before the step: slow work belongs behind an enqueueing action (see
+  [Queued wire taps](#queued-wire-taps)).
+- Several interceptors on a step run in the order they are declared. An
+  interceptor does not intercept the steps another one added, nor the steps of
+  an error route.
+- The steps it adds have ids that start with `intercept:` (`intercept:audit:x`
+  for the router, `intercept:audit:x:action` for the action), show in the trail
+  of a message and in `describe`, and are marked as added by an interceptor in
+  its JSON output.
+- The interceptors of a document apply to the flows of that document only; an
+  imported document's interceptors do not reach the importing flows.
+- An interceptor observes. It cannot change the message or skip the step; for
+  that, put the step in the flow.
+
+`testdata/examples/interceptor.json` logs before each action of its flow.
+
 ### Events
 
 What happens to a flow, and how its messages end, can start another flow: a
@@ -1375,3 +1562,12 @@ See [test/README.md](test/README.md).
 - Concurrent message execution within a flow (processors are already safe for it)
 - A separate engine process with a network API for clients
 - Persistence for other processor state beyond durable queues and idempotency keys
+
+## Typed functions and reusable actions
+
+DIL core supports scoped typed functions in `functions.function`, callable from
+Simple and difmap/1, and parameterized single-action definitions in
+`processors.processor`. Functions retain exact numbers and imported private scopes;
+processor arguments bind before action construction. See the
+[language reference](docs/functions-language.md) and
+[runnable examples](api/testdata/functions/README.md).

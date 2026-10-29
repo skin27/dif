@@ -1,0 +1,19 @@
+{
+  "dil": {
+    "imports": {"import":{"path":"maps.json","namespace":"orders"}},
+    "core": {"messages":{"message":{"name":"example","body":"{\"orderId\":9007199254740993,\"customer\":{\"name\":\"  Ada  \"},\"lines\":[{\"sku\":\"part-a\",\"qty\":\"2\"}]}","headers":{"header":{"name":"Content-Type","value":"application/json"}}}}},
+    "integrations": {"integration":{"id":"mapping-example","flows":{"flow":[
+      {"id":"map-order","steps":{"step":[
+        {"id":"input","type":"source","uri":"message","links":{"link":{"id":"1","bound":"out"}}},
+        {"id":"normalize","type":"action","uri":"mapper:orders:NormalizeOrder","links":{"link":[{"id":"1","bound":"in"},{"id":"2","bound":"out"}]}},
+        {"id":"output","type":"sink","uri":"passthrough","links":{"link":{"id":"2","bound":"in"}}}
+      ]}},
+      {"id":"map-csv","steps":{"step":[
+        {"id":"input","type":"source","uri":"message","links":{"link":{"id":"1","bound":"out"}}},
+        {"id":"normalize","type":"action","uri":"mapper:orders:NormalizeOrder","links":{"link":[{"id":"1","bound":"in"},{"id":"2","bound":"out"}]}},
+        {"id":"csv","type":"action","uri":"mapper:orders:LinesCSV","links":{"link":[{"id":"2","bound":"in"},{"id":"3","bound":"out"}]}},
+        {"id":"output","type":"sink","uri":"passthrough","links":{"link":{"id":"3","bound":"in"}}}
+      ]}}
+    ]}}}
+  }
+}

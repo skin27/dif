@@ -17,9 +17,12 @@ import (
 )
 
 type Document struct {
-	Name string
-	Data []byte
-	Info *api.FlowInfo
+	Name       string
+	Data       []byte
+	Info       *api.FlowInfo
+	Program    *api.PreparedProgram
+	path       string
+	discovered bool
 }
 
 // Resolve reads immutable snapshots. URLs are labeled by index so diagnostics
@@ -41,6 +44,7 @@ func Resolve(ctx context.Context, o Options) ([]Document, error) {
 
 func resolve(ctx context.Context, o Options, transport http.RoundTripper) ([]Document, error) {
 	paths := append([]string(nil), o.Files...)
+	explicitCount := len(paths)
 	for _, dir := range o.Dirs {
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -69,7 +73,7 @@ func resolve(ctx context.Context, o Options, transport http.RoundTripper) ([]Doc
 		}
 	}
 	var docs []Document
-	for _, path := range paths {
+	for index, path := range paths {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
@@ -90,7 +94,7 @@ func resolve(ctx context.Context, o Options, transport http.RoundTripper) ([]Doc
 		if err != nil {
 			return nil, fmt.Errorf("flow %q: %w", path, err)
 		}
-		docs = append(docs, Document{Name: path, Data: data})
+		docs = append(docs, Document{Name: path, Data: data, path: path, discovered: index >= explicitCount})
 	}
 	client := &http.Client{Transport: transport, Timeout: duration(o.FetchTimeout), CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		if len(via) >= 5 {
@@ -137,23 +141,29 @@ func resolve(ctx context.Context, o Options, transport http.RoundTripper) ([]Doc
 		}
 		docs = append(docs, Document{Name: name, Data: data})
 	}
-	ids := map[string]string{}
-	for i := range docs {
-		if err := ctx.Err(); err != nil {
-			return nil, err
-		}
-		info, err := api.InspectBytes(docs[i].Data)
-		if err != nil {
-			return nil, fmt.Errorf("%s: static validation failed: %w", docs[i].Name, err)
-		}
-		if previous, ok := ids[info.ID]; ok {
-			return nil, fmt.Errorf("duplicate flow id %q in %s and %s", info.ID, previous, docs[i].Name)
-		}
-		ids[info.ID] = docs[i].Name
-		docs[i].Info = info
-	}
 	if len(docs) == 0 {
 		return nil, errors.New("no flow documents")
+	}
+	sources := make([]api.ProgramSource, 0, len(docs))
+	for _, d := range docs {
+		sources = append(sources, api.ProgramSource{Name: d.Name, Path: d.path, Data: d.Data, Discovered: d.discovered})
+	}
+	prepared, err := api.PrepareProgram(ctx, sources, api.ProgramLimits{MaxBytes: o.MaxBytes, Mapping: o.MappingLimits})
+	if err != nil {
+		return nil, fmt.Errorf("static validation failed: %w", err)
+	}
+	if err := prepared.CheckFlowLinks(nil); err != nil {
+		return nil, err
+	}
+	info := prepared.Info()
+	for i := range docs {
+		docs[i].Program = prepared
+		for _, f := range info.Flows {
+			if f.Origin == docs[i].Name {
+				docs[i].Info = f.Flow
+				break
+			}
+		}
 	}
 	return docs, nil
 }

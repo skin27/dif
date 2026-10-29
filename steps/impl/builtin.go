@@ -3,6 +3,7 @@
 package impl
 
 import (
+	"dif/internal/mapping"
 	"embed"
 
 	stepdef "dif/steps/definition"
@@ -63,6 +64,7 @@ func Register(r *registry.Registry) error {
 		{"counter", stepdef.Source, "", newCounterSource, nil},
 		{"log", stepdef.Action, "", newLogAction, nil},
 		{"setbody", stepdef.Action, "", newSetBodyAction, nil},
+		{"mapper", stepdef.Action, messageTranslator, newMapperAction, nil},
 		{"setheader", stepdef.Action, "", newSetHeaderAction, nil},
 		{"passthrough", stepdef.Action, "", newPassthrough, nil},
 		{"setheaders", stepdef.Action, "", newSetHeadersAction, nil},
@@ -156,8 +158,10 @@ func Register(r *registry.Registry) error {
 	}
 	for _, b := range builtins {
 		// Every built-in step may refer to its flow in an expression.
-		bindings := []string{FlowRuntimeKey}
+		bindings := []string{FlowRuntimeKey, mapping.FunctionsBindingKey}
 		switch b.name {
+		case "mapper":
+			bindings = append(bindings, mapping.BindingKey)
 		case "queue", "topic", "event", "flowlink", "deadletter", "idempotent", "request", "reply":
 			bindings = append(bindings, ChannelRuntimeKey)
 		}

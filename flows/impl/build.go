@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -10,16 +11,23 @@ import (
 	"unicode/utf8"
 
 	flowdef "dif/flows/definition"
-	"dif/message"
+	"dif/internal/mapping"
 	stepdef "dif/steps/definition"
 )
 
 // Parse converts a DIL JSON document holding exactly one flow into the flow model.
 // newProcessor creates the processor for each node.
 func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+	return parse(data, newProcessor, nil, nil, nil)
+}
+
+func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error), plans map[string]*mapping.Plan, scopes map[string]*mapping.Functions, templates map[string]ProcessorInfo) (*flowdef.Flow, error) {
 	var doc dilDoc
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("parse dil: %w", err)
+	}
+	if len(doc.DIL.Imports.Import) != 0 {
+		return nil, fmt.Errorf("DIL imports require a program loader")
 	}
 
 	var flows []dilFlow
@@ -28,6 +36,48 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 	}
 	if len(flows) != 1 {
 		return nil, fmt.Errorf("expected exactly one flow, found %d", len(flows))
+	}
+	if plans == nil {
+		d, err := DecodeDocument(data)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.PrepareFunctions(context.Background(), mapping.Limits{}); err != nil {
+			return nil, err
+		}
+		if err := d.PrepareMappings(context.Background(), mapping.Limits{}); err != nil {
+			return nil, err
+		}
+		var errExpand error
+		flows[0], scopes, templates, plans, errExpand = d.expandProcessors(flows[0])
+		if errExpand != nil {
+			return nil, errExpand
+		}
+	}
+	processor := func(n *flowdef.Node) (stepdef.Processor, error) {
+		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow}
+		if info, ok := templates[n.ID]; ok {
+			n.Bindings["dif.internal.actionTemplate"] = true
+			n.Bindings["dif.internal.processorInfo"] = info
+		}
+		if name, ok := strings.CutPrefix(n.URI, "mapper:"); ok {
+			plan := plans[name]
+			if plan == nil {
+				return nil, fmt.Errorf("map %q not found", name)
+			}
+			if n.Kind != stepdef.Action {
+				return nil, fmt.Errorf("mapper must be an action")
+			}
+			n.URI = "mapper"
+			n.Bindings[mapping.BindingKey] = plan
+		} else if n.URI == "mapper" {
+			return nil, fmt.Errorf("mapper requires a named core map")
+		}
+		p, err := newProcessor(n)
+		if info, ok := templates[n.ID]; ok && err != nil {
+			return nil, fmt.Errorf("processor %q (%s): %w", info.Name, info.Origin, err)
+		}
+		return p, err
 	}
 
 	core := coreRefs{messages: map[string]dilMessage{}, resources: map[string]string{}, connections: map[string]dilConnection{}}
@@ -41,20 +91,16 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		core.connections[c.ID] = c
 	}
 
-	f, err := build(flows[0], core, newProcessor)
+	f, err := buildResolved(flows[0], core, processor, templates)
 	if err != nil {
 		return nil, fmt.Errorf("flow %s: %w", flows[0].ID, err)
 	}
 
-	if msgs := doc.DIL.Core.Messages.Message; len(msgs) > 0 {
-		f.Input = message.Message{}
-		for _, h := range msgs[0].Headers.Header {
-			f.Input[h.Name] = h.Value
-		}
-		if msgs[0].Body != nil {
-			f.Input[message.Body] = msgs[0].Body
-		}
+	input, err := selectInput(flows[0], doc, core)
+	if err != nil {
+		return nil, err
 	}
+	f.Input = input
 	return f, nil
 }
 
@@ -67,6 +113,9 @@ type coreRefs struct {
 }
 
 func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+	return buildResolved(df, core, newProcessor, nil)
+}
+func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error), resolved map[string]ProcessorInfo) (*flowdef.Flow, error) {
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
@@ -101,12 +150,19 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
 		}
 
-		opts, uri, err := resolveRefs(s, core)
-		if err == nil {
-			opts, err = resolveDataSource(uri, opts, core)
+		opts, uri := s.Options, s.URI
+		var err error
+		if _, prepared := resolved[s.ID]; !prepared {
+			opts, uri, err = resolveRefs(s, core)
+			if err == nil {
+				opts, err = resolveDataSource(uri, opts, core)
+			}
 		}
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
+		}
+		if opts == nil {
+			opts = map[string]any{}
 		}
 		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Flow: flow}
 		if n.Kind == flowdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") && opts["flowId"] == nil {
@@ -389,6 +445,11 @@ func resolveDataSource(uri string, opts map[string]any, core coreRefs) (map[stri
 //     that resource's content; the URI becomes <scheme>
 func resolveRefs(s dilStep, core coreRefs) (map[string]any, string, error) {
 	scheme, rest, _ := strings.Cut(s.URI, ":")
+	// Mapper owns its full name suffix, including local names beginning with
+	// "ref:" or "message:". Those are not legacy resource/message URIs.
+	if scheme == "mapper" {
+		return s.Options, s.URI, nil
+	}
 	if name, ok := strings.CutPrefix(rest, "ref:"); ok {
 		content, ok := core.resources[name]
 		if !ok {

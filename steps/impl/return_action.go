@@ -37,7 +37,7 @@ func newReturnAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 func (a returnAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
 	reply := m.Copy()
 	if a.expr != nil {
-		v, err := a.expr.eval(m)
+		v, err := a.expr.eval(m, ctx)
 		if err != nil {
 			return nil, err
 		}

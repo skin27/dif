@@ -1,0 +1,18 @@
+{
+  "dil": {
+    "core": {
+      "messages": {
+        "message": [
+          {"name": "sample", "body": "{\"customer\":\"Alice\"}"},
+          {"name": "defaults", "headers": {"header": {"name": "origin", "value": "shared-core", "language": "constant"}}}
+        ]
+      },
+      "resources": {
+        "resource": {"name": "customerSchema", "content": "{\"type\":\"object\",\"required\":[\"customer\"],\"properties\":{\"customer\":{\"type\":\"string\"}}}"}
+      },
+      "connections": {
+        "connection": {"id": "mainDatabase", "name": "Example database", "type": "jdbc", "keys": {"dbtype": "postgres", "host": "localhost", "dbname": "example", "username": "dummy", "password": "dummy"}}
+      }
+    }
+  }
+}

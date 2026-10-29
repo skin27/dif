@@ -54,16 +54,30 @@ func New() *Engine {
 
 // Add registers r under its flow id, which must be set and unique.
 func (e *Engine) Add(r *Runner) error {
-	id := r.ID()
-	if id == "" {
-		return fmt.Errorf("flow has no id")
-	}
+	return e.AddAll([]*Runner{r})
+}
+
+// AddAll registers a stopped group atomically, or leaves the registry unchanged.
+func (e *Engine) AddAll(runners []*Runner) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if _, dup := e.flows[id]; dup {
-		return fmt.Errorf("flow %s is already registered", id)
+	seen := map[string]bool{}
+	for _, r := range runners {
+		if r == nil || r.ID() == "" {
+			return fmt.Errorf("flow has no id")
+		}
+		id := r.ID()
+		if _, dup := e.flows[id]; dup {
+			return fmt.Errorf("flow %s is already registered", id)
+		}
+		if seen[id] {
+			return fmt.Errorf("duplicate flow id %q", id)
+		}
+		seen[id] = true
 	}
-	e.flows[id] = r
+	for _, r := range runners {
+		e.flows[r.ID()] = r
+	}
 	return nil
 }
 

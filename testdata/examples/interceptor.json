@@ -1,0 +1,141 @@
+{
+	"dil": {
+		"core": {
+			"interceptors": {
+				"interceptor": [
+					{
+						"name": "audit",
+						"pointcut": {
+							"flows": [
+								"interceptor"
+							],
+							"kinds": [
+								"action"
+							]
+						},
+						"action": {
+							"uri": "logger",
+							"options": {
+								"loggingLevel": "INFO",
+								"language": "simple",
+								"expression": "audit: before an action, body ${body}"
+							}
+						}
+					},
+					{
+						"name": "arrival",
+						"at": "entry",
+						"action": {
+							"uri": "logger",
+							"options": {
+								"loggingLevel": "INFO",
+								"language": "simple",
+								"expression": "arrival of message ${header.Message-Id}"
+							}
+						}
+					}
+				]
+			}
+		},
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68f9a0c1aaa5120007000108",
+						"name": "interceptor",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "tick",
+									"type": "source",
+									"uri": "timer:tick",
+									"options": {
+										"period": 2000,
+										"repeatCount": 3
+									},
+									"links": {
+										"link": {
+											"id": "greet",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "greet",
+									"type": "action",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "tick ${body}"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "greet",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "mark",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "mark",
+									"type": "action",
+									"uri": "setheader",
+									"options": {
+										"name": "greeting",
+										"language": "constant",
+										"value": "hello"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "mark",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "show",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "show",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": true,
+										"showException": false
+									},
+									"links": {
+										"link": {
+											"id": "show",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -35,6 +35,7 @@ Precedence: flags > DIF_* environment > config > defaults.
 Paths are relative to the process working directory. run requires explicit input flags.`
 
 type Options struct {
+	MappingLimits   api.MappingLimits  `json:"mappingLimits,omitempty"`
 	Channels        *api.ChannelConfig `json:"channels,omitempty"`
 	Files           []string           `json:"files"`
 	Dirs            []string           `json:"dirs"`
@@ -193,6 +194,9 @@ func ParseOptions(args []string, getenv func(string) string, validation bool) (O
 }
 
 func (o Options) Validate() error {
+	if _, err := o.MappingLimits.Normalize(); err != nil {
+		return err
+	}
 	if o.Channels != nil {
 		if err := api.ValidateChannelConfig(*o.Channels); err != nil {
 			return fmt.Errorf("channels: %w", err)

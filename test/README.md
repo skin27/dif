@@ -24,6 +24,8 @@ cannot compile it from another directory.
 | `testdata/reliable/` | The reliable-channel example: two flows and the service configuration that runs them (`internal/service` tests it) |
 | `testdata/parse/` | Flows that only the parser tests (`flows/impl`) read: they use steps that DIL exports as `unknown` |
 | `keystore/testdata/` | Test keystores |
+| `api/testdata/program/` | Multi-integration composition with local core imports; built and executed by `test/api`, with CLI and service coverage |
+| `api/testdata/mapping/` | Core maps and private format dependencies; JSON/CSV flows executed by API and CLI tests |
 
 Every flow in `testdata/` must build, except `reliable/` and `parse/`. `go test ./test/dil`
 builds them as `dif run` does before it starts one, with a throwaway server identity

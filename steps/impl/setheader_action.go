@@ -39,8 +39,8 @@ func checkHeaderName(name string) error {
 	return nil
 }
 
-func (a setHeaderAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	v, err := a.value.eval(m)
+func (a setHeaderAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	v, err := a.value.eval(m, ctx)
 	if err != nil {
 		return nil, err
 	}

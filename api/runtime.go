@@ -5,7 +5,6 @@ import (
 	"os"
 
 	flowdef "dif/flows/definition"
-	flowimpl "dif/flows/impl"
 	"dif/internal/channels"
 	stepdef "dif/steps/definition"
 	stepimpl "dif/steps/impl"
@@ -51,7 +50,7 @@ func (r *Runtime) LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, 
 	if err := r.channels.Check(); err != nil {
 		return nil, err
 	}
-	f, err := flowimpl.Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
+	f, err := parseFlow(data, func(n *flowdef.Node) (stepdef.Processor, error) {
 		return steps.ProcessorWithParams(n, stepdef.Params{stepimpl.ChannelRuntimeKey: r.channels, stepimpl.FlowRuntimeKey: n.Flow})
 	})
 	if err != nil {

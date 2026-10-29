@@ -8,6 +8,7 @@ import (
 
 	flowdef "dif/flows/definition"
 	flowimpl "dif/flows/impl"
+	"dif/internal/mapping"
 	stepdef "dif/steps/definition"
 )
 
@@ -24,11 +25,19 @@ type FlowInfo struct {
 }
 
 type NodeInfo struct {
-	ID    string     `json:"id"`
-	Kind  string     `json:"kind"`
-	Step  string     `json:"step"`
-	Links []LinkInfo `json:"links"`
+	Processor *flowimpl.ProcessorInfo `json:"processor,omitempty"`
+	Mapping   *MapInfo                `json:"mapping,omitempty"`
+	ID        string                  `json:"id"`
+	Kind      string                  `json:"kind"`
+	Step      string                  `json:"step"`
+	Links     []LinkInfo              `json:"links"`
+	// Interceptor is the step an interceptor added; empty for the flow's own steps.
+	Interceptor bool `json:"interceptor,omitempty"`
 }
+
+type MapInfo = mapping.Info
+type FormatInfo = flowimpl.FormatInfo
+type MappingLimits = mapping.Limits
 
 type LinkInfo struct {
 	Target   string `json:"target"`
@@ -72,12 +81,16 @@ func Inspect(path string) (*FlowInfo, error) {
 
 // InspectBytes statically validates a previously resolved DIL document.
 func InspectBytes(data []byte) (*FlowInfo, error) {
-	f, err := flowimpl.Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
+	f, err := parseFlow(data, func(n *flowdef.Node) (stepdef.Processor, error) {
 		return nil, steps.Validate(n)
 	})
 	if err != nil {
 		return nil, err
 	}
+	return inspectFlow(f)
+}
+
+func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 	if f.ID == "" {
 		return nil, fmt.Errorf("flow has no id")
 	}
@@ -106,7 +119,14 @@ func InspectBytes(data []byte) (*FlowInfo, error) {
 		}
 		ids[n.ID] = true
 		name, _, _ := strings.Cut(n.URI, ":")
-		node := NodeInfo{ID: n.ID, Kind: n.Kind, Step: name, Links: []LinkInfo{}}
+		node := NodeInfo{ID: n.ID, Kind: n.Kind, Step: name, Links: []LinkInfo{}, Interceptor: strings.HasPrefix(n.ID, flowimpl.InterceptorPrefix)}
+		if info, ok := n.Bindings["dif.internal.processorInfo"].(flowimpl.ProcessorInfo); ok {
+			node.Processor = &info
+		}
+		if p, ok := n.Bindings[mapping.BindingKey].(*mapping.Plan); ok {
+			info := p.Info()
+			node.Mapping = &info
+		}
 		for i, target := range n.Next {
 			link := LinkInfo{Target: target.ID}
 			if i < len(n.Links) {

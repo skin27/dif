@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"context"
 	"fmt"
 
 	"dif/message"
@@ -8,7 +9,7 @@ import (
 
 // predicate is a compiled condition on a message. It fails only when a
 // simple expression in it does (${bodyAs(<type>)}).
-type predicate func(message.Message) (bool, error)
+type predicate func(message.Message, ...context.Context) (bool, error)
 
 // compilePredicate compiles a condition in one of these languages:
 //
@@ -40,8 +41,8 @@ func compilePredicateNS(flow *flowProperties, ns map[string]string, language, ex
 		if err != nil {
 			return nil, err
 		}
-		return func(m message.Message) (bool, error) {
-			q, err := get(m)
+		return func(m message.Message, contexts ...context.Context) (bool, error) {
+			q, err := get(m, contexts...)
 			if err != nil {
 				return false, err
 			}
@@ -54,8 +55,8 @@ func compilePredicateNS(flow *flowProperties, ns map[string]string, language, ex
 		if err != nil {
 			return nil, err
 		}
-		return func(m message.Message) (bool, error) {
-			p, err := get(m)
+		return func(m message.Message, contexts ...context.Context) (bool, error) {
+			p, err := get(m, contexts...)
 			if err != nil {
 				return false, err
 			}

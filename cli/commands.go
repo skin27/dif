@@ -20,8 +20,8 @@ type cmdDoc struct {
 }
 
 var commands = []cmdDoc{
-	{"FLOW MANAGEMENT", "load", "<flow.json>...", "Load flows without starting them", "The flows stay stopped until started. Each flow logs to its own file in `logs`."},
-	{"FLOW MANAGEMENT", "run", "<flow.json>...", "Load and start flows", ""},
+	{"FLOW MANAGEMENT", "load", "<flow.json>...", "Load flows without starting them", "Loads all integrations/flows and local imports in each file as a group. The flows stay stopped until started. Each flow logs to its own file in `logs`."},
+	{"FLOW MANAGEMENT", "run", "<flow.json>...", "Load and start flows", "Loads each file and its local imports, then starts that group after all sources are ready."},
 	{"FLOW MANAGEMENT", "start", "<flow>", "Start a stopped flow", "Starting a paused flow resumes it."},
 	{"FLOW MANAGEMENT", "pause", "<flow>", "Pause a flow", "A paused flow takes no new messages until it is started or resumed."},
 	{"FLOW MANAGEMENT", "resume", "<flow>", "Resume a paused flow", ""},
@@ -36,7 +36,7 @@ var commands = []cmdDoc{
 	{"DEVELOPMENT", "catalog", "[step]", "List available steps", "With [step], show its description and options."},
 	{"DEVELOPMENT", "init", "<flow.json> [--template hello|timer|file|http] [--id name]", "Create a starter flow", "Refuses to overwrite an existing file. Default template: hello. File input moves to inbox/.done. The http template serves HTTPS on 127.0.0.1:9002 and needs security/server-identity.p12 and DIF_SERVER_IDENTITY_PASSWORD."},
 	{"DEVELOPMENT", "validate", "<flow.json>... [--output text|json]", "Validate flow structure, references and option schemas", "Offline validation does not construct processors. Expressions, processor-specific semantics and external resources are checked when loading a flow."},
-	{"DEVELOPMENT", "describe", "<flow.json> [--output text|json]", "Describe steps, links, error handling and configuration", "Option values, URI paths and expression text are omitted to avoid exposing credentials."},
+	{"DEVELOPMENT", "describe", "<flow.json> [--output text|json]", "Describe steps, links, error handling and configuration", "Groups include documents, imports, integrations and core references. Option values, URI paths and expression text are omitted to avoid exposing credentials."},
 	{"SYSTEM", "version", "[--output text|json]", "Show version and build information", "Includes revision, Go version and platform."},
 	{"SYSTEM", "completion", "[command line]", "Suggest commands and arguments", "Examples: completion, completion val, completion init --template t, completion catalog pass. Lists suggestions without running a command."},
 	{"SYSTEM", "help", "[command]", "Show this help", ""},

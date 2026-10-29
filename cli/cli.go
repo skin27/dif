@@ -49,44 +49,77 @@ func runShell(stdin io.Reader, stdout, stderr io.Writer) int {
 		return nil, err
 	}
 
-	// load reads the flow in path and registers it; it stays stopped.
-	// Its results and the lines of its log steps go to its log file.
-	load := func(path string) (*api.Flow, error) {
-		var fl *flowLog      // set before the flow starts, so onResult can use it
-		var seq atomic.Int64 // numbers the messages in the log; the engine counts them
-		flow, err := api.Load(path, func(res *api.Result, err error) {
-			n := seq.Add(1)
+	// Prepare the whole input group before constructing or registering any flow.
+	load := func(paths []string) ([]*api.Flow, error) {
+		sources := []api.ProgramSource{}
+		for _, path := range paths {
+			sources = append(sources, api.ProgramSource{Name: path, Path: path})
+		}
+		prepared, err := api.PrepareProgram(context.Background(), sources, api.ProgramLimits{})
+		if err != nil {
+			return nil, err
+		}
+		existing := []*engine.Runner{}
+		for _, status := range eng.ListFlows("") {
+			r, _ := eng.GetFlow(status.ID)
+			existing = append(existing, r)
+		}
+		groupLogs := map[string]*flowLog{}
+		sequences := map[string]*atomic.Int64{}
+		origins := map[string]string{}
+		for _, info := range prepared.Info().Flows {
+			if _, err := eng.GetFlow(info.Flow.ID); err == nil {
+				return nil, fmt.Errorf("flow %s is already registered", info.Flow.ID)
+			}
+			sequences[info.Flow.ID] = &atomic.Int64{}
+			origins[info.Flow.ID] = info.Origin
+		}
+		loaded, err := prepared.Load(context.Background(), nil, func(id string, res *api.Result, err error) {
+			fl := groupLogs[id]
+			n := sequences[id].Add(1)
 			if err != nil {
 				fl.logger.Printf("message %d failed: %v", n, err)
 				return
 			}
-			msg := messageJSON(res.Message)
 			handled := ""
 			if res.Err != nil {
 				handled = fmt.Sprintf(" (error route handled: %v)", res.Err)
 			}
-			fl.logger.Printf("message %d: %s trail: %s (%d ms)%s", n, msg, strings.Join(res.Trail, " -> "), res.Duration.Milliseconds(), handled)
-		})
+			fl.logger.Printf("message %d: %s trail: %s (%d ms)%s", n, messageJSON(res.Message), strings.Join(res.Trail, " -> "), res.Duration.Milliseconds(), handled)
+		}, api.FlowBindings(existing))
 		if err != nil {
 			return nil, err
 		}
-
-		fl, err = openFlowLog(flow.ID())
-		if err != nil {
+		registered := false
+		defer func() {
+			if !registered {
+				for _, fl := range groupLogs {
+					fl.Close()
+				}
+			}
+		}()
+		runners := []*engine.Runner{}
+		for _, flow := range loaded.Flows {
+			fl, err := openFlowLog(flow.ID())
+			if err != nil {
+				return nil, err
+			}
+			groupLogs[flow.ID()] = fl
+			flow.SetLogger(fl.logger)
+			runners = append(runners, flow.Runner)
+		}
+		if err := eng.AddAll(runners); err != nil {
 			return nil, err
 		}
-		flow.SetLogger(fl.logger)
-		if err := eng.Add(flow.Runner); err != nil {
-			fl.Close()
-			return nil, err
-		}
+		registered = true
 		logsMu.Lock()
-		logs[flow.ID()] = fl
+		for id, fl := range groupLogs {
+			logs[id] = fl
+			fl.logger.Printf("flow %s loaded from %s", id, origins[id])
+		}
 		logsMu.Unlock()
-		fl.logger.Printf("flow %s loaded from %s", flow.ID(), path)
-		return flow, nil
+		return loaded.Flows, nil
 	}
-
 	// closeLogs closes the flows' logs once they have stopped; flows that were
 	// still running when dif exits get a last line saying so.
 	closeLogs := func(before []api.FlowStatus) {
@@ -177,13 +210,33 @@ func runShell(stdin io.Reader, stdout, stderr io.Writer) int {
 				}
 				for _, path := range fields {
 					path = flowFilePath(path)
-					flow, err := load(path)
+					flows, err := load([]string{path})
 					if err != nil {
 						con.fail("%v", err)
-					} else if cmd == "load" {
-						con.say("flow %s loaded from %s; it is %s", flow.ID(), path, flow.State())
-					} else if err := lifecycle(eng.StartFlow, flow.ID(), " (loaded from "+path+")"); err != nil {
-						flowError(err)
+						continue
+					}
+					if cmd == "run" {
+						runners := []*engine.Runner{}
+						for _, flow := range flows {
+							runners = append(runners, flow.Runner)
+						}
+						ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+						err := engine.StartGroup(ctx, runners)
+						cancel()
+						if err != nil {
+							flowError(err)
+							continue
+						}
+					}
+					for _, flow := range flows {
+						if cmd == "load" {
+							con.say("flow %s loaded from %s; it is %s", flow.ID(), path, flow.State())
+						} else {
+							con.say("flow %s started (loaded from %s)", flow.ID(), path)
+							if fl, err := flowLogOf(flow.ID()); err == nil {
+								fl.logger.Printf("flow %s started (loaded from %s)", flow.ID(), path)
+							}
+						}
 					}
 				}
 			case "send", "request":

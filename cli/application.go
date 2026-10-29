@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -177,82 +178,75 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 			}
 		}
 	case "validate":
-		results := []validationInfo{}
-		ids := map[string]string{}
-		code := 0
+		sources := []api.ProgramSource{}
 		for _, path := range positionals {
-			info, err := api.Inspect(path)
-			if err == nil {
-				if previous, duplicate := ids[info.ID]; duplicate {
-					err = fmt.Errorf("duplicate flow id %q (also in %s)", info.ID, previous)
-				} else {
-					ids[info.ID] = path
-				}
-			}
+			sources = append(sources, api.ProgramSource{Name: path, Path: path})
+		}
+		prepared, err := api.PrepareProgram(context.Background(), sources, api.ProgramLimits{})
+		if err == nil {
+			err = prepared.CheckFlowLinks(nil)
+		}
+		results := []validationInfo{}
+		for _, path := range positionals {
 			r := validationInfo{Path: path, Valid: err == nil}
 			if err != nil {
 				r.Error = err.Error()
-				code = 1
-				fmt.Fprintf(stderr, "Error: %s: %v\n", path, err)
 			} else if output == "text" {
 				fmt.Fprintf(stdout, "%s: valid (structure and option schemas)\n", path)
 			}
 			results = append(results, r)
+		}
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
 		}
 		if output == "json" {
 			if c := writeJSON(stdout, stderr, results); c != 0 {
 				return c
 			}
 		}
-		return code
+		if err != nil {
+			return 1
+		}
+		return 0
 	case "describe":
-		info, err := api.Inspect(positionals[0])
+		program, err := api.InspectProgram(positionals[0])
 		if err != nil {
 			return fail(err)
 		}
+		single := len(program.Flows) == 1 && len(program.Documents) == 1
 		if output == "json" {
-			return writeJSON(stdout, stderr, info)
+			if single {
+				return writeJSON(stdout, stderr, program.Flows[0].Flow)
+			}
+			return writeJSON(stdout, stderr, program)
 		}
-		fmt.Fprintf(stdout, "FLOW: %s\nNAME: %s\nSOURCE: %s\n\n", info.ID, info.Name, info.Source)
-		rows := [][]string{}
-		for _, s := range info.Steps {
-			links := []string{}
-			for _, l := range s.Links {
-				target := l.Target
-				if l.Rule != "" {
-					target += " (" + l.Rule + ")"
+		if !single {
+			for _, doc := range program.Documents {
+				fmt.Fprintf(stdout, "DOCUMENT: %s\n", doc.Name)
+				for _, imp := range doc.Imports {
+					fmt.Fprintf(stdout, "  IMPORT: %s -> %s\n", imp.Namespace, imp.Document)
 				}
-				links = append(links, target)
+				for _, in := range doc.Integrations {
+					fmt.Fprintf(stdout, "  INTEGRATION: %s (%s); type: %s; version: %s\n", in.ID, in.Name, in.Type, in.Version)
+				}
+				for _, f := range doc.Formats {
+					fmt.Fprintf(stdout, "  FORMAT: %s (%s)\n", f.Name, f.MediaType)
+				}
+				for _, m := range doc.Maps {
+					fmt.Fprintf(stdout, "  MAP: %s (%s); %s -> %s\n", m.Name, m.Language, m.Input, m.Output)
+				}
 			}
-			rows = append(rows, []string{s.ID, s.Kind, s.Step, strings.Join(links, ", ")})
 		}
-		fmt.Fprintln(stdout, renderTable([]string{"ID", "KIND", "STEP", "NEXT"}, rows, nil, nil))
-		describeError := func(e *api.ErrorInfo) {
-			fmt.Fprintf(stdout, "\nERROR: %s; retries: %d; delay: %d ms; route: %s", e.ID, e.Redeliveries, e.DelayMillis, e.Target)
-			if len(e.Matches) > 0 {
-				fmt.Fprintf(stdout, "; takes errors by: %s", strings.Join(e.Matches, ", "))
+		for _, flow := range program.Flows {
+			if !single {
+				fmt.Fprintf(stdout, "\nORIGIN: %s; INTEGRATION: %s\n", flow.Origin, flow.Integration.ID)
 			}
-			if e.Unhandled {
-				fmt.Fprint(stdout, "; unhandled: the message still fails")
+			describeFlow(stdout, flow.Flow)
+			if !single {
+				for _, ref := range flow.References {
+					fmt.Fprintf(stdout, "  REFERENCE: %s %s (step: %s)\n", ref.Kind, ref.Name, ref.Step)
+				}
 			}
-			fmt.Fprintln(stdout)
-		}
-		for i := range info.ErrorHandlers {
-			describeError(&info.ErrorHandlers[i])
-		}
-		if info.Error != nil {
-			describeError(info.Error)
-		}
-		fmt.Fprintln(stdout, "\nCONFIGURATION (values omitted):")
-		if len(info.Configuration) == 0 {
-			fmt.Fprintln(stdout, "  No required options or environment fallbacks.")
-		}
-		for _, c := range info.Configuration {
-			fmt.Fprintf(stdout, "  %s: %s (required: %t)", c.StepID, c.Option, c.Required)
-			if c.Environment != "" {
-				fmt.Fprintf(stdout, "; environment fallback: %s", c.Environment)
-			}
-			fmt.Fprintln(stdout)
 		}
 	case "init":
 		path := positionals[0]
@@ -302,4 +296,53 @@ func writeJSON(stdout, stderr io.Writer, value any) int {
 		return 1
 	}
 	return 0
+}
+
+func describeFlow(out io.Writer, info *api.FlowInfo) {
+	fmt.Fprintf(out, "FLOW: %s\nNAME: %s\nSOURCE: %s\n\n", info.ID, info.Name, info.Source)
+	rows := [][]string{}
+	for _, s := range info.Steps {
+		links := []string{}
+		for _, l := range s.Links {
+			target := l.Target
+			if l.Rule != "" {
+				target += " (" + l.Rule + ")"
+			}
+			links = append(links, target)
+		}
+		rows = append(rows, []string{s.ID, s.Kind, s.Step, strings.Join(links, ", ")})
+	}
+	fmt.Fprintln(out, renderTable([]string{"ID", "KIND", "STEP", "NEXT"}, rows, nil, nil))
+	for _, s := range info.Steps {
+		if m := s.Mapping; m != nil {
+			fmt.Fprintf(out, "MAP: %s; step: %s; language: %s; %s -> %s; origin: %s\n", m.Name, s.ID, m.Language, m.Input, m.Output, m.Origin)
+		}
+	}
+	describeError := func(e *api.ErrorInfo) {
+		fmt.Fprintf(out, "\nERROR: %s; retries: %d; delay: %d ms; route: %s", e.ID, e.Redeliveries, e.DelayMillis, e.Target)
+		if len(e.Matches) > 0 {
+			fmt.Fprintf(out, "; takes errors by: %s", strings.Join(e.Matches, ", "))
+		}
+		if e.Unhandled {
+			fmt.Fprint(out, "; unhandled: the message still fails")
+		}
+		fmt.Fprintln(out)
+	}
+	for i := range info.ErrorHandlers {
+		describeError(&info.ErrorHandlers[i])
+	}
+	if info.Error != nil {
+		describeError(info.Error)
+	}
+	fmt.Fprintln(out, "\nCONFIGURATION (values omitted):")
+	if len(info.Configuration) == 0 {
+		fmt.Fprintln(out, "  No required options or environment fallbacks.")
+	}
+	for _, c := range info.Configuration {
+		fmt.Fprintf(out, "  %s: %s (required: %t)", c.StepID, c.Option, c.Required)
+		if c.Environment != "" {
+			fmt.Fprintf(out, "; environment fallback: %s", c.Environment)
+		}
+		fmt.Fprintln(out)
+	}
 }

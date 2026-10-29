@@ -1,0 +1,101 @@
+{
+  "dil": {
+    "core": {
+      "functions": {
+        "function": [
+          {
+            "name": "normalizeCustomerId",
+            "parameters": [
+              {
+                "name": "value",
+                "type": "string"
+              }
+            ],
+            "returns": "string",
+            "language": "difmap/1",
+            "expression": "upper(trim(value))"
+          },
+          {
+            "name": "lineTotal",
+            "parameters": [
+              {
+                "name": "quantity",
+                "type": "number"
+              },
+              {
+                "name": "price",
+                "type": "number"
+              },
+              {
+                "name": "scale",
+                "type": "number",
+                "default": 2
+              }
+            ],
+            "returns": "number",
+            "language": "difmap/1",
+            "expression": "round(quantity * price, scale)"
+          }
+        ]
+      },
+      "formats": {
+        "format": {
+          "name": "json",
+          "mediaType": "application/json"
+        }
+      },
+      "maps": {
+        "map": [
+          {
+            "name": "Invoice",
+            "input": "json",
+            "output": "json",
+            "language": "difmap/1",
+            "expression": "{customer: function(\"normalizeCustomerId\", payload.customer), total: function(\"lineTotal\", number(payload.quantity), number(payload.price))}"
+          },
+          {
+            "name": "Summary",
+            "input": "json",
+            "output": "json",
+            "language": "difmap/1",
+            "expression": "{customer: function(\"normalizeCustomerId\", payload.customer), labels: split(payload.labels, \",\")}"
+          }
+        ]
+      },
+      "processors": {
+        "processor": [
+          {
+            "name": "normalizeBody",
+            "parameters": [],
+            "action": {
+              "uri": "setbody",
+              "options": {
+                "language": "simple",
+                "expression": "${function('normalizeCustomerId', ${header.customer})}"
+              }
+            }
+          },
+          {
+            "name": "text",
+            "parameters": [
+              {
+                "name": "value",
+                "type": "string",
+                "default": "Hello"
+              }
+            ],
+            "action": {
+              "uri": "setbody",
+              "options": {
+                "language": "constant",
+                "expression": {
+                  "$param": "value"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

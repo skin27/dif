@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -189,6 +190,11 @@ func wrapNull(op string, f func(l, r any) (bool, error)) func(l, r any) (bool, e
 // number, or a template.
 func (c *compiler) operand(b *block, s string) (evalFn, error) {
 	s = strings.TrimSpace(s)
+	if strings.Contains(b.src, "function(") {
+		if n, ok := exactLiteral(s); ok {
+			return func(*env) (any, error) { return n, nil }, nil
+		}
+	}
 	if len(s) >= 2 && (s[0] == '\'' || s[0] == '"') && s[len(s)-1] == s[0] {
 		return c.template(b, s[1:len(s)-1])
 	}
@@ -302,6 +308,9 @@ func operatorTest(op, rightText string) (func(l, r any) (bool, error), error) {
 // are numbers, otherwise as text. Nothing equals an empty text, as a missing
 // header is not told from an empty one.
 func valuesEqual(l, r any) bool {
+	if cmp, ok := exactCompare(l, r); ok {
+		return cmp == 0
+	}
 	_, lnull := l.(nullLiteral)
 	_, rnull := r.(nullLiteral)
 	if lnull || rnull {
@@ -332,6 +341,18 @@ func valuesEqual(l, r any) bool {
 func valuesOrdered(op string, l, r any) bool {
 	if l == nil || r == nil {
 		return false
+	}
+	if cmp, ok := exactCompare(l, r); ok {
+		switch op {
+		case ">":
+			return cmp > 0
+		case ">=":
+			return cmp >= 0
+		case "<":
+			return cmp < 0
+		default:
+			return cmp <= 0
+		}
 	}
 	var cmp int
 	ln, _, lok := asNumber(l)
@@ -448,6 +469,9 @@ func inRange(v any, spec string) (bool, error) {
 
 // compileSimplePredicate compiles expr as a condition of the simple language.
 func compileSimplePredicate(flow *flowProperties, expr string) (predicate, error) {
+	if err := (&compiler{flow: flow}).validateFunctionSource(expr); err != nil {
+		return nil, err
+	}
 	b, err := pseudoBlock(strings.TrimSpace(expr))
 	if err != nil {
 		return nil, err
@@ -456,5 +480,7 @@ func compileSimplePredicate(flow *flowProperties, expr string) (predicate, error
 	if err != nil {
 		return nil, err
 	}
-	return func(m message.Message) (bool, error) { return f(&env{m: m}) }, nil
+	return func(m message.Message, contexts ...context.Context) (bool, error) {
+		return f(expressionEnv(m, contexts))
+	}, nil
 }

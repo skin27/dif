@@ -1,0 +1,18 @@
+{
+  "dil": {
+    "imports": {"import": {"path": "./common.json", "namespace": "shared"}},
+    "integrations": {
+      "integration": {
+        "id": "workers", "name": "Worker integration", "type": "esb", "version": "1",
+        "flows": {"flow": {
+          "id": "program-worker", "name": "Apply shared headers",
+          "steps": {"step": [
+            {"id": "in", "type": "source", "uri": "flowlink", "links": {"link": {"id": "a", "bound": "out"}}},
+            {"id": "defaults", "type": "action", "uri": "setheaders:message:shared:defaults", "links": {"link": [{"id": "a", "bound": "in"}, {"id": "b", "bound": "out"}]}},
+            {"id": "out", "type": "sink", "uri": "passthrough", "links": {"link": {"id": "b", "bound": "in"}}}
+          ]}
+        }}
+      }
+    }
+  }
+}

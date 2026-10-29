@@ -171,36 +171,28 @@ func (s *Service) prepare(ctx context.Context) ([]*engine.Runner, error) {
 		return nil, err
 	}
 	var runners []*engine.Runner
-	for _, doc := range docs {
-		if err := ctx.Err(); err != nil {
-			return nil, err
+	loaded, err := docs[0].Program.Load(ctx, s.runtime, func(id string, res *api.Result, err error) {
+		attrs := []any{"flow_id", id}
+		if res != nil {
+			attrs = append(attrs, "duration_ms", res.Duration.Milliseconds(), "trace_id", res.Message[message.TraceID], "correlation_id", res.Message[message.CorrelationID])
 		}
-		id := doc.Info.ID
-		load := api.LoadBytes
-		if s.runtime != nil {
-			load = s.runtime.LoadBytes
-		}
-		flow, err := load(doc.Data, func(res *api.Result, err error) {
-			attrs := []any{"flow_id", id}
-			if res != nil {
-				attrs = append(attrs, "duration_ms", res.Duration.Milliseconds(), "trace_id", res.Message[message.TraceID], "correlation_id", res.Message[message.CorrelationID])
-			}
-			if err != nil {
-				var stepError *engine.StepError
-				if errors.As(err, &stepError) {
-					attrs = append(attrs, "step_id", stepError.Step, "trace_id", stepError.Message[message.TraceID])
-				}
-				s.logger.Error("message failed", attrs...)
-				return
-			}
-			if res.Err != nil {
-				s.logger.Warn("message error handled", attrs...)
-			}
-		})
 		if err != nil {
-			return nil, fmt.Errorf("%s: processor initialization failed: %w", doc.Name, err)
+			var stepError *engine.StepError
+			if errors.As(err, &stepError) {
+				attrs = append(attrs, "step_id", stepError.Step, "trace_id", stepError.Message[message.TraceID])
+			}
+			s.logger.Error("message failed", attrs...)
+			return
 		}
-		flow.SetLogger(slog.NewLogLogger(s.logger.With("flow_id", id).Handler(), slog.LevelInfo))
+		if res.Err != nil {
+			s.logger.Warn("message error handled", attrs...)
+		}
+	}, nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, flow := range loaded.Flows {
+		flow.SetLogger(slog.NewLogLogger(s.logger.With("flow_id", flow.ID()).Handler(), slog.LevelInfo))
 		runners = append(runners, flow.Runner)
 	}
 	consumers := map[string]bool{}
@@ -227,34 +219,8 @@ func (s *Service) prepare(ctx context.Context) ([]*engine.Runner, error) {
 }
 
 func (s *Service) start(ctx context.Context) error {
-	runners := s.runners
-	activate := make(chan struct{})
-	ctx = stepdef.WithActivation(stepdef.WithWorkTracker(ctx, &s.work), activate)
-	// Consumers initialize first. The admission barrier additionally prevents
-	// processing until every source has initialized, including HTTP listeners.
-	for _, internal := range []bool{true, false} {
-		for _, r := range runners {
-			input, _ := r.LocalChannels()
-			if (input != "") != internal {
-				continue
-			}
-			if err := r.StartContext(ctx); err != nil {
-				return fmt.Errorf("flow %q startup failed: %w", r.ID(), err)
-			}
-		}
-	}
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	for _, r := range runners {
-		if r.SourceError() != nil {
-			return fmt.Errorf("flow %q source failed during startup", r.ID())
-		}
-	}
-	close(activate)
-	return nil
+	return engine.StartGroup(stepdef.WithWorkTracker(ctx, &s.work), s.runners)
 }
-
 func (s *Service) drain(ctx context.Context, started bool) error {
 	if !started {
 		for _, r := range s.runners {

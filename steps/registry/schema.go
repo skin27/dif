@@ -151,6 +151,14 @@ func checkKeywords(raw map[string]any, allowed []string, what string) error {
 // applied and every value converted to its declared type. All problems are
 // reported in one error.
 func (s *schema) validate(opts map[string]any) (stepdef.Params, error) {
+	return s.validateOptions(opts, true)
+}
+
+func (s *schema) validateOptions(opts map[string]any, values bool) (stepdef.Params, error) {
+	showValue := show
+	if !values {
+		showValue = func(any) string { return "[value omitted]" }
+	}
 	params := make(stepdef.Params, len(s.props))
 	var problems []string
 
@@ -167,15 +175,15 @@ func (s *schema) validate(opts map[string]any) (stepdef.Params, error) {
 		if ok && p.enum != nil {
 			var inEnum bool
 			if c, inEnum = p.inEnum(c); !inEnum {
-				problems = append(problems, fmt.Sprintf("option %s: %s is not one of %s", name, show(c), showAll(p.enum)))
+				problems = append(problems, fmt.Sprintf("option %s: %s is not one of %s", name, showValue(c), showAll(p.enum)))
 				continue
 			}
 		}
 		switch {
 		case !ok:
-			problems = append(problems, fmt.Sprintf("option %s: want %s, got %s", name, p.typ, show(v)))
+			problems = append(problems, fmt.Sprintf("option %s: want %s, got %s", name, p.typ, showValue(v)))
 		case p.minimum != nil && toFloat(c) < *p.minimum:
-			problems = append(problems, fmt.Sprintf("option %s: %s is less than %v", name, show(c), *p.minimum))
+			problems = append(problems, fmt.Sprintf("option %s: %s is less than %v", name, showValue(c), *p.minimum))
 		default:
 			params[name] = c
 		}

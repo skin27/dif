@@ -43,7 +43,7 @@ func newIdempotentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) 
 }
 
 func (r *idempotentRouter) Route(ctx context.Context, m message.Message) ([]stepdef.Route, error) {
-	key, err := r.key.eval(m)
+	key, err := r.key.eval(m, ctx)
 	if err != nil {
 		return nil, err
 	}

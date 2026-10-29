@@ -1,0 +1,42 @@
+{
+  "dil": {
+    "imports": {"import": [
+      {"path": "./common.json", "namespace": "common"},
+      {"path": "./worker.json", "namespace": "workers"}
+    ]},
+    "integrations": {"integration": [
+      {
+        "id": "orders", "name": "Orders", "type": "esb", "version": "1",
+        "flows": {"flow": [
+          {
+            "id": "program-orders", "options": {"inputMessage": "common:sample"},
+            "steps": {"step": [
+              {"id": "in", "type": "source", "uri": "message", "links": {"link": {"id": "a", "bound": "out"}}},
+              {"id": "validate", "type": "action", "uri": "jsonvalidator:ref:common:customerSchema", "links": {"link": [{"id": "a", "bound": "in"}, {"id": "b", "bound": "out"}]}},
+              {"id": "worker", "type": "action", "uri": "flowlink", "options": {"targetFlowId": "program-worker", "exchangePattern": "InOut"}, "links": {"link": [{"id": "b", "bound": "in"}, {"id": "c", "bound": "out"}]}},
+              {"id": "out", "type": "sink", "uri": "passthrough", "links": {"link": {"id": "c", "bound": "in"}}}
+            ]}
+          },
+          {
+            "id": "program-idle",
+            "steps": {"step": [
+              {"id": "in", "type": "source", "uri": "message", "links": {"link": {"id": "a", "bound": "out"}}},
+              {"id": "out", "type": "sink", "uri": "passthrough", "links": {"link": {"id": "a", "bound": "in"}}}
+            ]}
+          }
+        ]}
+      },
+      {
+        "id": "diagnostics", "name": "Diagnostics", "version": 2,
+        "flows": {"flow": {
+          "id": "program-ping", "options": {"inputMessage": "ping"},
+          "steps": {"step": [
+            {"id": "in", "type": "source", "uri": "message", "links": {"link": {"id": "a", "bound": "out"}}},
+            {"id": "out", "type": "sink", "uri": "passthrough", "links": {"link": {"id": "a", "bound": "in"}}}
+          ]}
+        }}
+      }
+    ]},
+    "core": {"messages": {"message": {"name": "ping", "body": "pong"}}}
+  }
+}

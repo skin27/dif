@@ -2,6 +2,7 @@ package impl
 
 import (
 	flowdef "dif/flows/definition"
+	"dif/internal/mapping"
 	stepdef "dif/steps/definition"
 )
 
@@ -18,13 +19,18 @@ const internalPrefix = "dif.internal."
 // ${environment}.
 type flowProperties struct {
 	id, name, version, tenant, environment string
+	functions                              *mapping.Functions
 }
 
 // flowOf returns the properties of the flow a step is in; nil if it is in none.
 func flowOf(p stepdef.Params) *flowProperties {
 	f, _ := p[FlowRuntimeKey].(*flowdef.Flow)
+	functions, _ := p[mapping.FunctionsBindingKey].(*mapping.Functions)
 	if f == nil {
-		return nil
+		if functions == nil {
+			return nil
+		}
+		return &flowProperties{functions: functions}
 	}
-	return &flowProperties{f.ID, f.Name, f.Version, f.Tenant, f.Environment}
+	return &flowProperties{f.ID, f.Name, f.Version, f.Tenant, f.Environment, functions}
 }

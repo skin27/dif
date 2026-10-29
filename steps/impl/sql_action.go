@@ -280,13 +280,13 @@ func parseSQLParams(flow *flowProperties, q string) ([]sqlSegment, error) {
 
 // statement writes the statement of an sql2 step for m, with a marker for each
 // parameter, and the values of them.
-func (a *sqlStep) statement(m message.Message) (string, []any, error) {
+func (a *sqlStep) statement(m message.Message, contexts ...context.Context) (string, []any, error) {
 	var b strings.Builder
 	var args []any
 	for _, s := range a.segs {
 		switch {
 		case s.expr != nil:
-			v, err := s.expr.value(m)
+			v, err := s.expr.value(m, contexts...)
 			if err != nil {
 				return "", nil, err
 			}
@@ -328,10 +328,10 @@ func (a *sqlStep) Process(ctx context.Context, m message.Message) (message.Messa
 	var args []any
 	var err error
 	if a.named {
-		if query, args, err = a.statement(m); err != nil {
+		if query, args, err = a.statement(m, ctx); err != nil {
 			return nil, err
 		}
-	} else if query, err = a.query.eval(m); err != nil {
+	} else if query, err = a.query.eval(m, ctx); err != nil {
 		return nil, err
 	}
 	query = strings.TrimSpace(query)
@@ -342,7 +342,7 @@ func (a *sqlStep) Process(ctx context.Context, m message.Message) (message.Messa
 		return nil, fmt.Errorf("sql: the query is empty")
 	}
 
-	c, err := a.settings(m)
+	c, err := a.settings(m, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -383,7 +383,7 @@ func (a *sqlStep) Process(ctx context.Context, m message.Message) (message.Messa
 }
 
 // settings evaluates the connection options for m.
-func (a *sqlStep) settings(m message.Message) (sqlSettings, error) {
+func (a *sqlStep) settings(m message.Message, contexts ...context.Context) (sqlSettings, error) {
 	var c sqlSettings
 	var err error
 	for _, f := range []struct {
@@ -391,7 +391,7 @@ func (a *sqlStep) settings(m message.Message) (sqlSettings, error) {
 		from expression
 		what string
 	}{{&c.host, a.host, "host"}, {&c.database, a.database, "database"}, {&c.user, a.user, "username"}, {&c.password, a.password, "password"}} {
-		if *f.to, err = f.from.eval(m); err != nil {
+		if *f.to, err = f.from.eval(m, contexts...); err != nil {
 			return c, fmt.Errorf("sql: option %s: %w", f.what, err)
 		}
 	}
@@ -399,7 +399,7 @@ func (a *sqlStep) settings(m message.Message) (sqlSettings, error) {
 	if c.host == "" {
 		return c, fmt.Errorf("sql: the host is empty")
 	}
-	port, err := a.port.eval(m)
+	port, err := a.port.eval(m, contexts...)
 	if err != nil {
 		return c, fmt.Errorf("sql: option port: %w", err)
 	}

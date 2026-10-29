@@ -1,0 +1,13 @@
+{
+  "dil": {
+    "core": {
+      "formats": {"format": [
+        {"name":"OrderIn", "mediaType":"application/json"},
+        {"name":"OrderOut", "mediaType":"application/json", "schemaRef":"orderSchema"},
+        {"name":"OrderXML", "mediaType":"application/xml"},
+        {"name":"RowsCSV", "mediaType":"text/csv", "writer":{"columns":["sku","quantity"], "lineEnding":"lf"}}
+      ]},
+      "resources": {"resource": {"name":"orderSchema", "content":"{\"type\":\"object\",\"required\":[\"id\",\"customer\",\"lines\"],\"properties\":{\"id\":{\"type\":\"string\"},\"lines\":{\"type\":\"array\"}}}"}}
+    }
+  }
+}

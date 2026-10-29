@@ -154,7 +154,7 @@ func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Me
 	}
 	target := a.url
 	if a.dynamicURL != nil {
-		v, err := a.dynamicURL.eval(m)
+		v, err := a.dynamicURL.eval(m, ctx)
 		if err != nil {
 			return nil, err
 		}

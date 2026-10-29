@@ -19,10 +19,12 @@ const (
 
 // Node is a step in a flow together with its outbound links.
 type Node struct {
-	ID        string
-	Kind      string
-	URI       string
-	Options   map[string]any
+	ID      string
+	Kind    string
+	URI     string
+	Options map[string]any
+	// Bindings are trusted, loader-supplied values, never decoded step options.
+	Bindings  stepdef.Params
 	Next      []*Node           // targets of the outbound links
 	Links     []stepdef.Link    // the outbound links' rules and conditions, parallel to Next; nil if they have none
 	Processor stepdef.Processor // the step's processor

@@ -9,6 +9,7 @@ import (
 	"github.com/knroy/go-xml/xdm"
 	"github.com/knroy/go-xml/xslt"
 
+	"dif/internal/xsltutil"
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
@@ -48,13 +49,9 @@ func newXSLTAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		}
 		src = string(data)
 	}
-	tree, err := xdm.ParseString(src, xdm.ParseOptions{})
+	sheet, err := xsltutil.Compile(src)
 	if err != nil {
-		return nil, fmt.Errorf("stylesheet is not XML: %s", firstLine(err))
-	}
-	sheet, err := xslt.Compile(tree.Root, xslt.CompileOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("stylesheet: %s", firstLine(err))
+		return nil, err
 	}
 	return xsltAction{sheet, sheet.Output()}, nil
 }

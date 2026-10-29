@@ -92,6 +92,9 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 		if f, found := simpleFuncs[head]; found {
 			fn, err := f(c, b, args)
 			if err != nil {
+				if head == "function" {
+					return nil, err
+				}
 				return nil, fmt.Errorf("%s: %w", b.src, err)
 			}
 			return c.ognl(b, fn, after)

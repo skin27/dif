@@ -81,8 +81,8 @@ func newSetTenantVariableAction(_ string, p stepdef.Params) (stepdef.Processor, 
 	return setTenantVariableAction{v, value}, nil
 }
 
-func (a setTenantVariableAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	s, err := a.value.eval(m)
+func (a setTenantVariableAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	s, err := a.value.eval(m, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func newGetTenantVariableAction(_ string, p stepdef.Params) (stepdef.Processor, 
 	return getTenantVariableAction{v, header}, nil
 }
 
-func (a getTenantVariableAction) Process(_ context.Context, m message.Message) (message.Message, error) {
+func (a getTenantVariableAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
 	m[a.header], _ = tenantVariables.get(a.v.tenant, a.v.name)
 	return m, nil
 }
@@ -125,7 +125,7 @@ func newRemoveTenantVariableAction(_ string, p stepdef.Params) (stepdef.Processo
 	return removeTenantVariableAction{v}, nil
 }
 
-func (a removeTenantVariableAction) Process(_ context.Context, m message.Message) (message.Message, error) {
+func (a removeTenantVariableAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
 	tenantVariables.remove(a.v.tenant, a.v.name)
 	return m, nil
 }
