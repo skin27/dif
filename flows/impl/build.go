@@ -7,7 +7,6 @@ import (
 	"maps"
 	"strconv"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	flowdef "dif/flows/definition"
@@ -71,10 +70,11 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
-		byInLink = map[string]*flowdef.Node{}    // inbound link id -> node
-		outLinks = map[*flowdef.Node][]dilLink{} // node -> outbound links
-		errh     *flowdef.ErrorHandler
-		errLink  string // outbound link of the error step: the start of the error route
+		byInLink = map[string]*flowdef.Node{}         // inbound link id -> node
+		outLinks = map[*flowdef.Node][]dilLink{}      // node -> outbound links
+		errh     *flowdef.ErrorHandler                // the error step that takes every error
+		matched  []*flowdef.ErrorHandler              // the error steps that take particular errors
+		errLinks = map[*flowdef.ErrorHandler]string{} // outbound link of an error step: the start of its error route
 		flow     = &flowdef.Flow{ID: df.ID, Name: df.Name, Version: versionText(df.Options.Version),
 			Tenant: df.Options.Tenant, Environment: df.Options.Environment}
 	)
@@ -83,13 +83,19 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		switch s.Type {
 		case flowdef.Source, flowdef.Action, flowdef.Router, flowdef.Sink:
 		case "error":
-			if errh != nil {
-				return nil, fmt.Errorf("step %s: flow has more than one error step", s.ID)
-			}
-			var err error
-			if errh, errLink, err = errorHandler(s); err != nil {
+			h, link, err := errorHandler(s)
+			if err != nil {
 				return nil, fmt.Errorf("step %s: %w", s.ID, err)
 			}
+			switch {
+			case h.Match != nil:
+				matched = append(matched, h)
+			case errh != nil:
+				return nil, fmt.Errorf("step %s: flow has more than one error step that takes every error", s.ID)
+			default:
+				errh = h
+			}
+			errLinks[h] = link
 			continue
 		default:
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
@@ -176,12 +182,15 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 	}
 
 	starts := []*flowdef.Node{source}
-	if errLink != "" {
-		route, ok := byInLink[errLink]
-		if !ok {
-			return nil, fmt.Errorf("step %s: outbound link %s has no target", errh.ID, errLink)
+	for _, h := range append(append([]*flowdef.ErrorHandler(nil), matched...), errh) {
+		if h == nil || errLinks[h] == "" {
+			continue
 		}
-		errh.Route = route
+		route, ok := byInLink[errLinks[h]]
+		if !ok {
+			return nil, fmt.Errorf("step %s: outbound link %s has no target", h.ID, errLinks[h])
+		}
+		h.Route = route
 		starts = append(starts, route)
 	}
 
@@ -210,7 +219,7 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		n.Processor = p
 	}
 
-	flow.Source, flow.Error = source, errh
+	flow.Source, flow.Error, flow.Handlers = source, errh, matched
 	return flow, nil
 }
 
@@ -324,57 +333,6 @@ func decodedValue(opts map[string]any) map[string]any {
 	out := maps.Clone(opts)
 	out["value"] = string(raw)
 	return out
-}
-
-// errorHandler returns the error handler an error step defines, and the id of
-// its outbound link (empty if it has no error route). Its options are Camel's
-// redelivery settings: maximumRedeliveries (or redeliveryAttempts) and
-// redeliveryDelay (or redeliveryInterval) in milliseconds, default 1000.
-func errorHandler(s dilStep) (*flowdef.ErrorHandler, string, error) {
-	if s.URI != "failedexchange" {
-		return nil, "", fmt.Errorf("error step uri %q is not supported; use failedexchange", s.URI)
-	}
-	var out []string
-	for _, l := range s.Links.Link {
-		if l.Bound != "out" {
-			return nil, "", fmt.Errorf("error step needs 0 inbound links and at most 1 outbound link")
-		}
-		out = append(out, l.ID)
-	}
-	if len(out) > 1 {
-		return nil, "", fmt.Errorf("error step needs 0 inbound links and at most 1 outbound link")
-	}
-
-	opts := map[string]int{"maximumRedeliveries": -1, "redeliveryAttempts": -1, "redeliveryDelay": -1, "redeliveryInterval": -1}
-	for k, v := range s.Options {
-		if _, ok := opts[k]; !ok {
-			return nil, "", fmt.Errorf("error step: unknown option %s", k)
-		}
-		n, err := nonNegativeInt(v)
-		if err != nil {
-			return nil, "", fmt.Errorf("error step: option %s: %w", k, err)
-		}
-		opts[k] = n
-	}
-	pick := func(name, alias string, def int) int {
-		if opts[name] >= 0 {
-			return opts[name]
-		}
-		if opts[alias] >= 0 {
-			return opts[alias]
-		}
-		return def
-	}
-
-	h := &flowdef.ErrorHandler{
-		ID:              s.ID,
-		Redeliveries:    pick("maximumRedeliveries", "redeliveryAttempts", 0),
-		RedeliveryDelay: time.Duration(pick("redeliveryDelay", "redeliveryInterval", 1000)) * time.Millisecond,
-	}
-	if len(out) == 0 {
-		return h, "", nil
-	}
-	return h, out[0], nil
 }
 
 // nonNegativeInt returns v, a JSON number or (as DIL converted from XML has

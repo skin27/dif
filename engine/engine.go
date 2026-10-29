@@ -34,6 +34,7 @@ type StepError struct {
 	Step    string
 	Message message.Message
 	Err     error
+	URI     string // the URI of the step, for an error handler to match
 }
 
 func (e *StepError) Error() string { return "step " + e.Step + ": " + e.Err.Error() }
@@ -44,10 +45,13 @@ func (e *StepError) Unwrap() error { return e.Err }
 // its end; see stepdef.RouterProcessor for which message comes out.
 //
 // Processing stops at the first step that fails or when ctx is done. With an
-// error handler, a failing step is first tried again; if it keeps failing,
-// the message as the step got it, with the ErrorMessage and ErrorStep
+// error handler (the first of the flow's handlers that matches the failure,
+// else its default one), a failing step is first tried again; if it keeps
+// failing, the message as the step got it, with the ErrorMessage and ErrorStep
 // headers, goes along the error route. The message has then not failed: its
-// outcome is the error route's, and Result.Err says what was handled.
+// outcome is the error route's, and Result.Err says what was handled. A handler
+// that is Unhandled still fails the message after its route: Run returns the
+// route's Result and the original error.
 //
 // The message itself records where it went: Run sets its OriginalBody and
 // continues its Trail with the flow and source, and every step it enters
@@ -69,7 +73,7 @@ func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply fu
 		msg = message.Message{}
 	}
 	msg.EnsureIdentity()
-	r := &run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error, reply: reply} // the source produced msg
+	r := &run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error, matched: f.Handlers, reply: reply} // the source produced msg
 	if reply != nil {
 		ctx = stepdef.WithReturn(ctx, r.returnReply)
 	}
@@ -111,11 +115,15 @@ func (r *run) finish(ctx context.Context, start time.Time, n *flowdef.Node, msg 
 	if n != nil {
 		out, err := r.path(ctx, n, msg)
 		if err != nil {
-			handled, herr := r.handle(ctx, err)
+			handled, unhandled, herr := r.handle(ctx, err)
 			if herr != nil {
 				return nil, herr
 			}
-			return &Result{Message: handled, Trail: r.trail, Duration: time.Since(start), Err: err}, nil
+			res := &Result{Message: handled, Trail: r.trail, Duration: time.Since(start), Err: err}
+			if unhandled {
+				return res, err // the error route ran, but the message still fails
+			}
+			return res, nil
 		}
 		msg = out
 	}
@@ -127,7 +135,7 @@ func (r *run) finish(ctx context.Context, start time.Time, n *flowdef.Node, msg 
 func release(ctx context.Context, f *flowdef.Flow, at *flowdef.Node, msg message.Message) (*Result, error) {
 	msg.EnsureIdentity()
 	delete(msg, message.ExchangePattern) // the sender of the messages it comes from is not waiting for it
-	r := &run{trail: []string{at.Kind + ":" + at.ID}, errh: f.Error}
+	r := &run{trail: []string{at.Kind + ":" + at.ID}, errh: f.Error, matched: f.Handlers}
 	n, err := nextStep(at)
 	if err != nil {
 		return nil, err
@@ -153,8 +161,8 @@ func releasers(f *flowdef.Flow) []*flowdef.Node {
 		}
 	}
 	walk(f.Source)
-	if f.Error != nil {
-		walk(f.Error.Route)
+	for _, h := range f.ErrorHandlers() {
+		walk(h.Route)
 	}
 	return found
 }
@@ -162,7 +170,8 @@ func releasers(f *flowdef.Flow) []*flowdef.Node {
 // run is the state of one message execution.
 type run struct {
 	trail    []string
-	errh     *flowdef.ErrorHandler
+	errh     *flowdef.ErrorHandler        // the default error handler; nil if none
+	matched  []*flowdef.ErrorHandler      // handlers for particular failures, tried before errh
 	reply    func(message.Message, error) // the sender's, until it has its reply; nil if none
 	returned *returned                    // the reply a return step fixed for the end of the flow; nil if none
 }
@@ -201,24 +210,65 @@ func (r *run) returnReply(m message.Message, err error, detach bool) bool {
 	return true
 }
 
-// handle sends the message of the failed step along the error route and
-// returns its outcome, or err when there is no error route to take.
-func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
+// handlerFor returns the error handler for a failure: the first handler with a
+// match that takes it, else the default one; nil if the flow has none.
+func (r *run) handlerFor(step, uri string, err error) *flowdef.ErrorHandler {
+	if len(r.matched) > 0 {
+		f := flowdef.Failure{Step: step, URI: uri, Class: errorClass(err), Message: err.Error()}
+		for _, h := range r.matched {
+			if h.Match == nil || h.Match(f) {
+				return h
+			}
+		}
+	}
+	return r.errh
+}
+
+// handle sends the message of the failed step along the error route of the
+// handler for the failure and returns its outcome, or err when there is no
+// error route to take. unhandled tells that the handler wants the message to
+// fail anyway.
+func (r *run) handle(ctx context.Context, err error) (out message.Message, unhandled bool, herr error) {
 	var se *StepError
-	if r.errh == nil || r.errh.Route == nil || ctx.Err() != nil || !errors.As(err, &se) {
-		return nil, err
+	if ctx.Err() != nil || !errors.As(err, &se) {
+		return nil, false, err
+	}
+	h := r.handlerFor(se.Step, se.URI, se.Err)
+	if h == nil || h.Route == nil {
+		return nil, false, err
 	}
 	r.returned = nil // the failure replaces a reply fixed before it; the error route may return its own
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
 	m[ErrorClass], m[ErrorStackTrace] = errorClass(se.Err), err.Error()
-	r.trail = append(r.trail, "error:"+r.errh.ID)
-	addTrail(m, "error:"+r.errh.ID)
-	out, routeErr := r.path(ctx, r.errh.Route, m)
+	r.trail = append(r.trail, "error:"+h.ID)
+	addTrail(m, "error:"+h.ID)
+	out, routeErr := r.path(ctx, h.Route, m)
 	if routeErr != nil {
-		return nil, fmt.Errorf("%w; error route: %w", err, routeErr)
+		return nil, false, fmt.Errorf("%w; error route: %w", err, routeErr)
 	}
-	return out, nil
+	return out, h.Unhandled, nil
+}
+
+// redeliveryDelay is the wait before redelivery number i (from 1) of h: its
+// delay, multiplied by Backoff for each earlier one, and at most MaxDelay.
+func redeliveryDelay(h *flowdef.ErrorHandler, i int) time.Duration {
+	d := h.RedeliveryDelay
+	for k := 1; k < i && h.Backoff > 1; k++ {
+		next := float64(d) * h.Backoff
+		if next >= float64(1<<62) { // beyond what a Duration holds
+			d = 1 << 62
+			break
+		}
+		d = time.Duration(next)
+		if h.MaxDelay > 0 && d >= h.MaxDelay {
+			break
+		}
+	}
+	if h.MaxDelay > 0 && d > h.MaxDelay {
+		d = h.MaxDelay
+	}
+	return d
 }
 
 // errorClass is the type of the error at the bottom of the chain of errors
@@ -253,13 +303,13 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 				return err
 			})
 			if err != nil {
-				return nil, &StepError{n.ID, msg, err}
+				return nil, &StepError{n.ID, msg, err, n.URI}
 			}
 			msg = out
 			r.replyIfOneWay(msg)
 		case stepdef.SinkProcessor:
 			if err := r.retry(ctx, n, func() error { return p.Consume(ctx, msg) }); err != nil {
-				return nil, &StepError{n.ID, msg, err}
+				return nil, &StepError{n.ID, msg, err, n.URI}
 			}
 		case stepdef.Looper:
 			r.trail = append(r.trail, n.Kind+":"+n.ID)
@@ -271,7 +321,7 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 				return err
 			})
 			if err != nil {
-				return nil, &StepError{n.ID, msg, err}
+				return nil, &StepError{n.ID, msg, err, n.URI}
 			}
 			r.trail = append(r.trail, n.Kind+":"+n.ID)
 			return r.route(ctx, n, msg, routes)
@@ -289,15 +339,21 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 }
 
 // retry calls do, and while it fails calls it again, as often as the error
-// handler allows redeliveries, after its delay. It stops when ctx is done.
+// handler for the failure allows redeliveries, after its delay. The handler is
+// chosen again after every failure. It stops when ctx is done.
 func (r *run) retry(ctx context.Context, n *flowdef.Node, do func() error) error {
 	err := do()
-	if err == nil || r.errh == nil {
+	if err == nil || (r.errh == nil && len(r.matched) == 0) {
 		return err
 	}
-	for i := 1; err != nil && i <= r.errh.Redeliveries && ctx.Err() == nil; i++ {
-		stepdef.Logger(ctx).Printf("step %s: redelivery %d of %d in %v after: %v", n.ID, i, r.errh.Redeliveries, r.errh.RedeliveryDelay, err)
-		t := time.NewTimer(r.errh.RedeliveryDelay)
+	for i := 1; err != nil && ctx.Err() == nil; i++ {
+		h := r.handlerFor(n.ID, n.URI, err)
+		if h == nil || i > h.Redeliveries {
+			break
+		}
+		delay := redeliveryDelay(h, i)
+		stepdef.Logger(ctx).Printf("step %s: redelivery %d of %d in %v after: %v", n.ID, i, h.Redeliveries, delay, err)
+		t := time.NewTimer(delay)
 		select {
 		case <-t.C:
 		case <-ctx.Done():
@@ -329,7 +385,7 @@ func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, r
 		if errors.As(err, new(*StepError)) { // a route's failure: keep its step and message
 			return nil, err
 		}
-		return nil, &StepError{n.ID, msg, err}
+		return nil, &StepError{n.ID, msg, err, n.URI}
 	}
 	out, _, err = r.runRoutes(ctx, n, msg, next, false)
 	return out, err
@@ -347,7 +403,7 @@ func (r *run) loop(ctx context.Context, n *flowdef.Node, msg message.Message, l 
 			return err
 		})
 		if err != nil {
-			return nil, &StepError{n.ID, prev, err}
+			return nil, &StepError{n.ID, prev, err, n.URI}
 		}
 		if prev, _, err = r.runRoutes(ctx, n, prev, routes, false); err != nil {
 			return nil, err

@@ -19,6 +19,7 @@ type FlowInfo struct {
 	Source        string              `json:"source"`
 	Steps         []NodeInfo          `json:"steps"`
 	Error         *ErrorInfo          `json:"error,omitempty"`
+	ErrorHandlers []ErrorInfo         `json:"errorHandlers,omitempty"`
 	Configuration []ConfigurationInfo `json:"configuration"`
 }
 
@@ -36,10 +37,12 @@ type LinkInfo struct {
 }
 
 type ErrorInfo struct {
-	ID           string `json:"id"`
-	Redeliveries int    `json:"redeliveries"`
-	DelayMillis  int64  `json:"delayMillis"`
-	Target       string `json:"target,omitempty"`
+	ID           string   `json:"id"`
+	Redeliveries int      `json:"redeliveries"`
+	DelayMillis  int64    `json:"delayMillis"`
+	Target       string   `json:"target,omitempty"`
+	Matches      []string `json:"matches,omitempty"`   // the options that restrict which errors it takes, never their values
+	Unhandled    bool     `json:"unhandled,omitempty"` // the message still fails after the error route
 }
 
 // ConfigurationInfo identifies required options and optional environment
@@ -80,15 +83,20 @@ func InspectBytes(data []byte) (*FlowInfo, error) {
 	}
 	info := &FlowInfo{ID: f.ID, Name: f.Name, Source: f.Source.ID, Steps: []NodeInfo{}, Configuration: []ConfigurationInfo{}}
 	ids := map[string]bool{}
-	if f.Error != nil {
-		e := f.Error
-		info.Error = &ErrorInfo{ID: e.ID, Redeliveries: e.Redeliveries, DelayMillis: e.RedeliveryDelay.Milliseconds()}
-		if e.ID == "" {
-			return nil, fmt.Errorf("error step has no id")
+	for _, e := range f.ErrorHandlers() {
+		if e.ID == "" || ids[e.ID] {
+			return nil, fmt.Errorf("error step id %q is empty or duplicated", e.ID)
 		}
 		ids[e.ID] = true
+		ei := ErrorInfo{ID: e.ID, Redeliveries: e.Redeliveries, DelayMillis: e.RedeliveryDelay.Milliseconds(),
+			Matches: append([]string(nil), e.Matches...), Unhandled: e.Unhandled}
 		if e.Route != nil {
-			info.Error.Target = e.Route.ID
+			ei.Target = e.Route.ID
+		}
+		if e == f.Error {
+			info.Error = &ei
+		} else {
+			info.ErrorHandlers = append(info.ErrorHandlers, ei)
 		}
 	}
 	var visit func(*flowdef.Node) error
@@ -129,8 +137,11 @@ func InspectBytes(data []byte) (*FlowInfo, error) {
 	if err := visit(f.Source); err != nil {
 		return nil, err
 	}
-	if f.Error != nil && f.Error.Route != nil {
-		if err := visit(f.Error.Route); err != nil {
+	for _, e := range f.ErrorHandlers() {
+		if e.Route == nil {
+			continue
+		}
+		if err := visit(e.Route); err != nil {
 			return nil, err
 		}
 	}

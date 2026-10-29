@@ -227,8 +227,21 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 			rows = append(rows, []string{s.ID, s.Kind, s.Step, strings.Join(links, ", ")})
 		}
 		fmt.Fprintln(stdout, renderTable([]string{"ID", "KIND", "STEP", "NEXT"}, rows, nil, nil))
-		if e := info.Error; e != nil {
-			fmt.Fprintf(stdout, "\nERROR: %s; retries: %d; delay: %d ms; route: %s\n", e.ID, e.Redeliveries, e.DelayMillis, e.Target)
+		describeError := func(e *api.ErrorInfo) {
+			fmt.Fprintf(stdout, "\nERROR: %s; retries: %d; delay: %d ms; route: %s", e.ID, e.Redeliveries, e.DelayMillis, e.Target)
+			if len(e.Matches) > 0 {
+				fmt.Fprintf(stdout, "; takes errors by: %s", strings.Join(e.Matches, ", "))
+			}
+			if e.Unhandled {
+				fmt.Fprint(stdout, "; unhandled: the message still fails")
+			}
+			fmt.Fprintln(stdout)
+		}
+		for i := range info.ErrorHandlers {
+			describeError(&info.ErrorHandlers[i])
+		}
+		if info.Error != nil {
+			describeError(info.Error)
 		}
 		fmt.Fprintln(stdout, "\nCONFIGURATION (values omitted):")
 		if len(info.Configuration) == 0 {

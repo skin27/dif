@@ -502,6 +502,40 @@ A failure on a branch of a router goes to the error route with that branch's
 message; a detached route (wire tap) never does. A forced stop never takes the
 error route.
 
+#### Error handlers by error
+
+A flow may have several `error` steps, as Camel has several `onException`
+clauses. One without match options takes every error (the default); the others
+take only the failures that satisfy all their match options, which are
+written like the other options of the step:
+
+| Option | Takes a failure when |
+|---|---|
+| `errorClass` | `${exception.class}` matches the pattern (`*` is any text, `?` one character), such as `*fs.PathError` or `*net.*` |
+| `errorStep` | the id of the failing step matches the pattern |
+| `errorUri` | the scheme of the failing step's URI (`https`, `sql2`, …) matches the pattern |
+| `errorMessage` | the regular expression matches somewhere in the error text |
+
+For a failure, the first error step (in the order of the file) that takes it is
+used, else the default one, else none: the message fails at once, with no
+retries. The handler decides the retries as well as the route, so a flow can
+retry a timeout and not a validation failure: after every failed try the handler
+is chosen again. Besides `maximumRedeliveries` and `redeliveryDelay`, a handler
+has:
+
+- `backoffMultiplier` (1 or more): the delay of every new try is this many
+  times that of the one before, up to `maximumRedeliveryDelay` ms if set.
+- `handled` (default true). With `false` the error route still runs, but the
+  message fails afterwards: the sender gets the failure (an https source
+  answers 500), the flow counts the message as failed, and the result carries
+  both the route's outcome and the failure. A `return` in that route does not
+  turn the failure into a reply.
+
+`testdata/examples/errorHandlers.json` refuses an order without a numeric
+`orderId` (unhandled, logged) and answers `payload refused` for a poisoned
+body (handled). `describe` lists every handler and what it matches on, never
+the patterns.
+
 An error route can end in a **dead letter queue**: the `deadletter` step puts
 the message, with its `error.*` headers, on an in-memory queue, and another
 flow can read it with the source `queue:<name>`. `testdata/examples/deadletter.json` fails
@@ -1264,11 +1298,12 @@ steps plug in through the registry without touching the engine.
   outbound link, `rule` (its role, such as `wiretap` or `split`), `language`
   and `expression` (its condition), are kept in the flow model (`Node.Links`)
   and given to the router; `pattern` is ignored.
-- The `error` step (`failedexchange`, at most one per flow) becomes the flow's
-  error handler: its options `maximumRedeliveries` and `redeliveryDelay` (or
-  `redeliveryAttempts` and `redeliveryInterval`, used when the first are
-  absent) set the redelivery, and its outbound link, if any, starts the error
-  route. It has no inbound link.
+- An `error` step (`failedexchange`) becomes an error handler of the flow, at
+  most one that takes every error but any number that take particular ones (see
+  [Error handlers by error](#error-handlers-by-error)): its options
+  `maximumRedeliveries` and `redeliveryDelay` (or `redeliveryAttempts` and
+  `redeliveryInterval`, used when the first are absent) set the redelivery,
+  and its outbound link, if any, starts the error route. It has no inbound link.
 - DIL exports some steps with the URI `unknown`; the parser names them by an
   option only that step has: `deadLetterQueue` makes it `deadletter`,
   `targetFlowId` a `flowlink` step, and `transport` on a source a `flowlink`
@@ -1297,7 +1332,7 @@ See [test/README.md](test/README.md).
 - Aggregation by correlation key (the aggregate has one group), and groups
   that survive a restart
 - More expression languages and simple-language functions (`${exchangeId}`, …)
-- More error handling: exponential backoff, retrying only some errors, keeping the original message
+- More error handling: keeping the original message, and error routes shared by several flows
 - Concurrent message execution within a flow (processors are already safe for it)
 - A separate engine process with a network API for clients
 - Persistence for other processor state beyond durable queues and idempotency keys
