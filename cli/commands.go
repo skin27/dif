@@ -27,7 +27,7 @@ var commands = []cmdDoc{
 	{"FLOW MANAGEMENT", "resume", "<flow>", "Resume a paused flow", ""},
 	{"FLOW MANAGEMENT", "stop", "<flow> [--force]", "Stop a flow", "The flow stops once its current message is done.\n--force stops it at once; that message may be lost."},
 	{"MESSAGING", "send", "<flow> [body]", "Send a message to a flow", "Sends the flow's configured message; with [body], that is its body.\nThe result is in the flow's log; use request to wait for the reply."},
-	{"MESSAGING", "request", "<flow> [body]", "Send a message and show the reply", "Sends the flow's configured message, as send does, and shows the reply:\nthe message the flow ends with, or the message at a setoneway step.\nWaits at most 30 seconds."},
+	{"MESSAGING", "request", "<flow> [body]", "Send a message and show the reply", "Sends the flow's configured message, as send does, and shows the reply:\nthe message the flow ends with, the message at a setoneway step, or the reply a return step chose.\nWaits at most 30 seconds."},
 	{"MONITORING", "list", "[state]", "List flows and their state", "state is started, paused or stopped."},
 	{"MONITORING", "ps", "[state]", "Alias for list", "state is started, paused or stopped."},
 	{"MONITORING", "stats", "[flow]", "Show message statistics", "With [flow], show the details of one flow."},

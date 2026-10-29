@@ -122,6 +122,7 @@ func Register(r *registry.Registry) error {
 		{"removecookie", stepdef.Action, "", newRemoveCookieAction, nil},
 		{"setoneway", stepdef.Action, eventMessage, newSetOneWayAction, []string{"setfireandforget"}},
 		{"setrequestreply", stepdef.Action, requestReply, newSetRequestReplyAction, []string{"settwoways", "setrequestandreply"}},
+		{"return", stepdef.Action, requestReply, newReturnAction, nil},
 		{"setuuid", stepdef.Action, "", newSetUUIDAction, nil},
 		{"setbodybyheader", stepdef.Action, "", newSetBodyByHeaderAction, nil},
 		{"setheaderbybody", stepdef.Action, "", newSetHeaderByBodyAction, nil},

@@ -60,20 +60,30 @@ func Run(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, er
 // execute runs msg as Run does and replies to its sender: reply, if not nil,
 // gets the outcome once. That is when the message is done, or earlier, when a
 // step makes its exchange one-way (message.InOnly): then reply gets the
-// message as it is at that point and the flow goes on.
+// message as it is at that point and the flow goes on. A return step (see
+// stepdef.Return) chooses the reply: either at once, or fixed at that step
+// and given when the message is done. A failure replaces a reply fixed before
+// it, and so does the error route's outcome, unless the route returns its own.
 func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply func(message.Message, error)) (*Result, error) {
 	if msg == nil {
 		msg = message.Message{}
 	}
 	msg.EnsureIdentity()
 	r := &run{trail: []string{f.Source.Kind + ":" + f.Source.ID}, errh: f.Error, reply: reply} // the source produced msg
+	if reply != nil {
+		ctx = stepdef.WithReturn(ctx, r.returnReply)
+	}
 	res, err := r.flow(ctx, f, msg)
 	if r.reply != nil {
 		var out message.Message
 		if res != nil {
 			out = res.Message
 		}
-		r.reply(out, err)
+		replyErr := err
+		if r.returned != nil && err == nil && res != nil {
+			out, replyErr = r.returned.msg, r.returned.err
+		}
+		r.reply(out, replyErr)
 	}
 	return res, err
 }
@@ -151,17 +161,44 @@ func releasers(f *flowdef.Flow) []*flowdef.Node {
 
 // run is the state of one message execution.
 type run struct {
-	trail []string
-	errh  *flowdef.ErrorHandler
-	reply func(message.Message, error) // the sender's, until it has its reply; nil if none
+	trail    []string
+	errh     *flowdef.ErrorHandler
+	reply    func(message.Message, error) // the sender's, until it has its reply; nil if none
+	returned *returned                    // the reply a return step fixed for the end of the flow; nil if none
 }
 
-// replyIfOneWay replies to the sender with m once the exchange of m is one-way.
+// returned is the reply a return step fixed.
+type returned struct {
+	msg message.Message
+	err error
+}
+
+// replyIfOneWay replies to the sender once the exchange of m is one-way: with
+// the reply a return step fixed, else with m.
 func (r *run) replyIfOneWay(m message.Message) {
 	if r.reply != nil && m[message.ExchangePattern] == message.InOnly {
-		r.reply(m.Copy(), nil)
+		if r.returned != nil {
+			r.reply(r.returned.msg, r.returned.err)
+		} else {
+			r.reply(m.Copy(), nil)
+		}
 		r.reply = nil
 	}
+}
+
+// returnReply takes the reply of a return step (see stepdef.Return). The first
+// one wins: it reports false when the sender has a reply, or will have one.
+func (r *run) returnReply(m message.Message, err error, detach bool) bool {
+	if r.reply == nil || r.returned != nil {
+		return false
+	}
+	if !detach {
+		r.returned = &returned{m, err}
+		return true
+	}
+	r.reply(m, err)
+	r.reply = nil
+	return true
 }
 
 // handle sends the message of the failed step along the error route and
@@ -171,6 +208,7 @@ func (r *run) handle(ctx context.Context, err error) (message.Message, error) {
 	if r.errh == nil || r.errh.Route == nil || ctx.Err() != nil || !errors.As(err, &se) {
 		return nil, err
 	}
+	r.returned = nil // the failure replaces a reply fixed before it; the error route may return its own
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
 	m[ErrorClass], m[ErrorStackTrace] = errorClass(se.Err), err.Error()

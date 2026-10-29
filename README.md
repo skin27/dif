@@ -127,7 +127,7 @@ mistyped flow id. On a terminal that supports it, flow states are colored
 | `run <flow.json>...`     | Load the flows and start them, in one go                                |
 | `send <flow>`            | Send the flow's configured message (`dil.core.messages`) into the flow  |
 | `send <flow> <body>`     | Send the configured message with `<body>` as body                       |
-| `request <flow> [body]`  | Send as `send` does and show the reply at once: the message the flow ends with (or has at a `setoneway` step), as JSON; waits at most 30 s |
+| `request <flow> [body]`  | Send as `send` does and show the reply at once: the message the flow ends with (or has at a `setoneway` step, or the reply a `return` step chose), as JSON; waits at most 30 s |
 | `start <flow>`           | Start the flow (again, after `stop`), or continue it after `pause`      |
 | `pause <flow>`           | Pause: the flow takes no new messages until it is started or resumed    |
 | `resume <flow>`          | Resume a paused flow                                                    |
@@ -565,6 +565,7 @@ using anything else fails registration.
 | `counter[:<name>]` | source | `start` (1), `numbers` (1; 0 or less = unlimited), `period` ms (10000) | Emits `start`, `start`+1, … as body every period, with `Content-Type` text/plain |
 | `setoneway`, `setfireandforget` | action | – | Makes the exchange one-way: a waiting sender gets its reply now; see [Exchange patterns](#exchange-patterns) |
 | `setrequestreply`, `settwoways`, `setrequestandreply` | action | – | Keeps the exchange request-reply (the default) |
+| `return` | action | `language` simple\|constant (simple), `expression` ("": the message as it is), `status` success\|error (success), `detach` (false) | Chooses the reply of the exchange: the message, or with the body of `expression`. The message itself passes on unchanged. By default the reply is fixed here and the sender gets it when the flow is done; with `detach` the sender gets it now and the flow goes on without it. With `status` error the reply is a failure whose text is the reply's body (an https source answers 500). See [Exchange patterns](#exchange-patterns) |
 | `removeheaders` | action | `pattern` (required), `excludePattern` ("") | Removes the headers matching `pattern` but not `excludePattern`: an exact name, a prefix ending with `*` or a regular expression, case-insensitive. Never removes the body or `metadata.*` |
 | `replace` | action | `regex` (required), `replaceWith` (""), `flags` (`i`, `m`, `s`, comma-separated), `group` (0) | Replaces every match in the body; `$1` in `replaceWith` inserts a group. With `group` > 0 only that group of each match is replaced |
 | `simplereplace` | action | – | Evaluates the body as a simple expression: `${header.<name>}` in the body becomes the header's value |
@@ -697,6 +698,34 @@ log. `setrequestreply` (or `settwoways`, `setrequestandreply`) keeps the
 default, InOut. It cannot take back a reply that `setoneway` already sent. In
 `testdata/examples/setOneWay.json` the https caller gets `1234`, the body at
 `setoneway`; in `setRequestReply.json` it gets `last step`.
+
+The `return` step chooses what the sender gets, instead of the message as it is
+at that point. Its reply is a copy of the message, with the body of its
+`expression` if it has one, taken when the step runs, so the steps after it
+cannot change it. The message itself passes on unchanged.
+
+- By default the reply is **fixed** at the step and given when the flow has
+  processed the message, as the function value of a flow that goes on cleaning
+  up after it. A failure after the step replaces it: the sender gets the
+  failure, or the outcome of the error route.
+- With `detach` the sender gets the reply **now**, as with `setoneway`, and the
+  flow goes on without it; a failure after that goes to the error route and the
+  log. Durable queue sources still acknowledge only when the flow is done.
+- With `status` error the reply is a failure whose text is the reply's body,
+  so a caller (an https source answers 500 with it) learns that its message was
+  refused, although the flow ran as it should. Put it at the end of the error
+  route to refuse a message that failed: the error route's `return` is the
+  reply, and `Result.Err` still says what was handled. Without it a handled
+  error is a success for the sender, as before.
+- The first reply wins, whether it comes from `return` or `setoneway`. A
+  `setoneway` after a fixed reply gives the sender that reply now. Where nobody
+  waits for a reply (a timer, `send`) the step does nothing. A `return` in a
+  branch of a router, or in an `enrich` or `splitandaggregate` route, answers
+  for the whole exchange, as `setoneway` does there.
+
+`testdata/examples/return.json` answers an order with an acceptance at once and
+works on it for three seconds more; `returnError.json` refuses an order whose
+`orderId` is no number with a 500 from its error route.
 
 ### Asynchronous request/reply
 
