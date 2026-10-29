@@ -55,7 +55,11 @@ func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		}
 	}
 	processor := func(n *flowdef.Node) (stepdef.Processor, error) {
+		conn := n.Bindings[stepdef.ConnectionBinding]
 		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow}
+		if conn != nil {
+			n.Bindings[stepdef.ConnectionBinding] = conn
+		}
 		if info, ok := templates[n.ID]; ok {
 			n.Bindings["dif.internal.actionTemplate"] = true
 			n.Bindings["dif.internal.processorInfo"] = info
@@ -151,11 +155,14 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 		}
 
 		opts, uri := s.Options, s.URI
+		var conn *stepdef.Connection
 		var err error
-		if _, prepared := resolved[s.ID]; !prepared {
+		if info, prepared := resolved[s.ID]; prepared {
+			conn = info.connection
+		} else {
 			opts, uri, err = resolveRefs(s, core)
 			if err == nil {
-				opts, err = resolveDataSource(uri, opts, core)
+				opts, conn, err = resolveConnection(uri, opts, core)
 			}
 		}
 		if err != nil {
@@ -165,6 +172,9 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 			opts = map[string]any{}
 		}
 		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Flow: flow}
+		if conn != nil {
+			n.Bindings = stepdef.Params{stepdef.ConnectionBinding: conn}
+		}
 		if n.Kind == flowdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") && opts["flowId"] == nil {
 			// A flow link source listens for its own flow, which DIL leaves out.
 			n.Options = maps.Clone(opts)
@@ -410,30 +420,6 @@ func nonNegativeInt(v any) (int, error) {
 		return 0, fmt.Errorf("want an integer of 0 or more, got %v", v)
 	}
 	return int(n), nil
-}
-
-// resolveDataSource adds to the options of a sql2 step the option "connection":
-// the keys of the connection in dil.core.connections that its option
-// dataSource names, as a JSON object, so the processor needs no knowledge of DIL.
-func resolveDataSource(uri string, opts map[string]any, core coreRefs) (map[string]any, error) {
-	if scheme, _, _ := strings.Cut(uri, ":"); scheme != "sql2" {
-		return opts, nil
-	}
-	id, _ := opts["dataSource"].(string)
-	if id == "" {
-		return opts, nil
-	}
-	c, ok := core.connections[id]
-	if !ok {
-		return nil, fmt.Errorf("connection %q not found in dil.core.connections", id)
-	}
-	data, err := json.Marshal(c.Keys)
-	if err != nil {
-		return nil, err
-	}
-	out := maps.Clone(opts)
-	out["connection"] = string(data)
-	return out, nil
 }
 
 // resolveRefs returns the step's options and URI, resolving what the URI refers

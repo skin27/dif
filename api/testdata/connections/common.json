@@ -1,0 +1,56 @@
+{
+  "dil": {
+    "core": {
+      "connections": {
+        "connection": [
+          {
+            "id": "partnerSftp",
+            "name": "Partner SFTP server",
+            "type": "sftp",
+            "host": "sftp.partner.example",
+            "port": 22,
+            "authentication": {
+              "username": "dif",
+              "password": "dummy-password"
+            },
+            "hostKeys": {
+              "knownHostsFile": "security/known_hosts",
+              "strict": true
+            },
+            "socketTimeout": 30000
+          },
+          {
+            "id": "partnerApi",
+            "name": "Partner order API",
+            "type": "https",
+            "url": "https://api.partner.example/v1",
+            "authentication": {
+              "username": "dif",
+              "password": "dummy-password"
+            },
+            "tls": {
+              "trustStoreFile": "keystore/testdata/truststore.p12"
+            },
+            "connectTimeout": 5000
+          },
+          {
+            "id": "ordersDb",
+            "name": "Order database",
+            "type": "sql",
+            "dialect": "postgres",
+            "host": "db.example",
+            "port": 5432,
+            "database": "orders",
+            "authentication": {
+              "username": "dif",
+              "password": "dummy-password"
+            },
+            "tls": {
+              "enabled": true
+            }
+          }
+        ]
+      }
+    }
+  }
+}

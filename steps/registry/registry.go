@@ -140,6 +140,9 @@ func (r *Registry) parametersWithValues(n *flowdef.Node, values bool) (entry, st
 	if _, set := opts["path"]; path != "" && !set {
 		opts["path"] = path
 	}
+	if err := applyConnection(e.def, n, opts); err != nil {
+		return entry{}, nil, fmt.Errorf("%s: %w", name, err)
+	}
 	params, err := e.schema.validateOptions(opts, values)
 	if err != nil {
 		return entry{}, nil, fmt.Errorf("%s: %w", name, err)
@@ -271,6 +274,9 @@ func (r *Registry) ValidateActionTemplate(n *flowdef.Node, dynamic map[string]st
 	}
 	if path != "" && opts["path"] == nil {
 		opts["path"] = path
+	}
+	if err := applyConnection(e.def, n, opts); err != nil {
+		return err
 	}
 	for key, typ := range dynamic {
 		p := e.schema.props[key]

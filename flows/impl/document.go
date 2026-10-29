@@ -128,6 +128,9 @@ func DecodeDocument(data []byte) (*Document, error) {
 		if err := check("connection", c.ID); err != nil {
 			return nil, err
 		}
+		if err := c.check(); err != nil {
+			return nil, err
+		}
 	}
 	for _, in := range d.doc.DIL.Integrations.Integration {
 		if in.ID != "" {
@@ -250,10 +253,10 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 						refs = append(refs, ReferenceInfo{s.ID, k, name})
 					}
 				}
-				if scheme == "sql2" {
-					if name, ok := s.Options["dataSource"].(string); ok && name != "" {
-						refs = append(refs, ReferenceInfo{s.ID, "connection", name})
-					}
+				if name, ok := s.Options["dataSource"].(string); ok && name != "" && scheme == "sql2" {
+					refs = append(refs, ReferenceInfo{s.ID, "connection", name})
+				} else if name, ok := s.Options["connection"].(string); ok && name != "" && !strings.HasPrefix(strings.TrimSpace(name), "{") {
+					refs = append(refs, ReferenceInfo{s.ID, "connection", name})
 				}
 			}
 			plans = append(plans, FlowPlan{ID: df.ID, Integration: integrationInfo(in), References: refs, data: data, input: inputData, mappings: maps, scopes: scopes, actionTemplates: templates})

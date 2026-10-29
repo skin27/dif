@@ -9,6 +9,7 @@ import (
 
 	flowdef "dif/flows/definition"
 	"dif/internal/mapping"
+	stepdef "dif/steps/definition"
 )
 
 type dilProcessor struct {
@@ -34,6 +35,8 @@ type ProcessorInfo struct {
 	Name       string                  `json:"name"`
 	Origin     string                  `json:"origin,omitempty"`
 	Parameters []mapping.ParameterInfo `json:"parameters"`
+
+	connection *stepdef.Connection // of the expanded action, resolved in the defining document
 }
 type ProcessorCheck struct {
 	Node         *flowdef.Node
@@ -179,16 +182,24 @@ func (d *Document) ProcessorChecks() ([]ProcessorCheck, error) {
 				}
 			}
 		}
+		if dynamic["connection"] != "" {
+			return nil, fmt.Errorf("processor %q: option connection cannot be a parameter", p.Name)
+		}
 		s := dilStep{ID: p.Name, Type: flowdef.Action, URI: p.Action.URI, Options: opts}
 		opts, uri, e := resolveRefs(s, d.visibleCore())
 		if e != nil {
 			return nil, e
 		}
+		bindings := map[string]any{mapping.FunctionsBindingKey: d.functionBindings()}
 		// dataSource may itself be a configuration parameter; resolve it at use.
 		if dynamic["dataSource"] == "" {
-			opts, e = resolveDataSource(uri, opts, d.visibleCore())
+			var conn *stepdef.Connection
+			opts, conn, e = resolveConnection(uri, opts, d.visibleCore())
 			if e != nil {
-				return nil, e
+				return nil, fmt.Errorf("processor %q: %w", p.Name, e)
+			}
+			if conn != nil {
+				bindings[stepdef.ConnectionBinding] = conn
 			}
 		}
 		if name, ok := strings.CutPrefix(uri, "mapper:"); ok {
@@ -197,7 +208,7 @@ func (d *Document) ProcessorChecks() ([]ProcessorCheck, error) {
 			}
 			uri = "mapper"
 		}
-		out = append(out, ProcessorCheck{Node: &flowdef.Node{ID: p.Name, Kind: flowdef.Action, URI: uri, Options: opts, Bindings: map[string]any{mapping.FunctionsBindingKey: d.functionBindings()}}, Dynamic: dynamic, Name: p.Name, Origin: d.origin})
+		out = append(out, ProcessorCheck{Node: &flowdef.Node{ID: p.Name, Kind: flowdef.Action, URI: uri, Options: opts, Bindings: bindings}, Dynamic: dynamic, Name: p.Name, Origin: d.origin})
 	}
 	return out, nil
 }
@@ -273,7 +284,8 @@ func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Fu
 		if e != nil {
 			return fail(e)
 		}
-		s.Options, e = resolveDataSource(s.URI, s.Options, owner.visibleCore())
+		var conn *stepdef.Connection
+		s.Options, conn, e = resolveConnection(s.URI, s.Options, owner.visibleCore())
 		if e != nil {
 			return fail(e)
 		}
@@ -295,7 +307,7 @@ func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Fu
 			s.URI = "mapper:" + key
 		}
 		scopes[s.ID] = owner.functionBindings()
-		templates[s.ID] = ProcessorInfo{Name: p.Name, Origin: owner.origin}
+		templates[s.ID] = ProcessorInfo{Name: p.Name, Origin: owner.origin, connection: conn}
 		df.Steps.Step[i] = s
 	}
 	return df, scopes, templates, plans, nil

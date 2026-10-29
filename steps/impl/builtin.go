@@ -170,7 +170,7 @@ func Register(r *registry.Registry) error {
 			return err
 		}
 		for _, name := range append([]string{b.name}, b.aliases...) {
-			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, RuntimeBindings: bindings, New: b.new}); err != nil {
+			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, RuntimeBindings: bindings, Connection: stepConnections[name+"/"+b.kind], New: b.new}); err != nil {
 				return err
 			}
 		}
@@ -181,5 +181,5 @@ func Register(r *registry.Registry) error {
 	if err != nil {
 		return err
 	}
-	return r.Register(stepdef.Definition{Name: "smtps", Kind: stepdef.Action, Schema: schema, New: newSMTPAction(true)})
+	return r.Register(stepdef.Definition{Name: "smtps", Kind: stepdef.Action, Schema: schema, Connection: stepConnections["smtps/"+stepdef.Action], New: newSMTPAction(true)})
 }
