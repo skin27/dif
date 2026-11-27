@@ -89,8 +89,8 @@ var notBuilt = map[string]bool{
 	"testdata/parse":    true, // steps that DIL exports as "unknown", which no processor runs; flows/impl tests how they parse
 }
 
-// flowFiles returns the DIL documents below testdata that must build, as slash
-// separated paths below the repository.
+// flowFiles returns the DIL documents below testdata that must build, DIL JSON
+// and DIL text (.dil), as slash separated paths below the repository.
 func flowFiles(t *testing.T) []string {
 	t.Helper()
 	var files []string
@@ -101,12 +101,17 @@ func flowFiles(t *testing.T) []string {
 		if rel, _ := filepath.Rel(repoRoot, p); d.IsDir() && notBuilt[filepath.ToSlash(rel)] {
 			return fs.SkipDir
 		}
-		if d.IsDir() || filepath.Ext(p) != ".json" {
+		if d.IsDir() || filepath.Ext(p) != ".json" && filepath.Ext(p) != ".dil" {
 			return nil
 		}
 		data, err := os.ReadFile(p)
 		if err != nil {
 			return err
+		}
+		if filepath.Ext(p) == ".dil" { // DIL text; api.LoadBytes recognises it
+			rel, _ := filepath.Rel(repoRoot, p)
+			files = append(files, filepath.ToSlash(rel))
+			return nil
 		}
 		var doc map[string]json.RawMessage
 		if json.Unmarshal(bytes.TrimPrefix(data, []byte("\xef\xbb\xbf")), &doc) == nil && doc["dil"] != nil {

@@ -84,7 +84,7 @@ across crashes are required.
 
 Keep credentials out of ConfigMaps and images. Mount keystore files from a
 Secret and supply passwords with Secret `secretKeyRef` entries using
-`DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` (the password of the `ENC(...)` values in flows).
+`DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, `DIF_STOMP_PASSWORD` (the passcode of the STOMP listener's login), and `DIF_ENCRYPTION_PASSWORD` (the password of the `ENC(...)` values in flows).
 Alternatively set their `_FILE` companions to mounted password-file paths.
 Precedence is explicit step option, direct environment variable, then mounted
 file (`DIF_ENCRYPTION_PASSWORD` has no step option). One trailing LF/CRLF is removed; files are limited to 64 KiB. An explicitly

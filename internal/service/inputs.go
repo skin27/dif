@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"dif/api"
+	"dif/internal/dilsyntax"
 )
 
 type Document struct {
@@ -55,7 +56,7 @@ func resolve(ctx context.Context, o Options, transport http.RoundTripper) ([]Doc
 		}
 		n := len(paths)
 		for _, e := range entries {
-			if strings.HasPrefix(e.Name(), ".") || filepath.Ext(e.Name()) != ".json" {
+			if ext := filepath.Ext(e.Name()); strings.HasPrefix(e.Name(), ".") || ext != ".json" && ext != dilsyntax.Ext {
 				continue
 			}
 			// Follow visible ConfigMap projection symlinks, but never directories.
@@ -69,7 +70,7 @@ func resolve(ctx context.Context, o Options, transport http.RoundTripper) ([]Doc
 			}
 		}
 		if len(paths) == n {
-			return nil, fmt.Errorf("flow directory %q contains no visible JSON files", dir)
+			return nil, fmt.Errorf("flow directory %q contains no visible .json or .dil files", dir)
 		}
 	}
 	var docs []Document

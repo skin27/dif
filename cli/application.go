@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"flag"
@@ -14,6 +15,7 @@ import (
 
 	"dif/api"
 	flowimpl "dif/flows/impl"
+	"dif/internal/dilsyntax"
 )
 
 // Run dispatches foreground service commands, utilities, or the interactive shell.
@@ -26,7 +28,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return runServiceCommand(args[1:], stdout, stderr, false)
 	case "validate":
 		return runServiceCommand(args[1:], stdout, stderr, true)
-	case "version", "describe", "catalog", "init":
+	case "version", "describe", "catalog", "init", "convert":
 		return runUtility(args, stdout, stderr)
 	case "--version":
 		return runUtility(append([]string{"version"}, args[1:]...), stdout, stderr)
@@ -40,7 +42,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 }
 
 func startupHelp() string {
-	return "Usage:\n  dif                       Start the interactive shell\n  dif run --file FLOW.json   Start a foreground service\n  dif run --dir DIRECTORY    Start a group of flows\n  dif run --help             Service options\n  dif validate [inputs]      Validate without starting flows\n  dif describe FLOW.json     Describe a flow\n  dif version               Show build information\n  dif help                  Show this help\n\nRun dif.exe (or .\\dif.exe in PowerShell) without arguments for the shell.\nAt the > prompt, type help to explore commands, or help <command> for details."
+	return "Usage:\n  dif                       Start the interactive shell\n  dif run --file FLOW.json   Start a foreground service\n  dif run --dir DIRECTORY    Start a group of flows\n  dif run --help             Service options\n  dif validate [inputs]      Validate without starting flows\n  dif describe FLOW.json     Describe a flow\n  dif convert FILE           Convert a flow between DIL JSON and DIL text (.dil)\n  dif version              Show build information\n  dif help                  Show this help\n\nRun dif.exe (or .\\dif.exe in PowerShell) without arguments for the shell.\nAt the > prompt, type help to explore commands, or help <command> for details."
 }
 
 // runUtility executes development commands in the existing shell session.
@@ -67,13 +69,20 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet(doc.name, flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	fs.Usage = func() { fmt.Fprintln(stderr, commandHelp(doc)) }
-	output, template, id := "text", "hello", ""
+	output, template, id, to, target := "text", "hello", "", "", ""
+	strict := false
 	switch doc.name {
 	case "validate", "describe", "catalog", "version":
 		fs.StringVar(&output, "output", "text", "Output format: text or json")
+		if doc.name == "validate" {
+			fs.BoolVar(&strict, "strict", false, "Fail on warnings of the static checks too")
+		}
 	case "init":
 		fs.StringVar(&template, "template", "hello", "Starter template")
 		fs.StringVar(&id, "id", "", "Flow id (defaults to filename)")
+	case "convert":
+		fs.StringVar(&to, "to", "", "Target format: dil or json")
+		fs.StringVar(&target, "output", "", "File to write; refuses to overwrite one")
 	}
 	// Allow flags before or after positional arguments; -- protects dash-prefixed paths.
 	var options, positionals []string
@@ -89,7 +98,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		}
 		if strings.HasPrefix(a, "-") {
 			options = append(options, a)
-			if !strings.Contains(a, "=") && fs.Lookup(strings.TrimLeft(a, "-")) != nil {
+			if f := fs.Lookup(strings.TrimLeft(a, "-")); !strings.Contains(a, "=") && f != nil && takesValue(f) {
 				if i+1 == len(args) {
 					fmt.Fprintf(stderr, "Error: %s needs a value\n", a)
 					return 2
@@ -118,7 +127,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		if n == 0 {
 			return bad("missing flow file argument")
 		}
-	case "describe", "init":
+	case "describe", "init", "convert":
 		if n != 1 {
 			return bad("expected exactly one argument")
 		}
@@ -131,7 +140,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 			return bad("expected at most one step argument")
 		}
 	}
-	if doc.name == "init" || doc.name == "validate" || doc.name == "describe" {
+	if doc.name == "init" || doc.name == "validate" || doc.name == "describe" || doc.name == "convert" {
 		for i, path := range positionals {
 			positionals[i] = flowFilePath(path)
 		}
@@ -186,25 +195,36 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		if err == nil {
 			err = prepared.CheckFlowLinks(nil)
 		}
+		var diagnostics map[string][]api.Diagnostic
+		if err == nil {
+			diagnostics = diagnosticsOf(prepared.Info(), positionals)
+		}
 		results := []validationInfo{}
+		failed := false
 		for _, path := range positionals {
 			r := validationInfo{Path: path, Valid: err == nil}
 			if err != nil {
 				r.Error = err.Error()
-			} else if output == "text" {
-				fmt.Fprintf(stdout, "%s: valid (structure and option schemas)\n", path)
+			} else {
+				r = validationResult(path, diagnostics[path], strict)
+				failed = failed || !r.Valid
+				if output == "text" {
+					printValidation(stdout, path, diagnostics[path], strict)
+				}
 			}
 			results = append(results, r)
 		}
 		if err != nil {
 			fmt.Fprintf(stderr, "Error: %v\n", err)
+		} else if failed {
+			fmt.Fprintln(stderr, staticChecksFailed(strict))
 		}
 		if output == "json" {
 			if c := writeJSON(stdout, stderr, results); c != 0 {
 				return c
 			}
 		}
-		if err != nil {
+		if err != nil || failed {
 			return 1
 		}
 		return 0
@@ -260,21 +280,74 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		if err != nil {
 			return bad(err.Error())
 		}
-		f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
-		if err != nil {
-			return fail(err)
+		if dilsyntax.IsTextPath(path) {
+			if data, err = dilsyntax.Print(data); err != nil {
+				return fail(err)
+			}
 		}
-		_, err = f.Write(data)
-		closeErr := f.Close()
-		if err != nil {
+		if err := createFile(path, data); err != nil {
 			return fail(err)
-		}
-		if closeErr != nil {
-			return fail(closeErr)
 		}
 		fmt.Fprintf(stdout, "Created %s (%s template, flow %s)\n", path, template, id)
+	case "convert":
+		// The input is read as every DIL document is: a .dil file, or a file
+		// that is not JSON and starts with a comment or a word, is DIL text.
+		path := positionals[0]
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return fail(err)
+		}
+		text := dilsyntax.IsTextPath(path) || dilsyntax.IsText(data)
+		if to == "" {
+			to = "dil"
+			if text {
+				to = "json"
+			}
+		}
+		if to != "dil" && to != "json" {
+			return bad("--to must be dil or json")
+		}
+		if text == (to == "dil") {
+			return fail(fmt.Errorf("%s is DIL %s already", path, map[bool]string{true: "text", false: "JSON"}[text]))
+		}
+		if data, err = dilsyntax.Document(path, path, data); err != nil {
+			return fail(err)
+		}
+		if to == "dil" {
+			data, err = dilsyntax.Print(data)
+		} else {
+			var b bytes.Buffer
+			err = json.Indent(&b, data, "", "  ")
+			data = append(b.Bytes(), '\n')
+		}
+		if err != nil {
+			return fail(err)
+		}
+		if target == "" {
+			if _, err := stdout.Write(data); err != nil {
+				return fail(err)
+			}
+			return 0
+		}
+		if err := createFile(target, data); err != nil {
+			return fail(err)
+		}
+		fmt.Fprintf(stdout, "Created %s (DIL %s, from %s)\n", target, map[string]string{"dil": "text", "json": "JSON"}[to], path)
 	}
 	return 0
+}
+
+// createFile writes data to a new file at path; it never overwrites one.
+func createFile(path string, data []byte) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write(data)
+	if closeErr := f.Close(); err == nil {
+		err = closeErr
+	}
+	return err
 }
 
 type versionInfo struct {
@@ -286,9 +359,10 @@ type versionInfo struct {
 }
 
 type validationInfo struct {
-	Path  string `json:"path"`
-	Valid bool   `json:"valid"`
-	Error string `json:"error,omitempty"`
+	Path        string           `json:"path"`
+	Valid       bool             `json:"valid"`
+	Error       string           `json:"error,omitempty"`
+	Diagnostics []api.Diagnostic `json:"diagnostics,omitempty"` // of the static checks
 }
 
 func writeJSON(stdout, stderr io.Writer, value any) int {

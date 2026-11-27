@@ -1,0 +1,64 @@
+# The service contracts of api/testdata/services/contracts.json as DIL text.
+# A module without flows: schemas, formats and two services.
+
+resource OrderInSchema {
+  content: `{
+  "type": "object",
+  "required": ["sku", "quantity"],
+  "additionalProperties": false,
+  "properties": {
+    "sku": {"type": "string", "minLength": 1},
+    "quantity": {"type": "integer", "minimum": 1}
+  }
+}`
+}
+
+resource OrderOutSchema {
+  content: `{
+  "type": "object",
+  "required": ["orderId", "sku", "quantity", "priority"],
+  "additionalProperties": false,
+  "properties": {
+    "orderId": {"type": "string"},
+    "sku": {"type": "string"},
+    "quantity": {"type": "integer", "minimum": 1},
+    "priority": {"type": "integer", "minimum": 1}
+  }
+}`
+}
+
+resource OrderProblemSchema {
+  content: `{
+  "type": "object",
+  "required": ["code", "sku"],
+  "additionalProperties": false,
+  "properties": {
+    "code": {"type": "string"},
+    "sku": {"type": "string"}
+  }
+}`
+}
+
+format OrderIn { mediaType: "application/json", schemaRef: "OrderInSchema" }
+format OrderOut { mediaType: "application/json", schemaRef: "OrderOutSchema" }
+format OrderProblem { mediaType: "application/json", schemaRef: "OrderProblemSchema" }
+format AuditNote { mediaType: "text/plain" }
+
+# Request-reply: an order in, a confirmation or a problem out.
+service PlaceOrder {
+  exchangePattern: "InOut"
+  input: "OrderIn"
+  output: "OrderOut"
+  error: "OrderProblem"
+  inputHeaders: [
+    {name: "Idempotency-Key", type: "string", required: true}
+    {name: "priority", type: "number", default: 1}
+  ]
+  outputHeaders: [{name: "Order-Status", type: "string", required: true}]
+}
+
+# One-way: an audit note in, nothing out.
+service RecordAudit {
+  exchangePattern: "InOnly"
+  input: "AuditNote"
+}

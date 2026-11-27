@@ -105,6 +105,9 @@ type ErrorHandler struct {
 	// Match tells whether the handler takes a failure; nil: every failure.
 	Match   func(Failure) bool
 	Matches []string // what Match looks at, such as errorClass, for description only
+	// Patterns are the match options as written, such as errorStep, by name;
+	// for static checks only, never shown.
+	Patterns map[string]string
 
 	// Unhandled: after the error route the message still fails, so the sender
 	// gets the failure. By default the error route's outcome is the message's.

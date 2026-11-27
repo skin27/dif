@@ -196,7 +196,7 @@ func runShell(stdin io.Reader, stdout, stderr io.Writer) int {
 			}
 			switch cmd {
 			case "":
-			case "init", "validate", "describe", "version", "completion":
+			case "init", "validate", "describe", "convert", "version", "completion":
 				runShellUtility(cmd, rest, con)
 			case "load", "run":
 				parsed, err := utilityArguments(rest)

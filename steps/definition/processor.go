@@ -186,6 +186,12 @@ type Definition struct {
 
 	// New creates the processor for the step with id stepID from validated params.
 	New func(stepID string, p Params) (Processor, error)
+
+	// Effect, if not nil, says what the step does to a message, from its
+	// validated params (a router's include its Links), for the static checks of
+	// a flow; see Effect. It returns nil when it cannot tell. Without it the step
+	// is unknown to the checks.
+	Effect func(p Params) *Effect
 }
 
 // ConnectionBinding is the node binding under which a loader puts the

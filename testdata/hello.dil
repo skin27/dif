@@ -1,0 +1,16 @@
+# hello.json written as DIL text: the same flow in a dozen lines.
+# Try it: go run ./cmd/dif, then at the prompt: run testdata/hello.dil and request hello.
+# The language is described in docs/dil-language.md.
+
+message hello {
+  body: "HELLO WORLD"
+  header greeting: "hello"
+}
+
+flow hello(name: "hello") {
+  message:hello as hello-source
+    -> passthrough as hello-action
+    -> passthrough as hello-sink
+
+  on error as hello-error
+}

@@ -120,6 +120,18 @@ func (p *ServicePlan) Info() ServiceInfo       { return p.info }
 func (p *ServicePlan) ExchangePattern() string { return p.info.ExchangePattern }
 func (p *ServicePlan) HasErrorFormat() bool    { return p.errFormat != nil }
 
+// InputMedia and OutputMedia are the media types of the input and output
+// formats; "" for none.
+func (p *ServicePlan) InputMedia() string  { return mediaOf(p.in) }
+func (p *ServicePlan) OutputMedia() string { return mediaOf(p.out) }
+
+func mediaOf(c *contract) string {
+	if c == nil {
+		return ""
+	}
+	return c.media
+}
+
 func validHeaderType(t string) bool {
 	if t == "any" {
 		return true

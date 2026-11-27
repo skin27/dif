@@ -1,0 +1,56 @@
+# The provider of api/testdata/services/provider.json as DIL text: flows that
+# implement the services of contracts.dil.
+import "contracts.dil" as contracts
+
+map ConfirmOrder {
+  input: "contracts:OrderIn"
+  output: "contracts:OrderOut"
+  language: "difmap/1"
+  expression: `{
+  orderId: "ORD-" ++ payload.sku,
+  sku: payload.sku,
+  quantity: payload.quantity,
+  priority: headers.priority
+}`
+}
+
+map FormatAudit {
+  input: "contracts:OrderOut"
+  output: "contracts:AuditNote"
+  language: "difmap/1"
+  expression: '"accepted " ++ payload.orderId'
+}
+
+map OutOfStockProblem {
+  input: "contracts:OrderIn"
+  output: "contracts:OrderProblem"
+  language: "difmap/1"
+  expression: '{code: "OUT_OF_STOCK", sku: payload.sku}'
+}
+
+integration order-service-provider(name: "Order Service Provider") {
+  flow place-order-provider(name: "PlaceOrder Provider") {
+    service:contracts:PlaceOrder as in
+      -> content as check-stock {
+        # Routes run in the order they are written.
+        when simple "${jsonpath('$.sku')} == 'OUT-OF-STOCK'"
+          -> mapper:OutOfStockProblem as build-fault
+          -> return(status: "error") as return-fault
+          -> wastebin as fault-end
+        otherwise
+          -> mapper:ConfirmOrder as confirm
+          -> setheader(name: "Order-Status", value: "ACCEPTED", language: "constant") as set-status
+          -> wiretap as tap-audit {
+            wiretap
+              -> mapper:FormatAudit as format-audit
+              -> service:contracts:RecordAudit(delivery: "processed") as send-audit
+            _   # no rule: the main route goes on
+              -> passthrough as done
+          }
+      }
+  }
+
+  flow record-audit-provider(name: "RecordAudit Provider") {
+    service:contracts:RecordAudit as audit-in -> passthrough as audit-sink
+  }
+}

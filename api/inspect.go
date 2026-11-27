@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
@@ -23,6 +22,8 @@ type FlowInfo struct {
 	Error         *ErrorInfo          `json:"error,omitempty"`
 	ErrorHandlers []ErrorInfo         `json:"errorHandlers,omitempty"`
 	Configuration []ConfigurationInfo `json:"configuration"`
+	// Diagnostics are the findings of the static checks of the flow; see Diagnostic.
+	Diagnostics []Diagnostic `json:"diagnostics,omitempty"`
 }
 
 type NodeInfo struct {
@@ -82,7 +83,7 @@ func Validate(path string) error {
 
 // Inspect validates a flow without constructing processors or starting sources.
 func Inspect(path string) (*FlowInfo, error) {
-	data, err := os.ReadFile(path)
+	data, err := readDocument(path)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +189,7 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 		}
 		return a.StepID < b.StepID
 	})
+	info.Diagnostics = checkFlow(f)
 	return info, nil
 }
 

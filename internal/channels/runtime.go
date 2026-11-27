@@ -24,6 +24,7 @@ type Config struct {
 	Queues          map[string]QueueConfig       `json:"queues,omitempty"`
 	Topics          map[string]TopicConfig       `json:"topics,omitempty"`
 	Idempotency     map[string]IdempotencyConfig `json:"idempotency,omitempty"`
+	STOMP           *STOMPConfig                 `json:"stomp,omitempty"`
 }
 
 type QueueConfig struct {
@@ -32,11 +33,32 @@ type QueueConfig struct {
 	MaxDeliveries int    `json:"maxDeliveries,omitempty"`
 	RetryDelayMS  int    `json:"retryDelay,omitempty"`
 	DeadLetter    string `json:"deadLetter,omitempty"`
+	Served        bool   `json:"served,omitempty"` // reachable by STOMP clients
 }
 
 type TopicConfig struct {
-	Capacity int `json:"capacity,omitempty"`
+	Capacity int  `json:"capacity,omitempty"`
+	Served   bool `json:"served,omitempty"` // reachable by STOMP clients
 }
+
+// STOMPConfig is the listener that serves the served channels to STOMP
+// clients. The passcode of Login is not configuration: the service reads it
+// from the environment.
+type STOMPConfig struct {
+	Address        string          `json:"address"`
+	Login          string          `json:"login"`
+	TLS            *STOMPTLSConfig `json:"tls,omitempty"`
+	MaxConnections int             `json:"maxConnections,omitempty"`
+}
+
+// STOMPTLSConfig names the PKCS#12 keystore with the listener's identity.
+type STOMPTLSConfig struct {
+	Identity string `json:"identity"`
+}
+
+// DefaultMaxConnections bounds the STOMP connections when the configuration does not.
+const DefaultMaxConnections = 100
+
 type IdempotencyConfig struct {
 	Durable     bool  `json:"durable,omitempty"`
 	RetentionMS int64 `json:"retention,omitempty"`
@@ -167,7 +189,10 @@ func configure(c Config, openStorage bool) (*Runtime, error) {
 		if cfg.Capacity == 0 {
 			cfg.Capacity = DefaultCapacity
 		}
-		r.topics[name] = &Topic{r: r, name: name, capacity: cfg.Capacity}
+		r.topics[name] = &Topic{r: r, name: name, capacity: cfg.Capacity, served: cfg.Served}
+	}
+	if err := r.configureSTOMP(); err != nil {
+		return nil, err
 	}
 	// Copy the namespace map: callers may reuse or modify their Config after Open.
 	r.config.Idempotency = map[string]IdempotencyConfig{}

@@ -40,6 +40,12 @@ func errorHandler(s dilStep) (*flowdef.ErrorHandler, string, error) {
 		return nil, "", err
 	}
 	h := &flowdef.ErrorHandler{ID: s.ID, Matches: o.matches, Unhandled: o.unhandled, Backoff: o.backoff}
+	for _, k := range o.matches {
+		if h.Patterns == nil {
+			h.Patterns = map[string]string{}
+		}
+		h.Patterns[k], _ = s.Options[k].(string)
+	}
 	pick := func(name, alias string, def int) int {
 		if o.numbers[name] >= 0 {
 			return o.numbers[name]

@@ -204,16 +204,27 @@ func (c *compiler) named(b *block, head, rest string, get func(message.Message, 
 		}
 		return nil, unsupported(b, "")
 	}
+	header := strings.HasSuffix(head, "header") || strings.HasSuffix(head, "headers")
 	switch rest[0] {
 	case '.', ':', '?':
 		rest = rest[1:]
 		if plural && (rest == "size" || rest == "length" || rest == "size()" || rest == "length()") {
 			return func(e *env) (any, error) { return int64(len(elementsOfMap(all(e.m)))), nil }, nil
 		}
+		if header {
+			name, suffix := splitHeaderName(rest)
+			if suffix == "" {
+				name = ""
+			}
+			c.recordRead(rest, name)
+		}
 	case '[':
 		inside, after, ok := matchBracket(rest)
 		if !ok {
 			return nil, unsupported(b, "")
+		}
+		if header {
+			c.recordRead(inside)
 		}
 		key, err := c.keyName(b, inside)
 		if err != nil {

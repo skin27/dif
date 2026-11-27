@@ -191,6 +191,10 @@ func argItems(s string, kids []*block) []item {
 // compiler compiles the templates of one expression.
 type compiler struct {
 	flow *flowProperties // what the flow knows about itself; nil when compiled without a flow
+
+	// reads, if not nil, collects the headers the expression reads, for the
+	// static checks of a flow (see headerReads).
+	reads *[][]string
 }
 
 // expression is a compiled template.

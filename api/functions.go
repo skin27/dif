@@ -6,6 +6,7 @@ import (
 
 	flowdef "dif/flows/definition"
 	flowimpl "dif/flows/impl"
+	"dif/internal/dilsyntax"
 	"dif/internal/mapping"
 	stepdef "dif/steps/definition"
 	stepimpl "dif/steps/impl"
@@ -35,6 +36,11 @@ func validatePreparedNode(n *flowdef.Node) error {
 // parseFlow retains the single-flow API, while preparing new declarations before
 // constructing any processor, including definitions that the flow does not use.
 func parseFlow(data []byte, construct func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+	// Bytes that are DIL text rather than DIL JSON are compiled first.
+	data, e := dilsyntax.Document("", "", data)
+	if e != nil {
+		return nil, e
+	}
 	d, e := flowimpl.DecodeDocument(data)
 	if e != nil {
 		return nil, e

@@ -31,6 +31,8 @@ type ProgramFlowInfo struct {
 type ProgramInfo struct {
 	Documents []ProgramDocumentInfo `json:"documents"`
 	Flows     []ProgramFlowInfo     `json:"flows"`
+	// Diagnostics are those of all flows, in the order of the flows.
+	Diagnostics []Diagnostic `json:"diagnostics,omitempty"`
 }
 
 const serviceBindingPrefix = "service\x00"
@@ -213,6 +215,8 @@ func (p *PreparedProgram) Info() *ProgramInfo {
 		for j := range f.ErrorHandlers {
 			f.ErrorHandlers[j].Matches = append([]string{}, f.ErrorHandlers[j].Matches...)
 		}
+		f.Diagnostics = append([]Diagnostic(nil), f.Diagnostics...)
+		info.Diagnostics = append(info.Diagnostics, f.Diagnostics...)
 		info.Flows = append(info.Flows, ProgramFlowInfo{e.Origin, e.Plan.Integration, append([]ReferenceInfo{}, e.Plan.References...), &f})
 	}
 	return info

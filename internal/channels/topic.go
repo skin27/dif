@@ -13,6 +13,7 @@ type Topic struct {
 	capacity int
 	subs     []*Subscription
 	blocked  int
+	served   bool
 }
 type Subscription struct {
 	Queue *Queue

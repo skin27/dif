@@ -167,6 +167,10 @@ func (p *Plan) Apply(ctx context.Context, body any, contentType string, headers 
 	return result, nil
 }
 func (p *Plan) ContentType() string { return p.out.media }
+
+// InputMedia is the media type of the input format, which Apply checks the
+// Content-Type against.
+func (p *Plan) InputMedia() string { return p.in.media }
 func (p *Plan) transform(input any, headers map[string]any, b *budget) (string, error) {
 	var source string
 	switch v := input.(type) {

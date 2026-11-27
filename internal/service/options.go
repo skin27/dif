@@ -17,8 +17,8 @@ import (
 )
 
 const Usage = `Usage: dif run [options]
-  --file PATH              DIL JSON file (repeatable)
-  --dir PATH               Directory of visible *.json flows (repeatable)
+  --file PATH              DIL file, .json or .dil (repeatable)
+  --dir PATH               Directory of visible *.json and *.dil flows (repeatable)
   --url URL                Raw HTTPS DIL document (repeatable)
   --config PATH            Strict JSON service configuration
   --sha256 HEX             Expected digest (requires exactly one URL)
@@ -29,6 +29,7 @@ const Usage = `Usage: dif run [options]
   --max-bytes 4194304      Maximum bytes per flow document
   --log-format json        json or text
   --output text           Validation output: text or json
+  --strict                Validation fails on warnings of the static checks too
 
 dif validate accepts these input options and positional filenames.
 Precedence: flags > DIF_* environment > config > defaults.

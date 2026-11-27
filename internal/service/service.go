@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -14,6 +15,8 @@ import (
 
 	"dif/api"
 	"dif/engine"
+	"dif/internal/secret"
+	"dif/keystore"
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
@@ -26,7 +29,12 @@ type Service struct {
 	ready, started, stopping bool
 	work                     engine.Work
 	runtime                  *api.Runtime
+	stomp                    *api.STOMPServer
 }
+
+// STOMPPasswordEnv holds the passcode of the STOMP login; STOMPPasswordEnv+"_FILE"
+// names a file with it.
+const STOMPPasswordEnv = "DIF_STOMP_PASSWORD"
 
 func New(o Options, logs io.Writer) *Service {
 	var handler slog.Handler = slog.NewJSONHandler(logs, nil)
@@ -51,10 +59,20 @@ func (s *Service) Run(ctx context.Context) (resultErr error) {
 	if openErr != nil {
 		return openErr
 	}
+	defer func() { resultErr = errors.Join(resultErr, runtime.Close()) }()
+	stompServer, stompErr := s.stompServer(runtime)
+	if stompErr != nil {
+		return stompErr
+	}
 	s.mu.Lock()
 	s.runtime = runtime
+	s.stomp = stompServer
 	s.mu.Unlock()
-	defer func() { resultErr = errors.Join(resultErr, runtime.Close()) }()
+	var stompDone <-chan struct{}
+	if stompServer != nil {
+		defer stompServer.Close()
+		stompDone = stompServer.Done()
+	}
 	startup, cancel := context.WithTimeout(ctx, duration(s.options.StartupTimeout))
 	defer cancel()
 	var monitor *http.Server
@@ -103,6 +121,9 @@ func (s *Service) Run(ctx context.Context) (resultErr error) {
 		err = startup.Err()
 	}
 	cancel()
+	if err == nil && stompServer != nil {
+		err = s.startSTOMP(stompServer)
+	}
 	if err == nil {
 		s.mu.Lock()
 		s.started = true
@@ -133,6 +154,8 @@ func (s *Service) Run(ctx context.Context) (resultErr error) {
 		case err = <-failures:
 		case <-monitorFailure:
 			err = errors.New("monitor listener failed")
+		case <-stompDone:
+			err = fmt.Errorf("STOMP listener failed: %w", stompServer.Err())
 		}
 		close(watchDone)
 	} else if ctx.Err() != nil {
@@ -151,6 +174,11 @@ func (s *Service) Run(ctx context.Context) (resultErr error) {
 	s.logger.Info("service draining")
 	shutdown, stop := context.WithTimeout(context.Background(), duration(s.options.ShutdownTimeout))
 	defer stop()
+	if stompServer != nil {
+		// Clients go first: their unacknowledged deliveries return to the
+		// channels before the flows drain them.
+		stompServer.Close()
+	}
 	drainErr := s.drain(shutdown, started)
 	if monitor != nil {
 		if closeErr := monitor.Shutdown(shutdown); closeErr != nil {
@@ -211,11 +239,74 @@ func (s *Service) prepare(ctx context.Context) ([]*engine.Runner, error) {
 				if s.runtime != nil && strings.HasPrefix(target, "queue:") && s.runtime.DurableQueue(strings.TrimPrefix(target, "queue:")) {
 					continue
 				}
+				// STOMP clients may subscribe to a served topic; with none,
+				// publication delivers nothing, as for any topic.
+				if s.runtime != nil && strings.HasPrefix(target, "topic:") && s.runtime.ServedTopic(strings.TrimPrefix(target, "topic:")) {
+					continue
+				}
 				return nil, fmt.Errorf("flow %q requires a local consumer for %q", r.ID(), target)
 			}
 		}
 	}
 	return runners, ctx.Err()
+}
+
+// stompServer prepares the listener of the served channels, or returns nil
+// when there is none: the passcode comes from DIF_STOMP_PASSWORD (or its
+// _FILE companion) and a TLS identity from its keystore. It binds nothing.
+func (s *Service) stompServer(runtime *api.Runtime) (*api.STOMPServer, error) {
+	srv := runtime.NewSTOMPServer()
+	if srv == nil {
+		return nil, nil
+	}
+	passcode, _, err := secret.Env(STOMPPasswordEnv)
+	if err != nil {
+		return nil, fmt.Errorf("stomp: %w", err)
+	}
+	if passcode == "" {
+		return nil, fmt.Errorf("stomp: set %s or %s_FILE to the passcode of the STOMP login", STOMPPasswordEnv, STOMPPasswordEnv)
+	}
+	srv.Passcode = passcode
+	if t := srv.Config.TLS; t != nil {
+		password, given, err := secret.Env("DIF_SERVER_IDENTITY_PASSWORD")
+		if err != nil {
+			return nil, fmt.Errorf("stomp: %w", err)
+		}
+		cert, err := keystore.LoadIdentity(t.Identity, password)
+		if err != nil {
+			if !given && errors.Is(err, keystore.ErrWrongPassword) {
+				return nil, fmt.Errorf("stomp: server identity: %w; set DIF_SERVER_IDENTITY_PASSWORD", err)
+			}
+			return nil, fmt.Errorf("stomp: server identity: %w", err)
+		}
+		srv.TLS = &tls.Config{Certificates: []tls.Certificate{cert}, MinVersion: tls.VersionTLS12}
+	}
+	srv.Logger = s.logger
+	return srv, nil
+}
+
+// startSTOMP binds the listener once the flows run. A message a client sends
+// counts as queued work when a flow consumes its channel; a memory queue that
+// only clients consume holds nothing the drain could finish.
+func (s *Service) startSTOMP(srv *api.STOMPServer) error {
+	inputs := map[string]bool{}
+	for _, r := range s.runners {
+		if input, _ := r.LocalChannels(); input != "" {
+			inputs[input] = true
+		}
+	}
+	tracked := stepdef.WithWorkTracker(context.Background(), &s.work)
+	srv.Track = func(channel string) func() {
+		if strings.HasPrefix(channel, "queue:") && !inputs[channel] {
+			return func() {}
+		}
+		return stepdef.TrackWork(tracked, true)
+	}
+	if err := srv.Start(); err != nil {
+		return fmt.Errorf("STOMP listener: %w", err)
+	}
+	s.logger.Info("STOMP listener started", "address", srv.Addr().String())
+	return nil
 }
 
 func (s *Service) start(ctx context.Context) error {

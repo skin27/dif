@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	flowimpl "dif/flows/impl"
+	"dif/internal/dilsyntax"
 	"dif/internal/mapping"
 )
 
@@ -288,6 +289,12 @@ func (r *resolver) visit(key string, source Source, depth int) (*node, error) {
 	r.total += int64(len(data))
 	if r.total > r.limits.MaxTotalBytes {
 		return nil, fmt.Errorf("program exceeds total byte limit")
+	}
+	// A .dil file, or bytes that are DIL text, are compiled to DIL JSON; errors
+	// name the document.
+	data, err := dilsyntax.Document(source.Name, source.Path, data)
+	if err != nil {
+		return nil, err
 	}
 	doc, err := flowimpl.DecodeDocument(data)
 	if err != nil {

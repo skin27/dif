@@ -2,10 +2,10 @@ package api
 
 import (
 	"fmt"
-	"os"
 
 	flowdef "dif/flows/definition"
 	"dif/internal/channels"
+	"dif/internal/stomp"
 	stepdef "dif/steps/definition"
 	stepimpl "dif/steps/impl"
 )
@@ -16,6 +16,13 @@ type RequestConfig = channels.RequestConfig
 type TopicConfig = channels.TopicConfig
 type IdempotencyConfig = channels.IdempotencyConfig
 type ChannelStatus = channels.Status
+type STOMPConfig = channels.STOMPConfig
+type STOMPTLSConfig = channels.STOMPTLSConfig
+
+// STOMPServer serves the channels marked served to STOMP 1.2 clients; see
+// Runtime.NewSTOMPServer. STOMPStatus counts its connections and subscriptions.
+type STOMPServer = stomp.Server
+type STOMPStatus = stomp.Status
 
 // Runtime owns an isolated set of local channels and their storage. Stop its
 // loaded flows before Close. The package-level Load functions remain compatible
@@ -39,8 +46,17 @@ func (r *Runtime) Failed() <-chan struct{}       { return r.channels.Failed() }
 func (r *Runtime) Err() error                    { return r.channels.Err() }
 func (r *Runtime) ChannelStatus() ChannelStatus  { return r.channels.Snapshot() }
 func (r *Runtime) DurableQueue(name string) bool { return r.channels.Queue(name).Durable() }
+
+// ServedTopic reports whether the configuration serves the topic to STOMP clients.
+func (r *Runtime) ServedTopic(name string) bool { _, ok := r.channels.ServedTopic(name); return ok }
+
+// NewSTOMPServer returns a server for the served channels, or nil when the
+// configuration has no stomp listener. Set its Passcode (and TLS when the
+// configuration names an identity), then Start it once the flows run and
+// Close it before stopping them.
+func (r *Runtime) NewSTOMPServer() *STOMPServer { return stomp.New(r.channels.Runtime) }
 func (r *Runtime) Load(path string, onResult func(*Result, error)) (*Flow, error) {
-	data, err := os.ReadFile(path)
+	data, err := readDocument(path)
 	if err != nil {
 		return nil, err
 	}
