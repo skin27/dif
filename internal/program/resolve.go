@@ -51,9 +51,14 @@ type Entry struct {
 	Origin string
 	Plan   flowimpl.FlowPlan
 }
+type TestEntry struct {
+	Origin string
+	Test   flowimpl.TestSpec
+}
 type Result struct {
 	Documents       []DocumentInfo
 	Flows           []Entry
+	Tests           []TestEntry
 	ProcessorChecks []flowimpl.ProcessorCheck
 }
 
@@ -198,6 +203,21 @@ func Resolve(ctx context.Context, sources []Source, limits Limits) (*Result, err
 		}
 		result.ProcessorChecks = append(result.ProcessorChecks, checks...)
 	}
+	var programInterceptors []flowimpl.ProgramInterceptor
+	programInterceptorOwners := map[string]string{}
+	for _, n := range r.order {
+		pis, err := n.doc.ProgramInterceptors()
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", n.name, err)
+		}
+		for _, pi := range pis {
+			if prev, dup := programInterceptorOwners[pi.Name()]; dup {
+				return nil, fmt.Errorf("duplicate program interceptor %q in %s and %s", pi.Name(), prev, n.name)
+			}
+			programInterceptorOwners[pi.Name()] = n.name
+			programInterceptors = append(programInterceptors, pi)
+		}
+	}
 	ids := map[string]string{}
 	for _, n := range r.order {
 		if err := ctx.Err(); err != nil {
@@ -207,7 +227,7 @@ func Resolve(ctx context.Context, sources []Source, limits Limits) (*Result, err
 		for alias, dep := range n.imports {
 			imports[alias] = dep.doc
 		}
-		plans, err := n.doc.Plans(imports)
+		plans, err := n.doc.PlansWithInterceptors(imports, programInterceptors)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", n.name, err)
 		}
@@ -220,6 +240,15 @@ func Resolve(ctx context.Context, sources []Source, limits Limits) (*Result, err
 			}
 			ids[p.ID] = n.name
 			result.Flows = append(result.Flows, Entry{n.name, p})
+		}
+		tests, err := n.doc.Tests(imports)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", n.name, err)
+		}
+		if _, isEntrypoint := r.seeds[n.key]; isEntrypoint {
+			for _, t := range tests {
+				result.Tests = append(result.Tests, TestEntry{Origin: n.name, Test: t})
+			}
 		}
 		result.Documents = append(result.Documents, n.info)
 	}

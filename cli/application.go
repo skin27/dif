@@ -28,7 +28,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return runServiceCommand(args[1:], stdout, stderr, false)
 	case "validate":
 		return runServiceCommand(args[1:], stdout, stderr, true)
-	case "version", "describe", "catalog", "init", "convert":
+	case "version", "describe", "catalog", "init", "convert", "test", "trace":
 		return runUtility(args, stdout, stderr)
 	case "--version":
 		return runUtility(append([]string{"version"}, args[1:]...), stdout, stderr)
@@ -42,7 +42,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 }
 
 func startupHelp() string {
-	return "Usage:\n  dif                       Start the interactive shell\n  dif run --file FLOW.json   Start a foreground service\n  dif run --dir DIRECTORY    Start a group of flows\n  dif run --help             Service options\n  dif validate [inputs]      Validate without starting flows\n  dif describe FLOW.json     Describe a flow\n  dif convert FILE           Convert a flow between DIL JSON and DIL text (.dil)\n  dif version              Show build information\n  dif help                  Show this help\n\nRun dif.exe (or .\\dif.exe in PowerShell) without arguments for the shell.\nAt the > prompt, type help to explore commands, or help <command> for details."
+	return "Usage:\n  dif                       Start the interactive shell\n  dif run --file FLOW.json   Start a foreground service\n  dif run --dir DIRECTORY    Start a group of flows\n  dif run --help             Service options\n  dif validate [inputs]      Validate without starting flows\n  dif describe FLOW.json     Describe a flow\n  dif convert FILE           Convert a flow between DIL JSON and DIL text (.dil)\n  dif test FILE|DIR...       Run declarative flow tests hermetically\n  dif trace FILE [options]   Run a flow once and show step-by-step diffs\n  dif version              Show build information\n  dif help                  Show this help\n\nRun dif.exe (or .\\dif.exe in PowerShell) without arguments for the shell.\nAt the > prompt, type help to explore commands, or help <command> for details."
 }
 
 // runUtility executes development commands in the existing shell session.
@@ -51,6 +51,12 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 	if !ok {
 		fmt.Fprintf(stderr, "Error: unknown command %q\n", args[0])
 		return 2
+	}
+	if doc.name == "test" {
+		return runTestUtility(args, stdout, stderr)
+	}
+	if doc.name == "trace" {
+		return runTraceUtility(args, stdout, stderr)
 	}
 	if doc.name == "completion" && !(len(args) == 2 && (args[1] == "--help" || args[1] == "-h")) {
 		suggestions, err := completionSuggestions(strings.Join(args[1:], " "))
@@ -391,6 +397,17 @@ func contractPayloadLabel(s string) string {
 
 func describeFlow(out io.Writer, info *api.FlowInfo) {
 	fmt.Fprintf(out, "FLOW: %s\nNAME: %s\nSOURCE: %s\n", info.ID, info.Name, info.Source)
+	if info.Concurrency > 1 || info.Partitioned {
+		conc := info.Concurrency
+		if conc < 1 {
+			conc = 1
+		}
+		if info.Partitioned {
+			fmt.Fprintf(out, "CONCURRENCY: %d (partitioned)\n", conc)
+		} else {
+			fmt.Fprintf(out, "CONCURRENCY: %d\n", conc)
+		}
+	}
 	if svc := info.Service; svc != nil {
 		fmt.Fprintf(out, "SERVICE: %s; pattern: %s; origin: %s\n", svc.Name, svc.ExchangePattern, svc.Origin)
 	}

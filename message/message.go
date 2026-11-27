@@ -58,8 +58,10 @@ const (
 	// Trail lists the steps the message entered, as space-separated "kind:id"
 	// entries, across flows: entering a flow adds "flow:id". It is a string, so
 	// copies of a message never share a trail they append to.
-	Trail = MetadataPrefix + "trail"
-	Step  = MetadataPrefix + "step" // id of the step the message is in, or was last in
+	Trail        = MetadataPrefix + "trail"
+	Step         = MetadataPrefix + "step"          // id of the step the message is in, or was last in
+	StepDuration = MetadataPrefix + "step.duration" // duration in milliseconds (int64) of the measured step
+	StepTarget   = MetadataPrefix + "step.target"   // id of the step an after or onError interceptor advises
 
 	// OriginalBody is the body as the message entered its current flow.
 	OriginalBody = MetadataPrefix + "originalbody"

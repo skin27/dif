@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"dif/message"
 )
@@ -78,8 +79,9 @@ type RouterProcessor interface {
 }
 
 // Route sends Message to the step's outbound link with index Next. Routes run
-// one after another and must not share a Message: a router that sends m to
-// several links sends copies (message.Message.Copy).
+// one after another (unless the router implements ParallelRouter with
+// ParallelPolicy.Parallel set) and must not share a Message: a router that
+// sends m to several links sends copies (message.Message.Copy).
 type Route struct {
 	Next    int
 	Message message.Message
@@ -87,6 +89,25 @@ type Route struct {
 	// Detached routes, such as a wire tap, do not affect the outcome: their
 	// result is ignored and their error is logged instead of failing the message.
 	Detached bool
+
+	// AfterParallel marks a trailing route that runs sequentially after all
+	// preceding parallel routes of the same router have completed (for example,
+	// the main continuation link of a parallel split).
+	AfterParallel bool
+}
+
+// ParallelPolicy configures structured concurrent execution of a router's routes.
+type ParallelPolicy struct {
+	Parallel       bool          // when true, run routes concurrently
+	MaxConcurrency int           // max concurrent branches; <= 0 uses engine default
+	BranchTimeout  time.Duration // optional per-branch timeout; <= 0 means no timeout
+	FailFast       bool          // when true, cancel sibling branches on first non-detached failure
+}
+
+// ParallelRouter is optionally implemented by a RouterProcessor to request
+// structured parallel execution of the routes returned by Route.
+type ParallelRouter interface {
+	ParallelPolicy() ParallelPolicy
 }
 
 // A Gatherer is a router that combines what comes out of its routes

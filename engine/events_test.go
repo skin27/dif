@@ -105,7 +105,7 @@ func exchanges(t *testing.T, handledByRoute bool) (*Runner, *recorder) {
 	if !handledByRoute {
 		f.Error = nil
 	}
-	rec := newRecorder()
+	rec := newRecorder(stepdef.EventExchangeCompleted, stepdef.EventExchangeHandled, stepdef.EventExchangeFailed)
 	r := started(t, f, nil)
 	r.SetObserver(rec)
 	return r, rec
@@ -231,4 +231,69 @@ func eventually(t *testing.T, cond func() bool) {
 		}
 	}
 	t.Fatal("condition not met within 1s")
+}
+
+func TestStepEvents(t *testing.T) {
+	var ran []string
+	f := withError(&ran, failOn{}, 0)
+	f.ID, f.Name = "f1", "First"
+	f.Source.Next[0].URI = "https://user:secret@example.com/api"
+	f.Source.Next[0].Next[0].URI = "log"
+
+	rec := newRecorder(stepdef.EventStepCompleted, stepdef.EventStepFailed)
+	r := started(t, f, nil)
+	r.SetObserver(rec)
+
+	ok := message.New("ok")
+	ok[message.CorrelationID] = "corr-1"
+	must(t, r.Send(ok))
+
+	e1 := rec.next(t)
+	e2 := rec.next(t)
+	if e1.Type != stepdef.EventStepCompleted || e1.Step != "x" || e1.URI != "https" || e1.CorrelationID != "corr-1" || e1.MessageID != ok[message.MessageID] {
+		t.Errorf("e1 = %+v, want step.completed for x with scheme https", e1)
+	}
+	if e2.Type != stepdef.EventStepCompleted || e2.Step != "y" || e2.URI != "log" {
+		t.Errorf("e2 = %+v, want step.completed for y with scheme log", e2)
+	}
+
+	// Verify event.uri never leaks credentials and event.duration is set.
+	msg := e1.Message()
+	if msg["event.step"] != "x" || msg["event.uri"] != "https" || msg["event.duration"] == nil {
+		t.Errorf("step.completed message = %v", msg)
+	}
+	if strings.Contains(msg[message.Body].(string), "secret") {
+		t.Errorf("step.completed body leaked URI credentials: %s", msg[message.Body])
+	}
+
+	// Failing step emits step.failed with error.* headers, then error route step emits step.completed.
+	must(t, r.Send(message.New("fail")))
+	ef := rec.next(t)
+	if ef.Type != stepdef.EventStepFailed || ef.Step != "x" || ef.URI != "https" || ef.Err == nil {
+		t.Errorf("ef = %+v, want step.failed for x", ef)
+	}
+	fmsg := ef.Message()
+	if fmsg["event.step"] != "x" || fmsg["event.uri"] != "https" || fmsg[ErrorMessage] != "boom" || fmsg[ErrorStep] != "x" {
+		t.Errorf("step.failed message = %v", fmsg)
+	}
+	// Error route sink runs after step.failed.
+	er := rec.next(t)
+	if er.Type != stepdef.EventStepCompleted || er.Step != "z" {
+		t.Errorf("er = %+v, want step.completed for error route z", er)
+	}
+	rec.none(t)
+}
+
+func TestNoStepEventsForMessagesHandlingEvents(t *testing.T) {
+	var ran []string
+	f := withError(&ran, failOn{}, 0)
+	f.ID = "f1"
+	rec := newRecorder() // all event types, including step.* and exchange.*
+	r := started(t, f, nil)
+	r.SetObserver(rec)
+
+	handling := message.New("ok")
+	handling[stepdef.EventHeader] = string(stepdef.EventStepFailed)
+	must(t, r.Send(handling))
+	rec.none(t)
 }

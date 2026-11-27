@@ -24,6 +24,12 @@ func (r *Runner) LocalChannels() (input string, outputs []string) {
 		for _, next := range n.Next {
 			visit(next)
 		}
+		for _, after := range n.After {
+			visit(after)
+		}
+		for _, onErr := range n.OnError {
+			visit(onErr)
+		}
 	}
 	visit(r.flow.Source)
 	for _, h := range r.flow.ErrorHandlers() {

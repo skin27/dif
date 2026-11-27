@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:event-source",
 	"title": "event source",
-	"description": "Receives the events of the flows of this process: flow.started, flow.paused, flow.resumed, flow.stopped, source.failed, exchange.completed, exchange.handled and exchange.failed, or * for all. The message has the headers event.type, event.time, event.flow.id, event.flow.name and, as they apply, event.step, event.duration and the error.* headers of an error route; its body is a JSON summary, never the payload of the exchange. A message that comes from an event source gives no exchange events itself.",
+	"description": "Receives the events of the flows of this process: flow.started, flow.paused, flow.resumed, flow.stopped, source.failed, exchange.completed, exchange.handled, exchange.failed, step.completed and step.failed, or * for all. The message has the headers event.type, event.time, event.flow.id, event.flow.name and, as they apply, event.step, event.uri, event.duration and the error.* headers of an error route; its body is a JSON summary, never the payload of the exchange. A message that comes from an event source gives no exchange or step events itself.",
 	"type": "object",
 	"properties": {
 		"path": {

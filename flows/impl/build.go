@@ -8,20 +8,47 @@ import (
 	"maps"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	flowdef "dif/flows/definition"
 	"dif/internal/mapping"
+	"dif/message"
 	stepdef "dif/steps/definition"
 )
+
+// PartitionKeyCompiler compiles a flow's partitionBy expression into a key
+// extractor function. Registered by api/steps so flows/impl remains independent
+// of step implementations.
+type PartitionKeyCompiler func(*flowdef.Flow, string) (func(context.Context, message.Message) (string, error), error)
+
+var (
+	partitionCompilerMu sync.RWMutex
+	partitionCompiler   PartitionKeyCompiler
+)
+
+// SetPartitionKeyCompiler registers the compiler used to compile
+// flow.options.partitionBy into Flow.PartitionKey.
+func SetPartitionKeyCompiler(fn PartitionKeyCompiler) {
+	partitionCompilerMu.Lock()
+	partitionCompiler = fn
+	partitionCompilerMu.Unlock()
+}
+
+func getPartitionKeyCompiler() PartitionKeyCompiler {
+	partitionCompilerMu.RLock()
+	fn := partitionCompiler
+	partitionCompilerMu.RUnlock()
+	return fn
+}
 
 // Parse converts a DIL JSON document holding exactly one flow into the flow model.
 // newProcessor creates the processor for each node.
 func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
-	return parse(data, newProcessor, nil, nil, nil, nil, nil)
+	return parse(data, newProcessor, nil, nil, nil, nil, nil, nil, nil, nil)
 }
 
-func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error), plans map[string]*mapping.Plan, services map[string]*mapping.ServiceBinding, scopes map[string]*mapping.Functions, templates map[string]ProcessorInfo, stores map[string]stepdef.Store) (*flowdef.Flow, error) {
+func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error), plans map[string]*mapping.Plan, services map[string]*mapping.ServiceBinding, scopes map[string]*mapping.Functions, templates map[string]ProcessorInfo, stores map[string]stepdef.Store, stepConns map[string]*stepdef.Connection, stepStores map[string]map[string]stepdef.Store, preResolved map[string]bool) (*flowdef.Flow, error) {
 	var doc dilDoc
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("parse dil: %w", err)
@@ -51,16 +78,21 @@ func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		if err := d.PrepareServices(context.Background(), mapping.Limits{}); err != nil {
 			return nil, err
 		}
-		var errExpand error
-		flows[0], scopes, templates, plans, services, errExpand = d.expandProcessors(flows[0])
+		exp, errExpand := d.expandProcessors(flows[0], nil)
 		if errExpand != nil {
 			return nil, errExpand
 		}
+		flows[0], scopes, templates, plans, services = exp.flow, exp.scopes, exp.templates, exp.plans, exp.services
+		stepConns, stepStores, preResolved = exp.stepConns, exp.stepStores, exp.preResolved
 		stores = d.storeBindings()
 	}
 	processor := func(n *flowdef.Node) (stepdef.Processor, error) {
 		conn := n.Bindings[stepdef.ConnectionBinding]
-		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow, stepdef.StoresBinding: stores}
+		nodeStores := stores
+		if st, ok := stepStores[n.ID]; ok {
+			nodeStores = st
+		}
+		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow, stepdef.StoresBinding: nodeStores}
 		if conn != nil {
 			n.Bindings[stepdef.ConnectionBinding] = conn
 		}
@@ -140,7 +172,7 @@ func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		core.connections[c.ID] = c
 	}
 
-	f, err := buildResolved(flows[0], core, processor, templates)
+	f, err := buildResolved(flows[0], core, processor, templates, stepConns, preResolved)
 	if err != nil {
 		return nil, fmt.Errorf("flow %s: %w", flows[0].ID, err)
 	}
@@ -162,20 +194,41 @@ type coreRefs struct {
 }
 
 func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
-	return buildResolved(df, core, newProcessor, nil)
+	return buildResolved(df, core, newProcessor, nil, nil, nil)
 }
-func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error), resolved map[string]ProcessorInfo) (*flowdef.Flow, error) {
+func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error), resolved map[string]ProcessorInfo, stepConns map[string]*stepdef.Connection, preResolved map[string]bool) (*flowdef.Flow, error) {
 	var (
-		source   *flowdef.Node
-		nodes    []*flowdef.Node
-		byInLink = map[string]*flowdef.Node{}         // inbound link id -> node
-		outLinks = map[*flowdef.Node][]dilLink{}      // node -> outbound links
-		errh     *flowdef.ErrorHandler                // the error step that takes every error
-		matched  []*flowdef.ErrorHandler              // the error steps that take particular errors
-		errLinks = map[*flowdef.ErrorHandler]string{} // outbound link of an error step: the start of its error route
-		flow     = &flowdef.Flow{ID: df.ID, Name: df.Name, Version: versionText(df.Options.Version),
+		source     *flowdef.Node
+		nodes      []*flowdef.Node
+		byInLink   = map[string]*flowdef.Node{}         // inbound link id -> node
+		outLinks   = map[*flowdef.Node][]dilLink{}      // node -> outbound links
+		afterLinks = map[*flowdef.Node][]string{}       // node -> detached after observer inbound link ids
+		errorLinks = map[*flowdef.Node][]string{}       // node -> detached onError observer inbound link ids
+		errh       *flowdef.ErrorHandler                // the error step that takes every error
+		matched    []*flowdef.ErrorHandler              // the error steps that take particular errors
+		errLinks   = map[*flowdef.ErrorHandler]string{} // outbound link of an error step: the start of its error route
+		flow       = &flowdef.Flow{ID: df.ID, Name: df.Name, Version: versionText(df.Options.Version),
 			Tenant: df.Options.Tenant, Environment: df.Options.Environment}
 	)
+
+	conc, err := parseConcurrency(df.Options.Concurrency)
+	if err != nil {
+		return nil, err
+	}
+	flow.Concurrency = conc
+	if df.Options.PartitionBy != "" {
+		if strings.TrimSpace(df.Options.PartitionBy) == "" {
+			return nil, fmt.Errorf("options.partitionBy: expression must not be empty")
+		}
+		flow.PartitionExpr = df.Options.PartitionBy
+		if compile := getPartitionKeyCompiler(); compile != nil {
+			keyFn, err := compile(flow, df.Options.PartitionBy)
+			if err != nil {
+				return nil, fmt.Errorf("options.partitionBy: %w", err)
+			}
+			flow.PartitionKey = keyFn
+		}
+	}
 
 	for _, s := range df.Steps.Step {
 		switch s.Type {
@@ -204,6 +257,8 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 		var err error
 		if info, prepared := resolved[s.ID]; prepared {
 			conn = info.connection
+		} else if preResolved[s.ID] {
+			conn = stepConns[s.ID]
 		} else {
 			opts, uri, err = resolveRefs(s, core)
 			if err == nil {
@@ -216,7 +271,7 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 		if opts == nil {
 			opts = map[string]any{}
 		}
-		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Flow: flow}
+		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Measure: s.Measure, Flow: flow}
 		if conn != nil {
 			n.Bindings = stepdef.Params{stepdef.ConnectionBinding: conn}
 		}
@@ -251,6 +306,9 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 			wantIn = 0
 		case flowdef.Sink:
 			wantOut = 0
+			if s.WovenOut {
+				wantOut = 1
+			}
 		case flowdef.Router:
 			if len(outs) > 0 {
 				wantOut = len(outs) // a router has one or more outbound links
@@ -275,6 +333,12 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 		}
 		nodes = append(nodes, n)
 		outLinks[n] = outs
+		if len(s.AfterLinks) > 0 {
+			afterLinks[n] = s.AfterLinks
+		}
+		if len(s.ErrorLinks) > 0 {
+			errorLinks[n] = s.ErrorLinks
+		}
 	}
 
 	if source == nil {
@@ -289,6 +353,20 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 			}
 			n.Next = append(n.Next, target)
 			n.Links = append(n.Links, stepdef.Link{Rule: l.Rule, Language: l.Language, Expression: l.Expression})
+		}
+		for _, id := range afterLinks[n] {
+			target, ok := byInLink[id]
+			if !ok {
+				return nil, fmt.Errorf("step %s: after link %s has no target", n.ID, id)
+			}
+			n.After = append(n.After, target)
+		}
+		for _, id := range errorLinks[n] {
+			target, ok := byInLink[id]
+			if !ok {
+				return nil, fmt.Errorf("step %s: onError link %s has no target", n.ID, id)
+			}
+			n.OnError = append(n.OnError, target)
 		}
 	}
 
@@ -317,6 +395,8 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 		}
 		seen[n] = true
 		todo = append(todo, n.Next...)
+		todo = append(todo, n.After...)
+		todo = append(todo, n.OnError...)
 	}
 	if len(seen) != len(nodes) {
 		return nil, fmt.Errorf("flow has %d steps not reachable from the source", len(nodes)-len(seen))
@@ -332,6 +412,39 @@ func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (
 
 	flow.Source, flow.Error, flow.Handlers = source, errh, matched
 	return flow, nil
+}
+
+// maxFlowConcurrency is the upper bound on flow.options.concurrency.
+const maxFlowConcurrency = 1024
+
+// parseConcurrency parses flow.options.concurrency: nil (default 0 -> 1), or
+// an integer (or numeric string, as DIL converted from XML uses) in 1..1024.
+func parseConcurrency(v any) (int, error) {
+	if v == nil {
+		return 0, nil
+	}
+	var n int
+	switch x := v.(type) {
+	case float64:
+		if x != float64(int(x)) || x < 1 || x > maxFlowConcurrency {
+			return 0, fmt.Errorf("options.concurrency: want an integer between 1 and %d", maxFlowConcurrency)
+		}
+		n = int(x)
+	case int:
+		if x < 1 || x > maxFlowConcurrency {
+			return 0, fmt.Errorf("options.concurrency: want an integer between 1 and %d", maxFlowConcurrency)
+		}
+		n = x
+	case string:
+		parsed, err := strconv.Atoi(strings.TrimSpace(x))
+		if err != nil || parsed < 1 || parsed > maxFlowConcurrency {
+			return 0, fmt.Errorf("options.concurrency: want an integer between 1 and %d", maxFlowConcurrency)
+		}
+		n = parsed
+	default:
+		return 0, fmt.Errorf("options.concurrency: want an integer between 1 and %d", maxFlowConcurrency)
+	}
+	return n, nil
 }
 
 // versionText is the version of a flow as text: DIL writes it as a number.

@@ -1,0 +1,26 @@
+message sampleOrder {
+  body: `{"id":"ORD-100","amount":49.95}`
+  header Content-Type: "application/json"
+}
+
+flow orders(name: "Process Orders", inputMessage: "sampleOrder") {
+  "https://127.0.0.1:9443/orders" as ingest
+  -> setheader(name: "orderId", language: "simple", value: "${jq('.id')}") as extractId
+  -> "https://payments.example.com/v1/charge"(httpMethod: "POST") as chargePayment
+  -> setheader(name: "processed", language: "constant", value: "true") as markProcessed
+  -> setbody(language: "simple", expression: "order ${headers.orderId}: ${body}") as formatReply
+  -> passthrough as done
+
+  on error {
+    setheader(name: "fallback", language: "constant", value: "true") as markFallback
+    -> setbody(language: "simple", expression: "order ${headers.orderId} failed: ${headers.error.message}") as errorReply
+    -> passthrough as errorDone
+  }
+}
+
+flow normalize(name: "Normalize Order Text") {
+  message:normalize as start
+  -> setheader(name: "normalized", language: "constant", value: "true") as tag
+  -> setbody(language: "simple", expression: "${uppercase(${body})}") as upper
+  -> passthrough as finish
+}

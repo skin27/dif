@@ -14,19 +14,22 @@ const (
 	EventExchangeCompleted EventType = "exchange.completed" // a message was processed to its end
 	EventExchangeHandled   EventType = "exchange.handled"   // a step failed and an error route took the message
 	EventExchangeFailed    EventType = "exchange.failed"    // a message failed
+	EventStepCompleted     EventType = "step.completed"     // a step completed successfully
+	EventStepFailed        EventType = "step.failed"        // a step failed
 )
 
 // AllEvents is the name with which an event source receives events of every type.
 const AllEvents = "*"
 
 // EventHeader is the header of an event message that holds its type. A message
-// that has it is part of handling an event, and so gives no exchange events
-// itself: a flow that reacts to events cannot trigger itself.
+// that has it is part of handling an event, and so gives no exchange or step
+// events itself: a flow that reacts to events cannot trigger itself.
 const EventHeader = "event.type"
 
 var eventTypes = []EventType{
 	EventFlowStarted, EventFlowPaused, EventFlowResumed, EventFlowStopped, EventSourceFailed,
 	EventExchangeCompleted, EventExchangeHandled, EventExchangeFailed,
+	EventStepCompleted, EventStepFailed,
 }
 
 // EventTypes returns every event type.

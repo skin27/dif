@@ -4,6 +4,12 @@ import (
 	"strings"
 )
 
+// SimpleHeaderReads returns the headers a simple template expression reads,
+// for static flow checks such as flow-level partitionBy expressions.
+func SimpleHeaderReads(expr string) [][]string {
+	return headerReads(expr, false)
+}
+
 // headerReads returns the headers a simple expression reads, for the static
 // checks of a flow: for each ${header.x} reference with a fixed name, the
 // names it may read (${header.a.b} reads the header a.b, else a). A condition

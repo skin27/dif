@@ -223,32 +223,103 @@ func (d *Document) ProcessorChecks() ([]ProcessorCheck, error) {
 	}
 	return out, nil
 }
-func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Functions, map[string]ProcessorInfo, map[string]*mapping.Plan, map[string]*mapping.ServiceBinding, error) {
-	df, err := d.weaveInterceptors(df)
+
+type expandedFlow struct {
+	flow        dilFlow
+	scopes      map[string]*mapping.Functions
+	templates   map[string]ProcessorInfo
+	plans       map[string]*mapping.Plan
+	services    map[string]*mapping.ServiceBinding
+	stepConns   map[string]*stepdef.Connection
+	stepStores  map[string]map[string]stepdef.Store
+	preResolved map[string]bool
+}
+
+func (d *Document) expandProcessors(df dilFlow, extra []ProgramInterceptor) (expandedFlow, error) {
+	df, owners, err := d.weaveInterceptors(df, extra)
 	if err != nil {
-		return df, nil, nil, nil, nil, err
+		return expandedFlow{flow: df}, err
 	}
 	scopes := map[string]*mapping.Functions{}
 	templates := map[string]ProcessorInfo{}
 	plans := d.mappingBindings()
 	services := d.serviceBindings()
+	stepConns := map[string]*stepdef.Connection{}
+	stepStores := map[string]map[string]stepdef.Store{}
+	preResolved := map[string]bool{}
 	defaultScope := d.functionBindings()
 	df.Steps.Step = append(oneOrMany[dilStep](nil), df.Steps.Step...)
 	for i, s := range df.Steps.Step {
-		scopes[s.ID] = defaultScope
+		stepDoc := d
+		if own := owners[s.ID]; own != nil {
+			stepDoc = own
+		}
+		if stepDoc == d {
+			scopes[s.ID] = defaultScope
+		} else {
+			scopes[s.ID] = stepDoc.functionBindings()
+		}
 		name, ok := strings.CutPrefix(s.URI, "processor:")
 		if !ok {
+			if stepDoc == d {
+				continue
+			}
+			// A program-scoped interceptor from another document resolves its
+			// own refs, connections, maps, services, and stores against stepDoc.
+			var e error
+			s.Options, s.URI, e = resolveRefs(s, stepDoc.visibleCore())
+			if e != nil {
+				return expandedFlow{flow: df}, fmt.Errorf("step %q (%s): %w", s.ID, stepDoc.origin, e)
+			}
+			var conn *stepdef.Connection
+			s.Options, conn, e = resolveConnection(s.URI, s.Options, stepDoc.visibleCore())
+			if e != nil {
+				return expandedFlow{flow: df}, fmt.Errorf("step %q (%s): %w", s.ID, stepDoc.origin, e)
+			}
+			if strings.HasPrefix(s.URI, "sql2") && s.Options["connection"] != nil {
+				s.Options = maps.Clone(s.Options)
+				delete(s.Options, "dataSource")
+			}
+			if mapName, ok := strings.CutPrefix(s.URI, "mapper:"); ok {
+				plan := stepDoc.mappingBindings()[mapName]
+				if plan == nil {
+					return expandedFlow{flow: df}, fmt.Errorf("step %q (%s): map %q not found", s.ID, stepDoc.origin, mapName)
+				}
+				key := "@interceptor/" + s.ID
+				for plans[key] != nil {
+					key += "_"
+				}
+				plans[key] = plan
+				s.URI = "mapper:" + key
+			} else if svcName, ok := strings.CutPrefix(s.URI, "service:"); ok {
+				sb := stepDoc.serviceBindings()[svcName]
+				if sb == nil {
+					return expandedFlow{flow: df}, fmt.Errorf("step %q (%s): service %q not found", s.ID, stepDoc.origin, svcName)
+				}
+				key := "@interceptor/" + s.ID
+				for services[key] != nil {
+					key += "_"
+				}
+				services[key] = sb
+				s.URI = "service:" + key
+			}
+			if conn != nil {
+				stepConns[s.ID] = conn
+			}
+			stepStores[s.ID] = stepDoc.storeBindings()
+			preResolved[s.ID] = true
+			df.Steps.Step[i] = s
 			continue
 		}
 		if s.Type != flowdef.Action && !(s.Type == flowdef.Sink && strings.HasPrefix(s.ID, InterceptorPrefix)) {
-			return df, nil, nil, nil, nil, fmt.Errorf("processor %q must be an action", name)
+			return expandedFlow{flow: df}, fmt.Errorf("processor %q must be an action", name)
 		}
-		owner, p := d.processorOwner(name)
+		owner, p := stepDoc.processorOwner(name)
 		if p == nil {
-			return df, nil, nil, nil, nil, fmt.Errorf("processor %q not found", name)
+			return expandedFlow{flow: df}, fmt.Errorf("processor %q not found", name)
 		}
-		fail := func(e error) (dilFlow, map[string]*mapping.Functions, map[string]ProcessorInfo, map[string]*mapping.Plan, map[string]*mapping.ServiceBinding, error) {
-			return df, nil, nil, nil, nil, fmt.Errorf("step %q processor %q (%s): %w", s.ID, name, owner.origin, e)
+		fail := func(e error) (expandedFlow, error) {
+			return expandedFlow{flow: df}, fmt.Errorf("step %q processor %q (%s): %w", s.ID, name, owner.origin, e)
 		}
 		for k := range s.Options {
 			if k != "arguments" {
@@ -333,5 +404,14 @@ func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Fu
 		templates[s.ID] = ProcessorInfo{Name: p.Name, Origin: owner.origin, connection: conn, stores: owner.storeBindings()}
 		df.Steps.Step[i] = s
 	}
-	return df, scopes, templates, plans, services, nil
+	return expandedFlow{
+		flow:        df,
+		scopes:      scopes,
+		templates:   templates,
+		plans:       plans,
+		services:    services,
+		stepConns:   stepConns,
+		stepStores:  stepStores,
+		preResolved: preResolved,
+	}, nil
 }

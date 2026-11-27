@@ -41,6 +41,7 @@ const (
 	CodeHandlerMatchesNone  = "handler-matches-nothing" // an error handler whose errorStep or errorUri matches no step
 	CodeHandlerShadowed     = "handler-shadowed"        // an error handler with the same match options as one before it
 	CodeReplyMismatch       = "reply-mismatch"          // the reply of a contracted flow breaks the contract's output format
+	CodeConcurrencyHazard   = "concurrency-hazard"      // an unkeyed stateful step (such as aggregate) in a concurrent unpartitioned flow
 )
 
 // Diagnostic is a finding of the check of a flow.
@@ -97,6 +98,7 @@ func Check(f *flowdef.Flow, effectOf func(*flowdef.Node) *Effect) []Diagnostic {
 			}
 		}
 	}
+	c.checkPartition(out)
 	c.follow(f.Source, src, out)
 	for _, h := range f.ErrorHandlers() {
 		if h.Route != nil {
@@ -107,18 +109,19 @@ func Check(f *flowdef.Flow, effectOf func(*flowdef.Node) *Effect) []Diagnostic {
 	for _, n := range c.nodes {
 		c.checkStep(n)
 	}
+	c.checkConcurrency()
 	c.checkHandlers()
 	c.checkReply()
 
-	order := map[string]int{}
+	order := map[string]int{"": 0}
 	for i, n := range c.nodes {
 		if _, ok := order[n.ID]; !ok {
-			order[n.ID] = i
+			order[n.ID] = i + 1
 		}
 	}
 	for i, h := range f.ErrorHandlers() {
 		if _, ok := order[h.ID]; !ok {
-			order[h.ID] = len(c.nodes) + i
+			order[h.ID] = len(c.nodes) + i + 1
 		}
 	}
 	slices.SortStableFunc(c.diags, func(a, b Diagnostic) int {
@@ -166,11 +169,18 @@ func (c *checker) reach(n *flowdef.Node, t Type) {
 	if n == c.flow.Source {
 		return // the source's outbound links are followed by Check
 	}
+	for _, onErr := range n.OnError {
+		c.reach(onErr, t)
+	}
 	e := c.effect(n)
 	if e != nil && e.Stops {
 		return
 	}
-	c.follow(n, e, apply(e, t, n.ID))
+	out := apply(e, t, n.ID)
+	for _, after := range n.After {
+		c.reach(after, out)
+	}
+	c.follow(n, e, out)
 }
 
 // follow sends the message that comes out of step n along its links. For a
@@ -447,4 +457,84 @@ func (c *checker) checkReply() {
 		c.report(n.ID, conflict(end.Body.Family, need.Family), CodeReplyMismatch, "the reply of the flow ends here with %s body%s, but its service contract needs %s",
 			aLabel(end.Body.Family), from(end.familyFrom), label(need.Family))
 	}
+}
+
+// checkConcurrency warns when a concurrent unpartitioned flow contains an
+// aggregate step without correlationKey, where concurrent messages race into
+// a single shared aggregation bucket.
+func (c *checker) checkConcurrency() {
+	if c.flow.Concurrency <= 1 || c.flow.PartitionExpr != "" || c.flow.PartitionKey != nil {
+		return
+	}
+	for _, n := range c.nodes {
+		if stepName(n) != "aggregate" {
+			continue
+		}
+		key, _ := n.Options["correlationKey"].(string)
+		if strings.TrimSpace(key) == "" {
+			c.report(n.ID, Warning, CodeConcurrencyHazard, "aggregate without correlationKey in a concurrent flow without partitionBy races messages into one group; set correlationKey or partitionBy")
+		}
+	}
+}
+
+// checkPartition checks header references in flow.options.partitionBy against
+// the headers produced by the flow's source (and configured input message).
+func (c *checker) checkPartition(out Type) {
+	reads := c.flow.PartitionReads
+	if len(reads) == 0 && c.flow.PartitionExpr != "" {
+		reads = partitionHeaderReads(c.flow.PartitionExpr)
+	}
+	if len(reads) == 0 || !out.Closed {
+		return
+	}
+	for _, names := range reads {
+		if len(names) == 0 {
+			continue
+		}
+		unset := true
+		for _, name := range names {
+			if p, _ := out.presence(name); p != 0 || provided(name) || name == "" {
+				unset = false
+			}
+		}
+		if !unset {
+			continue
+		}
+		name := names[0]
+		hint := ""
+		if s := suggest(name, out.Headers); s != "" {
+			hint = fmt.Sprintf("; did you mean %q?", s)
+		}
+		c.report("", Warning, CodeHeaderNotSet, "partitionBy reads header %q, which the source does not set%s", name, hint)
+	}
+}
+
+var partitionHeaderPattern = regexp.MustCompile(`\$(?:simple)?\{\s*(?:in\.)?headers?(?:\.([A-Za-z0-9_.-]+)|:([A-Za-z0-9_.-]+)|\[['"]?([A-Za-z0-9_.-]+)['"]?\])`)
+
+// partitionHeaderReads extracts static header references from a simple
+// partitionBy expression when the caller did not supply PartitionReads.
+func partitionHeaderReads(expr string) [][]string {
+	matches := partitionHeaderPattern.FindAllStringSubmatch(expr, -1)
+	if len(matches) == 0 {
+		return nil
+	}
+	reads := make([][]string, 0, len(matches))
+	for _, m := range matches {
+		name := m[1]
+		if name == "" {
+			name = m[2]
+		}
+		if name == "" {
+			name = m[3]
+		}
+		if name == "" {
+			continue
+		}
+		if i := strings.IndexByte(name, '.'); i > 0 {
+			reads = append(reads, []string{name, name[:i]})
+		} else {
+			reads = append(reads, []string{name})
+		}
+	}
+	return reads
 }

@@ -38,6 +38,11 @@ var commands = []cmdDoc{
 	{"DEVELOPMENT", "validate", "<flow.json>... [--output text|json] [--strict]", "Validate flow structure, references and option schemas, and check the flow statically", "Offline validation does not construct processors. The static checks follow what is known about the message from step to step and report errors (every message fails at a step) and warnings; errors fail validation, warnings only with --strict. Expressions, processor-specific semantics and external resources are checked when loading a flow."},
 	{"DEVELOPMENT", "describe", "<flow.json> [--output text|json]", "Describe steps, links, error handling, configuration and capabilities", "Groups include documents, imports, integrations and core references. Option values, URI paths and expression text are omitted to avoid exposing credentials. The capabilities list, per step, the addresses it can connect to or listen on, the files it can read or write and the environment variables it can read."},
 	{"DEVELOPMENT", "convert", "<file> [--to dil|json] [--output path]", "Convert a flow between DIL JSON and DIL text", "A .json file becomes DIL text, a .dil file DIL JSON; --to chooses the format. Writes to the screen, or to a new file with --output: convert never overwrites a file. DIL text is described in docs/dil-language.md; its comments are not kept in JSON."},
+	{"DEVELOPMENT", "test", "<file|dir>... [--output text|json]", "Run declarative flow tests hermetically", "Runs all test declarations in the specified files or directories under an empty capability sandbox. Live sources are bypassed, mocked steps are substituted without constructing real processors, and unmocked external steps are rejected."},
+	{"DEVELOPMENT", "trace", "<flow|file> [body]", "Run a flow and show step-by-step message diffs", "In the shell: trace <flow> [body] traces a loaded flow.\nFrom the command line: dif trace <file> [--flow id] [--body text] [--header k=v]... [--output text|json] runs a flow file once (bypassing its live source) and prints per-step body and header diffs."},
+	{"DEVELOPMENT", "msg", "[body] [--header k=v]... [--clear]", "Inspect or edit the REPL scratch message", "Without arguments, displays the current scratch message used by eval and exec. Pass a body, --header k=v (repeatable), or --clear to reset it."},
+	{"DEVELOPMENT", "eval", "<simple|map|xpath|jsonpath> <expression>", "Evaluate an expression against the scratch message", "Evaluates an expression in simple, map (difmap/1), xpath, or jsonpath against the scratch message without mutating it, and prints the value and its type."},
+	{"DEVELOPMENT", "exec", "<dil-chain>", "Run an inline DIL step chain against the scratch message", "Compiles a .dil step chain (for example: setbody(language: \"simple\", expression: \"${uppercase(${body})}\") -> passthrough), runs it against the scratch message, and shows the resulting message and step-by-step trace."},
 	{"SYSTEM", "version", "[--output text|json]", "Show version and build information", "Includes revision, Go version and platform."},
 	{"SYSTEM", "completion", "[command line]", "Suggest commands and arguments", "Examples: completion, completion val, completion init --template t, completion catalog pass. Lists suggestions without running a command."},
 	{"SYSTEM", "help", "[command]", "Show this help", ""},
@@ -93,7 +98,7 @@ func commandHelp(c cmdDoc) string {
 		s += "\n\n" + c.detail
 	}
 	switch c.name {
-	case "load", "run", "init", "validate", "describe", "convert":
+	case "load", "run", "init", "validate", "describe", "convert", "test", "trace":
 		s += "\n\nFlow filenames default to .json: '" + c.name + " hello' uses hello.json. Explicit extensions are preserved; a .dil file is DIL text."
 	}
 	return s

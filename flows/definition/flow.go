@@ -28,22 +28,29 @@ type Node struct {
 	Bindings  stepdef.Params
 	Next      []*Node           // targets of the outbound links
 	Links     []stepdef.Link    // the outbound links' rules and conditions, parallel to Next; nil if they have none
+	After     []*Node           // detached observer chains run immediately after this step succeeds
+	OnError   []*Node           // detached observer chains run when this step fails, before flow error handling
+	Measure   bool              // when true, the engine records metadata.step.duration (ms) and metadata.step.target after this step
 	Processor stepdef.Processor // the step's processor
 	Flow      *Flow             // the flow the step is in
 }
 
 // Flow is a graph of nodes starting at Source.
 type Flow struct {
-	ID          string
-	Name        string
-	Version     string // the version of the flow; "" if it has none
-	Tenant      string // the tenant the flow belongs to; "" if it has none
-	Environment string // the environment it runs in, such as test; "" if it has none
-	Source      *Node
-	Input       message.Message // headers and body of the configured message; nil if there is none
-	Contract    *Contract       // optional service contract enforced at flow entry and reply; nil if none
-	Error       *ErrorHandler   // what to do when a step fails and no handler in Handlers matches; nil: the message fails
-	Handlers    []*ErrorHandler // handlers for particular failures, tried in order before Error; each has a Match
+	ID             string
+	Name           string
+	Version        string // the version of the flow; "" if it has none
+	Tenant         string // the tenant the flow belongs to; "" if it has none
+	Environment    string // the environment it runs in, such as test; "" if it has none
+	Source         *Node
+	Input          message.Message                                        // headers and body of the configured message; nil if there is none
+	Contract       *Contract                                              // optional service contract enforced at flow entry and reply; nil if none
+	Error          *ErrorHandler                                          // what to do when a step fails and no handler in Handlers matches; nil: the message fails
+	Handlers       []*ErrorHandler                                        // handlers for particular failures, tried in order before Error; each has a Match
+	Concurrency    int                                                    // worker count; 0 or 1 means 1 (single sequential worker)
+	PartitionKey   func(context.Context, message.Message) (string, error) // optional key extractor for partitioned concurrency; nil if unpartitioned
+	PartitionExpr  string                                                 // optional raw partitionBy expression, for static flowcheck only; never shown in describe
+	PartitionReads [][]string                                             // optional headers read by PartitionExpr, for static flowcheck only
 }
 
 // Contract holds DSL-neutral service contract callbacks enforced by the engine.
@@ -83,6 +90,27 @@ type FaultError struct {
 }
 
 func (e *FaultError) Error() string { return e.Reason }
+
+// GuardError reports that a guard interceptor denied a message.
+// It intentionally does not unwrap an inner error so errorClass resolves to *definition.GuardError.
+type GuardError struct {
+	Interceptor string
+	Step        string
+	Reason      string
+}
+
+func (e *GuardError) Error() string {
+	if e.Reason != "" {
+		return e.Reason
+	}
+	if e.Interceptor != "" && e.Step != "" {
+		return "guard " + e.Interceptor + " denied step " + e.Step
+	}
+	if e.Interceptor != "" {
+		return "guard " + e.Interceptor + " denied"
+	}
+	return "guard denied"
+}
 
 // ErrorHandlers returns every error handler of the flow in the order they are
 // tried: those with a Match, then the default one.

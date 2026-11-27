@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"dif/message"
 	stepdef "dif/steps/definition"
@@ -25,6 +26,27 @@ const (
 type splitRouter struct {
 	split, main int // main is -1 if there is no other link
 	parts       func(m message.Message, contexts ...context.Context) ([]string, error)
+	policy      stepdef.ParallelPolicy
+}
+
+func (r splitRouter) ParallelPolicy() stepdef.ParallelPolicy { return r.policy }
+
+// parallelPolicy extracts the structured parallel routing options common to
+// parallel-capable routers (split, splitandaggregate, recipient, enrich).
+func parallelPolicy(p stepdef.Params) stepdef.ParallelPolicy {
+	parallel, _ := p["parallelProcessing"].(bool)
+	maxConc, _ := p["maxConcurrency"].(int)
+	timeoutMs, _ := p["branchTimeout"].(int)
+	failFast := true
+	if ff, ok := p["failFast"].(bool); ok {
+		failFast = ff
+	}
+	return stepdef.ParallelPolicy{
+		Parallel:       parallel,
+		MaxConcurrency: maxConc,
+		BranchTimeout:  time.Duration(timeoutMs) * time.Millisecond,
+		FailFast:       failFast,
+	}
 }
 
 func newSplitRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
@@ -32,6 +54,7 @@ func newSplitRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	if err != nil {
 		return nil, err
 	}
+	r.policy = parallelPolicy(p)
 	return r, nil
 }
 
@@ -46,6 +69,7 @@ func newSplitWithNamespaceRouter(_ string, p stepdef.Params) (stepdef.Processor,
 	if err != nil {
 		return nil, err
 	}
+	r.policy = parallelPolicy(p)
 	return r, nil
 }
 
@@ -249,7 +273,7 @@ func (r splitRouter) Route(ctx context.Context, m message.Message) ([]stepdef.Ro
 		return nil, err
 	}
 	if r.main >= 0 {
-		routes = append(routes, stepdef.Route{Next: r.main, Message: m})
+		routes = append(routes, stepdef.Route{Next: r.main, Message: m, AfterParallel: r.policy.Parallel})
 	}
 	return routes, nil
 }

@@ -49,6 +49,8 @@ dif run --url=https://gist.githubusercontent.com/USER/ID/raw/REVISION/flow.json
 dif run --config=/etc/dif/service.json
 dif validate --dir=/etc/dif/flows --output=json
 dif describe /etc/dif/orders.json
+dif test api/testdata/testing/orders_test.dil
+dif trace api/testdata/testing/orders.dil --flow normalize --body "hello dif"
 dif version --output=json
 ```
 
@@ -149,6 +151,11 @@ mistyped flow id. On a terminal that supports it, flow states are colored
 | `validate <flow.json>... [--output text\|json] [--strict]` | Check structure, graph, references and step option schemas; reject duplicate flow ids across input files. Then check every flow statically (see [Static flow checking](#static-flow-checking)): errors fail validation, warnings only with `--strict` (also `dif validate --strict`). `dif validate` with a policy (`--sandbox`, `--allow-*` or `permissions`) also reports each capability it does not grant as a `not-permitted` error (see [Capabilities and permissions](#capabilities-and-permissions)) |
 | `describe <flow.json> [--output text\|json]` | Show steps, links, error handling and configuration requirements, with values omitted, and the capabilities of the steps: the addresses, files and environment variables they can touch |
 | `convert <file> [--to dil\|json] [--output path]` | Convert a flow between DIL JSON and DIL text (`.dil`), to the screen or to a new file; never overwrite an existing file |
+| `test <file\|dir>... [--output text\|json]` | Run declarative `test` blocks hermetically under an empty capability sandbox: live sources are bypassed, mocked steps never construct real processors, and unmocked external steps fail fast (also top-level `dif test`, see [api/testdata/testing](api/testdata/testing/README.md)) |
+| `trace <flow> [body]` | Trace a loaded flow and show per-step body and header diffs; from the command line, `dif trace <file> [--flow id] [--body text] [--header k=v]... [--output text\|json]` traces a flow file once while bypassing its live source |
+| `msg [body] [--header k=v]... [--clear]` | Inspect or edit the REPL scratch message used by `eval` and `exec` |
+| `eval <simple\|map\|xpath\|jsonpath> <expression>` | Evaluate an expression against the scratch message without mutating it, printing the value and its type |
+| `exec <dil-chain>` | Compile and run an inline `.dil` step chain against the scratch message and display the resulting message and step-by-step trace |
 | `version [--output text\|json]` | Show DIF version, revision, Go version and platform |
 | `completion [command line]` | Suggest commands, flags, template names, output formats, catalog steps or file paths; for example `completion val` or `completion init --template t` |
 | `help [command]`         | List all commands, or explain one                                       |
@@ -313,15 +320,44 @@ by a `sync.RWMutex`). Every flow runs independently:
 
 ```text
 Engine ── flow id → Runner
-           ├── hello: 1 goroutine executing messages (one at a time)
+           ├── hello: 1 goroutine executing messages (default, one at a time)
+           ├── orders (concurrency: 8): 8 worker goroutines consuming the inbox
+           ├── accounts (concurrency: 8, partitionBy: "${header.accountId}"):
+           │            dispatcher + 8 FIFO lanes hashed by key (FNV-1a)
            └── timer: 1 goroutine executing messages + 1 for its timer source
 ```
 
+- **Default sequential execution**: by default (`concurrency` omitted or `1`), a
+  flow executes one message at a time on a single goroutine.
+- **Flow-level concurrency (`options.concurrency`)**: set `concurrency` (`1..1024`)
+  on a flow's `options` (in DIL text: `flow orders(concurrency: 8) { ... }`) to
+  run up to `N` messages concurrently in a bounded worker pool.
+- **Key-partitioned FIFO concurrency (`options.partitionBy`)**: combine
+  `concurrency` with `partitionBy` (a Simple expression such as
+  `"${header.customerId}"`) to evaluate a partition key per message and dispatch
+  it deterministically (FNV-1a 64-bit hash modulo `N`) to one of `N` single-worker
+  lanes. Messages with the same key always execute in strict FIFO order, while
+  different keys run in parallel. Static checks (`dif validate`) warn on
+  `concurrency-hazard` if a concurrent unpartitioned flow uses `aggregate`
+  without `correlationKey`, and check header references in `partitionBy`.
+- **Structured parallel routing**: the `split`, `splitwithnamespace`,
+  `splitandaggregate`, `splitandaggregatewithnamespace`, `recipient`, and `enrich`
+  routers accept `parallelProcessing` (default `false`), `maxConcurrency`
+  (default `0`, engine default `max(2, GOMAXPROCS*2)`), `branchTimeout` in ms
+  (default `0`, none), and `failFast` (default `true`, cancels sibling branches
+  on the first non-detached failure). All launched branch goroutines are joined
+  before the router returns (structured concurrency), trails and gathered
+  outcomes (such as `splitandaggregate`) preserve deterministic input route
+  order, and a parallel `split`'s main continuation link runs after all parts
+  complete.
 - A flow has at most one run: `Start` begins one only when the flow is
-  stopped, so a flow never gets two execution goroutines.
+  stopped, so a flow never gets two runs.
 - Each message is a standalone execution; it carries no lifecycle state.
 - Lifecycle calls on one flow never block another: the registry lock is held
-  only to find a flow, and each flow guards its own state.
+  only to find a flow, and each flow guards its own state. `Pause` stops new
+  intake while in-flight messages finish; `Stop` drains accepted messages and
+  joins all workers before stopping; `ForceStop` cancels in-flight message
+  contexts immediately.
 - `Shutdown` stops every flow and waits until all have finished.
 - The startup time is when the current run began: pausing and starting again
   keeps it, stopping clears it (`-` in `list`).
@@ -763,7 +799,7 @@ using anything else fails registration.
 | `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000; the designer writes `requestTimout`, which wins), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
 | `topic:<name>` | source | — | Creates an independent subscription while running; paused subscriptions buffer messages; see [Topics](#topics) |
 | `topic:<name>` | action | — | Publishes a copy to every active subscription without waiting for processing; see [Topics](#topics) |
-| `event:<type>` | source | `flowId` ("": every flow) | Receives the events of the flows of the process: `flow.started`, `flow.paused`, `flow.resumed`, `flow.stopped`, `source.failed`, `exchange.completed`, `exchange.handled`, `exchange.failed`, or `*` for all; see [Events](#events) |
+| `event:<type>` | source | `flowId` ("": every flow) | Receives the events of the flows of the process: `flow.started`, `flow.paused`, `flow.resumed`, `flow.stopped`, `source.failed`, `exchange.completed`, `exchange.handled`, `exchange.failed`, `step.completed`, `step.failed`, or `*` for all; see [Events](#events) |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` or `matchOnUriPrefix` (false), `exchangePattern` InOut\|InOnly (InOut), `preserveHttpHeaders` (false), `authenticationPreemptive` (no effect), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
 | `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|TRACE (GET), `authMethod` None\|Basic (None) with `authUsername` and `authPassword`, `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `connectTimeout` ms (30000), `socketTimeout` ms (30000), `retryRequests` (false) with `retryAttempts` (5) and `retryInterval` ms (30000), `excludeHeaders` (regular expression), `throwExceptionOnFailure` or `useErrorRoute` (false); no effect: `authenticationPreemptive`, `maxTotalConnections`, `connectionsPerRoute`, `useCustomDateHeader`, `sslContextParameters` | Calls the endpoint, written `https://host/path` or, as DIL has it, `https:https://host/path`; the address may hold `${…}` parts, which are evaluated for each message. The response becomes the message, see [HTTPS](#https) |
 | `rest` | action | `method` (post), `host` (`https://localhost:9002`), `path` (required), `produces` ("": Content-Type of the request when the message sets none), `consumes` ("": its Accept header), `trustStoreFile`, `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (true) | Calls `host`/`path` as the https action does |
@@ -795,6 +831,7 @@ using anything else fails registration.
 | `delay` | action | `milliseconds` (5000) | Holds the message, then passes it on; a forced stop does not wait |
 | `logger` | action | `loggingLevel` TRACE\|DEBUG\|INFO\|WARN\|ERROR\|OFF (INFO), `language` constant\|simple (simple), `expression` (`${body}`) | Writes `step <id>: <level> <text>` to the flow's log (nothing with OFF) and passes the message on |
 | `simplevalidator` | action | `expression` (required: a simple condition) | Passes the message on when the condition holds, else fails it with `validation failed: <condition>` |
+| `guard` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required), `message` (""), `interceptor` (""), `targetStep` ("") | Passes the message on when the condition holds, else fails with `*definition.GuardError` |
 | `wastebin` | action or sink | – | Drops the message: the steps after it never get it |
 | `jsonvalidator:ref:<resource>` | action | – (the schema is the DIL resource) | Validates a JSON body against the JSON Schema in `dil.core.resources`, as `validate` does |
 | `xslt:ref:<resource>` | action | – (the stylesheet is the DIL resource), `path` (a stylesheet file instead, read when the flow is built) | Transforms an XML body with an XSLT 2.0/3.0 stylesheet (1.0 stylesheets run too, as a literal `html xsl:version="1.0"` stylesheet does), by `github.com/knroy/go-xml`. The headers of the message that are text, numbers or booleans are the values of the top-level `xsl:param` of the same name, as in Camel. `xsl:include`, `xsl:import`, `document()` and `unparsed-text()` are closed. The output follows Saxon where go-xml follows the specification: indented by three spaces, and `<!DOCTYPE HTML>` before an `html` result without `version` or `html-version`. A stylesheet that does not compile fails the build; a body that is no XML, or `xsl:message terminate="yes"`, fails the message; `xsl:message` goes to the flow's log |
@@ -833,13 +870,13 @@ using anything else fails registration.
 | `editoxml` | action | `segment` (LB: a line break), `field` (~), `component` (^), `subComponent` (!) | Converts delimited EDI into XML: `<edi-message>` with `<delimiters>` and an element per segment, named after its first field, holding `<field.N>`, `<component.N>` and `<sub-component.N>` |
 | `xmltoedi` | action | – | Converts that XML back into EDI, with its `<delimiters>` |
 | `wiretap` | router | – | Sends a copy to the link with rule `wiretap` (detached), then the message along the other link |
-| `recipient` | router | – | Sends a copy to every link, in order; the outcome is the last one's |
+| `recipient` | router | `parallelProcessing` (false), `maxConcurrency` (0), `branchTimeout` ms (0), `failFast` (true) | Sends a copy to every link, in order (or concurrently when `parallelProcessing` is true, joining all branches before returning); the outcome is the last one's |
 | `content` | router | `expression`, `namespace` (no effect; the conditions are on the links) | Sends the message along the first link whose condition (`language`, `expression`) holds, else along the link without a condition; with none, the message stops |
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
-| `split` | router or action | `language` xpath\|jsonpath\|tokenize\|xtokenize\|simple (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. The parts: for xpath the selected nodes (an element as XML), for jsonpath the selected values as JSON (strings as is; one selected array is split), for tokenize what lies between the occurrences of the text, trimmed and not empty, for xtokenize the elements of an XML path (`//product`, or just a name), for simple the elements of the list the expression gives (`${body.split(',')}`) or the parts of a text between commas. An xpath or jsonpath with `${...}`, such as `${header.expression}`, is evaluated for every message |
-| `enrich` | router | `enrichType` override\|xml\|json (xml; the designer also writes it as `enrichMethod` or `enrichFileType`, which win), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
+| `split` | router or action | `language` xpath\|jsonpath\|tokenize\|xtokenize\|simple (xpath), `expression` (required), `parallelProcessing` (false), `maxConcurrency` (0), `branchTimeout` ms (0), `failFast` (true); `streaming`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete` (concurrently when `parallelProcessing` is true, joining all parts first); then the message itself along the other link, if any. The parts: for xpath the selected nodes (an element as XML), for jsonpath the selected values as JSON (strings as is; one selected array is split), for tokenize what lies between the occurrences of the text, trimmed and not empty, for xtokenize the elements of an XML path (`//product`, or just a name), for simple the elements of the list the expression gives (`${body.split(',')}`) or the parts of a text between commas. An xpath or jsonpath with `${...}`, such as `${header.expression}`, is evaluated for every message |
+| `enrich` | router | `enrichType` override\|xml\|json (xml; the designer also writes it as `enrichMethod` or `enrichFileType`, which win), `useErrorRoute` (true), `parallelProcessing` (false), `maxConcurrency` (0), `branchTimeout` ms (0), `failFast` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails (including a `branchTimeout` when `parallelProcessing` is true), the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
 | `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0), `completionTimeout` (0), `completionInterval` (0), the last two in milliseconds, `correlationKey` (a simple expression), `store` (a store's name) | Collects messages. A group is complete with the last part of a split (`split.complete`), with `completionSize` messages, when `completionTimeout` has passed since its last message came, and every `completionInterval`. The complete group is released as a message of its own, made from the group's last message (a new message ID, caused by it, without the split headers), with the aggregate as body; it goes on along the link and what comes of it is ignored (a failure is logged, or, when a timer completed the group, handled by the flow's error route). The message that came in carries on as it came, so a request gets its reply at once. A body that is not XML or JSON fails when it comes in. Without `correlationKey` there is one group at a time (the Kamelet correlates all messages); with it, the messages whose key has the same value make a group, and each group completes on its own (`completionInterval` completes all of them). Without a timer a new split (`split.index` 0) starts its group anew. A group that is not complete when the flow stops is lost, unless `store` names a store that keeps the groups; see [Stores](#stores). Inside the `split` route of a `splitandaggregate`, the aggregate's type decides how that aggregates the parts |
-| `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split`, aggregates what comes out (a gatherer) and sends the message with the aggregate along the other link; with nothing to split the message goes on as it is. A failed part fails the message |
+| `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split` (concurrently when `parallelProcessing` is true), aggregates what comes out in input part order (a gatherer) and sends the message with the aggregate along the other link; with nothing to split the message goes on as it is. A failed part fails the message (cancelling sibling parts when `parallelProcessing` and `failFast` are true) |
 | `splitwithnamespace` | router or action | as `split` with `language` xpath only, and `nsprefix` and `namespace` (given together) | `split` whose xpath may use the prefix `nsprefix`, which stands for `namespace` (`/root/h:table`); an element is written with the declarations its names need |
 | `splitandaggregatewithnamespace` | router | as `splitandaggregate` with `language` xpath only, and `nsprefix` and `namespace` | `splitandaggregate` whose xpath may use the prefix `nsprefix` |
 | `if` | router or action | – (the condition is on the link with rule `if`) | Sends the message along the `if` link when its condition holds, else along the link without a condition; as an action the message stops there |
@@ -1407,55 +1444,82 @@ for competing consumers, fan-out and a slow audit consumer.
 
 ### Interceptors
 
-Work that belongs to many steps, such as an audit trail or a log line before
-every call, can be declared once instead of tapped into each flow by hand. In
-the `dil.core` of a document:
+Work that belongs to many steps — auditing, header enrichment, guards, timing,
+or error observation — can be declared once instead of repeated in every flow.
+In the `dil.core` of a document:
 
 ```json
 {"dil": {"core": {"interceptors": {"interceptor": [
   {"name": "audit",
    "pointcut": {"flows": ["orders*"], "uris": ["https", "sql*"], "kinds": ["action"]},
    "action": {"uri": "topic:audit"}},
-  {"name": "arrival", "at": "entry",
-   "action": {"uri": "logger", "options": {"expression": "arrival of ${header.Message-Id}"}}}
+  {"name": "arrival", "at": "entry", "mode": "transform", "scope": "program",
+   "action": {"uri": "setheader", "options": {"name": "X-Tenant", "value": "acme"}}},
+  {"name": "auth", "at": "entry", "mode": "guard",
+   "condition": {"language": "simple", "expression": "${header.Authorization} != null"},
+   "onDeny": {"message": "missing Authorization header"}},
+  {"name": "timing", "at": "after", "pointcut": {"kinds": ["action"]},
+   "action": {"uri": "logger", "options": {"expression": "${header.metadata.step.target} took ${header.metadata.step.duration}ms"}}},
+  {"name": "err-audit", "at": "onError",
+   "action": {"uri": "logger", "options": {"expression": "${header.metadata.step.target} failed: ${header.error.message}"}}}
 ]}}}}
 ```
 
-- `at` is `before` (the default): in front of every step the pointcut selects;
-  or `entry`: in front of the first step after the source, as Camel's
-  `interceptFrom`.
+- `at` chooses when the interceptor runs:
+  - `before` (the default): in front of every step the pointcut selects.
+  - `entry`: in front of the first step after the source, as Camel's
+    `interceptFrom` (selects flows only, not steps/uris/kinds).
+  - `after`: immediately after a matched `action` or `sink` step succeeds
+    (`router` is rejected in `pointcut.kinds`, and omitted `kinds` matches
+    `action` and `sink`). Populates `metadata.step.duration` (`int64`
+    milliseconds) and `metadata.step.target` (the step's id) on the message.
+  - `onError`: observes a matched step's failure after retries exhaust and
+    before flow-level `on error` routing, on a detached copy populated with
+    `error.message`, `error.step`, `error.class`, `error.stacktrace`,
+    `metadata.step.target`, and `metadata.step.duration`. Only `observe` mode
+    is permitted.
+- `mode` chooses how the interceptor affects the message:
+  - `observe` (the default): detached wire-tap semantics. The interceptor runs
+    on a copy of the message; mutations do not reach the main message, and
+    failures are logged without failing the message.
+  - `transform`: runs inline (`before`, `entry`, or `after`), allowing header
+    or body mutation or throttling; failures fail the message and route to
+    `on error`. Static checks (`dif validate`) propagate its `Effect` into
+    downstream steps.
+  - `guard`: runs inline (`before` or `entry`). Supports a declarative
+    `condition` (`language`: `simple`|`xpath`|`jsonpath`, `expression`) with
+    optional `onDeny` (`message`), a guarding `action`, or both. When
+    `condition` evaluates to false, the step fails with `*definition.GuardError`
+    (matching `errorClass: "*GuardError"` in `on error`). Static checks inspect
+    headers read by `condition`, while `describe` never exposes expressions or
+    `onDeny` messages.
+- `scope` is `document` (the default, flows of this document only; an imported
+  document's `document`-scoped interceptors never reach importing flows) or
+  `program` (woven across all flows in a resolved program).
 - The pointcut is made of patterns (`*` any text, `?` one character), and a
   step must satisfy every list that is given: `flows` (the flow's id or name),
   `steps` (the step's id), `uris` (the scheme of the step's URI) and `kinds`
-  (`action`, `router` or `sink`). Without a pointcut every step of every flow of
-  the document is selected.
+  (`action`, `router` or `sink`).
 - The action is one action with a `uri` and `options`, such as `logger`, `log`,
-  `topic`, `queue` or a [reusable processor](docs/functions-language.md#reusable-actions)
-  (`processor:name`, its `arguments` among the options). It is a tap: the loader
-  puts a `wiretap` router in front of the step, which passes the message on and
-  sends a copy to the action. What happens to the copy never changes or fails
-  the message; a failure is logged as that of a detached route. The action runs
-  in line, before the step: slow work belongs behind an enqueueing action (see
-  [Queued wire taps](#queued-wire-taps)).
+  `setheader`, `topic`, `queue` or a [reusable processor](docs/functions-language.md#reusable-actions)
+  (`processor:name`, its `arguments` among the options). Slow observation work
+  belongs behind an enqueueing action (see [Queued wire taps](#queued-wire-taps)).
 - Several interceptors on a step run in the order they are declared. An
   interceptor does not intercept the steps another one added, nor the steps of
   an error route.
-- The steps it adds have ids that start with `intercept:` (`intercept:audit:x`
-  for the router, `intercept:audit:x:action` for the action), show in the trail
-  of a message and in `describe`, and are marked as added by an interceptor in
-  its JSON output.
-- The interceptors of a document apply to the flows of that document only; an
-  imported document's interceptors do not reach the importing flows.
-- An interceptor observes. It cannot change the message or skip the step; for
-  that, put the step in the flow.
+- The steps it adds have ids that start with `intercept:` (`intercept:<name>:<step>`),
+  show in the trail of a message and in `describe`, are marked as added by an
+  interceptor in its JSON output, and have their capabilities enforced by any
+  configured policy.
 
 `testdata/examples/interceptor.json` logs before each action of its flow.
 
 ### Events
 
-What happens to a flow, and how its messages end, can start another flow: a
-flow whose source is `event:<type>` receives the events of the flows loaded in
-the same process (or the same `api.Runtime`), as Camel's `camelevent:` does.
+What happens to a flow, its steps, and how its messages end, can start another
+flow: a flow whose source is `event:<type>` receives the events of the flows
+loaded in the same process (or the same `api.Runtime`), as Camel's `camelevent:`
+does.
 
 | Type | When |
 |---|---|
@@ -1464,14 +1528,17 @@ the same process (or the same `api.Runtime`), as Camel's `camelevent:` does.
 | `exchange.completed` | a message was processed to its end |
 | `exchange.handled` | a step failed and an error route took the message |
 | `exchange.failed` | a message failed (no error route, or the handler is unhandled) |
+| `step.completed` | a step succeeded |
+| `step.failed` | a step failed (after retries exhaust) |
 
 The event is a message of its own: headers `event.type`, `event.time`,
-`event.flow.id`, `event.flow.name` and, as they apply, `event.step` (the step
-that failed), `event.duration` (milliseconds) and the `error.*` headers of an
-error route, so `${exception.message}` works. An exchange event has the
-`Correlation-Id` and trace of the message it is about and names that message
-as its cause (`Causation-Id`). The body is a JSON summary of the same facts;
-**an event never carries the payload** of the message.
+`event.flow.id`, `event.flow.name` and, as they apply, `event.step`,
+`event.uri` (the step's URI scheme), `event.duration` (milliseconds) and the
+`error.*` headers of an error route, so `${exception.message}` works. An
+exchange or step event has the `Correlation-Id` and trace of the message it is
+about and names that message as its cause (`Causation-Id`). The body is a JSON
+summary of the same facts; **an event never carries the payload** of the
+message.
 
 - Events cost nothing unless a flow listens: the engine asks first, and
   nothing is made for a type nobody subscribed to.
@@ -1480,10 +1547,10 @@ as its cause (`Causation-Id`). The body is a JSON summary of the same facts;
   buffer is full the event is dropped for every subscriber of that type (a
   topic admits a message to all subscriptions or to none) and counted
   (`Runtime.DroppedEvents`).
-- A message that comes from an event source gives no `exchange.*` events itself,
-  and neither do the messages that carry its `event.type` header on to other
-  flows, so a flow that reacts to failures cannot cause more of them. Events of
-  state changes are not suppressed.
+- A message that comes from an event source gives no `exchange.*` or `step.*`
+  events itself, and neither do the messages that carry its `event.type` header
+  on to other flows, so a flow that reacts to events cannot trigger itself.
+  Events of state changes are not suppressed.
 - In a service, event sources stop last, so they still see the last events of
   the other flows.
 

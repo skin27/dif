@@ -352,6 +352,7 @@ func newSplitAndAggregate(p stepdef.Params, ns map[string]string) (stepdef.Proce
 	if s.main < 0 {
 		return nil, fmt.Errorf("needs an outbound link without a rule for the aggregate")
 	}
+	s.policy = parallelPolicy(p)
 	return splitAndAggregateRouter{s, isXMLType(p["aggregateType"].(string))}, nil
 }
 

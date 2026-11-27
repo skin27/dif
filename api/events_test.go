@@ -122,3 +122,67 @@ func TestEventSourceNames(t *testing.T) {
 		t.Errorf("err = %v, want the unknown event type", err)
 	}
 }
+
+func TestStepEventSourcesAndRecursionSuppression(t *testing.T) {
+	rt, err := NewRuntime(ChannelConfig{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { rt.Close() })
+
+	// No flowId filter on step.completed: if recursion suppression failed, this flow
+	// would trigger step.completed for its own "record" step infinitely!
+	completed := dil(t, "step-done",
+		step{"on-done", "source", "event:step.completed", nil},
+		step{"record", "sink", "setbody", map[string]any{"expression": "recorded"}},
+	)
+	failed := dil(t, "step-fail",
+		step{"on-fail", "source", "event:step.failed", map[string]any{"flowId": "orders"}},
+		step{"alert", "sink", "setbody", map[string]any{"expression": "alerted"}},
+	)
+	orders := dil(t, "orders",
+		step{"in", "source", "message:in", nil},
+		step{"check", "action", "simplevalidator", map[string]any{"expression": "${body} == 'ok'"}},
+		step{"done", "sink", "setbody", map[string]any{"expression": "done"}},
+	)
+	_, doneResults := startIn(t, rt, completed)
+	_, failResults := startIn(t, rt, failed)
+	flow, _ := startIn(t, rt, orders)
+
+	// 1. Successful message: exactly two step.completed events (check and done), zero recursive events.
+	good := flow.NewMessage()
+	good[Body] = "ok"
+	good["Correlation-Id"] = "corr-42"
+	if _, err := flow.Request(context.Background(), good); err != nil {
+		t.Fatal(err)
+	}
+	e1 := await(t, doneResults).Message
+	e2 := await(t, doneResults).Message
+	if e1["event.type"] != "step.completed" || e1["event.flow.id"] != "orders" || e1["event.step"] != "check" || e1["event.uri"] != "simplevalidator" ||
+		e1["event.duration"] == nil || e1["Correlation-Id"] != "corr-42" || e1["Causation-Id"] != good["Message-Id"] {
+		t.Errorf("e1 = %v", e1)
+	}
+	if e2["event.type"] != "step.completed" || e2["event.step"] != "done" || e2["event.uri"] != "setbody" {
+		t.Errorf("e2 = %v", e2)
+	}
+	select {
+	case extra := <-doneResults:
+		t.Fatalf("unexpected recursive step.completed event: %+v", extra)
+	case <-time.After(60 * time.Millisecond):
+	}
+
+	// 2. Failing message: step.failed event with event.uri and error.* headers.
+	bad := flow.NewMessage()
+	bad[Body] = "nope"
+	if _, err := flow.Request(context.Background(), bad); err == nil {
+		t.Fatal("expected failure")
+	}
+	ef := await(t, failResults).Message
+	if ef["event.type"] != "step.failed" || ef["event.flow.id"] != "orders" || ef["event.step"] != "check" || ef["event.uri"] != "simplevalidator" ||
+		ef["event.duration"] == nil || !strings.Contains(text(ef["error.message"]), "validation failed") || ef["error.step"] != "check" {
+		t.Errorf("step.failed = %v", ef)
+	}
+	if rt.DroppedEvents() != 0 {
+		t.Errorf("dropped events = %d", rt.DroppedEvents())
+	}
+}

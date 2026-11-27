@@ -35,6 +35,32 @@
 			"description": "Accepted for compatibility; has no effect (DIF has no attachments)",
 			"type": "string",
 			"default": ""
+		},
+		"parallelProcessing": {
+			"title": "Parallel processing",
+			"description": "Run the enrich branch under the parallel router policy (enables branchTimeout)",
+			"type": "boolean",
+			"default": false
+		},
+		"maxConcurrency": {
+			"title": "Max concurrency",
+			"description": "Maximum concurrent branches when parallelProcessing is true; 0 uses the engine default",
+			"type": "integer",
+			"minimum": 0,
+			"default": 0
+		},
+		"branchTimeout": {
+			"title": "Branch timeout",
+			"description": "Per-branch timeout in milliseconds when parallelProcessing is true; 0 means no timeout",
+			"type": "integer",
+			"minimum": 0,
+			"default": 0
+		},
+		"failFast": {
+			"title": "Fail fast",
+			"description": "Cancel sibling branches on the first failure when parallelProcessing is true",
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"additionalProperties": false

@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"runtime"
+	"sync"
 	"time"
 
 	flowdef "dif/flows/definition"
@@ -71,41 +73,37 @@ func Run(ctx context.Context, f *flowdef.Flow, msg message.Message) (*Result, er
 // and given when the message is done. A failure replaces a reply fixed before
 // it, and so does the error route's outcome, unless the route returns its own.
 func execute(ctx context.Context, f *flowdef.Flow, msg message.Message, reply func(message.Message, error)) (*Result, error) {
+	return executeWith(ctx, f, msg, reply, nil)
+}
+
+func executeWith(ctx context.Context, f *flowdef.Flow, msg message.Message, reply func(message.Message, error), stepObs *stepObserver) (*Result, error) {
 	if msg == nil {
 		msg = message.Message{}
 	}
 	msg.EnsureIdentity()
+	var replies *replyState
+	if reply != nil {
+		replies = &replyState{ctx: ctx, contract: f.Contract, reply: reply}
+		ctx = stepdef.WithReturn(ctx, replies.returnReply)
+		replies.ctx = ctx
+	}
 	r := &run{
 		ctx:      ctx,
 		contract: f.Contract,
 		trail:    []string{f.Source.Kind + ":" + f.Source.ID},
 		errh:     f.Error,
 		matched:  f.Handlers,
-		reply:    reply,
+		replies:  replies,
+		stepObs:  stepObs,
+		trace:    TraceFrom(ctx),
 	} // the source produced msg
-	if reply != nil {
-		ctx = stepdef.WithReturn(ctx, r.returnReply)
-		r.ctx = ctx
-	}
 	res, err := r.flow(ctx, f, msg)
-	if r.reply != nil {
-		var out message.Message
-		if res != nil {
-			out = res.Message
-		}
-		replyErr := err
-		explicitFault := false
-		if r.returned != nil && err == nil && res != nil {
-			out, replyErr, explicitFault = r.returned.msg, r.returned.err, r.returned.err != nil
-		}
-		r.deliverReply(out, replyErr, explicitFault)
-	} else if reply == nil && err == nil && res != nil && f.Contract != nil && f.Contract.ExchangePattern == message.InOut && f.Contract.ValidateOutput != nil {
+	if replies != nil {
+		err = replies.deliverFinal(res, err)
+	} else if err == nil && res != nil && f.Contract != nil && f.Contract.ExchangePattern == message.InOut && f.Contract.ValidateOutput != nil {
 		if verr := f.Contract.ValidateOutput(ctx, res.Message); verr != nil {
-			r.contractErr = &flowdef.ContractError{Service: f.Contract.Name, Kind: "output", Reason: verr.Error()}
+			err = &flowdef.ContractError{Service: f.Contract.Name, Kind: "output", Reason: verr.Error()}
 		}
-	}
-	if err == nil && r.contractErr != nil {
-		err = r.contractErr
 	}
 	return res, err
 }
@@ -172,9 +170,13 @@ func (r *run) finish(ctx context.Context, start time.Time, n *flowdef.Node, msg 
 // release runs msg, which the processor of step at passed on by itself (see
 // stepdef.Releaser), from the step after it. Nobody waits for its reply.
 func release(ctx context.Context, f *flowdef.Flow, at *flowdef.Node, msg message.Message) (*Result, error) {
+	return releaseWith(ctx, f, at, msg, nil)
+}
+
+func releaseWith(ctx context.Context, f *flowdef.Flow, at *flowdef.Node, msg message.Message, stepObs *stepObserver) (*Result, error) {
 	msg.EnsureIdentity()
 	delete(msg, message.ExchangePattern) // the sender of the messages it comes from is not waiting for it
-	r := &run{trail: []string{at.Kind + ":" + at.ID}, errh: f.Error, matched: f.Handlers}
+	r := &run{trail: []string{at.Kind + ":" + at.ID}, errh: f.Error, matched: f.Handlers, stepObs: stepObs, trace: TraceFrom(ctx)}
 	n, err := nextStep(at)
 	if err != nil {
 		return nil, err
@@ -198,6 +200,12 @@ func releasers(f *flowdef.Flow) []*flowdef.Node {
 		for _, next := range n.Next {
 			walk(next)
 		}
+		for _, after := range n.After {
+			walk(after)
+		}
+		for _, onErr := range n.OnError {
+			walk(onErr)
+		}
 	}
 	walk(f.Source)
 	for _, h := range f.ErrorHandlers() {
@@ -206,16 +214,17 @@ func releasers(f *flowdef.Flow) []*flowdef.Node {
 	return found
 }
 
-// run is the state of one message execution.
+// run is the state of one message execution (or one parallel branch).
 type run struct {
-	ctx         context.Context
-	contract    *flowdef.Contract
-	contractErr error
-	trail       []string
-	errh        *flowdef.ErrorHandler        // the default error handler; nil if none
-	matched     []*flowdef.ErrorHandler      // handlers for particular failures, tried before errh
-	reply       func(message.Message, error) // the sender's, until it has its reply; nil if none
-	returned    *returned                    // the reply a return step fixed for the end of the flow; nil if none
+	ctx      context.Context
+	contract *flowdef.Contract
+	trail    []string
+	errh     *flowdef.ErrorHandler   // the default error handler; nil if none
+	matched  []*flowdef.ErrorHandler // handlers for particular failures, tried before errh
+	replies  *replyState             // shared thread-safe reply coordinator; nil when nobody waits for a reply
+	stepObs  *stepObserver           // step-level event observer; nil when nobody listens
+	trace    *Trace                  // opt-in step-diff tracer; nil when not tracing
+	detached bool                    // true inside detached wiretap, after or onError paths
 }
 
 // returned is the reply a return step fixed.
@@ -224,24 +233,32 @@ type returned struct {
 	err error
 }
 
-// deliverReply validates an InOut reply or explicit fault against the flow contract
+// replyState guards the sender's reply callback, fixed return reply, and
+// output/error contract errors across concurrent router branches.
+type replyState struct {
+	mu          sync.Mutex
+	ctx         context.Context
+	contract    *flowdef.Contract
+	contractErr error
+	reply       func(message.Message, error)
+	returned    *returned
+}
+
+// sendReply validates an InOut reply or explicit fault against the flow contract
 // before handing it to the sender.
-func (r *run) deliverReply(out message.Message, replyErr error, explicitFault bool) {
-	if r.reply == nil {
-		return
-	}
-	send := r.reply
-	r.reply = nil
-	if c := r.contract; c != nil && c.ExchangePattern == message.InOut {
+func (rs *replyState) sendReply(ctx context.Context, c *flowdef.Contract, send func(message.Message, error), out message.Message, replyErr error, explicitFault bool) {
+	if c != nil && c.ExchangePattern == message.InOut {
 		switch {
 		case replyErr == nil:
 			if c.ValidateOutput != nil {
 				if out == nil {
 					out = message.Message{}
 				}
-				if err := c.ValidateOutput(r.ctx, out); err != nil {
+				if err := c.ValidateOutput(ctx, out); err != nil {
 					cerr := &flowdef.ContractError{Service: c.Name, Kind: "output", Reason: err.Error()}
-					r.contractErr = cerr
+					rs.mu.Lock()
+					rs.contractErr = cerr
+					rs.mu.Unlock()
 					send(nil, cerr)
 					return
 				}
@@ -251,9 +268,11 @@ func (r *run) deliverReply(out message.Message, replyErr error, explicitFault bo
 				if out == nil {
 					out = message.Message{}
 				}
-				if err := c.ValidateError(r.ctx, out); err != nil {
+				if err := c.ValidateError(ctx, out); err != nil {
 					cerr := &flowdef.ContractError{Service: c.Name, Kind: "error", Reason: err.Error()}
-					r.contractErr = cerr
+					rs.mu.Lock()
+					rs.contractErr = cerr
+					rs.mu.Unlock()
 					send(nil, cerr)
 					return
 				}
@@ -272,27 +291,88 @@ func (r *run) deliverReply(out message.Message, replyErr error, explicitFault bo
 // replyIfOneWay replies to the sender once the exchange of m is one-way: with
 // the reply a return step fixed, else with m.
 func (r *run) replyIfOneWay(m message.Message) {
-	if r.reply != nil && m[message.ExchangePattern] == message.InOnly {
-		if r.returned != nil {
-			r.deliverReply(r.returned.msg, r.returned.err, r.returned.err != nil)
-		} else {
-			r.deliverReply(m.Copy(), nil, false)
-		}
+	rs := r.replies
+	if rs == nil || m[message.ExchangePattern] != message.InOnly {
+		return
+	}
+	rs.mu.Lock()
+	if rs.reply == nil {
+		rs.mu.Unlock()
+		return
+	}
+	send := rs.reply
+	rs.reply = nil
+	ret := rs.returned
+	ctx := rs.ctx
+	c := rs.contract
+	rs.mu.Unlock()
+	if ret != nil {
+		rs.sendReply(ctx, c, send, ret.msg, ret.err, ret.err != nil)
+	} else {
+		rs.sendReply(ctx, c, send, m.Copy(), nil, false)
 	}
 }
 
 // returnReply takes the reply of a return step (see stepdef.Return). The first
 // one wins: it reports false when the sender has a reply, or will have one.
-func (r *run) returnReply(m message.Message, err error, detach bool) bool {
-	if r.reply == nil || r.returned != nil {
+func (rs *replyState) returnReply(m message.Message, err error, detach bool) bool {
+	if rs == nil {
+		return false
+	}
+	rs.mu.Lock()
+	if rs.reply == nil || rs.returned != nil {
+		rs.mu.Unlock()
 		return false
 	}
 	if !detach {
-		r.returned = &returned{m, err}
+		rs.returned = &returned{m, err}
+		rs.mu.Unlock()
 		return true
 	}
-	r.deliverReply(m, err, err != nil)
+	send := rs.reply
+	rs.reply = nil
+	ctx := rs.ctx
+	c := rs.contract
+	rs.mu.Unlock()
+	rs.sendReply(ctx, c, send, m, err, err != nil)
 	return true
+}
+
+func (rs *replyState) clearReturned() {
+	if rs == nil {
+		return
+	}
+	rs.mu.Lock()
+	rs.returned = nil
+	rs.mu.Unlock()
+}
+
+func (rs *replyState) deliverFinal(res *Result, err error) error {
+	rs.mu.Lock()
+	if rs.reply != nil {
+		var out message.Message
+		if res != nil {
+			out = res.Message
+		}
+		replyErr := err
+		explicitFault := false
+		if rs.returned != nil && err == nil && res != nil {
+			out, replyErr, explicitFault = rs.returned.msg, rs.returned.err, rs.returned.err != nil
+		}
+		send := rs.reply
+		rs.reply = nil
+		ctx := rs.ctx
+		c := rs.contract
+		rs.mu.Unlock()
+		rs.sendReply(ctx, c, send, out, replyErr, explicitFault)
+		rs.mu.Lock()
+	}
+	cerr := rs.contractErr
+	rs.mu.Unlock()
+	if err == nil && cerr != nil {
+		return cerr
+	}
+	return err
 }
 
 // handlerFor returns the error handler for a failure: the first handler with a
@@ -322,7 +402,7 @@ func (r *run) handle(ctx context.Context, err error) (out message.Message, unhan
 	if h == nil || h.Route == nil {
 		return nil, false, err
 	}
-	r.returned = nil // the failure replaces a reply fixed before it; the error route may return its own
+	r.replies.clearReturned() // the failure replaces a reply fixed before it; the error route may return its own
 	m := se.Message
 	m[ErrorMessage], m[ErrorStep] = se.Err.Error(), se.Step
 	m[ErrorClass], m[ErrorStackTrace] = errorClass(se.Err), err.Error()
@@ -380,6 +460,77 @@ func errorClass(err error) string {
 	}
 }
 
+func elapsedSince(timed bool, start time.Time) time.Duration {
+	if !timed {
+		return 0
+	}
+	return time.Since(start)
+}
+
+// runDetached runs a detached observer chain (after or onError) on a copy of
+// the message. Failures are logged and never affect the main message or reply.
+func (r *run) runDetached(ctx context.Context, owner *flowdef.Node, hook string, target *flowdef.Node, msg message.Message) {
+	sub := &run{ctx: ctx, trace: r.trace, detached: true}
+	_, err := sub.path(ctx, target, msg)
+	r.trail = append(r.trail, sub.trail...)
+	if err != nil {
+		stepdef.Logger(ctx).Printf("step %s: %s observer %s failed: %v", owner.ID, hook, target.ID, err)
+	}
+}
+
+func (r *run) recordTrace(n *flowdef.Node, elapsed time.Duration, beforeBody any, beforeHeaders map[string]any, afterMsg message.Message, stepErr error) {
+	if r.trace == nil {
+		return
+	}
+	var afterBody any
+	var afterHeaders map[string]any
+	if afterMsg != nil {
+		afterBody = snapshotValue(afterMsg[message.Body])
+		afterHeaders = snapshotUserHeaders(afterMsg)
+	}
+	added, changed, removed := diffHeaders(beforeHeaders, afterHeaders)
+	errText := ""
+	if stepErr != nil {
+		errText = stepErr.Error()
+	}
+	r.trace.record(StepTrace{
+		StepID:         n.ID,
+		Kind:           n.Kind,
+		URI:            n.URI,
+		DurationMs:     elapsed.Milliseconds(),
+		BodyBefore:     beforeBody,
+		BodyAfter:      afterBody,
+		HeadersAdded:   added,
+		HeadersChanged: changed,
+		HeadersRemoved: removed,
+		Error:          errText,
+		Detached:       r.detached,
+	})
+}
+
+// failStep records a step failure: emits step.failed if observed, invokes any
+// detached OnError observer chains with error and timing metadata, and returns
+// the StepError for flow-level error handling.
+func (r *run) failStep(ctx context.Context, n *flowdef.Node, msg message.Message, err error, elapsed time.Duration) (message.Message, error) {
+	se := &StepError{Step: n.ID, Message: msg, Err: err, URI: n.URI}
+	if r.stepObs != nil {
+		r.stepObs.failed(n.ID, n.URI, elapsed, se)
+	}
+	if len(n.OnError) > 0 && ctx.Err() == nil {
+		for _, obs := range n.OnError {
+			c := msg.Copy()
+			c[ErrorMessage] = err.Error()
+			c[ErrorStep] = n.ID
+			c[ErrorClass] = errorClass(err)
+			c[ErrorStackTrace] = se.Error()
+			c[message.StepTarget] = n.ID
+			c[message.StepDuration] = elapsed.Milliseconds()
+			r.runDetached(ctx, n, "onError", obs, c)
+		}
+	}
+	return nil, se
+}
+
 // path passes msg through step n and the steps after it, to the end of the
 // path, and returns the message that comes out.
 func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (message.Message, error) {
@@ -388,6 +539,18 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 			return nil, fmt.Errorf("step %s: %w", n.ID, err)
 		}
 		enter(msg, n.Kind, n.ID)
+
+		timed := n.Measure || len(n.OnError) > 0 || r.stepObs != nil || r.trace != nil
+		var start time.Time
+		if timed {
+			start = time.Now()
+		}
+		var beforeBody any
+		var beforeHeaders map[string]any
+		if r.trace != nil {
+			beforeBody = snapshotValue(msg[message.Body])
+			beforeHeaders = snapshotUserHeaders(msg)
+		}
 
 		switch p := n.Processor.(type) {
 		case stepdef.ActionProcessor:
@@ -400,17 +563,21 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 				return err
 			})
 			if err != nil {
-				return nil, &StepError{n.ID, msg, err, n.URI}
+				elapsed := elapsedSince(timed, start)
+				r.recordTrace(n, elapsed, beforeBody, beforeHeaders, msg, err)
+				return r.failStep(ctx, n, msg, err, elapsed)
 			}
 			msg = out
 			r.replyIfOneWay(msg)
 		case stepdef.SinkProcessor:
 			if err := r.retry(ctx, n, func() error { return p.Consume(ctx, msg) }); err != nil {
-				return nil, &StepError{n.ID, msg, err, n.URI}
+				elapsed := elapsedSince(timed, start)
+				r.recordTrace(n, elapsed, beforeBody, beforeHeaders, msg, err)
+				return r.failStep(ctx, n, msg, err, elapsed)
 			}
 		case stepdef.Looper:
 			r.trail = append(r.trail, n.Kind+":"+n.ID)
-			return r.loop(ctx, n, msg, p)
+			return r.loop(ctx, n, msg, p, timed, start, beforeBody, beforeHeaders)
 		case stepdef.RouterProcessor:
 			var routes []stepdef.Route
 			err := r.retry(ctx, n, func() (err error) {
@@ -418,14 +585,36 @@ func (r *run) path(ctx context.Context, n *flowdef.Node, msg message.Message) (m
 				return err
 			})
 			if err != nil {
-				return nil, &StepError{n.ID, msg, err, n.URI}
+				elapsed := elapsedSince(timed, start)
+				r.recordTrace(n, elapsed, beforeBody, beforeHeaders, msg, err)
+				return r.failStep(ctx, n, msg, err, elapsed)
+			}
+			elapsed := elapsedSince(timed, start)
+			r.recordTrace(n, elapsed, beforeBody, beforeHeaders, msg, nil)
+			if r.stepObs != nil {
+				r.stepObs.completed(n.ID, n.URI, elapsed)
 			}
 			r.trail = append(r.trail, n.Kind+":"+n.ID)
-			return r.route(ctx, n, msg, routes)
+			return r.route(ctx, n, msg, routes, timed, start)
 		default:
 			return nil, fmt.Errorf("step %s: %T is not an action, router or sink processor", n.ID, n.Processor)
 		}
+
+		elapsed := elapsedSince(timed, start)
+		if n.Measure {
+			msg[message.StepDuration] = elapsed.Milliseconds()
+			msg[message.StepTarget] = n.ID
+		}
+		r.recordTrace(n, elapsed, beforeBody, beforeHeaders, msg, nil)
+		if r.stepObs != nil {
+			r.stepObs.completed(n.ID, n.URI, elapsed)
+		}
 		r.trail = append(r.trail, n.Kind+":"+n.ID)
+		if len(n.After) > 0 {
+			for _, obs := range n.After {
+				r.runDetached(ctx, n, "after", obs, msg.Copy())
+			}
+		}
 
 		var err error
 		if n, err = nextStep(n); err != nil {
@@ -466,9 +655,20 @@ func (r *run) retry(ctx context.Context, n *flowdef.Node, do func() error) error
 // message that comes out of the last route that is not detached (msg if
 // none). A router that is a stepdef.Gatherer gets the routes' outcomes and
 // returns the routes to run next.
-func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, routes []stepdef.Route) (message.Message, error) {
+func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, routes []stepdef.Route, timed bool, start time.Time) (message.Message, error) {
 	g, gathers := n.Processor.(stepdef.Gatherer)
-	out, outcomes, err := r.runRoutes(ctx, n, msg, routes, gathers)
+	var out message.Message
+	var outcomes []stepdef.Outcome
+	var err error
+	if pr, ok := n.Processor.(stepdef.ParallelRouter); ok {
+		if policy := pr.ParallelPolicy(); policy.Parallel {
+			out, outcomes, err = r.runRoutesParallel(ctx, n, msg, routes, gathers, policy)
+		} else {
+			out, outcomes, err = r.runRoutes(ctx, n, msg, routes, gathers)
+		}
+	} else {
+		out, outcomes, err = r.runRoutes(ctx, n, msg, routes, gathers)
+	}
 	if err != nil || !gathers {
 		if err != nil && gathers {
 			if cleanup, ok := n.Processor.(stepdef.GatherAborter); ok {
@@ -482,7 +682,11 @@ func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, r
 		if errors.As(err, new(*StepError)) { // a route's failure: keep its step and message
 			return nil, err
 		}
-		return nil, &StepError{n.ID, msg, err, n.URI}
+		elapsed := elapsedSince(timed, start)
+		if r.trace != nil {
+			r.recordTrace(n, elapsed, snapshotValue(msg[message.Body]), snapshotUserHeaders(msg), msg, err)
+		}
+		return r.failStep(ctx, n, msg, err, elapsed)
 	}
 	out, _, err = r.runRoutes(ctx, n, msg, next, false)
 	return out, err
@@ -490,7 +694,7 @@ func (r *run) route(ctx context.Context, n *flowdef.Node, msg message.Message, r
 
 // loop runs the rounds of Looper n, which msg entered, and returns the message
 // that comes out of the last one.
-func (r *run) loop(ctx context.Context, n *flowdef.Node, msg message.Message, l stepdef.Looper) (message.Message, error) {
+func (r *run) loop(ctx context.Context, n *flowdef.Node, msg message.Message, l stepdef.Looper, timed bool, start time.Time, beforeBody any, beforeHeaders map[string]any) (message.Message, error) {
 	prev := msg
 	for round := 0; ; round++ {
 		var routes []stepdef.Route
@@ -500,12 +704,19 @@ func (r *run) loop(ctx context.Context, n *flowdef.Node, msg message.Message, l 
 			return err
 		})
 		if err != nil {
-			return nil, &StepError{n.ID, prev, err, n.URI}
+			elapsed := elapsedSince(timed, start)
+			r.recordTrace(n, elapsed, beforeBody, beforeHeaders, prev, err)
+			return r.failStep(ctx, n, prev, err, elapsed)
 		}
 		if prev, _, err = r.runRoutes(ctx, n, prev, routes, false); err != nil {
 			return nil, err
 		}
 		if last {
+			elapsed := elapsedSince(timed, start)
+			r.recordTrace(n, elapsed, beforeBody, beforeHeaders, prev, nil)
+			if r.stepObs != nil {
+				r.stepObs.completed(n.ID, n.URI, elapsed)
+			}
 			return prev, nil
 		}
 	}
@@ -524,7 +735,12 @@ func (r *run) runRoutes(ctx context.Context, n *flowdef.Node, msg message.Messag
 		if rt.Message == nil {
 			return nil, nil, fmt.Errorf("step %s: route to link %d has no message", n.ID, rt.Next)
 		}
+		prevDetached := r.detached
+		if rt.Detached {
+			r.detached = true
+		}
 		res, err := r.path(ctx, n.Next[rt.Next], rt.Message)
+		r.detached = prevDetached
 		switch {
 		case rt.Detached:
 			if err != nil {
@@ -540,6 +756,185 @@ func (r *run) runRoutes(ctx context.Context, n *flowdef.Node, msg message.Messag
 		default:
 			out = res
 		}
+	}
+	return out, outcomes, nil
+}
+
+// runRoutesParallel executes non-AfterParallel routes concurrently under
+// policy, joins all launched goroutines before returning, merges trails and
+// outcomes in deterministic route index order, and then runs any trailing
+// AfterParallel routes sequentially.
+func (r *run) runRoutesParallel(ctx context.Context, n *flowdef.Node, msg message.Message, routes []stepdef.Route, gather bool, policy stepdef.ParallelPolicy) (message.Message, []stepdef.Outcome, error) {
+	for _, rt := range routes {
+		if rt.Next < 0 || rt.Next >= len(n.Next) {
+			return nil, nil, fmt.Errorf("step %s: route to link %d, but the step has %d", n.ID, rt.Next, len(n.Next))
+		}
+		if rt.Message == nil {
+			return nil, nil, fmt.Errorf("step %s: route to link %d has no message", n.ID, rt.Next)
+		}
+	}
+
+	var parallel, after []stepdef.Route
+	for _, rt := range routes {
+		if rt.AfterParallel {
+			after = append(after, rt)
+		} else {
+			parallel = append(parallel, rt)
+		}
+	}
+	if len(parallel) == 0 {
+		return r.runRoutes(ctx, n, msg, after, gather)
+	}
+	if len(parallel) == 1 && policy.BranchTimeout <= 0 {
+		out, outcomes, err := r.runRoutes(ctx, n, msg, parallel, gather)
+		if err != nil || len(after) == 0 {
+			return out, outcomes, err
+		}
+		afterOut, afterOutcomes, err := r.runRoutes(ctx, n, out, after, gather)
+		if err != nil {
+			return nil, nil, err
+		}
+		return afterOut, append(outcomes, afterOutcomes...), nil
+	}
+
+	limit := policy.MaxConcurrency
+	if limit <= 0 {
+		limit = max(2, runtime.GOMAXPROCS(0)*2)
+	}
+	if limit > len(parallel) {
+		limit = len(parallel)
+	}
+	sem := make(chan struct{}, limit)
+
+	groupCtx, groupCancel := context.WithCancel(ctx)
+	defer groupCancel()
+
+	type branchResult struct {
+		out                message.Message
+		err                error
+		trail              []string
+		cancelledBySibling bool
+	}
+	results := make([]branchResult, len(parallel))
+
+	var (
+		failFastMu    sync.Mutex
+		failFastFired bool
+		failFastErr   error
+		wg            sync.WaitGroup
+	)
+
+	for i, rt := range parallel {
+		if policy.FailFast && groupCtx.Err() != nil {
+			results[i] = branchResult{err: groupCtx.Err(), cancelledBySibling: ctx.Err() == nil}
+			continue
+		}
+		select {
+		case sem <- struct{}{}:
+		case <-groupCtx.Done():
+			results[i] = branchResult{err: groupCtx.Err(), cancelledBySibling: ctx.Err() == nil}
+			continue
+		}
+		wg.Add(1)
+		go func(idx int, route stepdef.Route) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			branchCtx := groupCtx
+			var branchCancel context.CancelFunc
+			if policy.BranchTimeout > 0 {
+				branchCtx, branchCancel = context.WithTimeout(groupCtx, policy.BranchTimeout)
+				defer branchCancel()
+			}
+			sub := &run{
+				ctx:      branchCtx,
+				contract: r.contract,
+				errh:     r.errh,
+				matched:  r.matched,
+				replies:  r.replies,
+				stepObs:  r.stepObs,
+				trace:    r.trace,
+				detached: r.detached || route.Detached,
+			}
+			out, err := sub.path(branchCtx, n.Next[route.Next], route.Message)
+			res := branchResult{out: out, err: err, trail: sub.trail}
+			if err != nil && !route.Detached && policy.FailFast {
+				siblingCanceled := ctx.Err() == nil && groupCtx.Err() != nil &&
+					!errors.Is(branchCtx.Err(), context.DeadlineExceeded) &&
+					errors.Is(err, context.Canceled)
+				failFastMu.Lock()
+				if siblingCanceled && failFastFired {
+					res.cancelledBySibling = true
+					failFastMu.Unlock()
+					results[idx] = res
+					return
+				}
+				if !failFastFired {
+					failFastFired = true
+					failFastErr = err
+				}
+				failFastMu.Unlock()
+				groupCancel()
+			}
+			results[idx] = res
+		}(i, rt)
+	}
+	wg.Wait()
+
+	for _, res := range results {
+		r.trail = append(r.trail, res.trail...)
+	}
+
+	out := msg
+	var outcomes []stepdef.Outcome
+	var firstErr error
+	for i, rt := range parallel {
+		res := results[i]
+		switch {
+		case rt.Detached:
+			if res.err != nil {
+				stepdef.Logger(ctx).Printf("step %s: detached route to link %d failed: %v", n.ID, rt.Next, res.err)
+			}
+		case gather:
+			if res.err != nil && ctx.Err() != nil {
+				return nil, nil, res.err // a forced stop is not an outcome
+			}
+			if res.err != nil && !res.cancelledBySibling && firstErr == nil {
+				firstErr = res.err
+			}
+			outcomes = append(outcomes, stepdef.Outcome{Message: res.out, Err: res.err})
+		case res.err != nil:
+			if !res.cancelledBySibling && firstErr == nil {
+				firstErr = res.err
+			}
+		default:
+			out = res.out
+		}
+	}
+
+	if !gather {
+		if firstErr != nil {
+			return nil, nil, firstErr
+		}
+		if failFastErr != nil {
+			return nil, nil, failFastErr
+		}
+	} else if policy.FailFast && len(parallel) > 1 {
+		if firstErr != nil {
+			return nil, nil, firstErr
+		}
+		if failFastErr != nil {
+			return nil, nil, failFastErr
+		}
+	}
+
+	if len(after) > 0 {
+		afterOut, afterOutcomes, err := r.runRoutes(ctx, n, out, after, gather)
+		if err != nil {
+			return nil, nil, err
+		}
+		out = afterOut
+		outcomes = append(outcomes, afterOutcomes...)
 	}
 	return out, outcomes, nil
 }

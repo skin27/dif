@@ -28,10 +28,13 @@ type enrichRouter struct {
 	enrich, main      int
 	merge             func(m, enrichment message.Message) (message.Message, error)
 	failOnEnrichError bool
+	policy            stepdef.ParallelPolicy
 }
 
+func (r enrichRouter) ParallelPolicy() stepdef.ParallelPolicy { return r.policy }
+
 func newEnrichRouter(id string, p stepdef.Params) (stepdef.Processor, error) {
-	r := enrichRouter{id: id, enrich: -1, main: -1, failOnEnrichError: p["useErrorRoute"].(bool)}
+	r := enrichRouter{id: id, enrich: -1, main: -1, failOnEnrichError: p["useErrorRoute"].(bool), policy: parallelPolicy(p)}
 	for i, l := range p[stepdef.Links].([]stepdef.Link) {
 		target := &r.main
 		if l.Rule == "enrich" {

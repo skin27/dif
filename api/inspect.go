@@ -18,6 +18,8 @@ type FlowInfo struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
 	Source        string              `json:"source"`
+	Concurrency   int                 `json:"concurrency,omitempty"`
+	Partitioned   bool                `json:"partitioned,omitempty"`
 	Service       *ServiceInfo        `json:"service,omitempty"`
 	Steps         []NodeInfo          `json:"steps"`
 	Error         *ErrorInfo          `json:"error,omitempty"`
@@ -112,7 +114,17 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 	if f.ID == "" {
 		return nil, fmt.Errorf("flow has no id")
 	}
-	info := &FlowInfo{ID: f.ID, Name: f.Name, Source: f.Source.ID, Steps: []NodeInfo{}, Configuration: []ConfigurationInfo{}}
+	info := &FlowInfo{
+		ID:            f.ID,
+		Name:          f.Name,
+		Source:        f.Source.ID,
+		Partitioned:   f.PartitionExpr != "" || f.PartitionKey != nil,
+		Steps:         []NodeInfo{},
+		Configuration: []ConfigurationInfo{},
+	}
+	if f.Concurrency > 1 {
+		info.Concurrency = f.Concurrency
+	}
 	if sb, ok := f.Source.Bindings[flowimpl.FlowServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
 		info.Service = cloneServiceInfo(sb.Plan.Info())
 	}
@@ -161,6 +173,12 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 			}
 			node.Links = append(node.Links, link)
 		}
+		for _, target := range n.After {
+			node.Links = append(node.Links, LinkInfo{Target: target.ID, Rule: "after"})
+		}
+		for _, target := range n.OnError {
+			node.Links = append(node.Links, LinkInfo{Target: target.ID, Rule: "onError"})
+		}
 		info.Steps = append(info.Steps, node)
 		entry := stepsForInspection(n)
 		for _, option := range entry.Options {
@@ -176,6 +194,16 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 		}
 		for _, next := range n.Next {
 			if err := visit(next); err != nil {
+				return err
+			}
+		}
+		for _, after := range n.After {
+			if err := visit(after); err != nil {
+				return err
+			}
+		}
+		for _, onErr := range n.OnError {
+			if err := visit(onErr); err != nil {
 				return err
 			}
 		}

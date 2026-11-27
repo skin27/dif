@@ -33,6 +33,7 @@ const followLines = 10
 func runShell(stdin io.Reader, stdout, stderr io.Writer) int {
 	con := &console{w: stdout, interactive: isTerminal(stdin), color: useColor(stdout)}
 	eng := api.NewEngine()
+	scratch := message.New(nil)
 
 	var logsMu sync.Mutex
 	logs := map[string]*flowLog{} // by flow id
@@ -196,8 +197,16 @@ func runShell(stdin io.Reader, stdout, stderr io.Writer) int {
 			}
 			switch cmd {
 			case "":
-			case "init", "validate", "describe", "convert", "version", "completion":
+			case "init", "validate", "describe", "convert", "version", "completion", "test":
 				runShellUtility(cmd, rest, con)
+			case "msg":
+				handleShellMsg(rest, &scratch, con)
+			case "eval":
+				handleShellEval(rest, scratch, con)
+			case "exec":
+				handleShellExec(rest, scratch, con)
+			case "trace":
+				handleShellTrace(rest, eng, flowError, con)
 			case "load", "run":
 				parsed, err := utilityArguments(rest)
 				if err != nil {

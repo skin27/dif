@@ -100,6 +100,7 @@ var stepCapabilities = map[string]func(stepdef.Params) []stepdef.Capability{
 	"setheaderbybody/action":      none,
 	"delay/action":                none,
 	"simplevalidator/action":      none,
+	"guard/action":                none,
 
 	// Actions that read a file they are given (an XSLT stylesheet, a schema, a template).
 	"xslt/action":         readsOption("path"),

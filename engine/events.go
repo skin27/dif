@@ -3,6 +3,7 @@ package engine
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"dif/message"
@@ -16,15 +17,16 @@ type Event struct {
 	FlowID   string
 	FlowName string
 
-	// For exchange events: how long the message took and the identity of the
-	// exchange. A failed or handled exchange also has the step that failed.
+	// For exchange and step events: how long it took and the identity of the
+	// exchange. Step events and failed or handled exchanges also name the step.
 	Duration      time.Duration
 	MessageID     string
 	CorrelationID string
 	TraceID       string
 	Step          string
+	URI           string
 
-	// Err is the failure of an exchange or of a source; nil for the other events.
+	// Err is the failure of an exchange, a step, or a source; nil for the other events.
 	Err error
 }
 
@@ -93,12 +95,57 @@ func identityOf(m message.Message) (exchangeIdentity, bool) {
 	return exchangeIdentity{text(message.MessageID), text(message.CorrelationID), text(message.TraceID)}, true
 }
 
+// stepObserver reports step.completed and step.failed events for one message
+// when the runner's observer wants at least one of them.
+type stepObserver struct {
+	runner   *Runner
+	identity exchangeIdentity
+	wantDone bool
+	wantFail bool
+}
+
+func stepScheme(uri string) string {
+	scheme, _, _ := strings.Cut(uri, ":")
+	return scheme
+}
+
+func (s *stepObserver) completed(step, uri string, duration time.Duration) {
+	if !s.wantDone {
+		return
+	}
+	s.runner.notify(Event{
+		Type:          stepdef.EventStepCompleted,
+		Duration:      duration,
+		MessageID:     s.identity.message,
+		CorrelationID: s.identity.correlation,
+		TraceID:       s.identity.trace,
+		Step:          step,
+		URI:           stepScheme(uri),
+	})
+}
+
+func (s *stepObserver) failed(step, uri string, duration time.Duration, err error) {
+	if !s.wantFail {
+		return
+	}
+	s.runner.notify(Event{
+		Type:          stepdef.EventStepFailed,
+		Duration:      duration,
+		MessageID:     s.identity.message,
+		CorrelationID: s.identity.correlation,
+		TraceID:       s.identity.trace,
+		Step:          step,
+		URI:           stepScheme(uri),
+		Err:           err,
+	})
+}
+
 // Message makes the message of the event, for a flow to process. Its headers
 // are event.type, event.time, event.flow.id, event.flow.name and, as they
-// apply, event.step, event.duration (milliseconds) and the error.* headers of
-// an error route. An exchange event takes the correlation and trace of its
-// exchange and names the exchange's message as its cause. The body is a JSON
-// summary; it never holds the payload of the exchange.
+// apply, event.step, event.uri, event.duration (milliseconds) and the error.*
+// headers of an error route. An exchange or step event takes the correlation
+// and trace of its exchange and names the exchange's message as its cause.
+// The body is a JSON summary; it never holds the payload of the exchange.
 func (e Event) Message() message.Message {
 	summary := struct {
 		Type       stepdef.EventType `json:"type"`
@@ -106,10 +153,11 @@ func (e Event) Message() message.Message {
 		FlowID     string            `json:"flowId,omitempty"`
 		FlowName   string            `json:"flowName,omitempty"`
 		Step       string            `json:"step,omitempty"`
+		URI        string            `json:"uri,omitempty"`
 		DurationMs *int64            `json:"durationMs,omitempty"`
 		Error      string            `json:"error,omitempty"`
 		ErrorClass string            `json:"errorClass,omitempty"`
-	}{Type: e.Type, Time: e.Time.Format(time.RFC3339Nano), FlowID: e.FlowID, FlowName: e.FlowName, Step: e.Step}
+	}{Type: e.Type, Time: e.Time.Format(time.RFC3339Nano), FlowID: e.FlowID, FlowName: e.FlowName, Step: e.Step, URI: e.URI}
 
 	m := message.New(nil)
 	m[stepdef.EventHeader] = string(e.Type)
@@ -117,6 +165,9 @@ func (e Event) Message() message.Message {
 	m["event.flow.id"], m["event.flow.name"] = e.FlowID, e.FlowName
 	if e.Step != "" {
 		m["event.step"] = e.Step
+	}
+	if e.URI != "" {
+		m["event.uri"] = e.URI
 	}
 	if e.MessageID != "" {
 		m[message.CausationID] = e.MessageID
@@ -128,7 +179,8 @@ func (e Event) Message() message.Message {
 		m[message.TraceID] = e.TraceID
 	}
 	switch e.Type {
-	case stepdef.EventExchangeCompleted, stepdef.EventExchangeHandled, stepdef.EventExchangeFailed:
+	case stepdef.EventExchangeCompleted, stepdef.EventExchangeHandled, stepdef.EventExchangeFailed,
+		stepdef.EventStepCompleted, stepdef.EventStepFailed:
 		ms := e.Duration.Milliseconds()
 		summary.DurationMs = &ms
 		m["event.duration"] = int(ms)

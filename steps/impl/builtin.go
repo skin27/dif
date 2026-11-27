@@ -136,6 +136,7 @@ func Register(r *registry.Registry) error {
 		{"delay", stepdef.Action, "", newDelayAction, nil},
 		{"logger", stepdef.Action, "", newLoggerAction, nil},
 		{"simplevalidator", stepdef.Action, "", newSimpleValidator, nil},
+		{"guard", stepdef.Action, "", newGuardAction, nil},
 		{"wiretap", stepdef.Router, wireTap, newWireTapRouter, nil},
 		{"recipient", stepdef.Router, recipientList, newRecipientRouter, nil},
 		{"content", stepdef.Router, contentBasedRouter, newContentRouter, nil},

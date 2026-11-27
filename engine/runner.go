@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -42,6 +43,7 @@ type Runner struct {
 	inFlight          atomic.Int64
 	durationNanos     atomic.Int64
 
+	resultMu     sync.Mutex // serializes onResult callbacks across concurrent workers
 	mu           sync.Mutex
 	logger       *log.Logger // the flow's logger for processors; nil for the standard logger
 	state        State
@@ -93,6 +95,23 @@ func (r *Runner) NewMessage() message.Message {
 	}
 	m.EnsureIdentity()
 	return m
+}
+
+// Trace runs msg once through the flow with an opt-in step-diff Trace attached,
+// bypassing the live source processor.
+func (r *Runner) Trace(ctx context.Context, msg message.Message) (*Result, *Trace, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	r.mu.Lock()
+	logger := r.logger
+	r.mu.Unlock()
+	if logger != nil {
+		ctx = stepdef.WithLogger(ctx, logger)
+	}
+	tr := NewTrace()
+	res, err := Run(WithTrace(ctx, tr), r.flow, msg)
+	return res, tr, err
 }
 
 // Start runs the flow in the background until Stop is called.
@@ -479,59 +498,176 @@ func (r *Runner) loop(ctx, sourceCtx, msgCtx context.Context, done, ready chan s
 		}()
 	}
 
-	for {
-		select {
-		case e := <-r.inbox:
-			r.inFlight.Add(1)
-			started := time.Now()
-			var res *Result
-			var err error
-			identity, observed := exchangeIdentity{}, false
-			if r.observer.Load() != nil {
-				identity, observed = identityOf(e.msg) // before the steps change the message
+	var err error
+	switch {
+	case r.flow.Concurrency <= 1:
+	seq:
+		for {
+			select {
+			case e := <-r.inbox:
+				r.inFlight.Add(1)
+				r.processEnvelope(sourceCtx, msgCtx, e)
+			case <-ctx.Done():
+				break seq
 			}
-			if e.from != nil {
-				res, err = release(msgCtx, r.flow, e.from, e.msg)
-			} else {
-				res, err = execute(msgCtx, r.flow, e.msg, e.reply) // replies to the sender
-			}
-			if err != nil && msgCtx.Err() != nil {
-				err = fmt.Errorf("aborted by forced stop: %w", err)
-			}
-			if e.complete != nil {
-				completionErr := e.complete(err)
-				if completionErr != nil {
-					stepdef.ReportSourceFailure(sourceCtx, completionErr)
-				}
-				err = errors.Join(err, completionErr)
-			}
-			if err != nil {
-				r.failed.Add(1)
-			} else {
-				r.completed.Add(1) // also when an error route handled it
-			}
-			if r.onResult != nil {
-				r.onResult(res, err) // a failing message is reported; the flow keeps going
-			}
-			if observed {
-				r.exchangeEvent(identity, time.Since(started), res, err)
-			}
-			r.durationNanos.Add(time.Since(started).Nanoseconds())
-			r.inFlight.Add(-1)
-			if e.release != nil {
-				e.release()
-			}
-		case <-ctx.Done():
-			err := <-srcErr
-			releasing.Wait()
-			r.mu.Lock()
-			r.state, r.err, r.resume, r.since = Stopped, err, nil, time.Time{}
-			r.abort() // release msgCtx
-			r.mu.Unlock()
-			r.notify(Event{Type: stepdef.EventFlowStopped})
-			close(done)
-			return
 		}
+		err = <-srcErr
+		releasing.Wait()
+	case r.flow.PartitionKey == nil:
+		var wg sync.WaitGroup
+		for range r.flow.Concurrency {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for {
+					select {
+					case e := <-r.inbox:
+						r.inFlight.Add(1)
+						r.processEnvelope(sourceCtx, msgCtx, e)
+					case <-ctx.Done():
+						return
+					}
+				}
+			}()
+		}
+		<-ctx.Done()
+		err = <-srcErr
+		releasing.Wait()
+		wg.Wait()
+	default:
+		lanes := make([]chan envelope, r.flow.Concurrency)
+		var wg sync.WaitGroup
+		for i := range lanes {
+			ch := make(chan envelope, partitionLaneBuffer)
+			lanes[i] = ch
+			wg.Add(1)
+			go func(ch <-chan envelope) {
+				defer wg.Done()
+				for e := range ch {
+					if msgCtx.Err() != nil {
+						r.failEnvelope(sourceCtx, e, fmt.Errorf("aborted by forced stop: %w", msgCtx.Err()))
+						continue
+					}
+					r.processEnvelope(sourceCtx, msgCtx, e)
+				}
+			}(ch)
+		}
+	dispatch:
+		for {
+			select {
+			case e := <-r.inbox:
+				r.inFlight.Add(1)
+				if e.msg == nil {
+					e.msg = message.Message{}
+				}
+				key, kerr := r.flow.PartitionKey(msgCtx, e.msg)
+				if kerr != nil {
+					if msgCtx.Err() != nil {
+						kerr = fmt.Errorf("aborted by forced stop: %w", kerr)
+					} else {
+						kerr = fmt.Errorf("partitionBy: %w", kerr)
+					}
+					r.failEnvelope(sourceCtx, e, kerr)
+					continue
+				}
+				idx := partitionLane(key, len(lanes))
+				select {
+				case lanes[idx] <- e:
+				case <-msgCtx.Done():
+					r.failEnvelope(sourceCtx, e, fmt.Errorf("aborted by forced stop: %w", msgCtx.Err()))
+				}
+			case <-ctx.Done():
+				break dispatch
+			}
+		}
+		for _, ch := range lanes {
+			close(ch)
+		}
+		err = <-srcErr
+		releasing.Wait()
+		wg.Wait()
+	}
+
+	r.mu.Lock()
+	r.state, r.err, r.resume, r.since = Stopped, err, nil, time.Time{}
+	r.abort() // release msgCtx
+	r.mu.Unlock()
+	r.notify(Event{Type: stepdef.EventFlowStopped})
+	close(done)
+}
+
+const partitionLaneBuffer = 64
+
+func partitionLane(key string, lanes int) int {
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(key))
+	return int(h.Sum64() % uint64(lanes))
+}
+
+func (r *Runner) processEnvelope(sourceCtx, msgCtx context.Context, e envelope) {
+	started := time.Now()
+	var res *Result
+	var err error
+	identity, observed := exchangeIdentity{}, false
+	var stepObs *stepObserver
+	if obs := r.observer.Load(); obs != nil {
+		identity, observed = identityOf(e.msg) // before the steps change the message
+		if observed {
+			wantDone := obs.Wants(stepdef.EventStepCompleted)
+			wantFail := obs.Wants(stepdef.EventStepFailed)
+			if wantDone || wantFail {
+				stepObs = &stepObserver{runner: r, identity: identity, wantDone: wantDone, wantFail: wantFail}
+			}
+		}
+	}
+	if e.from != nil {
+		res, err = releaseWith(msgCtx, r.flow, e.from, e.msg, stepObs)
+	} else {
+		res, err = executeWith(msgCtx, r.flow, e.msg, e.reply, stepObs) // replies to the sender
+	}
+	if err != nil && msgCtx.Err() != nil {
+		err = fmt.Errorf("aborted by forced stop: %w", err)
+	}
+	r.finishEnvelope(sourceCtx, e, started, identity, observed, res, err)
+}
+
+func (r *Runner) failEnvelope(sourceCtx context.Context, e envelope, err error) {
+	started := time.Now()
+	identity, observed := exchangeIdentity{}, false
+	if obs := r.observer.Load(); obs != nil {
+		identity, observed = identityOf(e.msg)
+	}
+	if e.reply != nil {
+		e.reply(nil, err)
+	}
+	r.finishEnvelope(sourceCtx, e, started, identity, observed, nil, err)
+}
+
+func (r *Runner) finishEnvelope(sourceCtx context.Context, e envelope, started time.Time, identity exchangeIdentity, observed bool, res *Result, err error) {
+	if e.complete != nil {
+		completionErr := e.complete(err)
+		if completionErr != nil {
+			stepdef.ReportSourceFailure(sourceCtx, completionErr)
+		}
+		err = errors.Join(err, completionErr)
+	}
+	if err != nil {
+		r.failed.Add(1)
+	} else {
+		r.completed.Add(1) // also when an error route handled it
+	}
+	if r.onResult != nil {
+		r.resultMu.Lock()
+		r.onResult(res, err) // a failing message is reported; the flow keeps going
+		r.resultMu.Unlock()
+	}
+	if observed {
+		r.exchangeEvent(identity, time.Since(started), res, err)
+	}
+	r.durationNanos.Add(time.Since(started).Nanoseconds())
+	r.inFlight.Add(-1)
+	if e.release != nil {
+		e.release()
 	}
 }
 

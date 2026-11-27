@@ -68,6 +68,64 @@ func TestRoundTrip(t *testing.T) {
 	t.Logf("%d DIL documents round-trip", n)
 }
 
+func TestRoundTripInterceptorsAOP(t *testing.T) {
+	src := `interceptor auth {
+  at: "entry"
+  mode: "guard"
+  scope: "program"
+  pointcut: {flows: ["orders*"]}
+  condition: {language: "simple", expression: "${header.Authorization} != null"}
+  onDeny: {message: "unauthorized"}
+}
+
+interceptor enrich {
+  at: "before"
+  mode: "transform"
+  scope: "document"
+  pointcut: {kinds: ["action"], uris: ["setbody"]}
+  action: {uri: "setheader", options: {name: "X-Enriched", value: "yes"}}
+}
+
+interceptor timing {
+  at: "after"
+  mode: "observe"
+  pointcut: {kinds: ["action", "sink"]}
+  action: {uri: "logger", options: {expression: "${header.metadata.step.target}:${header.metadata.step.duration}"}}
+}
+
+interceptor errAudit {
+  at: "onError"
+  mode: "observe"
+  action: {uri: "logger", options: {expression: "${header.error.step}:${header.error.class}"}}
+}
+
+flow orders {
+  message:in as in
+    -> setbody(expression: "ok") as done
+}
+`
+	compiled, err := Compile("aop.dil", []byte(src))
+	if err != nil {
+		t.Fatalf("compile: %v", err)
+	}
+	printed, err := Print(compiled)
+	if err != nil {
+		t.Fatalf("print: %v", err)
+	}
+	again, err := Compile("aop.dil", printed)
+	if err != nil {
+		t.Fatalf("recompile: %v\n%s", err, printed)
+	}
+	want, got := canonical(t, compiled), canonical(t, again)
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("round-trip mismatch:\nwant %v\ngot  %v", want, got)
+	}
+	printed2, err := Print(again)
+	if err != nil || !bytes.Equal(printed, printed2) {
+		t.Fatalf("print not canonical (%v):\n%s\n---\n%s", err, printed, printed2)
+	}
+}
+
 // canonical returns what DIF reads of a DIL JSON document, in a form that
 // does not depend on link ids or on the order of steps, and with lists that
 // DIL JSON may write as one object written as lists.

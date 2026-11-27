@@ -60,6 +60,7 @@ var stepEffects = map[string]func(stepdef.Params) *stepdef.Effect{
 		e.Reads = headerReads(optString(p, "expression"), true)
 		return &e
 	},
+	"guard/action": keepReading("language", "expression", true),
 	"return/action": func(p stepdef.Params) *stepdef.Effect {
 		e := keepAll
 		e.Reply = true

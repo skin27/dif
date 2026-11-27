@@ -1,0 +1,51 @@
+import "./orders.dil" as orders
+
+test "approves charged order" {
+  flow: "orders"
+  input: {
+    message: "orders:sampleOrder"
+  }
+  mocks: [
+    {
+      step: "chargePayment"
+      body: "APPROVED"
+      headers: {
+        receipt: "rcpt-42"
+      }
+      called: 1
+    }
+  ]
+  expect: {
+    status: "ok"
+    body: "order ORD-100: APPROVED"
+    headers: {
+      orderId: "ORD-100"
+      processed: "true"
+      receipt: "rcpt-42"
+    }
+    trailContains: ["action:chargePayment", "formatReply"]
+  }
+}
+
+test "handles payment gateway timeout" {
+  flow: "orders"
+  input: {
+    body: `{"id":"ORD-200","amount":12.00}`
+  }
+  mocks: [
+    {
+      step: "chargePayment"
+      error: "gateway timeout"
+      called: 1
+    }
+  ]
+  expect: {
+    status: "handled"
+    errorContains: "gateway timeout"
+    bodyContains: "order ORD-200 failed"
+    headers: {
+      fallback: "true"
+    }
+    trailContains: ["errorReply"]
+  }
+}

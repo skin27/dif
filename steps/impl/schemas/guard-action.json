@@ -1,0 +1,41 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:guard-action",
+	"title": "guard",
+	"description": "Evaluates a condition in simple, xpath or jsonpath and passes the message on if it holds, or fails with a GuardError.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Condition language: simple, xpath or jsonpath",
+			"type": "string",
+			"enum": ["simple", "xpath", "jsonpath"],
+			"default": "simple"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "Condition that must hold for the message to continue",
+			"type": "string"
+		},
+		"message": {
+			"title": "Deny message",
+			"description": "Reason reported in GuardError when the condition does not hold",
+			"type": "string",
+			"default": ""
+		},
+		"interceptor": {
+			"title": "Interceptor",
+			"description": "Name of the guard interceptor, if woven",
+			"type": "string",
+			"default": ""
+		},
+		"targetStep": {
+			"title": "Target step",
+			"description": "ID of the step guarded by this interceptor, if woven",
+			"type": "string",
+			"default": ""
+		}
+	},
+	"required": ["expression"],
+	"additionalProperties": false
+}

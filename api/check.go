@@ -9,6 +9,7 @@ import (
 	"dif/internal/mapping"
 	"dif/message"
 	stepdef "dif/steps/definition"
+	stepimpl "dif/steps/impl"
 )
 
 // Diagnostic is a finding of the static checks of a flow (see Inspect): what
@@ -32,6 +33,11 @@ func checkFlow(f *flowdef.Flow) (ds []Diagnostic) {
 			ds = nil
 		}
 	}()
+	if f != nil && f.PartitionExpr != "" && len(f.PartitionReads) == 0 {
+		fc := *f
+		fc.PartitionReads = stepimpl.SimpleHeaderReads(f.PartitionExpr)
+		f = &fc
+	}
 	return flowcheck.Check(f, stepEffect)
 }
 

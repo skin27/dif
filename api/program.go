@@ -119,6 +119,12 @@ func PrepareProgram(ctx context.Context, sources []ProgramSource, limits Program
 			for _, next := range n.Next {
 				visit(next)
 			}
+			for _, after := range n.After {
+				visit(after)
+			}
+			for _, onErr := range n.OnError {
+				visit(onErr)
+			}
 		}
 		visit(f.Source)
 		for _, h := range f.ErrorHandlers() {

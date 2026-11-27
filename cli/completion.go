@@ -40,16 +40,22 @@ func completionSuggestions(line string) ([]string, error) {
 			for _, c := range commands {
 				choices = append(choices, c.name)
 			}
+		case args[0] == "eval" && len(args) == 2:
+			choices = []string{"simple", "map", "difmap/1", "xpath", "jsonpath"}
 		case strings.HasPrefix(prefix, "-"):
 			choices = []string{"--help"}
 			switch args[0] {
 			case "init":
 				choices = append(choices, "--template", "--id")
-			case "validate", "describe", "catalog", "version":
+			case "validate", "describe", "catalog", "version", "test":
 				choices = append(choices, "--output")
 				if args[0] == "validate" {
 					choices = append(choices, "--strict")
 				}
+			case "trace":
+				choices = append(choices, "--flow", "--body", "--header", "--output")
+			case "msg":
+				choices = append(choices, "--header", "--clear")
 			case "convert":
 				choices = append(choices, "--to", "--output")
 			case "stop":
@@ -63,7 +69,7 @@ func completionSuggestions(line string) ([]string, error) {
 			}
 		case args[0] == "list" || args[0] == "ps":
 			choices = []string{"started", "paused", "stopped"}
-		case args[0] == "init" || args[0] == "validate" || args[0] == "describe" || args[0] == "convert" || args[0] == "run" || args[0] == "load":
+		case args[0] == "init" || args[0] == "validate" || args[0] == "describe" || args[0] == "convert" || args[0] == "run" || args[0] == "load" || args[0] == "test" || args[0] == "trace":
 			dir := filepath.Dir(prefix)
 			entries, err := os.ReadDir(dir)
 			if err != nil {

@@ -1,8 +1,11 @@
 package impl
 
 import (
+	"context"
+
 	flowdef "dif/flows/definition"
 	"dif/internal/mapping"
+	"dif/message"
 	stepdef "dif/steps/definition"
 )
 
@@ -39,4 +42,20 @@ func flowOf(p stepdef.Params) *flowProperties {
 		return &flowProperties{functions: functions, stores: stores, channels: channelRuntime(p)}
 	}
 	return &flowProperties{id: f.ID, name: f.Name, version: f.Version, tenant: f.Tenant, environment: f.Environment, functions: functions, stores: stores, channels: channelRuntime(p)}
+}
+
+// CompilePartitionKey compiles a flow's partitionBy Simple expression into a
+// key extractor function safe for concurrent use.
+func CompilePartitionKey(f *flowdef.Flow, expr string) (func(context.Context, message.Message) (string, error), error) {
+	var fp *flowProperties
+	if f != nil {
+		fp = &flowProperties{id: f.ID, name: f.Name, version: f.Version, tenant: f.Tenant, environment: f.Environment}
+	}
+	x, err := compileExpressionIn(fp, "simple", expr)
+	if err != nil {
+		return nil, err
+	}
+	return func(ctx context.Context, m message.Message) (string, error) {
+		return x.eval(m, ctx)
+	}, nil
 }

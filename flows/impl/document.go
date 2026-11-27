@@ -76,6 +76,9 @@ type FlowPlan struct {
 	scopes          map[string]*mapping.Functions
 	actionTemplates map[string]ProcessorInfo
 	stores          map[string]stepdef.Store
+	stepConns       map[string]*stepdef.Connection
+	stepStores      map[string]map[string]stepdef.Store
+	preResolved     map[string]bool
 }
 
 // DecodeDocument checks declaration uniqueness without constructing processors.
@@ -149,6 +152,15 @@ func DecodeDocument(data []byte) (*Document, error) {
 			return nil, err
 		}
 	}
+	for i := range d.doc.DIL.Core.Tests.Test {
+		t := &d.doc.DIL.Core.Tests.Test[i]
+		if err := check("test", t.Name); err != nil {
+			return nil, err
+		}
+		if err := t.validate(); err != nil {
+			return nil, err
+		}
+	}
 	for _, in := range d.doc.DIL.Integrations.Integration {
 		if in.ID != "" {
 			if err := check("integration", in.ID); err != nil {
@@ -163,8 +175,8 @@ func safeDecodeError(err error) error {
 	if e, ok := err.(*json.UnmarshalTypeError); ok {
 		return fmt.Errorf("invalid type at %s (byte %d)", e.Field, e.Offset)
 	}
-	// Custom import errors contain schema information only.
-	if strings.HasPrefix(err.Error(), "import") || strings.HasPrefix(err.Error(), "invalid import") {
+	// Custom import and test errors contain schema information only.
+	if strings.HasPrefix(err.Error(), "import") || strings.HasPrefix(err.Error(), "invalid import") || strings.HasPrefix(err.Error(), "invalid test") {
 		return err
 	}
 	return fmt.Errorf("invalid JSON field type")
@@ -185,6 +197,12 @@ func integrationInfo(i dilIntegration) IntegrationInfo {
 // Plans makes one flow plan per flow, resolving only direct imports. Local exact
 // names win over qualified spellings, including historical names with colons.
 func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
+	return d.PlansWithInterceptors(imports, nil)
+}
+
+// PlansWithInterceptors makes one flow plan per flow, also weaving program-scoped
+// interceptors from other documents in the resolved program without mutating d.
+func (d *Document) PlansWithInterceptors(imports map[string]*Document, extra []ProgramInterceptor) ([]FlowPlan, error) {
 	merged := d.doc
 	for _, imp := range d.Imports() {
 		other := imports[imp.Namespace]
@@ -211,6 +229,7 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 		}
 	}
 	merged.DIL.Imports.Import = nil
+	merged.DIL.Core.Tests.Test = nil
 	core := refsOf(merged)
 	stores := d.storeBindings()
 	plans := []FlowPlan{}
@@ -222,10 +241,11 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					processorRefs = append(processorRefs, ReferenceInfo{s.ID, "processor", name})
 				}
 			}
-			df, scopes, templates, maps, services, err := d.expandProcessors(df)
+			exp, err := d.expandProcessors(df, extra)
 			if err != nil {
 				return nil, err
 			}
+			df = exp.flow
 			input, err := selectInput(df, d.doc, core)
 			if err != nil {
 				return nil, fmt.Errorf("integration %q flow %q: %w", in.ID, df.ID, err)
@@ -269,11 +289,13 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					continue
 				}
 				if scheme == "mapper" {
-					refs = append(refs, ReferenceInfo{s.ID, "map", rest})
+					if !strings.HasPrefix(rest, "@processor/") && !strings.HasPrefix(rest, "@interceptor/") {
+						refs = append(refs, ReferenceInfo{s.ID, "map", rest})
+					}
 					continue
 				}
 				if scheme == "service" {
-					if !strings.HasPrefix(rest, "@processor/") {
+					if !strings.HasPrefix(rest, "@processor/") && !strings.HasPrefix(rest, "@interceptor/") {
 						refs = append(refs, ReferenceInfo{s.ID, "service", rest})
 					}
 					continue
@@ -293,14 +315,28 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					refs = append(refs, ReferenceInfo{s.ID, "connection", name})
 				}
 			}
-			plans = append(plans, FlowPlan{ID: df.ID, Integration: integrationInfo(in), References: refs, data: data, input: inputData, mappings: maps, services: services, scopes: scopes, actionTemplates: templates, stores: stores})
+			plans = append(plans, FlowPlan{
+				ID:              df.ID,
+				Integration:     integrationInfo(in),
+				References:      refs,
+				data:            data,
+				input:           inputData,
+				mappings:        exp.plans,
+				services:        exp.services,
+				scopes:          exp.scopes,
+				actionTemplates: exp.templates,
+				stores:          stores,
+				stepConns:       exp.stepConns,
+				stepStores:      exp.stepStores,
+				preResolved:     exp.preResolved,
+			})
 		}
 	}
 	return plans, nil
 }
 
 func (p FlowPlan) Build(newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
-	f, err := parse(p.data, newProcessor, p.mappings, p.services, p.scopes, p.actionTemplates, p.stores)
+	f, err := parse(p.data, newProcessor, p.mappings, p.services, p.scopes, p.actionTemplates, p.stores, p.stepConns, p.stepStores, p.preResolved)
 	if err != nil {
 		return nil, err
 	}

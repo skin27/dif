@@ -3,6 +3,7 @@ package api
 
 import (
 	"dif/engine"
+	flowimpl "dif/flows/impl"
 	"dif/message"
 	stepdef "dif/steps/definition"
 	stepimpl "dif/steps/impl"
@@ -35,6 +36,7 @@ var steps = func() *registry.Registry {
 	if err := stepimpl.Register(r); err != nil {
 		panic(err) // the built-in schemas are embedded, so this is a programming error
 	}
+	flowimpl.SetPartitionKeyCompiler(stepimpl.CompilePartitionKey)
 	return r
 }()
 

@@ -47,6 +47,9 @@ type dilDoc struct {
 			Stores struct {
 				Store oneOrMany[dilStore] `json:"store"`
 			} `json:"stores"`
+			Tests struct {
+				Test oneOrMany[dilTest] `json:"test"`
+			} `json:"tests"`
 		} `json:"core"`
 	} `json:"dil"`
 }
@@ -70,6 +73,8 @@ type dilFlow struct {
 		Tenant       string `json:"tenant"`
 		Environment  string `json:"environment"`
 		Version      any    `json:"version"` // a number or a text
+		Concurrency  any    `json:"concurrency,omitempty"`
+		PartitionBy  string `json:"partitionBy,omitempty"`
 	} `json:"options"`
 	Steps struct {
 		Step oneOrMany[dilStep] `json:"step"`
@@ -84,6 +89,11 @@ type dilStep struct {
 	Links   struct {
 		Link oneOrMany[dilLink] `json:"link"`
 	} `json:"links"`
+	// Internal fields set by interceptor weaving so woven graphs survive FlowPlan serialization.
+	Measure    bool     `json:"measure,omitempty"`
+	AfterLinks []string `json:"afterLinks,omitempty"`
+	ErrorLinks []string `json:"errorLinks,omitempty"`
+	WovenOut   bool     `json:"wovenOut,omitempty"`
 }
 
 type dilLink struct {
