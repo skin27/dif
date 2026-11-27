@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	flowdef "dif/flows/definition"
+	"dif/internal/channels"
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
@@ -320,4 +322,102 @@ func TestSplitAndAggregate(t *testing.T) {
 			t.Errorf("%v %v: err = %v, want containing %q", tt.opts, tt.links, err, tt.want)
 		}
 	}
+}
+
+// order is a message of the order the correlation key reads.
+func order(id, body string) message.Message {
+	m := message.New(body)
+	m["order"] = id
+	return m
+}
+
+func TestAggregateCorrelationKey(t *testing.T) {
+	r := newAggregator(t, map[string]any{"aggregateType": "json", "completionSize": 2, "correlationKey": "${header.order}"})
+	got := feed(t, r, order("a", "1"), order("b", "2"), order("a", "3"), order("c", "4"), order("b", "5"), order("c", "6"))
+	if want := "- - [1,3] - [2,5] [4,6]"; strings.Join(got, " ") != want {
+		t.Errorf("passed on %q, want %q", got, want)
+	}
+	// A split starts its group anew, not the others.
+	r = newAggregator(t, map[string]any{"aggregateType": "json", "correlationKey": "${header.order}"})
+	a0, b0, a1, b1 := part("1", 0, 2), part("2", 0, 2), part("3", 1, 2), part("4", 1, 2)
+	a0["order"], b0["order"], a1["order"], b1["order"] = "a", "b", "a", "b"
+	if got := feed(t, r, a0, b0, a1, b1); strings.Join(got, " ") != "- - [1,3] [2,4]" {
+		t.Errorf("splits: %q", got)
+	}
+	for want, opts := range map[string]map[string]any{
+		"option correlationKey":              {"correlationKey": "${unknown("},
+		`store "undeclared" is not declared`: {"store": "undeclared"},
+	} {
+		if _, err := newRouter(stepdef.Action, "aggregate", opts, stepdef.Link{}); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%v: err = %v, want containing %q", opts, err, want)
+		}
+	}
+}
+
+func TestAggregateTimeoutPerGroup(t *testing.T) {
+	r := newAggregator(t, map[string]any{"aggregateType": "json", "completionTimeout": 400, "correlationKey": "${header.order}"})
+	out := released(t, r)
+	feed(t, r, order("a", "1"))
+	time.Sleep(200 * time.Millisecond)
+	feed(t, r, order("b", "2"), order("a", "3")) // a waits again for the whole timeout
+	time.Sleep(250 * time.Millisecond)
+	feed(t, r, order("a", "4"))
+	if got := releasedWithin(t, out); got != "[2]" {
+		t.Errorf("first released %q, want b's group", got)
+	}
+	if got := releasedWithin(t, out); got != "[1,3,4]" {
+		t.Errorf("then released %q, want a's group", got)
+	}
+	nothingWithin(t, out, 500*time.Millisecond)
+}
+
+// TestAggregateGroupsSurviveRestart keeps the groups in a durable store: a
+// group that was not complete when its runtime closed completes after a new
+// one opens, by a message or by its timeout, which runs from its last message.
+func TestAggregateGroupsSurviveRestart(t *testing.T) {
+	dir := t.TempDir()
+	opts := map[string]any{"aggregateType": "json", "completionSize": 3, "completionTimeout": 300, "correlationKey": "${header.order}", "store": "groups"}
+	open := func() (*Channels, stepdef.RouterProcessor) {
+		t.Helper()
+		rt, err := NewChannels(channels.Config{Directory: dir})
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { rt.Close() })
+		if _, err := rt.DeclareStore("groups", channels.StoreConfig{Durable: true}); err != nil {
+			t.Fatal(err)
+		}
+		p, err := steps.ProcessorWithParams(&flowdef.Node{ID: "agg", Kind: stepdef.Action, URI: "aggregate", Options: opts, Links: []stepdef.Link{{}}, Next: make([]*flowdef.Node, 1)},
+			stepdef.Params{ChannelRuntimeKey: rt})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return rt, p.(stepdef.RouterProcessor)
+	}
+
+	rt, r := open()
+	feed(t, r, order("a", "1"), order("b", "2"), order("a", "3"))
+	if n := rt.Store("groups").Len(); n != 2 {
+		t.Fatalf("store holds %d groups, want 2", n)
+	}
+	rt.Close()
+	time.Sleep(350 * time.Millisecond) // b's timeout passes while nothing runs
+
+	rt, r = open()
+	if got := feed(t, r, order("a", "4")); got[0] != "[1,3,4]" {
+		t.Errorf("a's group after the restart: %q", got)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	sent := make(chan message.Message, 1)
+	go r.(stepdef.Releaser).Release(ctx, func(m message.Message) error { sent <- m; return nil })
+	select {
+	case m := <-sent:
+		if m[message.Body] != "[2]" || m["order"] != "b" {
+			t.Errorf("b's group after the restart: %v", m)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("b's group was not completed by its timeout")
+	}
+	eventually(t, "an empty store", func() bool { return rt.Store("groups").Len() == 0 })
 }

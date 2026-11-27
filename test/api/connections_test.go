@@ -16,6 +16,22 @@ func TestProgramTypedConnections(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The capability manifest names the hosts the connections resolve to;
+	// nothing else of them is shown.
+	var targets []string
+	for _, f := range info.Flows {
+		for i, s := range f.Flow.Steps {
+			for _, c := range s.Capabilities {
+				if c.Kind == "net.connect" {
+					targets = append(targets, s.ID+" "+c.Target)
+				}
+			}
+			f.Flow.Steps[i].Capabilities = nil
+		}
+	}
+	if got := strings.Join(targets, ", "); got != "upload sftp.partner.example:22, post api.partner.example:443, query db.example:5432" {
+		t.Errorf("the manifest has %s", got)
+	}
 	data, err := json.Marshal(info)
 	if err != nil {
 		t.Fatal(err)

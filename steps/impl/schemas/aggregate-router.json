@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:aggregate-router",
 	"title": "aggregate router",
-	"description": "Collects messages; when the group is complete (the last part of a split, completionSize messages, completionTimeout without a new message, or every completionInterval), releases a message with the aggregate of their bodies, made from the last, along the link, ignoring what comes of it. The message that came in carries on as it came. A body that is no XML or JSON fails. Without a timer the first part of a split drops what a failed split left. A group a timer has not completed when the flow stops is lost. In DIL it is an action.",
+	"description": "Collects messages; when the group is complete (the last part of a split, completionSize messages, completionTimeout without a new message, or every completionInterval), releases a message with the aggregate of their bodies, made from the last, along the link, ignoring what comes of it. The message that came in carries on as it came. A body that is no XML or JSON fails. Without a timer the first part of a split drops what a failed split left. With correlationKey, the messages whose key has the same value make a group, and each group completes on its own. A group that is not complete when the flow stops is lost, unless store keeps the groups. In DIL it is an action.",
 	"type": "object",
 	"properties": {
 		"aggregateType": {
@@ -32,6 +32,18 @@
 			"type": "integer",
 			"minimum": 0,
 			"default": 0
+		},
+		"correlationKey": {
+			"title": "Correlation key",
+			"description": "Simple expression whose value groups the messages, such as ${header.orderId}; empty: one group",
+			"type": "string",
+			"default": ""
+		},
+		"store": {
+			"title": "Store",
+			"description": "Name of a store in dil.core.stores that keeps the groups, so that a durable store keeps them over a restart; empty: in memory",
+			"type": "string",
+			"default": ""
 		}
 	},
 	"additionalProperties": false

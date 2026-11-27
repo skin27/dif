@@ -1,0 +1,8 @@
+{
+  "files": ["testdata/examples/permissions.json"],
+  "permissions": {
+    "net.connect": ["api.example.com:443"],
+    "fs.read": ["inbox"],
+    "fs.write": ["inbox", "outbox"]
+  }
+}

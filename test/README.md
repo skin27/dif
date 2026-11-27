@@ -22,7 +22,7 @@ cannot compile it from another directory.
 | `testdata/hello.dil` | `hello.json` written as DIL text (see `docs/dil-language.md`) |
 | `testdata/examples/` | Example flows (`channels/`, `experimental/` and `request-reply/` are groups of them) |
 | `testdata/regression/` | Flows of real use cases, grouped as in the designer |
-| `testdata/reliable/` | The reliable-channel example: two flows and the service configuration that runs them (`internal/service` tests it) |
+| `testdata/reliable/` | The reliable-channel example: two flows and the service configuration that runs them (`internal/service` tests it); also `permissions.json`, the policy of `testdata/examples/permissions.json` |
 | `testdata/parse/` | Flows that only the parser tests (`flows/impl`) read: they use steps that DIL exports as `unknown` |
 | `keystore/testdata/` | Test keystores |
 | `api/testdata/program/` | Multi-integration composition with local core imports; built and executed by `test/api`, with CLI and service coverage |

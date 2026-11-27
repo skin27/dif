@@ -249,7 +249,7 @@ func TestXPathInSteps(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "setheaders", map[string]any{"headers": `[{"name":"x","value":"//a[","language":"xpath"}]`}, `header x: xpath "//a["`)
 
 	process(t, "settenantvariable:fromxml", map[string]any{"language": "xpath", "value": "//order/@id", "tenantDbName": "xp"}, message.New(`<order id="o-7"/>`))
-	if v, _ := tenantVariables.get("xp", "fromxml"); v != "o-7" {
+	if v, _, _ := tenantVars("xp").get("fromxml"); v != "o-7" {
 		t.Errorf("variable = %q", v)
 	}
 

@@ -80,6 +80,9 @@ func (s httpsSource) Run(ctx context.Context, emit stepdef.Emit) error {
 }
 
 func (s httpsSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	if err := stepdef.Permit(ctx, stepdef.NetListen, listenTarget(s.addr)); err != nil {
+		return err
+	}
 	unregister, server, err := serveHTTPS(s.addr, s.identity, s.cert, s.path, s.matchPrefix, s.handler(emit))
 	if err != nil {
 		return err

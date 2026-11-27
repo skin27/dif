@@ -75,6 +75,7 @@ type FlowPlan struct {
 	services        map[string]*mapping.ServiceBinding
 	scopes          map[string]*mapping.Functions
 	actionTemplates map[string]ProcessorInfo
+	stores          map[string]stepdef.Store
 }
 
 // DecodeDocument checks declaration uniqueness without constructing processors.
@@ -137,6 +138,14 @@ func DecodeDocument(data []byte) (*Document, error) {
 			return nil, err
 		}
 		if err := c.check(); err != nil {
+			return nil, err
+		}
+	}
+	for _, s := range d.doc.DIL.Core.Stores.Store {
+		if err := check("store", s.Name); err != nil {
+			return nil, err
+		}
+		if _, err := s.store(); err != nil {
 			return nil, err
 		}
 	}
@@ -203,6 +212,7 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 	}
 	merged.DIL.Imports.Import = nil
 	core := refsOf(merged)
+	stores := d.storeBindings()
 	plans := []FlowPlan{}
 	for _, in := range d.doc.DIL.Integrations.Integration {
 		for _, df := range in.Flows.Flow {
@@ -251,6 +261,13 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					}
 				}
 				scheme, rest, _ := strings.Cut(s.URI, ":")
+				if name, ok := s.Options["store"].(string); ok && name != "" {
+					refs = append(refs, ReferenceInfo{s.ID, "store", name})
+				}
+				if scheme == "store" {
+					refs = append(refs, ReferenceInfo{s.ID, "store", rest})
+					continue
+				}
 				if scheme == "mapper" {
 					refs = append(refs, ReferenceInfo{s.ID, "map", rest})
 					continue
@@ -276,14 +293,14 @@ func (d *Document) Plans(imports map[string]*Document) ([]FlowPlan, error) {
 					refs = append(refs, ReferenceInfo{s.ID, "connection", name})
 				}
 			}
-			plans = append(plans, FlowPlan{ID: df.ID, Integration: integrationInfo(in), References: refs, data: data, input: inputData, mappings: maps, services: services, scopes: scopes, actionTemplates: templates})
+			plans = append(plans, FlowPlan{ID: df.ID, Integration: integrationInfo(in), References: refs, data: data, input: inputData, mappings: maps, services: services, scopes: scopes, actionTemplates: templates, stores: stores})
 		}
 	}
 	return plans, nil
 }
 
 func (p FlowPlan) Build(newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
-	f, err := parse(p.data, newProcessor, p.mappings, p.services, p.scopes, p.actionTemplates)
+	f, err := parse(p.data, newProcessor, p.mappings, p.services, p.scopes, p.actionTemplates, p.stores)
 	if err != nil {
 		return nil, err
 	}

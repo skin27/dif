@@ -34,7 +34,8 @@ type imapsSource struct {
 	host, addr     string
 	user, password string
 	oauth          bool
-	token, tenant  string // token may hold @{variable}
+	token          string // may hold @{variable}
+	vars           tenantStore
 	folder         string
 	unseen         bool
 	fetchSize      int // 0 for all
@@ -52,7 +53,6 @@ func newIMAPSSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		user:      p["username"].(string),
 		oauth:     p["authenticationType"] == "oauth",
 		token:     p["accessToken"].(string),
-		tenant:    p["tenantDbName"].(string),
 		folder:    p["folderName"].(string),
 		unseen:    p["unseen"].(bool),
 		fetchSize: max(p["fetchSize"].(int), 0),
@@ -82,6 +82,11 @@ func newIMAPSSource(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		s.password = pw
 	} else if s.password, _, err = environmentSecret("DIF_IMAPS_PASSWORD"); err != nil {
 		return nil, err
+	}
+	if s.oauth && strings.Contains(s.token, "@{") {
+		if s.vars, err = tenantVariables(p, p["tenantDbName"].(string)); err != nil {
+			return nil, err
+		}
 	}
 	roots, err := outboundRoots(p)
 	if err != nil {
@@ -150,6 +155,9 @@ func (x imapXOAuth2) Next(challenge []byte) ([]byte, error) {
 
 // connect opens a connection and logs in.
 func (s *imapsSource) connect(ctx context.Context) (*imapclient.Client, error) {
+	if err := stepdef.Permit(ctx, stepdef.NetConnect, s.addr); err != nil {
+		return nil, err
+	}
 	setup, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 	c, err := imapclient.DialTLS(s.addr, &imapclient.Options{TLSConfig: s.tlsConfig.Clone(), Dialer: &net.Dialer{Timeout: s.timeout}})
@@ -159,7 +167,7 @@ func (s *imapsSource) connect(ctx context.Context) (*imapclient.Client, error) {
 	stop := context.AfterFunc(setup, func() { c.Close() })
 	if s.oauth {
 		var token string
-		if token, err = expandTenantVariables(s.tenant, s.token); err == nil && token == "" {
+		if token, err = expandTenantVariables(s.vars, s.token); err == nil && token == "" {
 			err = fmt.Errorf("the access token is empty")
 		}
 		if err != nil {

@@ -18,10 +18,10 @@ import (
 // Parse converts a DIL JSON document holding exactly one flow into the flow model.
 // newProcessor creates the processor for each node.
 func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
-	return parse(data, newProcessor, nil, nil, nil, nil)
+	return parse(data, newProcessor, nil, nil, nil, nil, nil)
 }
 
-func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error), plans map[string]*mapping.Plan, services map[string]*mapping.ServiceBinding, scopes map[string]*mapping.Functions, templates map[string]ProcessorInfo) (*flowdef.Flow, error) {
+func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error), plans map[string]*mapping.Plan, services map[string]*mapping.ServiceBinding, scopes map[string]*mapping.Functions, templates map[string]ProcessorInfo, stores map[string]stepdef.Store) (*flowdef.Flow, error) {
 	var doc dilDoc
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("parse dil: %w", err)
@@ -56,16 +56,25 @@ func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		if errExpand != nil {
 			return nil, errExpand
 		}
+		stores = d.storeBindings()
 	}
 	processor := func(n *flowdef.Node) (stepdef.Processor, error) {
 		conn := n.Bindings[stepdef.ConnectionBinding]
-		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow}
+		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow, stepdef.StoresBinding: stores}
 		if conn != nil {
 			n.Bindings[stepdef.ConnectionBinding] = conn
 		}
 		if info, ok := templates[n.ID]; ok {
 			n.Bindings["dif.internal.actionTemplate"] = true
 			n.Bindings["dif.internal.processorInfo"] = info
+			if info.stores != nil {
+				n.Bindings[stepdef.StoresBinding] = info.stores // a reusable processor refers to the stores of its document
+			}
+		}
+		if name, ok := strings.CutPrefix(n.URI, "store:"); ok && n.Kind != stepdef.Source {
+			if _, declared := n.Bindings[stepdef.StoresBinding].(map[string]stepdef.Store)[name]; !declared {
+				return nil, fmt.Errorf("store %q not found in dil.core.stores", name)
+			}
 		}
 		if name, ok := strings.CutPrefix(n.URI, "mapper:"); ok {
 			plan := plans[name]
@@ -469,7 +478,7 @@ func resolveRefs(s dilStep, core coreRefs) (map[string]any, string, error) {
 	scheme, rest, _ := strings.Cut(s.URI, ":")
 	// Mapper and service steps own their full name suffix, including imported
 	// namespaces named "ref" or "message". Those are not legacy resource/message URIs.
-	if scheme == "mapper" || scheme == "service" {
+	if scheme == "mapper" || scheme == "service" || scheme == "store" {
 		return s.Options, s.URI, nil
 	}
 	if name, ok := strings.CutPrefix(rest, "ref:"); ok {

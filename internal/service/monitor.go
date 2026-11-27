@@ -78,6 +78,12 @@ func (s *Service) Handler() http.Handler {
 		for _, t := range channels.Topics {
 			fmt.Fprintf(w, "dif_topic_waiting{topic=%s} %d\ndif_topic_blocked_producers{topic=%s} %d\n", strconv.Quote(t.Name), t.Waiting, strconv.Quote(t.Name), t.Blocked)
 		}
+		if len(channels.Stores) > 0 {
+			fmt.Fprintf(w, "# TYPE dif_store_keys gauge\n")
+		}
+		for _, s := range channels.Stores {
+			fmt.Fprintf(w, "dif_store_keys{store=%s} %d\n", strconv.Quote(s.Name), s.Keys)
+		}
 		if stomp := s.stompStatus(); stomp != nil {
 			fmt.Fprintf(w, "# TYPE dif_stomp_connections gauge\ndif_stomp_connections %d\n", stomp.Connections)
 		}

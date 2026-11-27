@@ -30,6 +30,7 @@ type STOMPStatus = stomp.Status
 type Runtime struct {
 	channels *stepimpl.Channels
 	events   *eventObserver
+	policy   *Policy
 }
 
 func ValidateChannelConfig(config ChannelConfig) error { return channels.Validate(config) }
@@ -66,6 +67,15 @@ func (r *Runtime) LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, 
 	if err := r.channels.Check(); err != nil {
 		return nil, err
 	}
+	if r.policy != nil {
+		info, err := InspectBytes(data)
+		if err != nil {
+			return nil, fmt.Errorf("runtime load: %w", err)
+		}
+		if ds := checkFlowPolicy(info, r.policy); len(ds) > 0 {
+			return nil, policyError(ds)
+		}
+	}
 	f, err := parseFlow(data, func(n *flowdef.Node) (stepdef.Processor, error) {
 		return steps.ProcessorWithParams(n, stepdef.Params{stepimpl.ChannelRuntimeKey: r.channels, stepimpl.FlowRuntimeKey: n.Flow})
 	})
@@ -74,3 +84,9 @@ func (r *Runtime) LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, 
 	}
 	return newFlow(f, onResult, r.events), nil
 }
+
+// SetPolicy makes the runtime refuse to load a program (or flow) whose
+// capability manifest p does not grant; nil (the default) enforces nothing.
+// Start the loaded flows with WithPolicy to check targets known only per
+// message as well.
+func (r *Runtime) SetPolicy(p *Policy) { r.policy = p }

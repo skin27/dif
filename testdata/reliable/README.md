@@ -68,3 +68,44 @@ messages the flow failed three times. The listener only accepts loopback
 connections here; to listen on other addresses add
 `"tls": {"identity": "security/server-identity.p12"}` to the `stomp` block and
 set `DIF_SERVER_IDENTITY_PASSWORD`.
+
+## Durable stores
+
+`stores-service.json` runs `visits.dil`, which declares two durable stores:
+`visits`, with a counter, and `tenant.default`, the store of the default
+tenant's variables.
+
+```text
+go run ./cmd/dif validate --config testdata/reliable/stores-service.json
+go run ./cmd/dif run --config testdata/reliable/stores-service.json
+```
+
+The timer runs once: it reads the counter (0 the first time), adds one, puts
+it back, sets the tenant variable `lastVisit` and logs `visit 1`. Stop the
+service with Ctrl+C and run it again: it logs `visit 2`. The entries are in the
+journal in `data/channels/stores-example`, which is ignored by Git; delete that
+directory to start from 0. With `--monitor-address 127.0.0.1:9090`, `/status`
+lists both stores with their key counts and `/metrics` has
+`dif_store_keys{store="visits"}`.
+
+Tenant variables in a durable store are written to the journal as they are: an
+access token that an `oauth2token` step keeps there is on disk in that
+directory.
+
+## Permissions
+
+`permissions.json` runs the example flow `testdata/examples/permissions.json`
+(a file source on `inbox`, an https call to `api.example.com` and a file sink on
+`outbox`) under a policy that grants exactly what it can touch; see
+[Capabilities and permissions](../../README.md#capabilities-and-permissions):
+
+```text
+go run ./cmd/dif describe testdata/examples/permissions.json
+go run ./cmd/dif validate testdata/examples/permissions.json --sandbox
+go run ./cmd/dif validate testdata/examples/permissions.json --allow-net api.example.com:443 --allow-fs-read inbox
+go run ./cmd/dif validate --config testdata/reliable/permissions.json
+```
+
+The first validation reports four `not-permitted` errors, the second the two
+writes it does not grant, the third none. `run` instead of `validate` refuses to
+start with the same messages, or starts.

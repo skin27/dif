@@ -100,6 +100,7 @@ var stepEffects = map[string]func(stepdef.Params) *stepdef.Effect{
 	"setuuid/action":           setsOption("headerName"),
 	"setheaderbybody/action":   setsOption("headerName"),
 	"gettenantvariable/action": setsOption("headerName"),
+	"store/action":             storeEffect,
 	"googledrive/action":       fixed(stepdef.Effect{KeepBody: true, Headers: stepdef.HeadersKeep, MaySet: []string{DriveID}}),
 	"as2/action": fixed(stepdef.Effect{KeepBody: true, Headers: stepdef.HeadersKeep,
 		Sets: []string{"AS2-Message-Id", "http.status"}, MaySet: []string{"AS2-MDN-Disposition", "AS2-MDN-Signed"}}),

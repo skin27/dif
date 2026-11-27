@@ -2,7 +2,7 @@
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
 	"$id": "dif:step:settenantvariable-action",
 	"title": "settenantvariable action",
-	"description": "Sets a tenant variable, which the flows of a tenant share, to the value of an expression. Variables are kept in memory.",
+	"description": "Sets a tenant variable, which the flows of a tenant share, to the value of an expression. Variables are kept in the store tenant.<tenantDbName> of the runtime: in memory, unless a program declares that store in dil.core.stores.",
 	"type": "object",
 	"properties": {
 		"path": {
@@ -31,7 +31,7 @@
 		},
 		"encrypt": {
 			"title": "Encrypt",
-			"description": "Accepted for compatibility; variables in memory are not encrypted",
+			"description": "Accepted for compatibility; variables are not encrypted, in a durable store neither",
 			"type": "boolean",
 			"default": false
 		},

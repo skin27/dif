@@ -77,7 +77,7 @@ File         = { Import | Declaration | Integration | Flow } .
 Import       = "import" Name "as" Name .
 Declaration  = Kind [ Name ] "{" { ( Field | Header ) [ "," ] } "}" .
 Kind         = "function" | "processor" | "interceptor" | "format" | "map"
-             | "service" | "message" | "resource" | "connection" .
+             | "service" | "message" | "resource" | "connection" | "store" .
 Header       = "header" Name ":" [ word ] string .        (* in a message only *)
 Integration  = "integration" [ Name ] [ Params ] "{" { Flow } "}" .
 Flow         = "flow" [ Name ] [ Params ] "{" { Chain | Handler } "}" .
@@ -229,6 +229,8 @@ connection partnerSftp {
   authentication: {username: "dif", password: "ENC(...)"}
 }
 
+store rates { durable: true, ttl: 3600000 }
+
 processor text {
   parameters: [{name: "value", type: "string", default: "Hello"}]
   action: {uri: "setbody", options: {language: "constant", expression: {$param: "value"}}}
@@ -240,6 +242,12 @@ message ValidOrder {
   header Sent: simple "${date:now:yyyy-MM-dd}"
 }
 ```
+
+A `store` is lowered to `dil.core.stores.store[]`: a named key-value store with
+`durable` (default `false`), `ttl` (milliseconds an entry lives after it was
+last put; `0`, the default, keeps it) and `maxKeys` (`0`: 100,000). Steps use it
+as `store:rates` and expressions as `${store:rates:<key>}`; see the README's
+[Stores](../README.md#stores).
 
 The only sugar is the `header` line of a message, for `headers.header[]`; a
 message may instead have a `headers` field, not both.

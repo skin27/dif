@@ -233,7 +233,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		if err != nil {
 			return fail(err)
 		}
-		single := len(program.Flows) == 1 && len(program.Documents) == 1
+		single := len(program.Flows) == 1 && len(program.Documents) == 1 && len(program.Documents[0].Stores) == 0
 		if output == "json" {
 			if single {
 				return writeJSON(stdout, stderr, program.Flows[0].Flow)
@@ -257,6 +257,13 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 				}
 				for _, svc := range doc.Services {
 					fmt.Fprintf(stdout, "  SERVICE: %s (%s); %s -> %s\n", svc.Name, svc.ExchangePattern, contractPayloadLabel(svc.Input), contractPayloadLabel(svc.Output))
+				}
+				for _, s := range doc.Stores {
+					maxKeys := "default"
+					if s.MaxKeys > 0 {
+						maxKeys = fmt.Sprint(s.MaxKeys)
+					}
+					fmt.Fprintf(stdout, "  STORE: %s; durable: %t; ttl: %d ms; maxKeys: %s\n", s.Name, s.Durable, s.TTL, maxKeys)
 				}
 			}
 		}
@@ -435,5 +442,26 @@ func describeFlow(out io.Writer, info *api.FlowInfo) {
 			fmt.Fprintf(out, "; environment fallback: %s", c.Environment)
 		}
 		fmt.Fprintln(out)
+	}
+	describeCapabilities(out, info)
+}
+
+// describeCapabilities writes the flow's part of the capability manifest, one
+// line per capability.
+func describeCapabilities(out io.Writer, info *api.FlowInfo) {
+	fmt.Fprintln(out, "\nCAPABILITIES (outside the process):")
+	n := 0
+	for _, s := range info.Steps {
+		if s.CapabilitiesUndeclared {
+			fmt.Fprintf(out, "  %s: undeclared (the step declares no capabilities)\n", s.ID)
+			n++
+		}
+		for _, c := range s.Capabilities {
+			fmt.Fprintf(out, "  %s: %s\n", s.ID, c)
+			n++
+		}
+	}
+	if n == 0 {
+		fmt.Fprintln(out, "  None: the flow touches nothing outside the process.")
 	}
 }

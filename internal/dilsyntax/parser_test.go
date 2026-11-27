@@ -437,3 +437,27 @@ func TestPrintIntegrations(t *testing.T) {
 		t.Fatalf("round trip changes the integrations:\n%s", text)
 	}
 }
+
+func TestStoreDeclaration(t *testing.T) {
+	src := "store rates { durable: true, ttl: 3600000 }\n\nstore \"tenant.default\" {}\n"
+	doc := compile(t, src)
+	stores := path(doc, "dil", "core", "stores", "store")
+	want := []any{
+		map[string]any{"name": "rates", "durable": true, "ttl": 3600000.0},
+		map[string]any{"name": "tenant.default"},
+	}
+	if !reflect.DeepEqual(stores, want) {
+		t.Fatalf("stores = %v, want %v", stores, want)
+	}
+	data, err := Compile("test.dil", []byte(src))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text, err := Print(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "store rates {\n  durable: true\n  ttl: 3600000\n}\n\nstore tenant.default {}\n"; string(text) != want {
+		t.Errorf("printed:\n%s\nwant:\n%s", text, want)
+	}
+}

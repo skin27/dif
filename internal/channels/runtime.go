@@ -123,6 +123,9 @@ type Runtime struct {
 	journalBytes    int64
 	nextID          uint64
 	storageFailures uint64
+	stores          map[string]*Store                // declared by programs; see store.go
+	storesMu        sync.RWMutex                     // guards stores; taken after mu
+	pending         map[string]map[string]storeEntry // journal entries of stores not declared (yet)
 }
 
 // Open validates all declarations before opening storage. Configuration belongs
@@ -569,6 +572,7 @@ type QueueStatus struct {
 type Status struct {
 	Queues          []QueueStatus `json:"queues"`
 	Topics          []TopicStatus `json:"topics"`
+	Stores          []StoreStatus `json:"stores"`
 	JournalBytes    int64         `json:"journalBytes"`
 	StorageFailures uint64        `json:"storageFailures"`
 	Failed          bool          `json:"failed"`
@@ -610,6 +614,7 @@ func (r *Runtime) Snapshot() Status {
 		s.Topics = append(s.Topics, item)
 	}
 	sort.Slice(s.Topics, func(i, j int) bool { return s.Topics[i].Name < s.Topics[j].Name })
+	s.Stores = r.storeStatus()
 	return s
 }
 

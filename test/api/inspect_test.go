@@ -102,8 +102,22 @@ func TestInspectHTTPSWithoutCredentials(t *testing.T) {
 	if !found {
 		t.Fatal("missing identity password configuration")
 	}
+	// The manifest names the address the source listens on; nothing else of
+	// the URI or the options is shown.
+	var listens []string
+	for i, s := range info.Steps {
+		for _, c := range s.Capabilities {
+			if c.Kind == "net.listen" {
+				listens = append(listens, c.Target)
+			}
+		}
+		info.Steps[i].Capabilities = nil
+	}
+	if strings.Join(listens, " ") != "127.0.0.1:9002" {
+		t.Errorf("listens on %v", listens)
+	}
 	encoded, _ := json.Marshal(info)
-	if strings.Contains(string(encoded), "127.0.0.1") {
+	if strings.Contains(string(encoded), "127.0.0.1") || strings.Contains(string(encoded), "/hello") {
 		t.Fatal("description exposed URI or option values")
 	}
 }

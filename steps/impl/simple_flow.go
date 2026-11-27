@@ -20,17 +20,23 @@ const internalPrefix = "dif.internal."
 type flowProperties struct {
 	id, name, version, tenant, environment string
 	functions                              *mapping.Functions
+
+	// stores are the stores ${store:...} may read, by the names the flow uses;
+	// nil when the flow was made without a loader. channels is the runtime they are in.
+	stores   map[string]stepdef.Store
+	channels *Channels
 }
 
 // flowOf returns the properties of the flow a step is in; nil if it is in none.
 func flowOf(p stepdef.Params) *flowProperties {
 	f, _ := p[FlowRuntimeKey].(*flowdef.Flow)
 	functions, _ := p[mapping.FunctionsBindingKey].(*mapping.Functions)
+	stores, _ := declaredStores(p)
 	if f == nil {
-		if functions == nil {
+		if functions == nil && stores == nil {
 			return nil
 		}
-		return &flowProperties{functions: functions}
+		return &flowProperties{functions: functions, stores: stores, channels: channelRuntime(p)}
 	}
-	return &flowProperties{f.ID, f.Name, f.Version, f.Tenant, f.Environment, functions}
+	return &flowProperties{id: f.ID, name: f.Name, version: f.Version, tenant: f.Tenant, environment: f.Environment, functions: functions, stores: stores, channels: channelRuntime(p)}
 }

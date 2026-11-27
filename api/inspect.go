@@ -12,7 +12,8 @@ import (
 )
 
 // FlowInfo describes a statically validated flow without exposing option values
-// or URI paths, which may contain credentials. Steps include the error route.
+// or URI paths, which may contain credentials; the capabilities of the steps
+// name only hosts, ports, paths and variable names. Steps include the error route.
 type FlowInfo struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
@@ -36,6 +37,12 @@ type NodeInfo struct {
 	Links     []LinkInfo              `json:"links"`
 	// Interceptor is the step an interceptor added; empty for the flow's own steps.
 	Interceptor bool `json:"interceptor,omitempty"`
+	// Capabilities are the outside resources the step can touch: its entry in
+	// the program's manifest. Targets are addresses, paths and variable names,
+	// never userinfo, queries or other option values. CapabilitiesUndeclared
+	// is a step that declares none, such as a custom step without them.
+	Capabilities           []Capability `json:"capabilities,omitempty"`
+	CapabilitiesUndeclared bool         `json:"capabilitiesUndeclared,omitempty"`
 }
 
 type MapInfo = mapping.Info
@@ -134,6 +141,9 @@ func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 		ids[n.ID] = true
 		name, _, _ := strings.Cut(n.URI, ":")
 		node := NodeInfo{ID: n.ID, Kind: n.Kind, Step: name, Links: []LinkInfo{}, Interceptor: strings.HasPrefix(n.ID, flowimpl.InterceptorPrefix)}
+		var declared bool
+		node.Capabilities, declared = stepCapabilities(n)
+		node.CapabilitiesUndeclared = !declared
 		if info, ok := n.Bindings["dif.internal.processorInfo"].(flowimpl.ProcessorInfo); ok {
 			node.Processor = &info
 		}

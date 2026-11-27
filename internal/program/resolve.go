@@ -43,6 +43,7 @@ type DocumentInfo struct {
 	Functions    []mapping.FunctionInfo     `json:"functions,omitempty"`
 	Processors   []flowimpl.ProcessorInfo   `json:"processors,omitempty"`
 	Connections  []flowimpl.ConnectionInfo  `json:"connections,omitempty"`
+	Stores       []flowimpl.StoreInfo       `json:"stores,omitempty"`
 	Maps         []mapping.Info             `json:"maps,omitempty"`
 	Services     []mapping.ServiceInfo      `json:"services,omitempty"`
 }
@@ -175,6 +176,7 @@ func Resolve(ctx context.Context, sources []Source, limits Limits) (*Result, err
 		n.info.Functions = n.doc.FunctionInfo()
 		n.info.Processors = n.doc.ProcessorInfo()
 		n.info.Connections = n.doc.ConnectionInfo()
+		n.info.Stores = n.doc.StoreInfo()
 	}
 	for _, n := range r.order {
 		if err := n.doc.PrepareMappings(ctx, limits.Mapping); err != nil {

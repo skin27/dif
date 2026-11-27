@@ -5,6 +5,7 @@ package impl
 import (
 	"dif/internal/mapping"
 	"embed"
+	"fmt"
 
 	stepdef "dif/steps/definition"
 	"dif/steps/registry"
@@ -123,6 +124,7 @@ func Register(r *registry.Registry) error {
 		{"settenantvariable", stepdef.Action, "", newSetTenantVariableAction, nil},
 		{"gettenantvariable", stepdef.Action, "", newGetTenantVariableAction, nil},
 		{"removetenantvariable", stepdef.Action, "", newRemoveTenantVariableAction, nil},
+		{"store", stepdef.Action, "", newStoreAction, nil},
 		{"setcookie", stepdef.Action, "", newSetCookieAction, nil},
 		{"removecookie", stepdef.Action, "", newRemoveCookieAction, nil},
 		{"setoneway", stepdef.Action, eventMessage, newSetOneWayAction, []string{"setfireandforget"}},
@@ -160,8 +162,9 @@ func Register(r *registry.Registry) error {
 		{"service", stepdef.Sink, pointToPointChannel, newServiceSink, nil},
 	}
 	for _, b := range builtins {
-		// Every built-in step may refer to its flow in an expression.
-		bindings := []string{FlowRuntimeKey, mapping.FunctionsBindingKey}
+		// Every built-in step may refer to its flow, and to the stores of its
+		// runtime, in an expression.
+		bindings := []string{FlowRuntimeKey, mapping.FunctionsBindingKey, stepdef.StoresBinding, ChannelRuntimeKey}
 		switch b.name {
 		case "mapper":
 			bindings = append(bindings, mapping.BindingKey)
@@ -174,8 +177,12 @@ func Register(r *registry.Registry) error {
 		if err != nil {
 			return err
 		}
+		caps, err := declaredCapabilities(b.name, b.kind)
+		if err != nil {
+			return err
+		}
 		for _, name := range append([]string{b.name}, b.aliases...) {
-			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, RuntimeBindings: bindings, Connection: stepConnections[name+"/"+b.kind], New: b.new, Effect: stepEffects[b.name+"/"+b.kind]}); err != nil {
+			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, RuntimeBindings: bindings, Connection: stepConnections[name+"/"+b.kind], New: b.new, Effect: stepEffects[b.name+"/"+b.kind], Capabilities: caps}); err != nil {
 				return err
 			}
 		}
@@ -186,5 +193,19 @@ func Register(r *registry.Registry) error {
 	if err != nil {
 		return err
 	}
-	return r.Register(stepdef.Definition{Name: "smtps", Kind: stepdef.Action, Schema: schema, Connection: stepConnections["smtps/"+stepdef.Action], New: newSMTPAction(true), Effect: stepEffects["smtps/"+stepdef.Action]})
+	caps, err := declaredCapabilities("smtps", stepdef.Action)
+	if err != nil {
+		return err
+	}
+	return r.Register(stepdef.Definition{Name: "smtps", Kind: stepdef.Action, Schema: schema, Connection: stepConnections["smtps/"+stepdef.Action], New: newSMTPAction(true), Effect: stepEffects["smtps/"+stepdef.Action], Capabilities: caps})
+}
+
+// declaredCapabilities returns the capabilities of a built-in step; every
+// built-in step must declare them, so that a policy can tell what it touches.
+func declaredCapabilities(name, kind string) (func(stepdef.Params) []stepdef.Capability, error) {
+	caps := stepCapabilities[name+"/"+kind]
+	if caps == nil {
+		return nil, fmt.Errorf("register step %s (%s): it declares no capabilities; add it to stepCapabilities in capabilities.go", name, kind)
+	}
+	return caps, nil
 }

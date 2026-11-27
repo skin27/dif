@@ -50,7 +50,11 @@ func runServiceCommand(args []string, stdout, stderr io.Writer, validation bool)
 		for _, doc := range docs {
 			names = append(names, doc.Name)
 		}
-		diagnostics := diagnosticsOf(docs[0].Program.Info(), names)
+		info := docs[0].Program.Info()
+		if policy, _ := o.Policy(); policy != nil { // its grants were checked with the options
+			info.CheckPolicy(policy)
+		}
+		diagnostics := diagnosticsOf(info, names)
 		results := make([]validationInfo, 0, len(docs))
 		failed := false
 		for _, doc := range docs {

@@ -224,7 +224,7 @@ func driveOpts(t *testing.T, extra map[string]any) map[string]any {
 
 func setToken(t *testing.T, token string) {
 	t.Helper()
-	tenantVariables.set(t.Name(), "tok", token)
+	tenantVars(t.Name()).set("tok", token)
 }
 
 // consume runs the googledrive source on folder until it has emitted want

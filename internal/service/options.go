@@ -30,9 +30,16 @@ const Usage = `Usage: dif run [options]
   --log-format json        json or text
   --output text           Validation output: text or json
   --strict                Validation fails on warnings of the static checks too
+  --sandbox                Deny the program every capability not granted
+  --allow-net HOST:PORT    Grant net.connect (repeatable; implies --sandbox)
+  --allow-listen ADDR:PORT Grant net.listen (repeatable; implies --sandbox)
+  --allow-fs-read PATH     Grant fs.read (repeatable; implies --sandbox)
+  --allow-fs-write PATH    Grant fs.write (repeatable; implies --sandbox)
+  --allow-env NAME         Grant env (repeatable; implies --sandbox)
 
 dif validate accepts these input options and positional filenames.
-Precedence: flags > DIF_* environment > config > defaults.
+Precedence: flags > DIF_* environment > config > defaults; --allow-* flags add
+to the grants of the configuration's permissions.
 Paths are relative to the process working directory. run requires explicit input flags.`
 
 type Options struct {
@@ -49,6 +56,40 @@ type Options struct {
 	MaxBytes        int64              `json:"maxBytes"`
 	LogFormat       string             `json:"logFormat"`
 	Output          string             `json:"-"`
+
+	// Permissions are the capabilities granted to the program, by kind; when
+	// present (even empty), or with Sandbox, everything else is denied.
+	Permissions map[string][]string `json:"permissions,omitempty"`
+	Sandbox     bool                `json:"-"`
+}
+
+// grantFlag adds the grants of an --allow-* flag to the permissions.
+type grantFlag struct {
+	o    *Options
+	kind string
+}
+
+func (f grantFlag) String() string { return "" }
+func (f grantFlag) Set(s string) error {
+	if f.o.Permissions == nil {
+		f.o.Permissions = map[string][]string{}
+	}
+	f.o.Permissions[f.kind] = append(f.o.Permissions[f.kind], s)
+	return nil
+}
+
+// allowFlags are the --allow-* flags, by the kind they grant.
+var allowFlags = map[string]string{
+	"allow-net": "net.connect", "allow-listen": "net.listen", "allow-fs-read": "fs.read", "allow-fs-write": "fs.write", "allow-env": "env",
+}
+
+// Policy returns the policy of the permissions and the sandbox; nil when
+// there is neither, so that nothing is enforced.
+func (o Options) Policy() (*api.Policy, error) {
+	if o.Permissions == nil && !o.Sandbox {
+		return nil, nil
+	}
+	return api.NewPolicy(o.Permissions)
 }
 
 type listFlag struct {
@@ -94,6 +135,9 @@ func ParseOptions(args []string, getenv func(string) string, validation bool) (O
 		}
 		if strings.HasPrefix(a, "-") {
 			name, value, equals := strings.Cut(strings.TrimLeft(a, "-"), "=")
+			if name == "sandbox" {
+				continue
+			}
 			if !equals {
 				i++
 				if i == len(args) {
@@ -160,6 +204,10 @@ func ParseOptions(args []string, getenv func(string) string, validation bool) (O
 	if validation {
 		fs.StringVar(&o.Output, "output", o.Output, "format")
 	}
+	fs.BoolVar(&o.Sandbox, "sandbox", o.Sandbox, "sandbox")
+	for name, kind := range allowFlags {
+		fs.Var(grantFlag{&o, kind}, name, "grant")
+	}
 	var flags, positional []string
 	for i := 0; i < len(args); i++ {
 		a := args[i]
@@ -173,7 +221,7 @@ func ParseOptions(args []string, getenv func(string) string, validation bool) (O
 				return o, fmt.Errorf("unknown option --%s", name)
 			}
 			flags = append(flags, a)
-			if !strings.Contains(a, "=") {
+			if !strings.Contains(a, "=") && name != "sandbox" {
 				i++
 				if i == len(args) {
 					return o, fmt.Errorf("--%s needs a value", name)
@@ -187,6 +235,11 @@ func ParseOptions(args []string, getenv func(string) string, validation bool) (O
 	if err := fs.Parse(flags); err != nil {
 		return o, errors.New("invalid service option value")
 	}
+	fs.Visit(func(f *flag.Flag) {
+		if _, ok := allowFlags[f.Name]; ok {
+			o.Sandbox = true
+		}
+	})
 	if len(positional) > 0 && !validation {
 		return o, errors.New("run accepts --file, --dir or --url; unexpected positional argument")
 	}
@@ -224,6 +277,9 @@ func (o Options) Validate() error {
 	}
 	if o.LogFormat != "json" && o.LogFormat != "text" {
 		return errors.New("log-format must be json or text")
+	}
+	if _, err := o.Policy(); err != nil {
+		return err
 	}
 	if o.Output != "" && o.Output != "text" && o.Output != "json" {
 		return errors.New("output must be text or json")

@@ -36,7 +36,8 @@ type ProcessorInfo struct {
 	Origin     string                  `json:"origin,omitempty"`
 	Parameters []mapping.ParameterInfo `json:"parameters"`
 
-	connection *stepdef.Connection // of the expanded action, resolved in the defining document
+	connection *stepdef.Connection      // of the expanded action, resolved in the defining document
+	stores     map[string]stepdef.Store // the stores the defining document may refer to
 }
 type ProcessorCheck struct {
 	Node         *flowdef.Node
@@ -329,7 +330,7 @@ func (d *Document) expandProcessors(df dilFlow) (dilFlow, map[string]*mapping.Fu
 			s.URI = "service:" + key
 		}
 		scopes[s.ID] = owner.functionBindings()
-		templates[s.ID] = ProcessorInfo{Name: p.Name, Origin: owner.origin, connection: conn}
+		templates[s.ID] = ProcessorInfo{Name: p.Name, Origin: owner.origin, connection: conn, stores: owner.storeBindings()}
 		df.Steps.Step[i] = s
 	}
 	return df, scopes, templates, plans, services, nil

@@ -128,7 +128,7 @@ func TestJSONPathInSteps(t *testing.T) {
 	}
 
 	process(t, "settenantvariable:lines", map[string]any{"language": "jsonpath", "value": "$..line", "tenantDbName": "jp"}, message.New(`[{"line":1}]`))
-	if v, _ := tenantVariables.get("jp", "lines"); v != "1" {
+	if v, _, _ := tenantVars("jp").get("lines"); v != "1" {
 		t.Errorf("variable = %q", v)
 	}
 	wantInvalid(t, stepdef.Action, "setheaders", map[string]any{"headers": `[{"name":"x","value":"$.a[","language":"jsonpath"}]`}, `header x: jsonpath "$.a["`)

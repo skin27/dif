@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"sort"
 	"strconv"
 	"strings"
@@ -344,6 +345,9 @@ func (a *sqlStep) Process(ctx context.Context, m message.Message) (message.Messa
 
 	c, err := a.settings(m, ctx)
 	if err != nil {
+		return nil, err
+	}
+	if err := stepdef.Permit(ctx, stepdef.NetConnect, net.JoinHostPort(c.host, strconv.Itoa(c.port))); err != nil {
 		return nil, err
 	}
 	db, release, err := a.pool.get(a.key(c), func() (*sql.DB, error) { return a.open(c) })

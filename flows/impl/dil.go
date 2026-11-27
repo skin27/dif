@@ -44,6 +44,9 @@ type dilDoc struct {
 			Connections struct {
 				Connection oneOrMany[dilConnection] `json:"connection"`
 			} `json:"connections"`
+			Stores struct {
+				Store oneOrMany[dilStore] `json:"store"`
+			} `json:"stores"`
 		} `json:"core"`
 	} `json:"dil"`
 }

@@ -30,6 +30,7 @@ type Service struct {
 	work                     engine.Work
 	runtime                  *api.Runtime
 	stomp                    *api.STOMPServer
+	policy                   *api.Policy
 }
 
 // STOMPPasswordEnv holds the passcode of the STOMP login; STOMPPasswordEnv+"_FILE"
@@ -60,6 +61,11 @@ func (s *Service) Run(ctx context.Context) (resultErr error) {
 		return openErr
 	}
 	defer func() { resultErr = errors.Join(resultErr, runtime.Close()) }()
+	policy, policyErr := s.options.Policy()
+	if policyErr != nil {
+		return policyErr
+	}
+	runtime.SetPolicy(policy)
 	stompServer, stompErr := s.stompServer(runtime)
 	if stompErr != nil {
 		return stompErr
@@ -67,6 +73,7 @@ func (s *Service) Run(ctx context.Context) (resultErr error) {
 	s.mu.Lock()
 	s.runtime = runtime
 	s.stomp = stompServer
+	s.policy = policy
 	s.mu.Unlock()
 	var stompDone <-chan struct{}
 	if stompServer != nil {
@@ -310,7 +317,7 @@ func (s *Service) startSTOMP(srv *api.STOMPServer) error {
 }
 
 func (s *Service) start(ctx context.Context) error {
-	return engine.StartGroup(stepdef.WithWorkTracker(ctx, &s.work), s.runners)
+	return engine.StartGroup(stepdef.WithWorkTracker(api.WithPolicy(ctx, s.policy), &s.work), s.runners)
 }
 func (s *Service) drain(ctx context.Context, started bool) error {
 	if !started {

@@ -181,6 +181,7 @@ func (p *PreparedProgram) Info() *ProgramInfo {
 			doc.Processors[i].Parameters = append([]mapping.ParameterInfo{}, doc.Processors[i].Parameters...)
 		}
 		doc.Connections = append([]flowimpl.ConnectionInfo{}, doc.Connections...)
+		doc.Stores = append([]StoreInfo(nil), doc.Stores...)
 		info.Documents = append(info.Documents, doc)
 	}
 	for i, e := range p.resolved.Flows {
@@ -204,6 +205,7 @@ func (p *PreparedProgram) Info() *ProgramInfo {
 				f.Steps[j].Service = cloneServiceInfo(*f.Steps[j].Service)
 			}
 			f.Steps[j].Links = append([]LinkInfo{}, f.Steps[j].Links...)
+			f.Steps[j].Capabilities = append([]Capability(nil), f.Steps[j].Capabilities...)
 		}
 		f.Configuration = append([]ConfigurationInfo{}, f.Configuration...)
 		if f.Error != nil {
@@ -240,6 +242,14 @@ func (p *PreparedProgram) Load(ctx context.Context, runtime *Runtime, onResult f
 		if err := runtime.channels.Check(); err != nil {
 			return nil, err
 		}
+		if runtime.policy != nil {
+			if ds := p.Info().CheckPolicy(runtime.policy); len(ds) > 0 {
+				return nil, policyError(ds)
+			}
+		}
+	}
+	if err := p.declareStores(runtime); err != nil {
+		return nil, err
 	}
 	loaded := &Program{Flows: []*Flow{}, Info: p.Info()}
 	for _, entry := range p.resolved.Flows {

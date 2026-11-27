@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 	"time"
 
+	"dif/internal/channels"
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
@@ -22,38 +24,127 @@ import (
 //
 // A group is complete with a message whose split.complete header is true
 // (the last part of a split), when it holds completionSize messages, when
-// completionTimeout has passed since the last message came, and every
-// completionInterval. There is one group at a time, as the Kamelet correlates
-// all messages. Without a timer, the first part of a split (split.index 0)
-// starts a new one, dropping what is left of an earlier split that failed. A
-// message that cannot be aggregated (not XML or JSON) fails when it comes in.
+// completionTimeout has passed since its last message came, and every
+// completionInterval (all groups). Without correlationKey there is one group
+// at a time, as the Kamelet correlates all messages; with it, the messages
+// whose key has the same value make a group, and each group completes on its
+// own. Without a timer, the first part of a split (split.index 0) starts its
+// group anew, dropping what is left of an earlier split that failed. A message
+// that cannot be aggregated (not XML or JSON) fails when it comes in.
 //
 // A group completed by a timer is released by the engine as a message of its
 // own (see stepdef.Releaser); one completed by a message goes on at once.
+//
+// With the option store, the groups are also kept in that store, under
+// <flow>/<step>/<key>, and the router takes them back when it is made: with a
+// durable store, a group that was not complete when dif stopped completes
+// after a restart. Its timeout runs from its last message, by the clock, so a
+// group whose timeout passed while dif was stopped completes when the flow
+// starts. A group leaves the store when it completes, before the aggregate
+// goes on.
 type aggregateRouter struct {
 	typ               string // aggregateType as the flow wrote it
 	xml               bool   // aggregate as XML, else as JSON
 	size              int    // completionSize; 0: complete only on split.complete
 	timeout, interval time.Duration
+	key               *expression     // correlationKey; nil: one group
+	store             *channels.Store // keeps the groups; nil: in memory only
+	prefix            string          // of the groups' keys in store
 
-	mu    sync.Mutex
-	parts []string        // the group's bodies, each ready to be joined
-	last  message.Message // a copy of the group's last message; kept for a timer to use
-	seen  time.Time       // when it came
-	wake  chan struct{}   // tells Release the group changed
+	mu     sync.Mutex
+	groups map[string]*aggregateGroup // by the value of the key
+	wake   chan struct{}              // tells Release the groups changed
 }
 
-func newAggregateRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
+// aggregateGroup is a group of messages that is not complete yet.
+type aggregateGroup struct {
+	parts []string        // the bodies, each ready to be joined
+	last  message.Message // a copy of the last message; kept for a timer to use
+	seen  time.Time       // when it came
+}
+
+func newAggregateRouter(stepID string, p stepdef.Params) (stepdef.Processor, error) {
 	if n := len(p[stepdef.Links].([]stepdef.Link)); n != 1 {
 		return nil, fmt.Errorf("needs one outbound link, has %d", n)
 	}
 	typ := p["aggregateType"].(string)
-	return &aggregateRouter{
+	a := &aggregateRouter{
 		typ: typ, xml: isXMLType(typ), size: p["completionSize"].(int),
 		timeout:  time.Duration(p["completionTimeout"].(int)) * time.Millisecond,
 		interval: time.Duration(p["completionInterval"].(int)) * time.Millisecond,
+		groups:   map[string]*aggregateGroup{},
 		wake:     make(chan struct{}, 1),
-	}, nil
+	}
+	if expr := optString(p, "correlationKey"); expr != "" {
+		key, err := compileExpressionIn(flowOf(p), "simple", expr)
+		if err != nil {
+			return nil, fmt.Errorf("option correlationKey: %w", err)
+		}
+		a.key = &key
+	}
+	if name := optString(p, "store"); name != "" {
+		s, err := openStore(p, name)
+		if err != nil {
+			return nil, fmt.Errorf("option store: %w", err)
+		}
+		flowID := ""
+		if f := flowOf(p); f != nil {
+			flowID = f.id
+		}
+		a.store, a.prefix = s, flowID+"/"+stepID+"/"
+		if err := a.load(); err != nil {
+			return nil, fmt.Errorf("option store: %w", err)
+		}
+	}
+	return a, nil
+}
+
+// load takes back the groups the store keeps.
+func (a *aggregateRouter) load() error {
+	for _, k := range a.store.Keys() {
+		key, ok := strings.CutPrefix(k, a.prefix)
+		if !ok {
+			continue
+		}
+		v, found, err := a.store.Get(k)
+		if err != nil {
+			return err
+		}
+		g, ok := v.(map[string]any)
+		if !found || !ok {
+			continue
+		}
+		parts, _ := g["parts"].([]string)
+		last, _ := g["last"].(message.Message)
+		if last == nil { // kept without a timer; a timer makes the aggregate from it
+			last = message.Message{}
+		}
+		seen, _ := g["seen"].(int64)
+		if len(parts) > 0 {
+			a.groups[key] = &aggregateGroup{parts: parts, last: last, seen: time.UnixMilli(seen)}
+		}
+	}
+	return nil
+}
+
+// save keeps the group in the store, if there is one.
+func (a *aggregateRouter) save(key string, g *aggregateGroup) error {
+	if a.store == nil {
+		return nil
+	}
+	var last any
+	if g.last != nil {
+		last = g.last
+	}
+	return a.store.Put(a.prefix+key, map[string]any{"parts": g.parts, "last": last, "seen": g.seen.UnixMilli()})
+}
+
+// forget removes the group from the store, if there is one.
+func (a *aggregateRouter) forget(key string) error {
+	if a.store == nil {
+		return nil
+	}
+	return a.store.Remove(a.prefix + key)
 }
 
 // aggregateTypeKey is where the router leaves the type it aggregates as on the
@@ -63,33 +154,53 @@ const aggregateTypeKey = message.MetadataPrefix + "aggregatetype"
 
 func (a *aggregateRouter) timed() bool { return a.timeout > 0 || a.interval > 0 }
 
-func (a *aggregateRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
+func (a *aggregateRouter) Route(ctx context.Context, m message.Message) ([]stepdef.Route, error) {
 	part, err := aggregatePart(a.xml, m[message.Body])
 	if err != nil {
 		return nil, fmt.Errorf("aggregate: %w", err)
 	}
+	key := ""
+	if a.key != nil {
+		if key, err = a.key.eval(m, ctx); err != nil {
+			return nil, fmt.Errorf("aggregate: correlationKey: %w", err)
+		}
+	}
 	m[aggregateTypeKey] = a.typ
 
 	a.mu.Lock()
-	if m[SplitIndex] == 0 && !a.timed() {
-		a.parts = a.parts[:0]
+	defer a.mu.Unlock()
+	g := a.groups[key]
+	if g == nil {
+		g = &aggregateGroup{}
 	}
-	a.parts = append(a.parts, part)
-	if m[SplitComplete] != true && (a.size == 0 || len(a.parts) < a.size) {
+	old := *g // what the group was, should the store fail
+	if m[SplitIndex] == 0 && !a.timed() {
+		g.parts = nil
+	}
+	g.parts = append(g.parts, part)
+	if m[SplitComplete] != true && (a.size == 0 || len(g.parts) < a.size) {
 		if a.timed() {
-			a.last, a.seen = m.Copy(), time.Now()
+			g.last, g.seen = m.Copy(), time.Now()
+		}
+		if err := a.save(key, g); err != nil {
+			*g = old
+			return nil, fmt.Errorf("aggregate: %w", err)
+		}
+		a.groups[key] = g
+		if a.timed() {
 			a.poke()
 		}
-		a.mu.Unlock()
 		return nil, nil
 	}
-	parts := a.parts
-	a.parts, a.last = nil, nil
+	if err := a.forget(key); err != nil {
+		*g = old
+		return nil, fmt.Errorf("aggregate: %w", err)
+	}
+	delete(a.groups, key)
 	if a.timed() {
 		a.poke()
 	}
-	a.mu.Unlock()
-	return []stepdef.Route{{Next: 0, Message: a.aggregate(m, parts), Detached: true}}, nil
+	return []stepdef.Route{{Next: 0, Message: a.aggregate(m, g.parts), Detached: true}}, nil
 }
 
 // aggregate returns the message that holds parts, made from last.
@@ -110,7 +221,7 @@ func (a *aggregateRouter) poke() {
 	}
 }
 
-// Release completes the group by its timers, until ctx is done.
+// Release completes the groups by their timers, until ctx is done.
 func (a *aggregateRouter) Release(ctx context.Context, send func(message.Message) error) error {
 	if !a.timed() {
 		return nil
@@ -123,8 +234,10 @@ func (a *aggregateRouter) Release(ctx context.Context, send func(message.Message
 		if a.interval > 0 {
 			wait, timing = time.Until(next), true
 		}
-		if d := time.Until(a.seen.Add(a.timeout)); a.timeout > 0 && len(a.parts) > 0 && (!timing || d < wait) {
-			wait, timing = d, true
+		for _, g := range a.groups {
+			if d := time.Until(g.seen.Add(a.timeout)); a.timeout > 0 && (!timing || d < wait) {
+				wait, timing = d, true
+			}
 		}
 		a.mu.Unlock()
 
@@ -154,19 +267,46 @@ func (a *aggregateRouter) Release(ctx context.Context, send func(message.Message
 		for ended && !now.Before(next) {
 			next = next.Add(a.interval)
 		}
-		var parts []string
-		var last message.Message
-		if len(a.parts) > 0 && (ended || a.timeout > 0 && !now.Before(a.seen.Add(a.timeout))) {
-			parts, last = a.parts, a.last
-			a.parts, a.last = nil, nil
+		var keys []string // of the groups that are complete
+		for key, g := range a.groups {
+			if ended || a.timeout > 0 && !now.Before(g.seen.Add(a.timeout)) {
+				keys = append(keys, key)
+			}
 		}
 		a.mu.Unlock()
-		if parts != nil {
-			if err := send(a.aggregate(last, parts)); err != nil {
+		slices.Sort(keys)
+		for _, key := range keys {
+			a.mu.Lock()
+			g := a.groups[key]
+			if g != nil {
+				delete(a.groups, key)
+				// A store that fails keeps the group, which then completes
+				// again after a restart; trying again now would never end.
+				_ = a.forget(key)
+			}
+			a.mu.Unlock()
+			if g == nil {
+				continue
+			}
+			if err := send(a.aggregate(g.last, g.parts)); err != nil {
+				a.restore(key, g)
 				return nil // the flow is stopping
 			}
 		}
 	}
+}
+
+// restore puts back a group that could not go on, before what has come for
+// its key since.
+func (a *aggregateRouter) restore(key string, g *aggregateGroup) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if cur := a.groups[key]; cur != nil {
+		cur.parts = append(slices.Clone(g.parts), cur.parts...)
+		g = cur
+	}
+	a.groups[key] = g
+	_ = a.save(key, g) // the flow is stopping; a store that fails now loses the group
 }
 
 // splitAndAggregateRouter splits the body like the split router, sends every

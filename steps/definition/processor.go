@@ -192,6 +192,11 @@ type Definition struct {
 	// a flow; see Effect. It returns nil when it cannot tell. Without it the step
 	// is unknown to the checks.
 	Effect func(p Params) *Effect
+
+	// Capabilities says which outside resources the step can touch, from its
+	// validated params; see Capability. nil leaves the step undeclared, which a
+	// policy refuses; a function that returns no capabilities declares none.
+	Capabilities func(p Params) []Capability
 }
 
 // ConnectionBinding is the node binding under which a loader puts the

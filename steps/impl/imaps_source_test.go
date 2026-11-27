@@ -264,8 +264,8 @@ func TestIMAPSSourceOAuth(t *testing.T) {
 	s := newIMAPTestServer(t)
 	s.add(t, "INBOX", "for the token", "bob@example.com", "x", false)
 	tenant := t.Name()
-	tenantVariables.set(tenant, "GMailToken", "stale-token")
-	t.Cleanup(func() { tenantVariables.remove(tenant, "GMailToken") })
+	tenantVars(tenant).set("GMailToken", "stale-token")
+	t.Cleanup(func() { tenantVars(tenant).remove("GMailToken") })
 
 	var logged lockedBuffer
 	ctx := stepdef.WithLogger(context.Background(), log.New(&logged, "", 0))
@@ -280,7 +280,7 @@ func TestIMAPSSourceOAuth(t *testing.T) {
 	if len(r.msgs) != 0 {
 		t.Error("an email came with a stale token")
 	}
-	tenantVariables.set(tenant, "GMailToken", s.token)
+	tenantVars(tenant).set("GMailToken", s.token)
 	if m := r.take(t, 1); m[0]["Subject"] != "for the token" {
 		t.Errorf("subject = %v", m[0]["Subject"])
 	}

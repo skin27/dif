@@ -26,7 +26,7 @@ type Import struct {
 // Declaration is a dil.core declaration: kind [name] { field: value ... }.
 type Declaration struct {
 	Pos     Pos
-	Kind    string // function, processor, interceptor, format, map, service, message, resource or connection
+	Kind    string // function, processor, interceptor, format, map, service, message, resource, connection or store
 	Name    string // the name; for a connection, its id
 	HasName bool
 	Fields  object
@@ -118,7 +118,7 @@ func (e *Error) Error() string {
 var declarationKinds = map[string]string{
 	"function": "functions", "processor": "processors", "interceptor": "interceptors",
 	"format": "formats", "map": "maps", "service": "services", "message": "messages",
-	"resource": "resources", "connection": "connections",
+	"resource": "resources", "connection": "connections", "store": "stores",
 }
 
 var stepKinds = []string{"source", "action", "router", "sink"}
@@ -220,7 +220,7 @@ func (p *parser) file() (*File, error) {
 		case t.kind == tokWord && declarationKinds[t.text] != "":
 			item, err = p.declaration()
 		default:
-			return nil, p.expected("import, integration, flow or a declaration (function, processor, interceptor, format, map, service, message, resource or connection)")
+			return nil, p.expected("import, integration, flow or a declaration (function, processor, interceptor, format, map, service, message, resource, connection or store)")
 		}
 		if err != nil {
 			return nil, err

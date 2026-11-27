@@ -1,0 +1,7 @@
+{
+  "files": ["testdata/reliable/visits.dil"],
+  "shutdownTimeout": "10s",
+  "channels": {
+    "directory": "data/channels/stores-example"
+  }
+}

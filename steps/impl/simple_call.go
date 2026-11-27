@@ -49,6 +49,9 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 	if what, ok := strings.CutPrefix(ref, "file:"); ok {
 		return c.fileRef(b, what)
 	}
+	if rest, ok := strings.CutPrefix(ref, "store:"); ok {
+		return c.storeReference(b, rest)
+	}
 
 	// ${variable:group:<id>:MetaData.FlowVersion}: what the platform knows of the flow.
 	if rest, ok := strings.CutPrefix(ref, "variable:group:"); ok {
