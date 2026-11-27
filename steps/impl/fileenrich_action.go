@@ -50,7 +50,10 @@ func newFileEnrichAction(_ string, p stepdef.Params) (stepdef.Processor, error) 
 	return a, nil
 }
 
-func (a fileEnrichAction) Process(_ context.Context, m message.Message) (message.Message, error) {
+func (a fileEnrichAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	if err := a.files.permit(ctx, a.files.delete); err != nil {
+		return nil, err
+	}
 	files, err := a.files.list()
 	if os.IsNotExist(err) {
 		return m, nil // nothing to enrich with

@@ -1,0 +1,10 @@
+# Sets the EUR rate in the store "rates", which price.dil reads. Both files
+# declare the store the same way, so the flows share it.
+store rates { ttl: 3600000 }
+
+flow rates(name: "Set the EUR rate") {
+  timer:rates(repeatCount: 1)
+    -> setbody(expression: "1.08")
+    -> store:rates(operation: "put", key: "EUR")
+    -> log(showBody: true)
+}

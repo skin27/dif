@@ -2,6 +2,7 @@ package sanitize
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -180,5 +181,26 @@ func TestDummyKeystoreOpensWithDIFsKeystoreReader(t *testing.T) {
 	}
 	if !strings.HasPrefix(DummyKeystoreDataURI(), "data:application/x-pkcs12;base64,MII") {
 		t.Fatal("unexpected data URI")
+	}
+}
+
+// The credentials of a typed connection are in its object authentication.
+func TestRunFindsTypedConnectionCredentials(t *testing.T) {
+	dir := t.TempDir()
+	flow := `{"dil":{"core":{"connections":{"connection":{"id":"partner","type":"sftp","host":"h",` +
+		`"authentication":{"username":"dif","password":"hunter22","token":"abc123def456ghi"}}}}}}`
+	fp := write(t, dir, "flows/a.json", flow)
+	if _, err := Run([]string{dir}, true); err != nil {
+		t.Fatal(err)
+	}
+	got := read(t, fp)
+	for _, secret := range []string{"hunter22", "abc123def456ghi"} {
+		if strings.Contains(got, secret) {
+			t.Errorf("still has %q: %s", secret, got)
+		}
+	}
+	var v any
+	if err := json.Unmarshal([]byte(got), &v); err != nil {
+		t.Errorf("not JSON any more: %v", err)
 	}
 }

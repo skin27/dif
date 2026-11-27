@@ -1,26 +1,33 @@
 package impl
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"maps"
 	"strconv"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	flowdef "dif/flows/definition"
-	"dif/message"
+	"dif/internal/mapping"
 	stepdef "dif/steps/definition"
 )
 
 // Parse converts a DIL JSON document holding exactly one flow into the flow model.
 // newProcessor creates the processor for each node.
 func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+	return parse(data, newProcessor, nil, nil, nil, nil, nil)
+}
+
+func parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, error), plans map[string]*mapping.Plan, services map[string]*mapping.ServiceBinding, scopes map[string]*mapping.Functions, templates map[string]ProcessorInfo, stores map[string]stepdef.Store) (*flowdef.Flow, error) {
 	var doc dilDoc
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("parse dil: %w", err)
+	}
+	if len(doc.DIL.Imports.Import) != 0 {
+		return nil, fmt.Errorf("DIL imports require a program loader")
 	}
 
 	var flows []dilFlow
@@ -29,6 +36,97 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 	}
 	if len(flows) != 1 {
 		return nil, fmt.Errorf("expected exactly one flow, found %d", len(flows))
+	}
+	if plans == nil {
+		d, err := DecodeDocument(data)
+		if err != nil {
+			return nil, err
+		}
+		if err = d.PrepareFunctions(context.Background(), mapping.Limits{}); err != nil {
+			return nil, err
+		}
+		if err := d.PrepareMappings(context.Background(), mapping.Limits{}); err != nil {
+			return nil, err
+		}
+		if err := d.PrepareServices(context.Background(), mapping.Limits{}); err != nil {
+			return nil, err
+		}
+		var errExpand error
+		flows[0], scopes, templates, plans, services, errExpand = d.expandProcessors(flows[0])
+		if errExpand != nil {
+			return nil, errExpand
+		}
+		stores = d.storeBindings()
+	}
+	processor := func(n *flowdef.Node) (stepdef.Processor, error) {
+		conn := n.Bindings[stepdef.ConnectionBinding]
+		n.Bindings = stepdef.Params{mapping.FunctionsBindingKey: scopes[n.ID], "dif.internal.flow": n.Flow, stepdef.StoresBinding: stores}
+		if conn != nil {
+			n.Bindings[stepdef.ConnectionBinding] = conn
+		}
+		if info, ok := templates[n.ID]; ok {
+			n.Bindings["dif.internal.actionTemplate"] = true
+			n.Bindings["dif.internal.processorInfo"] = info
+			if info.stores != nil {
+				n.Bindings[stepdef.StoresBinding] = info.stores // a reusable processor refers to the stores of its document
+			}
+		}
+		if name, ok := strings.CutPrefix(n.URI, "store:"); ok && n.Kind != stepdef.Source {
+			if _, declared := n.Bindings[stepdef.StoresBinding].(map[string]stepdef.Store)[name]; !declared {
+				return nil, fmt.Errorf("store %q not found in dil.core.stores", name)
+			}
+		}
+		if name, ok := strings.CutPrefix(n.URI, "mapper:"); ok {
+			plan := plans[name]
+			if plan == nil {
+				return nil, fmt.Errorf("map %q not found", name)
+			}
+			if n.Kind != stepdef.Action {
+				return nil, fmt.Errorf("mapper must be an action")
+			}
+			n.URI = "mapper"
+			n.Bindings[mapping.BindingKey] = plan
+		} else if n.URI == "mapper" {
+			return nil, fmt.Errorf("mapper requires a named core map")
+		} else if name, ok := strings.CutPrefix(n.URI, "service:"); ok {
+			sb := services[name]
+			if sb == nil {
+				return nil, fmt.Errorf("service %q not found", name)
+			}
+			if n.Kind == stepdef.Source {
+				n.Flow.Contract = newFlowContract(sb)
+				n.Bindings[FlowServiceBindingKey] = sb
+			} else if err := checkServiceCallerStep(n.Kind, n.Options, nil, sb); err != nil {
+				return nil, err
+			}
+			n.URI = "service"
+			n.Bindings[mapping.ServiceBindingKey] = sb
+		} else if n.URI == "service" {
+			return nil, fmt.Errorf("service requires a named core service")
+		}
+		if n.Kind == stepdef.Source && flows[0].Options.Service != "" {
+			optSB := services[flows[0].Options.Service]
+			if optSB == nil {
+				return nil, fmt.Errorf("options.service: service %q not found", flows[0].Options.Service)
+			}
+			if n.URI == "service" {
+				existingSB := n.Bindings[mapping.ServiceBindingKey].(*mapping.ServiceBinding)
+				if existingSB.ID != optSB.ID {
+					return nil, fmt.Errorf("options.service %q conflicts with service source %q", flows[0].Options.Service, existingSB.Name)
+				}
+			} else {
+				if err := checkSourceServiceMEP(n, optSB.Plan.ExchangePattern()); err != nil {
+					return nil, fmt.Errorf("options.service %q: %w", flows[0].Options.Service, err)
+				}
+				n.Flow.Contract = newFlowContract(optSB)
+				n.Bindings[FlowServiceBindingKey] = optSB
+			}
+		}
+		p, err := newProcessor(n)
+		if info, ok := templates[n.ID]; ok && err != nil {
+			return nil, fmt.Errorf("processor %q (%s): %w", info.Name, info.Origin, err)
+		}
+		return p, err
 	}
 
 	core := coreRefs{messages: map[string]dilMessage{}, resources: map[string]string{}, connections: map[string]dilConnection{}}
@@ -42,20 +140,16 @@ func Parse(data []byte, newProcessor func(*flowdef.Node) (stepdef.Processor, err
 		core.connections[c.ID] = c
 	}
 
-	f, err := build(flows[0], core, newProcessor)
+	f, err := buildResolved(flows[0], core, processor, templates)
 	if err != nil {
 		return nil, fmt.Errorf("flow %s: %w", flows[0].ID, err)
 	}
 
-	if msgs := doc.DIL.Core.Messages.Message; len(msgs) > 0 {
-		f.Input = message.Message{}
-		for _, h := range msgs[0].Headers.Header {
-			f.Input[h.Name] = h.Value
-		}
-		if msgs[0].Body != nil {
-			f.Input[message.Body] = msgs[0].Body
-		}
+	input, err := selectInput(flows[0], doc, core)
+	if err != nil {
+		return nil, err
 	}
+	f.Input = input
 	return f, nil
 }
 
@@ -68,13 +162,17 @@ type coreRefs struct {
 }
 
 func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error)) (*flowdef.Flow, error) {
+	return buildResolved(df, core, newProcessor, nil)
+}
+func buildResolved(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.Processor, error), resolved map[string]ProcessorInfo) (*flowdef.Flow, error) {
 	var (
 		source   *flowdef.Node
 		nodes    []*flowdef.Node
-		byInLink = map[string]*flowdef.Node{}    // inbound link id -> node
-		outLinks = map[*flowdef.Node][]dilLink{} // node -> outbound links
-		errh     *flowdef.ErrorHandler
-		errLink  string // outbound link of the error step: the start of the error route
+		byInLink = map[string]*flowdef.Node{}         // inbound link id -> node
+		outLinks = map[*flowdef.Node][]dilLink{}      // node -> outbound links
+		errh     *flowdef.ErrorHandler                // the error step that takes every error
+		matched  []*flowdef.ErrorHandler              // the error steps that take particular errors
+		errLinks = map[*flowdef.ErrorHandler]string{} // outbound link of an error step: the start of its error route
 		flow     = &flowdef.Flow{ID: df.ID, Name: df.Name, Version: versionText(df.Options.Version),
 			Tenant: df.Options.Tenant, Environment: df.Options.Environment}
 	)
@@ -83,26 +181,45 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		switch s.Type {
 		case flowdef.Source, flowdef.Action, flowdef.Router, flowdef.Sink:
 		case "error":
-			if errh != nil {
-				return nil, fmt.Errorf("step %s: flow has more than one error step", s.ID)
-			}
-			var err error
-			if errh, errLink, err = errorHandler(s); err != nil {
+			h, link, err := errorHandler(s)
+			if err != nil {
 				return nil, fmt.Errorf("step %s: %w", s.ID, err)
 			}
+			switch {
+			case h.Match != nil:
+				matched = append(matched, h)
+			case errh != nil:
+				return nil, fmt.Errorf("step %s: flow has more than one error step that takes every error", s.ID)
+			default:
+				errh = h
+			}
+			errLinks[h] = link
 			continue
 		default:
 			return nil, fmt.Errorf("step %s: unknown step type %q", s.ID, s.Type)
 		}
 
-		opts, uri, err := resolveRefs(s, core)
-		if err == nil {
-			opts, err = resolveDataSource(uri, opts, core)
+		opts, uri := s.Options, s.URI
+		var conn *stepdef.Connection
+		var err error
+		if info, prepared := resolved[s.ID]; prepared {
+			conn = info.connection
+		} else {
+			opts, uri, err = resolveRefs(s, core)
+			if err == nil {
+				opts, conn, err = resolveConnection(uri, opts, core)
+			}
 		}
 		if err != nil {
 			return nil, fmt.Errorf("step %s: %w", s.ID, err)
 		}
+		if opts == nil {
+			opts = map[string]any{}
+		}
 		n := &flowdef.Node{ID: s.ID, Kind: s.Type, URI: uri, Options: opts, Flow: flow}
+		if conn != nil {
+			n.Bindings = stepdef.Params{stepdef.ConnectionBinding: conn}
+		}
 		if n.Kind == flowdef.Source && (n.URI == "flowlink" || n.URI == "flowlink-async") && opts["flowId"] == nil {
 			// A flow link source listens for its own flow, which DIL leaves out.
 			n.Options = maps.Clone(opts)
@@ -176,12 +293,15 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 	}
 
 	starts := []*flowdef.Node{source}
-	if errLink != "" {
-		route, ok := byInLink[errLink]
-		if !ok {
-			return nil, fmt.Errorf("step %s: outbound link %s has no target", errh.ID, errLink)
+	for _, h := range append(append([]*flowdef.ErrorHandler(nil), matched...), errh) {
+		if h == nil || errLinks[h] == "" {
+			continue
 		}
-		errh.Route = route
+		route, ok := byInLink[errLinks[h]]
+		if !ok {
+			return nil, fmt.Errorf("step %s: outbound link %s has no target", h.ID, errLinks[h])
+		}
+		h.Route = route
 		starts = append(starts, route)
 	}
 
@@ -210,7 +330,7 @@ func build(df dilFlow, core coreRefs, newProcessor func(*flowdef.Node) (stepdef.
 		n.Processor = p
 	}
 
-	flow.Source, flow.Error = source, errh
+	flow.Source, flow.Error, flow.Handlers = source, errh, matched
 	return flow, nil
 }
 
@@ -326,57 +446,6 @@ func decodedValue(opts map[string]any) map[string]any {
 	return out
 }
 
-// errorHandler returns the error handler an error step defines, and the id of
-// its outbound link (empty if it has no error route). Its options are Camel's
-// redelivery settings: maximumRedeliveries (or redeliveryAttempts) and
-// redeliveryDelay (or redeliveryInterval) in milliseconds, default 1000.
-func errorHandler(s dilStep) (*flowdef.ErrorHandler, string, error) {
-	if s.URI != "failedexchange" {
-		return nil, "", fmt.Errorf("error step uri %q is not supported; use failedexchange", s.URI)
-	}
-	var out []string
-	for _, l := range s.Links.Link {
-		if l.Bound != "out" {
-			return nil, "", fmt.Errorf("error step needs 0 inbound links and at most 1 outbound link")
-		}
-		out = append(out, l.ID)
-	}
-	if len(out) > 1 {
-		return nil, "", fmt.Errorf("error step needs 0 inbound links and at most 1 outbound link")
-	}
-
-	opts := map[string]int{"maximumRedeliveries": -1, "redeliveryAttempts": -1, "redeliveryDelay": -1, "redeliveryInterval": -1}
-	for k, v := range s.Options {
-		if _, ok := opts[k]; !ok {
-			return nil, "", fmt.Errorf("error step: unknown option %s", k)
-		}
-		n, err := nonNegativeInt(v)
-		if err != nil {
-			return nil, "", fmt.Errorf("error step: option %s: %w", k, err)
-		}
-		opts[k] = n
-	}
-	pick := func(name, alias string, def int) int {
-		if opts[name] >= 0 {
-			return opts[name]
-		}
-		if opts[alias] >= 0 {
-			return opts[alias]
-		}
-		return def
-	}
-
-	h := &flowdef.ErrorHandler{
-		ID:              s.ID,
-		Redeliveries:    pick("maximumRedeliveries", "redeliveryAttempts", 0),
-		RedeliveryDelay: time.Duration(pick("redeliveryDelay", "redeliveryInterval", 1000)) * time.Millisecond,
-	}
-	if len(out) == 0 {
-		return h, "", nil
-	}
-	return h, out[0], nil
-}
-
 // nonNegativeInt returns v, a JSON number or (as DIL converted from XML has
 // it) a string, as an int of 0 or more.
 func nonNegativeInt(v any) (int, error) {
@@ -398,30 +467,6 @@ func nonNegativeInt(v any) (int, error) {
 	return int(n), nil
 }
 
-// resolveDataSource adds to the options of a sql2 step the option "connection":
-// the keys of the connection in dil.core.connections that its option
-// dataSource names, as a JSON object, so the processor needs no knowledge of DIL.
-func resolveDataSource(uri string, opts map[string]any, core coreRefs) (map[string]any, error) {
-	if scheme, _, _ := strings.Cut(uri, ":"); scheme != "sql2" {
-		return opts, nil
-	}
-	id, _ := opts["dataSource"].(string)
-	if id == "" {
-		return opts, nil
-	}
-	c, ok := core.connections[id]
-	if !ok {
-		return nil, fmt.Errorf("connection %q not found in dil.core.connections", id)
-	}
-	data, err := json.Marshal(c.Keys)
-	if err != nil {
-		return nil, err
-	}
-	out := maps.Clone(opts)
-	out["connection"] = string(data)
-	return out, nil
-}
-
 // resolveRefs returns the step's options and URI, resolving what the URI refers
 // to in dil.core, so the processor needs no knowledge of DIL:
 //
@@ -431,6 +476,11 @@ func resolveDataSource(uri string, opts map[string]any, core coreRefs) (map[stri
 //     that resource's content; the URI becomes <scheme>
 func resolveRefs(s dilStep, core coreRefs) (map[string]any, string, error) {
 	scheme, rest, _ := strings.Cut(s.URI, ":")
+	// Mapper and service steps own their full name suffix, including imported
+	// namespaces named "ref" or "message". Those are not legacy resource/message URIs.
+	if scheme == "mapper" || scheme == "service" || scheme == "store" {
+		return s.Options, s.URI, nil
+	}
 	if name, ok := strings.CutPrefix(rest, "ref:"); ok {
 		content, ok := core.resources[name]
 		if !ok {

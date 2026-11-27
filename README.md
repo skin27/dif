@@ -55,7 +55,7 @@ dif version --output=json
 `run` requires no stdin or TTY. It loads, validates and builds the complete
 flow group, initializes internal consumers before producers, and activates
 message processing only after all sources have started successfully. It runs
-until SIGINT/SIGTERM (Ctrl+C on Windows) or fatal source/monitor failure.
+until SIGINT/SIGTERM (Ctrl+C on Windows) or fatal source, monitor or STOMP listener failure.
 Starting a flow activates its source; it does not inject a configured message.
 A `message` source therefore remains idle, and a finite timer completing does
 not terminate the service. Batch/job completion is not implemented.
@@ -84,7 +84,10 @@ on their first occurrence. Scalar overrides are `DIF_MONITOR_ADDRESS`,
 `DIF_STARTUP_TIMEOUT`, `DIF_SHUTDOWN_TIMEOUT`, `DIF_FETCH_TIMEOUT`,
 `DIF_MAX_BYTES`, `DIF_LOG_FORMAT`, and `DIF_SHA256`; `DIF_CONFIG` selects a
 configuration file. `dif run --help` lists defaults. Config files are limited
-to 4 MiB; flow document limits can be configured up to 64 MiB.
+to 4 MiB; flow document limits can be configured up to 64 MiB. `permissions` in
+the configuration, `--sandbox` and the `--allow-*` flags give a policy that
+limits what the program may touch outside the process; see
+[Capabilities and permissions](#capabilities-and-permissions).
 
 Service logs go to stdout as JSON by default (`--log-format=text` is available).
 No automatic result payload logging or local log files are enabled. Explicit
@@ -124,10 +127,10 @@ mistyped flow id. On a terminal that supports it, flow states are colored
 | Command                  | Effect                                                                  |
 |--------------------------|-------------------------------------------------------------------------|
 | `load <flow.json>...`    | Register the flows in the files; they stay stopped until started        |
-| `run <flow.json>...`     | Load the flows and start them, in one go                                |
+| `run <flow.json>...`     | Load the flows and start them, in one go; `dif run` with a policy (`--sandbox`, `--allow-*` or `permissions`) refuses a program whose capabilities it does not grant (see [Capabilities and permissions](#capabilities-and-permissions)) |
 | `send <flow>`            | Send the flow's configured message (`dil.core.messages`) into the flow  |
 | `send <flow> <body>`     | Send the configured message with `<body>` as body                       |
-| `request <flow> [body]`  | Send as `send` does and show the reply at once: the message the flow ends with (or has at a `setoneway` step), as JSON; waits at most 30 s |
+| `request <flow> [body]`  | Send as `send` does and show the reply at once: the message the flow ends with (or has at a `setoneway` step, or the reply a `return` step chose), as JSON; waits at most 30 s |
 | `start <flow>`           | Start the flow (again, after `stop`), or continue it after `pause`      |
 | `pause <flow>`           | Pause: the flow takes no new messages until it is started or resumed    |
 | `resume <flow>`          | Resume a paused flow                                                    |
@@ -143,8 +146,9 @@ mistyped flow id. On a terminal that supports it, flow states are colored
 | `catalog`                | List the steps flows can use: name, type (source, action, router, sink), the Enterprise Integration Pattern it implements and description |
 | `catalog <step>`         | Describe a step, its pattern and its options (type, default, required), from its schema |
 | `init <flow.json> [--template hello\|timer\|file\|http] [--id name]` | Create a starter flow; never overwrite an existing file |
-| `validate <flow.json>... [--output text\|json]` | Check structure, graph, references and step option schemas; reject duplicate flow ids across input files |
-| `describe <flow.json> [--output text\|json]` | Show steps, links, error handling and configuration requirements, with values omitted |
+| `validate <flow.json>... [--output text\|json] [--strict]` | Check structure, graph, references and step option schemas; reject duplicate flow ids across input files. Then check every flow statically (see [Static flow checking](#static-flow-checking)): errors fail validation, warnings only with `--strict` (also `dif validate --strict`). `dif validate` with a policy (`--sandbox`, `--allow-*` or `permissions`) also reports each capability it does not grant as a `not-permitted` error (see [Capabilities and permissions](#capabilities-and-permissions)) |
+| `describe <flow.json> [--output text\|json]` | Show steps, links, error handling and configuration requirements, with values omitted, and the capabilities of the steps: the addresses, files and environment variables they can touch |
+| `convert <file> [--to dil\|json] [--output path]` | Convert a flow between DIL JSON and DIL text (`.dil`), to the screen or to a new file; never overwrite an existing file |
 | `version [--output text\|json]` | Show DIF version, revision, Go version and platform |
 | `completion [command line]` | Suggest commands, flags, template names, output formats, catalog steps or file paths; for example `completion val` or `completion init --template t` |
 | `help [command]`         | List all commands, or explain one                                       |
@@ -338,6 +342,180 @@ e.ListFlows(api.Started)              // [{hello started <startup time> 1 0}]: i
 e.Shutdown()
 ```
 
+## DIL documents and local imports
+
+A DIL file can contain multiple integrations and multiple flows. Keep using
+`dil.integrations.integration`, `flows.flow`, and the shared `dil.core` collections;
+each collection accepts an object or an array. All flows in a document share its
+messages, resources, and connections. Integration metadata does not change flow IDs.
+
+Import another local DIL file with:
+
+```json
+"imports": {
+  "import": {"path": "./common.json", "namespace": "common"}
+}
+```
+
+Place `imports` directly under `dil`. A reusable file may contain only `dil.core`,
+integrations, or both. Imported flows join the group once, even when several files
+import the same dependency. Paths are relative to the declaring document;
+processor paths keep their existing working-directory semantics.
+
+| Reference | Definition |
+|---|---|
+| `jsonvalidator:ref:common:customerSchema` | Resource in the direct `common` import |
+| `setheaders:message:common:defaults` | Message headers in that import |
+| SQL2 `dataSource: "common:mainDatabase"` | Connection in that import |
+| Step option `connection: "common:partnerSftp"` | Typed connection in that import, see [Typed connections](#typed-connections) |
+| Flow `options.inputMessage: "common:sample"` | Input message selected from that import |
+| `service:common:PlaceOrder` | Service contract in that import, see [First-class service contracts](#first-class-service-contracts) |
+| Flow `options.service: "common:PlaceOrder"` | External transport flow bound to that service contract |
+
+Exact local names take precedence, including names containing colons. Each imported
+flow uses its own document's core and direct imports; imports do not re-export their
+dependencies. Namespaces qualify core references only. Flowlink targets, queues,
+topics, and runtime flow IDs retain their exact names.
+
+Without `options.inputMessage`, each flow uses its own document's first core message
+as its input default. Imported messages never become that default. Selection controls
+`NewMessage` and shell send/request defaults; it does not emit messages at startup.
+
+The shell `load`/`run`, foreground `run`, `validate`, and `describe` resolve groups.
+Duplicate core declarations of the same kind, import aliases, nonempty integration
+IDs within a document, and flow IDs across the group are rejected. Missing core
+references and missing or incompatible flowlink targets also fail static validation.
+The shell may link to compatible already-registered flows. Each positional shell
+file and its imports is loaded atomically; separate positional files are processed
+in order. Group startup readies consumers before activating sources and stops the
+attempted group if startup fails.
+
+See the runnable [composition example](api/testdata/program/README.md):
+
+```sh
+dif validate api/testdata/program/orders.json
+dif describe api/testdata/program/orders.json --output=json
+dif run --file=api/testdata/program/orders.json
+```
+
+Imports are local files only. HTTPS and anonymous byte inputs must be self-contained;
+byte callers can supply a trusted local `ProgramSource.Path` to enable imports.
+The default limits are 4 MiB per document, 64 MiB total, 256 files, and 32 import edges
+in a path. Import cycles fail with their chain. Files are snapshotted for both
+validation and construction. `--dir` includes imported files only once. Core-only
+documents can be validated and described, but a runnable group needs flows.
+
+For Go callers, `api.LoadProgram`, `(*api.Runtime).LoadProgram`,
+`api.InspectProgram`, and `api.ValidateProgram` operate on a local entrypoint.
+`api.PrepareProgram(ctx, sources, limits)` supports multiple inputs and immutable
+byte snapshots. Its `Info` method returns metadata without configured values;
+`CheckFlowLinks` accepts existing host bindings; `Load` constructs independent stopped
+flows from the validated snapshots. Register their runners together with
+`Engine.AddAll` and start them with `engine.StartGroup`. Validation does not initialize
+processors; processor-specific initialization may still fail during loading.
+
+Existing `Load`, `LoadBytes`, `Inspect`, and `InspectBytes` remain single-flow APIs:
+they reject multiple flows and imports, and preserve historical duplicate-core
+handling. Group validation intentionally rejects those ambiguous duplicates.
+Single-flow `describe` output retains its existing shape; group output adds document,
+import, integration, and reference metadata.
+
+## DIL text (`.dil` files)
+
+DIL JSON can also be written as DIL text, a small language with its own grammar
+for the same model: steps are chained with `->` instead of matched link ids,
+routers hold their routes in braces, and comments and multi-line raw strings
+are allowed. DIF compiles a `.dil` file to DIL JSON when it reads it, so
+everything else (validation, `describe`, imports, running) is the same, and a
+program may mix `.json` and `.dil` files.
+
+```text
+message hello {
+  body: "HELLO WORLD"
+  header greeting: "hello"
+}
+
+flow hello(name: "hello") {
+  message:hello as hello-source
+    -> passthrough as hello-action
+    -> passthrough as hello-sink
+
+  on error as hello-error
+}
+```
+
+A file ending in `.dil` is DIL text; a name without an extension still means
+`.json`. `dif convert` converts a file between the two forms. The language
+reference, with its grammar and how each construct becomes DIL JSON, is
+[docs/dil-language.md](docs/dil-language.md); the examples are
+`testdata/hello.dil` and [`api/testdata/dil/`](api/testdata/dil/README.md).
+
+## Core formats and mappings
+
+Define reusable mappings in `dil.core.maps.map`, with named input/output contracts
+in `dil.core.formats.format`. A flow invokes a map through the normal action URI
+`mapper:NormalizeOrder`, or `mapper:orders:NormalizeOrder` for an imported map.
+The map's dependencies resolve in its defining document.
+
+`difmap/1` constructs output from expressions, for example:
+
+```text
+{
+  id: string(payload.orderId),
+  customer: trim(payload.customer.name),
+  country: payload.customer.country default "NL",
+  lines: payload.lines map (line) -> {
+    sku: upper(line.sku),
+    quantity: number(line.qty)
+  }
+}
+```
+
+Maps support JSON, XML, and CSV contracts, optional JSON Schema validation, exact
+decimal arithmetic, immutable local bindings, filtering, conditions, and explicit
+conversions. `identity` and resource-backed `xslt` mappings reuse named contracts
+without a DIF expression. Existing transformation steps retain their behavior.
+Mapping source is an `expression` string or a core resource selected by `sourceRef`.
+
+Plans are compiled during validation, before processors are constructed. A mapping
+publishes its new body and Content-Type only after output validation and serialization
+succeed. Failures use existing error routes. See the
+[language reference](docs/mapping-language.md) and
+[runnable mapping example](api/testdata/mapping/README.md).
+
+## Core formats and mappings
+
+Define reusable mappings in `dil.core.maps.map`, with named input/output contracts
+in `dil.core.formats.format`. A flow invokes a map through the normal action URI
+`mapper:NormalizeOrder`, or `mapper:orders:NormalizeOrder` for an imported map.
+The map's dependencies resolve in its defining document.
+
+`difmap/1` constructs output from expressions, for example:
+
+```text
+{
+  id: string(payload.orderId),
+  customer: trim(payload.customer.name),
+  country: payload.customer.country default "NL",
+  lines: payload.lines map (line) -> {
+    sku: upper(line.sku),
+    quantity: number(line.qty)
+  }
+}
+```
+
+Maps support JSON, XML, and CSV contracts, optional JSON Schema validation, exact
+decimal arithmetic, immutable local bindings, filtering, conditions, and explicit
+conversions. `identity` and resource-backed `xslt` mappings reuse named contracts
+without a DIF expression. Existing transformation steps retain their behavior.
+Mapping source is an `expression` string or a core resource selected by `sourceRef`.
+
+Plans are compiled during validation, before processors are constructed. A mapping
+publishes its new body and Content-Type only after output validation and serialization
+succeed. Failures use existing error routes. See the
+[language reference](docs/mapping-language.md) and
+[runnable mapping example](api/testdata/mapping/README.md).
+
 ## Message
 
 A message is one mutable map (`message.Message`, a `map[string]any`) holding:
@@ -502,6 +680,40 @@ A failure on a branch of a router goes to the error route with that branch's
 message; a detached route (wire tap) never does. A forced stop never takes the
 error route.
 
+#### Error handlers by error
+
+A flow may have several `error` steps, as Camel has several `onException`
+clauses. One without match options takes every error (the default); the others
+take only the failures that satisfy all their match options, which are
+written like the other options of the step:
+
+| Option | Takes a failure when |
+|---|---|
+| `errorClass` | `${exception.class}` matches the pattern (`*` is any text, `?` one character), such as `*fs.PathError` or `*net.*` |
+| `errorStep` | the id of the failing step matches the pattern |
+| `errorUri` | the scheme of the failing step's URI (`https`, `sql2`, …) matches the pattern |
+| `errorMessage` | the regular expression matches somewhere in the error text |
+
+For a failure, the first error step (in the order of the file) that takes it is
+used, else the default one, else none: the message fails at once, with no
+retries. The handler decides the retries as well as the route, so a flow can
+retry a timeout and not a validation failure: after every failed try the handler
+is chosen again. Besides `maximumRedeliveries` and `redeliveryDelay`, a handler
+has:
+
+- `backoffMultiplier` (1 or more): the delay of every new try is this many
+  times that of the one before, up to `maximumRedeliveryDelay` ms if set.
+- `handled` (default true). With `false` the error route still runs, but the
+  message fails afterwards: the sender gets the failure (an https source
+  answers 500), the flow counts the message as failed, and the result carries
+  both the route's outcome and the failure. A `return` in that route does not
+  turn the failure into a reply.
+
+`testdata/examples/errorHandlers.json` refuses an order without a numeric
+`orderId` (unhandled, logged) and answers `payload refused` for a poisoned
+body (handled). `describe` lists every handler and what it matches on, never
+the patterns.
+
 An error route can end in a **dead letter queue**: the `deadletter` step puts
 the message, with its `error.*` headers, on an in-memory queue, and another
 flow can read it with the source `queue:<name>`. `testdata/examples/deadletter.json` fails
@@ -546,9 +758,12 @@ using anything else fails registration.
 | `deadletter` | sink | `deadLetterQueue` (DLQ), `connectionFactory` (no effect) | Puts a copy of the message on the in-memory queue `deadLetterQueue`; for error routes |
 | `flowlink` | source | `flowId` (the parser fills in the flow's id), `transport` (no effect) | Emits the messages other flows send to this flow (also called `flowlink-async`); see [Flow links](#flow-links) |
 | `flowlink` | action | `targetFlowId` (required), `transport` sync\|direct\|vm\|async\|seda\|activemq (sync; the last two act as async), `exchangePattern` InOnly\|InOut (InOut), `requestTimeout` ms (20000; also written `requestTimout`) | Sends a copy of the message to the flow `targetFlowId`; the step is also called `flowlink-async`, see [Flow links](#flow-links) |
+| `service:<name>` | source | – | Implements the named `dil.core.services` capability (at most one provider per canonical service across a program/runtime); see [First-class service contracts](#first-class-service-contracts) |
+| `service:<name>` | action or sink | `delivery` processed\|enqueue (processed; `InOnly` only), `requestTimeout` ms (20000), `overflow` fail\|block (fail), `enqueueTimeout` ms (0) | Invokes the named service capability (`InOut` requires `action` and `processed`; `InOnly` supports `action` or `sink`); pre-validates input before channel admission |
 | `queue[:<name>]` | action | `targetQueueId` (alternative to URI name), `delivery` processed\|enqueue (processed), `exchangePattern` InOnly\|InOut (InOnly), `requestTimeout` ms (20000; the designer writes `requestTimout`, which wins), `transport` (activemq, no effect) | Sends a copy to a logical queue; processed waits for the consumer, enqueue returns after buffering; see [Queues](#queues) |
 | `topic:<name>` | source | — | Creates an independent subscription while running; paused subscriptions buffer messages; see [Topics](#topics) |
 | `topic:<name>` | action | — | Publishes a copy to every active subscription without waiting for processing; see [Topics](#topics) |
+| `event:<type>` | source | `flowId` ("": every flow) | Receives the events of the flows of the process: `flow.started`, `flow.paused`, `flow.resumed`, `flow.stopped`, `source.failed`, `exchange.completed`, `exchange.handled`, `exchange.failed`, or `*` for all; see [Events](#events) |
 | `https://<host>:<port>/<path>` | source | `matchPrefix` or `matchOnUriPrefix` (false), `exchangePattern` InOut\|InOnly (InOut), `preserveHttpHeaders` (false), `authenticationPreemptive` (no effect), `serverIdentityFile` (`security/server-identity.p12`), `serverIdentityPassword` | Receives HTTPS requests and replies with the flow's outcome, see [HTTPS](#https) |
 | `https://<host>[:<port>]/<path>` | action | `httpMethod` GET\|POST\|PUT\|PATCH\|DELETE\|HEAD\|OPTIONS\|TRACE (GET), `authMethod` None\|Basic (None) with `authUsername` and `authPassword`, `trustStoreFile` (`security/outbound-truststore.p12`), `trustStorePassword`, `connectTimeout` ms (30000), `socketTimeout` ms (30000), `retryRequests` (false) with `retryAttempts` (5) and `retryInterval` ms (30000), `excludeHeaders` (regular expression), `throwExceptionOnFailure` or `useErrorRoute` (false); no effect: `authenticationPreemptive`, `maxTotalConnections`, `connectionsPerRoute`, `useCustomDateHeader`, `sslContextParameters` | Calls the endpoint, written `https://host/path` or, as DIL has it, `https:https://host/path`; the address may hold `${…}` parts, which are evaluated for each message. The response becomes the message, see [HTTPS](#https) |
 | `rest` | action | `method` (post), `host` (`https://localhost:9002`), `path` (required), `produces` ("": Content-Type of the request when the message sets none), `consumes` ("": its Accept header), `trustStoreFile`, `trustStorePassword`, `socketTimeout` ms (30000), `throwExceptionOnFailure` (true) | Calls `host`/`path` as the https action does |
@@ -565,6 +780,7 @@ using anything else fails registration.
 | `counter[:<name>]` | source | `start` (1), `numbers` (1; 0 or less = unlimited), `period` ms (10000) | Emits `start`, `start`+1, … as body every period, with `Content-Type` text/plain |
 | `setoneway`, `setfireandforget` | action | – | Makes the exchange one-way: a waiting sender gets its reply now; see [Exchange patterns](#exchange-patterns) |
 | `setrequestreply`, `settwoways`, `setrequestandreply` | action | – | Keeps the exchange request-reply (the default) |
+| `return` | action | `language` simple\|constant (simple), `expression` ("": the message as it is), `status` success\|error (success), `detach` (false) | Chooses the reply of the exchange: the message, or with the body of `expression`. The message itself passes on unchanged. By default the reply is fixed here and the sender gets it when the flow is done; with `detach` the sender gets it now and the flow goes on without it. With `status` error the reply is a failure whose text is the reply's body (an https source answers 500). See [Exchange patterns](#exchange-patterns) |
 | `removeheaders` | action | `pattern` (required), `excludePattern` ("") | Removes the headers matching `pattern` but not `excludePattern`: an exact name, a prefix ending with `*` or a regular expression, case-insensitive. Never removes the body or `metadata.*` |
 | `replace` | action | `regex` (required), `replaceWith` (""), `flags` (`i`, `m`, `s`, comma-separated), `group` (0) | Replaces every match in the body; `$1` in `replaceWith` inserts a group. With `group` > 0 only that group of each match is replaced |
 | `simplereplace` | action | – | Evaluates the body as a simple expression: `${header.<name>}` in the body becomes the header's value |
@@ -590,7 +806,7 @@ using anything else fails registration.
 | `as2` | action | `hostName` (required), `targetPortNumber` or `port`, `requestUri` or `uri`, `as2From` and `as2To` (required), `subject`, `ediMessageContentType` (else `messageContentType`, else `application/edifact`), `as2MessageStructure` (PLAIN; SIGNED, ENCRYPTED, SIGNED_ENCRYPTED, PLAIN_COMPRESSED, SIGNED_COMPRESSED, ENCRYPTED_COMPRESSED, ENCRYPTED_COMPRESSED_SIGNED), `signingAlgorithm` (SHA256WITHRSA; also SHA1, SHA384, SHA512), `encryptingAlgorithm` (AES128_CBC; also AES192_CBC, AES256_CBC, DES_EDE3_CBC), `certificateForSigning` (private key and certificate), `certificateForEncrypt` (the partner's certificate), `password`, `mdn` sync\|none (sync), `dispositionNotificationTo`, `sslContext`, `keyAlias` (accepted, no effect), and the timeout and trust store options | Sends the body to a partner by AS2: compressed, then signed, then encrypted as the structure says, in a POST (https for port 443 or 8443 and with `sslContext`, else http). The body goes on; the headers `AS2-Message-Id`, `AS2-MDN-Disposition`, `AS2-MDN-Signed` and `http.status` are set. The receipt is required, has to say `processed`, has to have the integrity check (MIC) of what was sent, and when `certificateForEncrypt` is set has to be signed by that certificate if it is signed. A `subject` header of the message overrides the option. The headers of the message are not sent |
 | `imaps:<host>[:<port>]` | source | `username` (required), `password` (env `DIF_IMAPS_PASSWORD`), `authenticationType` basic\|oauth (basic), `accessToken` (with oauth; `@{name}` is the tenant variable `name`, looked up for every poll, as an oauth2token step keeps it), `tenantDbName` (default), `content` body\|both (body), `folderName` (INBOX), `unseen` (true), `fetchSize` (10; 0 or -1 for all), `searchSubject`, `searchBody`, `searchFrom`, `searchTo`, `delay` (60000), `initialDelay` (1000), `socketTimeout`, `trustStoreFile`, `trustStorePassword` | Polls a mailbox of an IMAP server over TLS (port 993), with `github.com/emersion/go-imap/v2`, and makes a message of every unseen email that matches the search options, the oldest first. The body is the text of the email (the first `text/plain` part, else `text/html`, in UTF-8); the headers are `Subject`, `From`, `To`, `Cc`, `Date` (decoded), `mail.messageId` and `mail.uid`; the email's own Message-ID and Reply-To are not headers, as they would overwrite DIF's identity. With `content` `both` the attachments (and attached emails) are headers too, `attachment.<file name>` as bytes, and `attachments`, the names. An email is marked as seen once the flow has processed it; one the flow failed on stays unseen and comes again. A login is `LOGIN`, or with `oauth` XOAUTH2, as Gmail wants it. Not done: the platform's `bridgeErrorHandler`, which sends a failure to connect to the flow's error route (here a failed poll is logged and tried again), and attachments as a Camel concept (DIF has none). Tested against an in-process IMAP server over TLS, not against Gmail |
 | `sql` | action | `query` (required; a simple template, usually `${body}`), `connectionType` (required: `postgres`, `mysql8` (also `mysql`, `mysql5`, `mariadb`), `sql_server`, `oracle`), `host` (required), `port` (the default of the database), `database` (for oracle the service name), `username`, `password` (env `DIF_SQL_PASSWORD`), `useSSL` (false), `tlsVersion` (the one version to use, such as `TLSv1.2`; empty: 1.2 or later), `trustStoreFile`, `trustStorePassword`, `socketTimeout`, `connectTimeout`, `escapeChars` (no effect) | Runs an SQL statement. `query`, `host`, `port`, `database`, `username` and `password` are simple templates evaluated for each message, so a flow can take them from the headers (`${header.DB_Host}`); the handles are kept per connection (at most 32), and closed after a minute without use. A final `;` is left out. A statement that returns rows (it starts with `SELECT`, `WITH`, `SHOW`, `DESCRIBE`, `EXPLAIN`, `VALUES` or `TABLE`, or has `RETURNING`) makes the body `<ResultSet><ResultSize>n</ResultSize><Results><Result><column>value</column>…</Result>…</Results></ResultSet>` (`<Results/>` for none), as the platform's expected answers show: an element for each column, a NULL as an empty element, characters of a column name that an XML name cannot hold left out (`version()` is `version`), dates as `2023-03-21`, moments as `2023-03-21 10:30:05.12`, binary data that is no text in base64. Another statement leaves the body. Either way the headers `numberOfRecords` (rows, or rows changed) and `hasErrors` (`false`: a statement that fails fails the message) are set. Drivers: pgx, go-sql-driver/mysql, go-mssqldb, go-ora (pure Go), each in a file of its own (`steps/impl/sql_<database>.go`). Not verified against real servers; the tests use a fake `database/sql` driver. `escapeChars` is accepted but ignored: the platform escapes characters in a way the flows' answers do not explain. A flow whose connection comes from platform flow properties (no `host`) does not build |
-| `sql2` | action | `query` (required), `dataSource` (the id of a connection in `dil.core.connections`), `connection` (the keys of that connection as JSON: `dbtype` `postgres`\|`mysql`\|`sqlserver`\|`oracle`, `dbname`, `host`, `port`, `username`, `password`; the DIL parser fills it from `dataSource`), `useSSL`, `tlsVersion`, `trustStoreFile`, `trustStorePassword`, `socketTimeout`, `connectTimeout` | Runs an SQL statement with parameters, as Camel's SQL component does: `:#name` is the header `name` (any case; a header that is missing fails the message) and `:#${expression}` a simple expression. They are sent as parameters, never written into the statement; text in quotes has none. The body and headers are as with `sql` |
+| `sql2` | action | `query` (required), `dataSource` (the id of a connection in `dil.core.connections`, legacy or a typed `sql` one), `connection` (the keys of that connection as JSON: `dbtype` `postgres`\|`mysql`\|`sqlserver`\|`oracle`, `dbname`, `host`, `port`, `username`, `password`; the DIL parser fills it from `dataSource`), `useSSL`, `tlsVersion`, `trustStoreFile`, `trustStorePassword`, `socketTimeout`, `connectTimeout` | Runs an SQL statement with parameters, as Camel's SQL component does: `:#name` is the header `name` (any case; a header that is missing fails the message) and `:#${expression}` a simple expression. They are sent as parameters, never written into the statement; text in quotes has none. The body and headers are as with `sql` |
 | `fileenrich:<dir>` | action | `fileName`, `include`, `exclude` (regular expressions on the name), `recursive` (false), `binary` (false), `charset` UTF-8, ISO-8859-1 or US-ASCII (utf-8), `delete` (false) | Replaces the body with the content of the first file (by name) the options select, and sets `file.name` and Content-Type; without one the message passes on unchanged. The file stays unless `delete` |
 | `ftp:<host>[:<port>]/<dir>` | source | `recursive`, `fileName`, `include`, `exclude` (regular expressions on the whole name), `binary`, `charset` (utf-8), `sortBy` (name; `file:name`, `reverse:file:name`, `file:modified`, `reverse:file:modified`), `delete`, `move` (.archive), `moveFailed` (.error), `readLock` none\|changed, `delay`, `initialDelay` (60000), `maxMessagesPerPoll` (1; 0 or -1 for all), `autoCreate` (true), `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000), `passiveMode` (true; false is rejected) | Polls an FTP directory and produces a message per file; see [FTP, FTPS and SFTP](#ftp-ftps-and-sftp) |
 | `ftp:<host>[:<port>]/<dir>` | sink | `fileName`, `binary`, `charset`, `autoCreate` (true), `fileExist` Override\|Append\|Fail\|Ignore (Override), `implicit` (false; true is rejected, use `ftps`), `passiveMode`, `userName`, `password` (env `DIF_FTP_PASSWORD`/`DIF_SFTP_PASSWORD`), `disconnect` (true), `socketTimeout` (30000) | Writes the body to a file in the directory |
@@ -604,9 +820,10 @@ using anything else fails registration.
 | `sftp:<host>[:<port>]/<dir>` | source | as `ftp`, and `privateKey` (a file), `privateKeyPassphrase` (env `DIF_SFTP_PRIVATE_KEY_PASSPHRASE`), `knownHostsFile`, `strictHostKeyChecking` (true); `passiveMode` has no effect | Polls an SFTP directory |
 | `sftp:<host>[:<port>]/<dir>` | sink | as the `ftp` sink, with the `sftp` connection options | Writes the body to a file |
 | `sftpenrich:<host>[:<port>]/<dir>` | action | as `ftpenrich`, with the `sftp` connection options | Replaces the body with the content of the first file |
-| `settenantvariable:<name>` | action | `language` simple, constant, xpath or jsonpath (simple), `value`, `tenantDbName` (default); `encrypt`, `protectedValue`, `groupName`, `flowName` (no effect) | Sets the tenant variable to the value. DIL carries the value in base64 (`dGVzdA==` is `test`); the DIL parser decodes it, and takes a value that is no base64 text as it is. Tenant variables are shared by all flows of the process and kept in memory |
+| `settenantvariable:<name>` | action | `language` simple, constant, xpath or jsonpath (simple), `value`, `tenantDbName` (default); `encrypt`, `protectedValue`, `groupName`, `flowName` (no effect) | Sets the tenant variable to the value. DIL carries the value in base64 (`dGVzdA==` is `test`); the DIL parser decodes it, and takes a value that is no base64 text as it is. Tenant variables are kept in the store `tenant.<tenantDbName>` of the runtime the flow is loaded in, in memory unless a program declares that store; see [Stores](#stores) |
 | `gettenantvariable:<name>` | action | `headerName` (required), `tenantDbName` (default) | Sets the header to the tenant variable ("" if not set) |
 | `removetenantvariable:<name>` | action | `tenantDbName` (default) | Removes the tenant variable |
+| `store:<name>` | action | `operation` get\|put\|remove (required), `key` (required; a simple expression, such as `${header.orderId}`), `value` (put; a simple expression, `${body}`), `headerName` (get), `default` (get; a simple expression) | Works on an entry of a store that `dil.core.stores` declares; see [Stores](#stores). `put` keeps the value with its type; a new key in a full store fails. `get` sets `headerName`, or else the body, to the value; a key that is not set changes nothing, unless `default` gives the value. `remove` removes the entry. A name that no declaration the flow sees has fails when the flow loads |
 | `oauth2token:<id>` | sink | `tokenName` (required: tenant variables, separated by commas), `tenantDbName` (default), `expiryDelay` (60 seconds), `tokenUrl` and `clientId` (both needed to create the step), `grantType` client_credentials\|refresh_token (refresh_token if a refresh token is set, else client_credentials), `clientSecret`, `refreshToken`, `scope`, `clientAuthentication` basic\|post (basic), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Fetches an OAuth2 access token and sets it in each variable of `tokenName` and in the same name with the suffix `_Temp`. A message that reaches the sink renews the token only if it expires within `expiryDelay`, so a repeater in front of it is a token service. The Java platform keeps the endpoint and credentials in the tenant's OAuth configuration, and the flows name only the token. DIF takes `tokenUrl`, `clientId`, `clientSecret`, `refreshToken` and `scope` from the option, else from the environment variable `DIF_OAUTH2_<TOKEN>_<SETTING>`, where `<TOKEN>` is a name in `tokenName` in capitals (other characters as `_`; the names are tried in turn) and `<SETTING>` is `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET`, `REFRESH_TOKEN` or `SCOPE`, else from `DIF_OAUTH2_<SETTING>` for all tokens. Each variable has a `_FILE` companion for a mounted secret. For `OauthTokenGoogleDrive`: `DIF_OAUTH2_OAUTHTOKENGOOGLEDRIVE_TOKEN_URL`, `..._CLIENT_ID`, `..._CLIENT_SECRET` and `..._REFRESH_TOKEN`. A flow without them does not load, and the error names the variables |
 | `googledrive:<folderId>` | source | `accessToken` (required; `@{name}` is replaced by the tenant variable `name` at each call), `filterFiles` (a file name), `moveTo` (.done), `gSuiteFiles` Ignore, `initialDelay` (1000), `delay` (5000), `tenant` (default), `flowId` (no effect), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Polls a Google Drive folder with the Drive v3 API and produces a message per file: the body is the content, the headers are `file.name` and `googledrive.id`. Subfolders and Google's own formats (Docs, Sheets, ...) are skipped. A consumed file is moved to the subfolder `moveTo`, which is created if needed. A failed poll, such as one before the token exists, is logged and tried again |
 | `googledrive:<folderId>` | action | `accessToken` (required), `fileName`, `fileExist` Override\|Fail\|Ignore (Override), `tenant` (default), `flowId` (no effect), `trustStoreFile`, `trustStorePassword`, `socketTimeout` | Writes the body to a file in the folder and sets `googledrive.id`. The name is `fileName`, else the header `file.name`, else `CamelFileName`; the file's Content-Type is the message's. Override replaces the content of a file with that name |
@@ -621,7 +838,7 @@ using anything else fails registration.
 | `filter` | action | `language` simple\|xpath\|jsonpath (simple), `expression` (required) | Passes the message on when the condition holds, else stops it |
 | `split` | router or action | `language` xpath\|jsonpath\|tokenize\|xtokenize\|simple (xpath), `expression` (required); `streaming`, `parallelProcessing`, `exchangePattern` (no effect yet) | Sends each part of the body along the link with rule `split`, with headers `split.index`, `split.size` and `split.complete`; then the message itself along the other link, if any. The parts: for xpath the selected nodes (an element as XML), for jsonpath the selected values as JSON (strings as is; one selected array is split), for tokenize what lies between the occurrences of the text, trimmed and not empty, for xtokenize the elements of an XML path (`//product`, or just a name), for simple the elements of the list the expression gives (`${body.split(',')}`) or the parts of a text between commas. An xpath or jsonpath with `${...}`, such as `${header.expression}`, is evaluated for every message |
 | `enrich` | router | `enrichType` override\|xml\|json (xml; the designer also writes it as `enrichMethod` or `enrichFileType`, which win), `useErrorRoute` (true), `attachmentName` (no effect) | Content enricher: sends a copy along the link with rule `enrich`, merges what comes out into the message and sends that along the other link. `override`: the enrichment (body and headers) replaces the message; `xml`: its root element is appended inside the body's root element; `json`: its members are set in the body's object (the message keeps its headers). When the enrichment fails, the message fails with that error (so the flow's error route can take it), or with `useErrorRoute` false continues without it and the error is logged |
-| `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0), `completionTimeout` (0), `completionInterval` (0), the last two in milliseconds | Collects messages. A group is complete with the last part of a split (`split.complete`), with `completionSize` messages, when `completionTimeout` has passed since its last message came, and every `completionInterval`. The complete group is released as a message of its own, made from the group's last message (a new message ID, caused by it, without the split headers), with the aggregate as body; it goes on along the link and what comes of it is ignored (a failure is logged, or, when a timer completed the group, handled by the flow's error route). The message that came in carries on as it came, so a request gets its reply at once. A body that is not XML or JSON fails when it comes in. One group at a time (the Kamelet correlates all messages); without a timer a new split (`split.index` 0) starts a new group. A group a timer has not completed when the flow stops is lost. Inside the `split` route of a `splitandaggregate`, the aggregate's type decides how that aggregates the parts |
+| `aggregate` | action | `aggregateType` xml\|text/xml\|application/xml\|json\|application/json (xml), `completionSize` (0), `completionTimeout` (0), `completionInterval` (0), the last two in milliseconds, `correlationKey` (a simple expression), `store` (a store's name) | Collects messages. A group is complete with the last part of a split (`split.complete`), with `completionSize` messages, when `completionTimeout` has passed since its last message came, and every `completionInterval`. The complete group is released as a message of its own, made from the group's last message (a new message ID, caused by it, without the split headers), with the aggregate as body; it goes on along the link and what comes of it is ignored (a failure is logged, or, when a timer completed the group, handled by the flow's error route). The message that came in carries on as it came, so a request gets its reply at once. A body that is not XML or JSON fails when it comes in. Without `correlationKey` there is one group at a time (the Kamelet correlates all messages); with it, the messages whose key has the same value make a group, and each group completes on its own (`completionInterval` completes all of them). Without a timer a new split (`split.index` 0) starts its group anew. A group that is not complete when the flow stops is lost, unless `store` names a store that keeps the groups; see [Stores](#stores). Inside the `split` route of a `splitandaggregate`, the aggregate's type decides how that aggregates the parts |
 | `splitandaggregate` | router | as `split` (`expression` may be on the split link instead), and `aggregateType` | Splits the body, sends each part along the link with rule `split`, aggregates what comes out (a gatherer) and sends the message with the aggregate along the other link; with nothing to split the message goes on as it is. A failed part fails the message |
 | `splitwithnamespace` | router or action | as `split` with `language` xpath only, and `nsprefix` and `namespace` (given together) | `split` whose xpath may use the prefix `nsprefix`, which stands for `namespace` (`/root/h:table`); an element is written with the declarations its names need |
 | `splitandaggregatewithnamespace` | router | as `splitandaggregate` with `language` xpath only, and `nsprefix` and `namespace` | `splitandaggregate` whose xpath may use the prefix `nsprefix` |
@@ -697,6 +914,34 @@ log. `setrequestreply` (or `settwoways`, `setrequestandreply`) keeps the
 default, InOut. It cannot take back a reply that `setoneway` already sent. In
 `testdata/examples/setOneWay.json` the https caller gets `1234`, the body at
 `setoneway`; in `setRequestReply.json` it gets `last step`.
+
+The `return` step chooses what the sender gets, instead of the message as it is
+at that point. Its reply is a copy of the message, with the body of its
+`expression` if it has one, taken when the step runs, so the steps after it
+cannot change it. The message itself passes on unchanged.
+
+- By default the reply is **fixed** at the step and given when the flow has
+  processed the message, as the function value of a flow that goes on cleaning
+  up after it. A failure after the step replaces it: the sender gets the
+  failure, or the outcome of the error route.
+- With `detach` the sender gets the reply **now**, as with `setoneway`, and the
+  flow goes on without it; a failure after that goes to the error route and the
+  log. Durable queue sources still acknowledge only when the flow is done.
+- With `status` error the reply is a failure whose text is the reply's body,
+  so a caller (an https source answers 500 with it) learns that its message was
+  refused, although the flow ran as it should. Put it at the end of the error
+  route to refuse a message that failed: the error route's `return` is the
+  reply, and `Result.Err` still says what was handled. Without it a handled
+  error is a success for the sender, as before.
+- The first reply wins, whether it comes from `return` or `setoneway`. A
+  `setoneway` after a fixed reply gives the sender that reply now. Where nobody
+  waits for a reply (a timer, `send`) the step does nothing. A `return` in a
+  branch of a router, or in an `enrich` or `splitandaggregate` route, answers
+  for the whole exchange, as `setoneway` does there.
+
+`testdata/examples/return.json` answers an order with an acceptance at once and
+works on it for three seconds more; `returnError.json` refuses an order whose
+`orderId` is no number with a 500 from its error route.
 
 ### Asynchronous request/reply
 
@@ -865,10 +1110,11 @@ and the existing capacity. No external broker or dependency is required.
         "deadLetter": "orders.DLQ"
       }
     },
-    "topics": {"audit": {"capacity": 2000}},
+    "topics": {"audit": {"capacity": 2000, "served": true}},
     "idempotency": {
       "orders": {"durable": true, "retention": 86400000, "maxKeys": 100000}
-    }
+    },
+    "stomp": {"address": "127.0.0.1:61613", "login": "orders-app"}
   }
 }
 ```
@@ -876,7 +1122,9 @@ and the existing capacity. No external broker or dependency is required.
 Paths are relative to the working directory. Queue retry delay and idempotency
 retention are milliseconds. Omitted/zero configuration values select defaults:
 capacity 10,000, five delivery attempts, 1,000 ms retry delay, 24-hour retention,
-100,000 keys, 4 MiB encoded messages and a 256 MiB disk budget.
+100,000 keys, 4 MiB encoded messages and a 256 MiB disk budget. `served` and
+`stomp` make channels reachable by STOMP clients; see
+[Served channels (STOMP)](#served-channels-stomp).
 
 Queue, flowlink, topic actions and dead-letter sinks accept `overflow: "fail"`
 (default) or `overflow: "block"`. Blocking requires a positive `enqueueTimeout`
@@ -940,6 +1188,210 @@ the effect. Pass a stable business idempotency key to external systems that
 support it, and use separate namespaces for separate business operations.
 Runnable examples are in [testdata/reliable](testdata/reliable/README.md).
 
+### Stores
+
+A store is a named key-value store of the channel runtime, declared in
+`dil.core.stores` like the other core declarations, as one object or a list:
+
+```json
+{"dil": {"core": {"stores": {"store": [
+  {"name": "rates", "durable": true, "ttl": 3600000, "maxKeys": 1000}
+]}}}}
+```
+
+or in DIL text, `store rates { durable: true, ttl: 3600000 }`. `name` is
+required: letters, digits, `_`, `.` and `-`. `durable` (default false) keeps the
+entries in the journal of the runtime's storage directory. `ttl` is the
+milliseconds an entry lives after it was last put (0, the default, for ever):
+an expired entry is not returned and is dropped when the store needs room and
+when the journal is compacted. `maxKeys` bounds the entries (0: 100,000); a put
+of a new key into a full store fails, and nothing is evicted. Numbers and
+booleans may be text, as in DIL converted from XML.
+
+Steps refer to a store by its name, or, for a store of an imported document,
+as `<namespace>:<name>`, as with connections. Every name refers to the one store
+the runtime has by the declared name, so documents that declare the same store
+share it. Declaring it again with the same settings is fine; with other
+settings the program does not load, and the error names the store. A loaded
+program opens all the stores it declares before it builds its flows.
+
+- The step `store:<name>` gets, puts and removes an entry (see the step table).
+  Its `key` is a simple expression, evaluated for every message.
+- The simple language reads an entry with `${store:<name>:<key>}`. It is read
+  only; a key that is not set gives the empty value of a header that is not
+  set (`${store:rates:USD} ?: 1` gives `1`). The key is the rest of the block:
+  constant text, or a nested expression such as
+  `${store:rates:${header.currency}}`; no method may follow it. The store's
+  name is written as it is. A flow loaded by a program knows its stores, so a
+  name it does not declare fails when the flow loads; an expression compiled
+  without a loader looks the store up when it runs.
+
+Values keep their type: those of a durable queue's messages (strings, numbers,
+booleans, bytes, lists and maps, decoded JSON); a value of another type fails
+the put. An encoded value may hold at most `maxMessageBytes` (4 MiB), in memory
+too. A put or remove on a durable store returns once its journal record is
+synced, as queue admission does, and counts in the disk budget as a put to a
+durable queue does. A durable store needs a runtime with a directory: a
+service with `channels.directory`, or `api.NewRuntime` with `Directory`;
+without one, the program does not load and the error says to configure
+`channels.directory`. The package-level `api.Load` functions use the default
+runtime, which is in memory only. The journal keeps the entries of a durable
+store that the program running now does not declare, for a later one; a store
+declared in memory starts empty. Entries keep the expiry they were put with
+across a restart.
+
+`/status` lists the stores of the service's runtime under `channels.stores`,
+with `name`, `durable` and `keys` (the entries that have not expired);
+`/metrics` has `dif_store_keys{store="..."}`. `dif describe` lists the stores
+of each document (`STORE:` lines, `stores` in JSON) and the steps that refer
+to one.
+
+**Tenant variables** live in the store `tenant.<tenantDbName>` of the runtime
+the flow is loaded in, `tenant.default` by default: `settenantvariable`,
+`gettenantvariable`, `removetenantvariable`, `oauth2token` and the `@{name}`
+values of `imaps` and `googledrive` use it. Without a declaration it is in
+memory, shared by the flows of the runtime, as before. A program that declares
+it, such as `store "tenant.default" { durable: true }`, gives it its settings:
+durable, the variables survive a restart. Tenant variables hold access tokens:
+in a durable tenant store they are written to the journal as they are, not
+encrypted, so the token is then on disk in `channels.directory`.
+`${store:tenant.default:<name>}` reads a variable when the program declares
+that store.
+
+**Aggregation by correlation key**: the `aggregate` router's `correlationKey`
+groups the messages by the value of a simple expression, and each group
+completes on its own. With `store`, the groups are also kept in that store, as
+`<flow>/<step>/<key>`, and the router takes them back when its flow loads: with a
+durable store, a group that was not complete when dif stopped is still there
+after a restart and completes by the same rules. Its `completionTimeout` runs
+from its last message by the clock, so a group whose timeout passed while dif
+was stopped completes as soon as the flow starts; `completionInterval` starts
+when the flow starts. A group must fit in one value (`maxMessageBytes`), and
+its messages must have values a store keeps; `maxKeys` bounds the groups. A
+group leaves the store when it completes, before the aggregate goes on: a crash
+in between loses that aggregate, and a message that came again after a crash
+(from a durable queue) is aggregated again. Without `store` the groups are in
+memory.
+
+Runnable examples: [testdata/examples/stores](testdata/examples/stores/README.md)
+(in memory) and [testdata/reliable](testdata/reliable/README.md#durable-stores)
+(durable).
+
+### Served channels (STOMP)
+
+A service can serve some of its queues and topics to programs outside the
+process with a STOMP 1.2 listener. Flows and STOMP clients then share the same
+channels: a client can feed a flow, a flow can feed a client, and STOMP
+subscribers compete with flow sources on a queue exactly as two flows do. The
+listener uses only the standard library; DIF acts as a small broker for its own
+channels, not as a client of another broker.
+
+Exposure is opt-in per channel: set `served` on a queue or topic and add a
+`stomp` block under `channels`.
+
+```json
+"channels": {
+  "directory": "data/channels",
+  "stomp": {
+    "address": "127.0.0.1:61613",
+    "login": "orders-app",
+    "tls": {"identity": "security/server-identity.p12"},
+    "maxConnections": 100
+  },
+  "queues": {"orders": {"durable": true, "served": true}},
+  "topics": {"audit": {"served": true}}
+}
+```
+
+A `stomp` block without a served channel, or a served channel without a `stomp`
+block, is a configuration error, and so is an address that is not loopback
+(`127.0.0.1`, `::1`, `localhost`) without `tls`. `dif validate --config` checks
+all of this without opening the listener or reading the passcode. The listener
+starts once the flows have started, before the service reports ready; a
+listener that fails stops the service like a failed monitoring listener.
+
+Destinations are `/queue/<name>` and `/topic/<name>`. A destination that is not
+declared and served gets the ERROR `unknown destination`, whether the channel
+exists or not; a client never creates a channel. A dead-letter queue is served
+only when it is declared with `served` itself. Name such a queue as its own
+`deadLetter`, so that it parks what its consumers keep rejecting, as an
+automatically created dead-letter queue does; otherwise it gets a dead-letter
+queue of its own.
+
+- `CONNECT` (or `STOMP`) must accept version 1.2 and carry `login` and
+  `passcode`. `CONNECTED` answers with `version:1.2`, `server:dif`, a `session`
+  and the server's `heart-beat`. Heart-beats are negotiated as the specification
+  says: the server sends an EOL when it has been idle, and closes a connection
+  whose client stays silent for twice the agreed interval.
+- `SEND` builds a message as the `https` source does: the body (as text),
+  `content-type` as `Content-Type`, `DIF-Trace-Id` as the trace id and the other
+  headers as user headers. Protocol headers (`destination`, `content-length`,
+  `receipt`, `transaction`) are not copied, and a client cannot set a
+  `metadata.*` header. `Message-Id`, `Correlation-Id` and `Causation-Id` are
+  kept when given and created otherwise. A queue admits the message with the
+  default policy (a full queue fails); a topic publishes it. The `RECEIPT`
+  follows admission, which for a durable queue means journaled and synced.
+- `SUBSCRIBE` takes `id`, `destination`, `ack` (`auto`, the default, `client`
+  or `client-individual`) and an optional `prefetch-count` (1 to 1000, default
+  10): in the client modes a subscription holds at most that many
+  unacknowledged messages. A queue subscription is a competing consumer.
+  `MESSAGE` frames carry `subscription`, `message-id` (DIF's `Message-Id`),
+  `destination`, `ack` in the client modes, `content-type`, `content-length`,
+  `DIF-Trace-Id`, and the message's string, boolean and integer headers; other
+  metadata and other header values stay inside. A body that is not text or
+  bytes is sent as JSON with `content-type: application/json` unless one is set.
+- `ACK` and `NACK` take the `ack` value of a message as `id`. In `client` mode
+  both are cumulative: they settle that message and every earlier unsettled
+  message of the subscription. In `auto` mode a message is settled once its
+  frame is written.
+- `UNSUBSCRIBE`, `DISCONNECT` and `receipt` on any frame work as specified.
+
+How a delivery ends:
+
+| Event | Durable queue | Memory queue | Topic |
+|---|---|---|---|
+| `ACK`, or `auto` delivery written | acknowledged | done; a waiting sender gets the message as its reply | done |
+| `NACK` | failed attempt: retry delay, `maxDeliveries`, dead-letter queue | back to the head of the queue | done |
+| client disconnects, unsubscribes or is lost while unacknowledged | failed attempt | back to the head of the queue | dropped |
+| service shuts down | back unchanged, no attempt counted | back to the head of the queue | dropped |
+
+A client that crashes on a poison message therefore uses up its attempts and
+the message ends in the dead-letter queue instead of looping. The other side of
+this rule: everything a client has received but not acknowledged when it
+disconnects counts as an attempt, so a client that disconnects often should
+use a small `prefetch-count`. A memory queue has no attempts: a message that
+clients keep rejecting comes back each time. A memory-queue message that a flow
+sent with `delivery: processed` is answered exactly once, by the subscriber
+that acknowledges it; a message put back is not answered, and its sender keeps
+waiting until another consumer acknowledges it or its `requestTimeout` ends.
+
+Messages that clients send count as queued work during a graceful drain when a
+flow consumes their queue or topic, as messages from flows do. On shutdown the
+service closes the STOMP listener and its connections first, putting
+unacknowledged deliveries back, and then drains the flows. A flow may publish
+to a served topic without a flow subscribing to it; a flow that sends to a
+served memory queue still needs a flow consuming it.
+
+Security: the login is in the configuration; its passcode comes from
+`DIF_STOMP_PASSWORD` or `DIF_STOMP_PASSWORD_FILE`, read when the service
+starts, and the service does not start without one. Passcodes are compared in
+constant time. TLS uses the server identity keystore as the `https` source
+does, with `DIF_SERVER_IDENTITY_PASSWORD`. Logs record opened and closed
+connections and failed logins with the remote address, never credentials,
+headers or bodies.
+
+Limits: `maxConnections` (default 100; a connection over the limit gets an
+ERROR), 10 seconds for the `CONNECT` frame, 100 headers of at most 8 KiB per
+line, and a body of at most `maxMessageBytes` (8 KiB before login). Exceeding one, as any protocol
+error, gets an ERROR frame and closes the connection, as the specification
+requires. `/status` reports `stomp.connections` and `stomp.subscriptions`, and
+`/metrics` the gauge `dif_stomp_connections`.
+
+Not supported: STOMP versions before 1.2, transactions (`BEGIN`, `COMMIT` and
+`ABORT` get an ERROR), STOMP over WebSocket, durable topic subscriptions and
+replay, and more than one login. An example is in
+[testdata/reliable](testdata/reliable/README.md#served-channels).
+
 ### Queued wire taps
 
 For timing independence, end a wire tap's detached branch with
@@ -952,6 +1404,90 @@ Detached taps retain their error isolation: a full buffer logs an enqueue error
 and the main path continues, losing that tap copy. Work elsewhere on the tap
 branch still runs sequentially. See [channel examples](testdata/examples/channels/README.md)
 for competing consumers, fan-out and a slow audit consumer.
+
+### Interceptors
+
+Work that belongs to many steps, such as an audit trail or a log line before
+every call, can be declared once instead of tapped into each flow by hand. In
+the `dil.core` of a document:
+
+```json
+{"dil": {"core": {"interceptors": {"interceptor": [
+  {"name": "audit",
+   "pointcut": {"flows": ["orders*"], "uris": ["https", "sql*"], "kinds": ["action"]},
+   "action": {"uri": "topic:audit"}},
+  {"name": "arrival", "at": "entry",
+   "action": {"uri": "logger", "options": {"expression": "arrival of ${header.Message-Id}"}}}
+]}}}}
+```
+
+- `at` is `before` (the default): in front of every step the pointcut selects;
+  or `entry`: in front of the first step after the source, as Camel's
+  `interceptFrom`.
+- The pointcut is made of patterns (`*` any text, `?` one character), and a
+  step must satisfy every list that is given: `flows` (the flow's id or name),
+  `steps` (the step's id), `uris` (the scheme of the step's URI) and `kinds`
+  (`action`, `router` or `sink`). Without a pointcut every step of every flow of
+  the document is selected.
+- The action is one action with a `uri` and `options`, such as `logger`, `log`,
+  `topic`, `queue` or a [reusable processor](docs/functions-language.md#reusable-actions)
+  (`processor:name`, its `arguments` among the options). It is a tap: the loader
+  puts a `wiretap` router in front of the step, which passes the message on and
+  sends a copy to the action. What happens to the copy never changes or fails
+  the message; a failure is logged as that of a detached route. The action runs
+  in line, before the step: slow work belongs behind an enqueueing action (see
+  [Queued wire taps](#queued-wire-taps)).
+- Several interceptors on a step run in the order they are declared. An
+  interceptor does not intercept the steps another one added, nor the steps of
+  an error route.
+- The steps it adds have ids that start with `intercept:` (`intercept:audit:x`
+  for the router, `intercept:audit:x:action` for the action), show in the trail
+  of a message and in `describe`, and are marked as added by an interceptor in
+  its JSON output.
+- The interceptors of a document apply to the flows of that document only; an
+  imported document's interceptors do not reach the importing flows.
+- An interceptor observes. It cannot change the message or skip the step; for
+  that, put the step in the flow.
+
+`testdata/examples/interceptor.json` logs before each action of its flow.
+
+### Events
+
+What happens to a flow, and how its messages end, can start another flow: a
+flow whose source is `event:<type>` receives the events of the flows loaded in
+the same process (or the same `api.Runtime`), as Camel's `camelevent:` does.
+
+| Type | When |
+|---|---|
+| `flow.started`, `flow.paused`, `flow.resumed`, `flow.stopped` | the flow changes state; a stop event comes when the run has ended |
+| `source.failed` | the source of the flow failed |
+| `exchange.completed` | a message was processed to its end |
+| `exchange.handled` | a step failed and an error route took the message |
+| `exchange.failed` | a message failed (no error route, or the handler is unhandled) |
+
+The event is a message of its own: headers `event.type`, `event.time`,
+`event.flow.id`, `event.flow.name` and, as they apply, `event.step` (the step
+that failed), `event.duration` (milliseconds) and the `error.*` headers of an
+error route, so `${exception.message}` works. An exchange event has the
+`Correlation-Id` and trace of the message it is about and names that message
+as its cause (`Causation-Id`). The body is a JSON summary of the same facts;
+**an event never carries the payload** of the message.
+
+- Events cost nothing unless a flow listens: the engine asks first, and
+  nothing is made for a type nobody subscribed to.
+- An event source subscribes like a topic source: while the flow runs, with a
+  buffer of its own and no replay. Publishing never makes a flow wait. When a
+  buffer is full the event is dropped for every subscriber of that type (a
+  topic admits a message to all subscriptions or to none) and counted
+  (`Runtime.DroppedEvents`).
+- A message that comes from an event source gives no `exchange.*` events itself,
+  and neither do the messages that carry its `event.type` header on to other
+  flows, so a flow that reacts to failures cannot cause more of them. Events of
+  state changes are not suppressed.
+- In a service, event sources stop last, so they still see the last events of
+  the other flows.
+
+`testdata/examples/events/` logs a failure of another flow.
 
 ### Flow links
 
@@ -1089,7 +1625,7 @@ by default: PBES2 with PBKDF2 and AES; legacy 3DES/RC2 keystores are rejected.
 
 | Keystore | Used by | Default file | Password |
 |---|---|---|---|
-| server identity: private key + certificate | https source | `security/server-identity.p12` | option `serverIdentityPassword`, else `DIF_SERVER_IDENTITY_PASSWORD` |
+| server identity: private key + certificate | https source, STOMP listener (`channels.stomp.tls.identity`) | `security/server-identity.p12` | option `serverIdentityPassword`, else `DIF_SERVER_IDENTITY_PASSWORD` |
 | trust store: certificates to trust | https action | `security/outbound-truststore.p12` | option `trustStorePassword`, else `DIF_TRUSTSTORE_PASSWORD` |
 
 Paths are relative to the working directory. Keystores are read when the flow
@@ -1130,8 +1666,8 @@ value). The format has no integrity check: about one wrong password in 256 does
 not fail but gives garbage, so a wrong password may only show when the remote
 system refuses the login.
 
-The value `ENC(...)` in `core.connections` is not read: DIF does not use connection
-blocks.
+Encrypted values in `core.connections` are decrypted in the same way, in the options of
+the steps that use the connection.
 
 ### FTP, FTPS and SFTP
 
@@ -1206,10 +1742,14 @@ and the examples in this README.
 | `message`          | `Message`: one map with the body, headers and `metadata.*` headers        |
 | `steps/definition` | Processor contracts (`SourceProcessor`, `ActionProcessor`, `RouterProcessor` with `Route` and `Link`, `Gatherer` with `Outcome`, `Releaser`, `Looper`, `SinkProcessor`) and `Definition` |
 | `steps/registry`   | Processor registry by URI scheme and kind; JSON Schema validation of step options; gives routers their links |
-| `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, base64tobinary, texttobase64, binarytobase64, setbodyasstring, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, xmlvalidator, schematron, xslt, velocity, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, docconverter, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple language, XPath 2.0 and the jsonpath subset |
+| `steps/impl`       | Built-in steps (timer, repeater, counter, file, https, log, setbody, setheader, setheaders, removeheaders, replace, simplereplace, base64totext, base64tobinary, texttobase64, binarytobase64, setbodyasstring, zip, unzip, throttle, encoder, passthrough, message, queue, deadletter, flowlink, setuuid, setbodybyheader, setheaderbybody, delay, logger, simplevalidator, wastebin, rest, graphql, smtp, smtps, jsonvalidator, xmlvalidator, schematron, xslt, velocity, fileenrich, settenantvariable, gettenantvariable, removetenantvariable, store, oauth2token, googledrive, setcookie, removecookie, multipart, the converters xmltojson, jsontoxml, xmltojsonsimple, jsontoxmlsimple, csvtoxml, xmltocsv, docconverter, editoxml, xmltoedi, xmltoedifact, formtoxml, flv, exceltoxml, xmltoexcel, and the routers wiretap, recipient, content, if, loop, dowhile, filter, split, enrich, aggregate, splitandaggregate) and their schemas; the simple language, XPath 2.0 and the jsonpath subset |
 | `keystore`         | Reads PKCS#12 keystores: server identity and trust store                 |
+| `internal/stomp`   | STOMP 1.2 frame codec and listener that serves the channels marked served to outside clients; see [Served channels (STOMP)](#served-channels-stomp) |
 | `flows/definition` | Internal flow model (`Flow`, `Node`, `ErrorHandler`), independent of any DSL |
 | `flows/impl`       | Parses DIL JSON, validates links, builds the flow model                  |
+| `internal/dilsyntax` | DIL text (`.dil`): lexer, parser, lowering to DIL JSON and the printer back to text; see [docs/dil-language.md](docs/dil-language.md) |
+| `internal/flowcheck` | Static checks of a flow: infers the message type on every link from the effects of the steps and reports diagnostics; see [Static flow checking](#static-flow-checking) |
+| `internal/policy`  | Grants of capabilities: parses them, matches a capability against them and checks a program's capability manifest; see [Capabilities and permissions](#capabilities-and-permissions) |
 | `engine`           | `Run` takes one message through a flow, with redelivery and the error route; `Runner` holds the lifecycle; `Engine` is the registry of flows by id |
 | `api`              | Public entry point: `api.Load(path, onResult)` returns a `Flow` with lifecycle methods and `Send`; `api.NewEngine()` manages several flows; `api.RegisterStep` adds steps |
 | `cli`, `cmd/dif`   | `dif` opens the interactive shell with `load`, `run`, `send`, `log`, `list`/`ps`, `stats`, `catalog` and lifecycle commands on stdin; one log file per flow |
@@ -1235,11 +1775,12 @@ steps plug in through the registry without touching the engine.
   outbound link, `rule` (its role, such as `wiretap` or `split`), `language`
   and `expression` (its condition), are kept in the flow model (`Node.Links`)
   and given to the router; `pattern` is ignored.
-- The `error` step (`failedexchange`, at most one per flow) becomes the flow's
-  error handler: its options `maximumRedeliveries` and `redeliveryDelay` (or
-  `redeliveryAttempts` and `redeliveryInterval`, used when the first are
-  absent) set the redelivery, and its outbound link, if any, starts the error
-  route. It has no inbound link.
+- An `error` step (`failedexchange`) becomes an error handler of the flow, at
+  most one that takes every error but any number that take particular ones (see
+  [Error handlers by error](#error-handlers-by-error)): its options
+  `maximumRedeliveries` and `redeliveryDelay` (or `redeliveryAttempts` and
+  `redeliveryInterval`, used when the first are absent) set the redelivery,
+  and its outbound link, if any, starts the error route. It has no inbound link.
 - DIL exports some steps with the URI `unknown`; the parser names them by an
   option only that step has: `deadLetterQueue` makes it `deadletter`,
   `targetFlowId` a `flowlink` step, and `transport` on a source a `flowlink`
@@ -1248,6 +1789,259 @@ steps plug in through the registry without touching the engine.
   `worksheet` `exceltoxml`; both get the list as JSON text, since step options
   are scalar. An `unknown` action with no options at all is `formtoxml`. Other
   `unknown` steps stay unknown and are rejected.
+
+## Static flow checking
+
+`validate` (in the shell, and `dif validate`) also checks every flow statically,
+before anything runs (`internal/flowcheck`). It walks the flow's graph from the
+source and works out, for every link, what is known about the message there: the
+family of its body (JSON, XML, CSV, text or binary), its named format
+(`dil.core.formats`), the media type of its `Content-Type` header, and which
+headers are set or may be set (names are not told apart by case, as in the
+simple language). It then checks that against what each step needs.
+
+Typing is gradual and never wrong. A step whose effect is not known makes the
+message unknown from there on, and unknown produces nothing. An **error** means
+that every message that reaches the step fails there; anything less certain is a
+**warning**. A flow with errors fails validation (exit code 1); warnings fail it
+only with `--strict`. Loading and running a flow are never blocked by them.
+
+| Code | Severity | Reported when |
+|---|---|---|
+| `body-mismatch` | error | A step needs a JSON body and gets one known to be XML or binary, or needs XML and gets JSON or binary: `xmltojson` then `xslt`, `jsontoxml` then `jsonvalidator`, a mapper or `service:` call whose input format is JSON after a step that makes XML. The converters, `validate`, `jsonvalidator`, `xslt`, `schematron`, `mapper` and `service` calls are checked |
+| `body-mismatch` | warning | The same, where the step may still work (a CSV body where JSON is needed), or where it does not fail but cannot do anything useful (`xmlvalidator` reports a body that is no XML as invalid) |
+| `content-type-mismatch` | error | A mapper or `service:` call checks `Content-Type`, and a step before it set it to another media type (`xmltocsv` sets `text/csv`, the map needs `text/plain`) |
+| `format-mismatch` | warning | A mapper or `service:` call expects a named format and the body has another of the same family; they may be compatible |
+| `header-not-set` | warning | A simple expression (in a step's options or a router's link condition) reads `${header.x}` (`headers.x`, `header:x`, `header[x]` alike), the flow's source makes its messages itself or is bound to a service contract, and no step on the way there sets `x`. A header a few edits away that is set is suggested: `did you mean "orderId"?` |
+| `no-otherwise` | warning | Every outbound link of a `content` router has a condition, so a message none of them holds for stops there |
+| `unreachable` | warning | Steps follow a `wastebin`, which stops every message |
+| `handler-matches-nothing` | warning | The `errorStep` of an error handler matches no step id of its flow, or its `errorUri` the scheme of no step |
+| `handler-shadowed` | warning | An error handler has the same match options as one before it, which is always chosen first |
+| `reply-mismatch` | error or warning | A flow bound to an `InOut` service contract with an `output` format is one chain of steps to its end (no router, no `return` or `setoneway`), and its body there is known to be of another family or `Content-Type` than the output format |
+
+What the checks know about a flow's messages:
+
+- Sources that make the message themselves (`timer`, `repeater`, `counter`,
+  `quartz`, `file`, `ftp`, `ftps`, `sftp`, `smb`, `googledrive`) set only the
+  headers they document. A message sent to the flow by hand (`send`) may also
+  carry the headers of the flow's configured message. Sources whose sender
+  decides the message (`https`, `rest`, `queue`, `flowlink`, `topic`, `message`,
+  ...) are open: nothing is known about their headers, so `header-not-set` is
+  not reported there.
+- A flow bound to a service contract gets messages of the contract's input
+  format, with the declared input headers (required or with a default: set;
+  others: may be set). The contract lets other headers pass; the checks take the
+  contract as the flow's interface and treat them as absent, which is why
+  reading one is a warning, never an error.
+- Headers the engine provides are never reported: `Message-Id`,
+  `Correlation-Id`, `Causation-Id`, the request headers (`Reply-To`, ...),
+  `metadata.*` and `error.*`. An error route starts from an unknown message.
+- `split` sets `split.index`, `split.size` and `split.complete` only on its
+  `split` link; a loop's link has `loop.index` (and `loop.size`), and nothing
+  else is known on it, since a round gets what the round before made.
+
+```text
+> validate orders.json
+orders.json: invalid: the static checks found 1 error, 2 warnings
+  error body-mismatch: flow orders, step check: validate needs a JSON body, but the body is XML here (from step to-xml)
+  warning header-not-set: flow orders, step route: content reads header "ordrId", which no step before it sets; did you mean "orderId"?
+  warning no-otherwise: flow orders, step route: every outbound link has a condition, so a message none of them holds for stops here; add a link without a condition
+Error: the static checks found errors
+```
+
+With `--output json` every input has its `diagnostics` (`flow`, `step`,
+`severity`, `code`, `message`); `api.Inspect` and `api.InspectProgram` return
+them in `FlowInfo.Diagnostics` and `ProgramInfo.Diagnostics`, and `describe
+--output json` shows them too.
+
+What a step does to a message is data next to its registration
+(`steps/impl/effects.go`): the `Effect` of its `stepdef.Definition`, a function
+of its validated options that returns a `stepdef.Effect` (the body it needs and
+makes, the headers it reads, sets or may set, its effect per outbound link, and
+whether it stops the message). A step declares only what its implementation
+guarantees. A custom step registered with `api.RegisterStep` without an `Effect`
+is unknown to the checks; to take part, it sets one:
+
+```go
+api.RegisterStep(api.StepDefinition{
+	Name: "upper", Kind: "action", Schema: schema, New: newUpper,
+	Effect: func(p stepdef.Params) *stepdef.Effect {
+		// Changes the body, keeps the headers and sets one.
+		return &stepdef.Effect{Headers: stepdef.HeadersKeep, Sets: []string{"upper.done"}}
+	},
+})
+```
+
+Mappers and `service:` steps take their effect from the core map or service they
+are bound to.
+
+## Capabilities and permissions
+
+DIF has no general scripting language: everything a program does outside its
+own process happens in a step. So what a program can touch outside the process
+can be listed before it runs. Every built-in step declares, from its validated
+options, the outside resources it can touch: its **capabilities**. Those of all
+steps of a program, per flow and step, are its **manifest**. A **policy** grants
+capabilities: given one, `dif validate` reports what it does not grant, `dif run`
+refuses to start such a program, and a target that is known only per message is
+checked when the step is about to touch it.
+
+| Kind | Target | Declared by |
+|---|---|---|
+| `net.connect` | `host:port` | `https`, `rest`, `graphql`, `soap`, `as2` (and the addresses of its keys), `smtp`, `smtps`, `imaps`, `ftp`, `ftps`, `sftp`, `smb` (sources, sinks and enrichers), `sql`, `sql2`, `googledrive`, `oauth2token` |
+| `net.listen` | `address:port`; `0.0.0.0` for all interfaces | the `https`, `rest` and `as2` sources |
+| `fs.read` | a path | the `file` source, `fileenrich`, the file of `xslt`, `velocity`, `xmlvalidator`, `schematron` (`path`) and `validate` (`schemaFile`), keystores (`trustStoreFile`, `serverIdentityFile`), the private key and known hosts of `sftp`, the key files of `as2` |
+| `fs.write` | a path | the `file` source (it moves or deletes what it consumed), the `file` sink, `fileenrich` with `delete` |
+| `env` | a variable name | the password fallbacks: `DIF_SMTP_PASSWORD`, `DIF_IMAPS_PASSWORD`, `DIF_SQL_PASSWORD`, `DIF_FTP_PASSWORD` (and `FTPS`, `SFTP`, `SMB`), `DIF_SFTP_PRIVATE_KEY_PASSPHRASE`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SERVER_IDENTITY_PASSWORD`, and the `DIF_OAUTH2_*` settings of `oauth2token` |
+
+The other steps (converters, routers, `log`, `queue`, `topic`, `flowlink`,
+`service`, tenant variables, ...) touch nothing outside the process and declare
+none. A step declares what its code can do, not what it usually does: it
+declares a variable when it reads it for want of the option, and a trust store
+when one is set (`trustStoreFile` defaults to `security/outbound-truststore.p12`;
+`""` uses the system's roots). Default ports are filled in: 443 for https, 80 for
+http, 21 for ftp and ftps (990 implicit), 22 for sftp, 445 for smb, 993 for
+imaps, 587 for smtp and 465 for smtps when the address has none, and 5432, 3306,
+1433 and 1521 for postgres, mysql, sql server and oracle. A step that takes its
+server from a typed connection (`dil.core.connections`) declares the
+connection's host. Flows of imported documents are part of the manifest.
+
+A target that is known only when a message arrives is **dynamic**: the address
+of an `https` action with `${...}` in its host, the `host` and `port` of `sql`,
+which are templates, the token endpoint of `oauth2token` when it comes from the
+environment, and any encrypted address or path (`ENC(...)`). It is shown with
+its placeholders, or as `*` when nothing of it is known, and marked `(dynamic)`.
+
+`describe` shows the manifest, one line per capability (in JSON on each step, as
+`capabilities` with `kind`, `target` and `dynamic`):
+
+```text
+> describe testdata/examples/permissions.json
+...
+CAPABILITIES (outside the process):
+  in: fs.read inbox
+  in: fs.write inbox
+  post: net.connect api.example.com:443
+  out: fs.write outbox
+```
+
+The manifest names hosts, ports, paths and variable names; never userinfo,
+queries or other option values.
+
+### Policy
+
+A policy is given to `dif run` and `dif validate` in the service configuration,
+as `permissions`, a list of grants per kind, and with flags:
+
+```json
+"permissions": {
+  "net.connect": ["api.example.com:443", "*.internal.example:5432"],
+  "net.listen": ["127.0.0.1:9002"],
+  "fs.read": ["inbox"],
+  "fs.write": ["outbox"],
+  "env": ["DIF_SMTP_PASSWORD"]
+}
+```
+
+| Flag | Grants |
+|---|---|
+| `--sandbox` | nothing: everything not granted is denied (an empty `permissions`) |
+| `--allow-net host:port` | `net.connect` |
+| `--allow-listen address:port` | `net.listen` |
+| `--allow-fs-read path` | `fs.read` |
+| `--allow-fs-write path` | `fs.write` |
+| `--allow-env NAME` | `env` |
+
+The `--allow-*` flags are repeatable, imply `--sandbox` and add to the grants of
+the configuration. `permissions` (even `{}`) or one of the flags denies
+everything not granted; without them nothing is enforced and DIF behaves as it
+did before. An unknown kind or a malformed grant is an error of the options.
+
+How a grant matches:
+
+- `net.connect`, `net.listen`: `host:port`. `*` as the port is any port, a host
+  `*.example.com` covers its subdomains (not `example.com` itself), and `*`
+  alone covers everything. Host names compare without regard to case and are
+  never resolved: an IP address must be granted as it is written, and a grant of
+  a name says nothing about where DNS points it.
+- `fs.read`, `fs.write`: a file or directory, which covers itself and everything
+  under it. Both sides are made absolute (relative to the working directory) and
+  cleaned, lexically, so `outbox/../secret` is not under `outbox`; symbolic links
+  are not followed. On Windows case does not count. `fs.write` does not imply
+  `fs.read`.
+- `env`: a variable name; it also covers its `_FILE` companion, which names the
+  file a secret is read from (that file is the operator's). `*` grants every
+  variable, as `*` alone grants everything of any kind.
+
+### Enforcement
+
+When the program loads, each capability is checked: `dif validate` reports one
+that is not granted as an error with the code `not-permitted`, naming the flow,
+the step, the kind and the target, in text and JSON, and `dif run` refuses to
+start with the same messages. A step that declares no capabilities (a custom
+step without them) is refused too. A dynamic target passes this check when its
+kind has at least one grant; it is checked when the step runs.
+
+```text
+$ dif validate testdata/examples/permissions.json --allow-net api.example.com:443 --allow-fs-read inbox
+testdata/examples/permissions.json: invalid: the static checks found 2 errors
+  error not-permitted: flow permissions, step in: fs.write inbox is not granted
+  error not-permitted: flow permissions, step out: fs.write outbox is not granted
+Error: the static checks found errors
+$ dif validate --config testdata/reliable/permissions.json
+testdata/examples/permissions.json: valid (structure and option schemas)
+```
+
+When the flows run, a guard (the policy, which the service puts in the context
+the flows are started with) is asked right before a step touches a target, with
+the target it resolved: the HTTP steps for each request and each redirect they
+follow, `ftp`, `ftps`, `sftp`, `smb`, `smtp`, `imaps` and `sql` when they
+connect, the `https`, `rest` and `as2` sources before they listen, the `file`
+source and `fileenrich` on their directory, and the `file` sink for each file it
+writes, whose name comes from a header and may lead out of its directory. A
+refusal is an ordinary step error, `net.connect evil.example:443 is not
+permitted by the policy`, of the class `*definition.CapabilityError`: it goes
+down the flow's error route like any other, and an error handler can take it
+with `errorClass`. Without a policy the guard is one context lookup and
+changes nothing.
+
+In Go: `api.NewPolicy(grants)` makes a policy, `Runtime.SetPolicy` makes
+`PreparedProgram.Load` (and `Runtime.LoadBytes`) refuse what it does not grant,
+`api.WithPolicy(ctx, p)` is the context to start the flows with, and
+`ProgramInfo.CheckPolicy` adds the `not-permitted` diagnostics to a program's
+description. The manifest is in `NodeInfo.Capabilities`. A custom step declares
+its capabilities in its definition; without `Capabilities` it is refused under a
+policy, and a function that returns none declares that it touches nothing:
+
+```go
+api.RegisterStep(api.StepDefinition{
+	Name: "archive", Kind: "sink", Schema: schema, New: newArchive,
+	Capabilities: func(p stepdef.Params) []stepdef.Capability {
+		dir, _ := p["path"].(string)
+		return []stepdef.Capability{{Kind: stepdef.FSWrite, Target: dir}}
+	},
+})
+```
+
+### Limits
+
+This is a model of declared capabilities, not an operating-system sandbox. It
+holds as long as the steps do what they declare: the built-in steps are written
+to, and a custom step is trusted to its declaration. Nothing in it stops Go code
+from opening a file it did not declare; for that, run DIF in a container or
+under an account with only the access it needs.
+
+What the service's operator configures is not part of a program's manifest and
+is not checked: the monitoring listener, the channel directory (durable queues
+and stores, and idempotency keys), the STOMP listener with its passcode and identity, the
+`--url` inputs, `DIF_ENCRYPTION_PASSWORD` (which decrypts `ENC(...)` values), the
+flow logs of the shell, and the file a `_FILE` variable names. The passive data
+connections of `ftp` and `ftps` go to the server's host on a port the server
+chooses; the grant of the server covers them. A file a step reads when it is
+built (a keystore, a stylesheet, a schema, a key) from an encrypted path is
+checked against its kind only, since its path is known only then. The policy
+applies to programs loaded by `dif run` and through `Runtime`; the interactive
+shell does not take one.
 
 ## Tests
 
@@ -1263,12 +2057,49 @@ See [test/README.md](test/README.md).
 - More steps (`pdftotext`, `headerstopdf`, `edifacttoxml`, the AI and `jolt`/`jslt`/`jsonata` family, `awss3`, `restopenapi`); multiple flows per file
 - Message definitions for `xmltoedifact` (EDIFACT directories such as d96a),
   to restore the positions of omitted elements, and a matching EDIFACT to XML
-- Persisted tenant variables (the seam is `tenantStore`) and cookies
+- Persisted cookies
 - A CLI command to inspect/replay durable queues and parked dead letters
-- Aggregation by correlation key (the aggregate has one group), and groups
-  that survive a restart
 - More expression languages and simple-language functions (`${exchangeId}`, …)
-- More error handling: exponential backoff, retrying only some errors, keeping the original message
+- More error handling: keeping the original message, and error routes shared by several flows
 - Concurrent message execution within a flow (processors are already safe for it)
 - A separate engine process with a network API for clients
-- Persistence for other processor state beyond durable queues and idempotency keys
+- Persistence for other processor state beyond durable queues, idempotency keys and stores
+
+## Typed functions and reusable actions
+
+DIL core supports scoped typed functions in `functions.function`, callable from
+Simple and difmap/1, and parameterized single-action definitions in
+`processors.processor`. Functions retain exact numbers and imported private scopes;
+processor arguments bind before action construction. See the
+[language reference](docs/functions-language.md) and
+[runnable examples](api/testdata/functions/README.md).
+
+## Typed connections
+
+A typed connection in `dil.core.connections` describes a server once, with its address,
+`authentication` and `tls`, and steps refer to it with the option `connection`
+(`"partnerSftp"`, or `"common:partnerSftp"` from an import). The types are `https`, `sftp`,
+`ftps`, `smb`, `smtp`, `imaps`, `sql` and `as2`. Their fields are checked when the document
+loads. Options the step sets itself win, and the step's `path` is relative to the
+connection's address. Connections with `keys`, as the Java platform exports them, are read as
+before. See the [language reference](docs/connections.md) and the
+[example](api/testdata/connections/README.md).
+
+## First-class service contracts
+
+Declare named capabilities in `dil.core.services.service` with `exchangePattern` (`InOut` or
+`InOnly`), `dil.core.formats` contracts for `input`, `output`, and structured `error` faults
+(including `text/plain` alongside JSON, XML, and CSV), and typed `inputHeaders` and
+`outputHeaders` (`string`, `number`, `boolean`, `array`, `object`, `any`, nullable `?`,
+`required`, and `default`).
+
+Implement and invoke internal capabilities with `service:<name>` (or `service:<namespace>:<name>`
+across `dil.imports`, resolved by canonical defining document so a single provider serves all
+import aliases), or bind external transport flows (`https`, `rest`, `queue`, `message`) with
+`flow.options.service`. Runtime gates validate inputs, normal replies, and explicit
+`return(status=error)` fault payloads (`*ContractError` and `*FaultError`), mapping input
+contract breaches to HTTP `400` and structured faults to HTTP `500` on `https`/`rest` and
+exposing `error.body` and `error.contentType` to internal callers' error routes. See the
+[language reference](docs/service-contracts.md) and
+[runnable example](api/testdata/services/README.md).
+

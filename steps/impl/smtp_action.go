@@ -121,6 +121,9 @@ func (a smtpAction) Process(ctx context.Context, m message.Message) (message.Mes
 
 // send delivers data to the recipients, over TLS.
 func (a smtpAction) send(ctx context.Context, data []byte) error {
+	if err := stepdef.Permit(ctx, stepdef.NetConnect, a.addr); err != nil {
+		return err
+	}
 	d := net.Dialer{Timeout: a.timeout}
 	var conn net.Conn
 	var err error

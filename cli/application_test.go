@@ -9,6 +9,114 @@ import (
 	"testing"
 )
 
+func TestProgramCommands(t *testing.T) {
+	path := "../api/testdata/program/orders.json"
+	for _, args := range [][]string{
+		{"validate", path},
+		{"validate", "--dir=../api/testdata/program"},
+		{"describe", path, "--output=json"},
+		{"validate", "../api/testdata/program/common.json"},
+	} {
+		var out, diagnostic bytes.Buffer
+		if code := Run(args, nil, &out, &diagnostic); code != 0 {
+			t.Fatalf("%v: %d: %s", args, code, diagnostic.String())
+		}
+		if args[0] == "describe" {
+			var info struct {
+				Documents []any `json:"documents"`
+				Flows     []any `json:"flows"`
+			}
+			if err := json.Unmarshal(out.Bytes(), &info); err != nil || len(info.Flows) != 4 || len(info.Documents) != 3 {
+				t.Fatalf("group description: %s (%v)", out.String(), err)
+			}
+		}
+	}
+	useLogDir(t)
+	var out, diagnostic bytes.Buffer
+	input := "run " + path + "\nrequest program-orders\nrequest program-ping\nexit\n"
+	if code := Run(nil, strings.NewReader(input), &out, &diagnostic); code != 0 {
+		t.Fatalf("shell: %d: %s", code, diagnostic.String())
+	}
+	for _, want := range []string{"reply from flow program-orders:", `"origin":"shared-core"`, `"body":"pong"`} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("missing %s in %s", want, out.String())
+		}
+	}
+	if strings.Contains(out.String(), "Error:") {
+		t.Fatal(out.String())
+	}
+}
+
+func TestMappingCommands(t *testing.T) {
+	path := "../api/testdata/mapping/orders.json"
+	for _, args := range [][]string{{"validate", path}, {"validate", "--dir=../api/testdata/mapping"}, {"describe", path}, {"describe", path, "--output=json"}} {
+		var out, diagnostic bytes.Buffer
+		if code := Run(args, nil, &out, &diagnostic); code != 0 {
+			t.Fatalf("%v: %s", args, diagnostic.String())
+		}
+		if args[0] == "describe" && (!strings.Contains(out.String(), "NormalizeOrder") || strings.Contains(out.String(), "trim(")) {
+			t.Fatalf("mapping description: %s", out.String())
+		}
+	}
+	useLogDir(t)
+	var out, diagnostic bytes.Buffer
+	input := "run " + path + "\nrequest map-order\nrequest map-csv\nexit\n"
+	if code := Run(nil, strings.NewReader(input), &out, &diagnostic); code != 0 || strings.Contains(out.String(), "Error:") {
+		t.Fatalf("mapping shell: %s %s", out.String(), diagnostic.String())
+	}
+	for _, want := range []string{"reply from flow map-order:", "9007199254740993", "reply from flow map-csv:", "text/csv"} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("missing %s: %s", want, out.String())
+		}
+	}
+}
+
+func TestServiceCommands(t *testing.T) {
+	path := "../api/testdata/services/orders.json"
+	contracts := "../api/testdata/services/contracts.json"
+	for _, args := range [][]string{
+		{"validate", path},
+		{"validate", contracts},
+		{"validate", "--dir=../api/testdata/services"},
+		{"describe", path},
+		{"describe", path, "--output=json"},
+	} {
+		var out, diagnostic bytes.Buffer
+		if code := Run(args, nil, &out, &diagnostic); code != 0 {
+			t.Fatalf("%v: %s", args, diagnostic.String())
+		}
+		if args[0] == "describe" && len(args) == 2 {
+			text := out.String()
+			for _, want := range []string{
+				"SERVICE: PlaceOrder (InOut); OrderIn -> OrderOut",
+				"SERVICE: RecordAudit (InOnly); AuditNote -> none",
+				"REFERENCE: service orders:PlaceOrder (step: place-order)",
+				"REFERENCE: service contracts:PlaceOrder (step: in)",
+			} {
+				if !strings.Contains(text, want) {
+					t.Fatalf("missing %q in describe:\n%s", want, text)
+				}
+			}
+		}
+		if args[0] == "describe" && len(args) == 3 {
+			if strings.Contains(out.String(), "OUT_OF_STOCK") {
+				t.Fatalf("describe leaked expression literal:\n%s", out.String())
+			}
+		}
+	}
+	useLogDir(t)
+	var out, diagnostic bytes.Buffer
+	input := "run " + path + "\nrequest submit-order\nrequest submit-out-of-stock\nexit\n"
+	if code := Run(nil, strings.NewReader(input), &out, &diagnostic); code != 0 || strings.Contains(out.String(), "Error:") {
+		t.Fatalf("service shell: %s %s", out.String(), diagnostic.String())
+	}
+	for _, want := range []string{"reply from flow submit-order:", "ORD-BOOK-1", "ACCEPTED", "reply from flow submit-out-of-stock:", "OUT_OF_STOCK"} {
+		if !strings.Contains(out.String(), want) {
+			t.Fatalf("missing %s: %s", want, out.String())
+		}
+	}
+}
+
 func TestExecutableHelpAndCommands(t *testing.T) {
 	for _, name := range []string{"help", "--help", "-h"} {
 		var out, diagnostic bytes.Buffer

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dif:step:service-action",
+  "title": "service action",
+  "description": "Invokes a named dil.core service contract: service:<name> or service:<namespace>:<name>.",
+  "type": "object",
+  "properties": {
+    "delivery": {
+      "description": "processed waits for the provider; enqueue buffers on InOnly services",
+      "type": "string",
+      "enum": [
+        "processed",
+        "enqueue"
+      ],
+      "default": "processed"
+    },
+    "requestTimeout": {
+      "title": "Request timeout",
+      "description": "Milliseconds to wait for the service provider",
+      "type": "integer",
+      "minimum": 1,
+      "default": 20000
+    },
+    "requestTimout": {
+      "title": "Request timeout (misspelled)",
+      "description": "Same as requestTimeout, as the designer writes it; it wins when both are set",
+      "type": "integer",
+      "minimum": 1
+    },
+    "overflow": {
+      "description": "Admission policy when the service channel is full",
+      "default": "fail",
+      "type": "string",
+      "enum": [
+        "fail",
+        "block"
+      ]
+    },
+    "enqueueTimeout": {
+      "minimum": 0,
+      "description": "Admission timeout in milliseconds; positive value required with overflow block",
+      "default": 0,
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}

@@ -2,10 +2,7 @@
 package api
 
 import (
-	"os"
-
 	"dif/engine"
-	flowimpl "dif/flows/impl"
 	"dif/message"
 	stepdef "dif/steps/definition"
 	stepimpl "dif/steps/impl"
@@ -62,9 +59,9 @@ type Flow struct {
 // Load reads a DIL flow from path and builds it. Every step's options are
 // validated against its schema; a flow with an unknown or invalid step is
 // not loaded. The flow is Stopped until Start is called; onResult is called
-// for every message it processes.
+// for every message it processes. A .dil file is DIL text (docs/dil-language.md).
 func Load(path string, onResult func(*Result, error)) (*Flow, error) {
-	data, err := os.ReadFile(path)
+	data, err := readDocument(path)
 	if err != nil {
 		return nil, err
 	}
@@ -74,10 +71,12 @@ func Load(path string, onResult func(*Result, error)) (*Flow, error) {
 
 // LoadBytes builds a flow from an already resolved document. Relative resource
 // paths retain their existing meaning: relative to the process working directory.
+// The document is DIL JSON, or DIL text when it is not JSON and starts with a
+// comment or a word.
 func LoadBytes(data []byte, onResult func(*Result, error)) (*Flow, error) {
-	f, err := flowimpl.Parse(data, steps.Processor)
+	f, err := parseFlow(data, steps.Processor)
 	if err != nil {
 		return nil, err
 	}
-	return &Flow{Runner: engine.NewRunner(f, onResult)}, nil
+	return newFlow(f, onResult, defaultEvents), nil
 }

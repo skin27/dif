@@ -1,0 +1,190 @@
+{
+  "dil": {
+    "imports": {
+      "import": {
+        "path": "common.json",
+        "namespace": "common"
+      }
+    },
+    "core": {
+      "messages": {
+        "message": {
+          "name": "order",
+          "body": "{\"order\":\"A-1\"}"
+        }
+      }
+    },
+    "integrations": {
+      "integration": {
+        "id": "connection-examples",
+        "flows": {
+          "flow": [
+            {
+              "id": "connection-upload",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "upload",
+                    "type": "action",
+                    "uri": "sftpenrich:/outbox",
+                    "options": {
+                      "connection": "common:partnerSftp",
+                      "fileName": "order.json"
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "connection-api",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "post",
+                    "type": "action",
+                    "uri": "https:/orders",
+                    "options": {
+                      "connection": "common:partnerApi",
+                      "httpMethod": "POST",
+                      "socketTimeout": 10000
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "connection-db",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "query",
+                    "type": "action",
+                    "uri": "sql2",
+                    "options": {
+                      "dataSource": "common:ordersDb",
+                      "query": "select count(*) from orders"
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

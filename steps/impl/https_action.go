@@ -122,7 +122,29 @@ func httpsClient(p stepdef.Params) (*http.Client, error) {
 		transport.DialContext = (&net.Dialer{Timeout: time.Duration(ms) * time.Millisecond, KeepAlive: 30 * time.Second}).DialContext
 	}
 	transport.TLSClientConfig = &tls.Config{RootCAs: pool, MinVersion: tls.VersionTLS12}
-	return &http.Client{Transport: transport, Timeout: time.Duration(p["socketTimeout"].(int)) * time.Millisecond}, nil
+	return &http.Client{Transport: guardedTransport{transport}, Timeout: time.Duration(p["socketTimeout"].(int)) * time.Millisecond}, nil
+}
+
+// guardedTransport asks the capability guard of a request's context whether
+// it may connect to the request's host and port before it sends it, also for
+// each redirect the client follows.
+type guardedTransport struct{ http.RoundTripper }
+
+func (t guardedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	port := req.URL.Port()
+	if port == "" {
+		port = "443"
+		if req.URL.Scheme == "http" {
+			port = "80"
+		}
+	}
+	if err := stepdef.Permit(req.Context(), stepdef.NetConnect, net.JoinHostPort(req.URL.Hostname(), port)); err != nil {
+		if req.Body != nil {
+			req.Body.Close()
+		}
+		return nil, err
+	}
+	return t.RoundTripper.RoundTrip(req)
 }
 
 // outboundRoots returns the certificates a step trusts for the servers it calls:
@@ -154,7 +176,7 @@ func (a httpsAction) Process(ctx context.Context, m message.Message) (message.Me
 	}
 	target := a.url
 	if a.dynamicURL != nil {
-		v, err := a.dynamicURL.eval(m)
+		v, err := a.dynamicURL.eval(m, ctx)
 		if err != nil {
 			return nil, err
 		}

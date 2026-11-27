@@ -74,6 +74,9 @@ func (s fileSource) Run(ctx context.Context, emit stepdef.Emit) error {
 }
 
 func (s fileSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	if err := s.permit(ctx, true); err != nil {
+		return err
+	}
 	if s.autoCreate {
 		if err := os.MkdirAll(s.dir, 0o755); err != nil {
 			return err
@@ -115,6 +118,15 @@ func (s fileSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func(
 			}
 		}
 	}
+}
+
+// permit asks the capability guard of ctx whether the source may read its
+// directory and, with write, change it.
+func (s fileSource) permit(ctx context.Context, write bool) error {
+	if err := stepdef.Permit(ctx, stepdef.FSRead, s.dir); err != nil || !write {
+		return err
+	}
+	return stepdef.Permit(ctx, stepdef.FSWrite, s.dir)
 }
 
 // list returns the paths, relative to dir, of the files to consume, sorted.

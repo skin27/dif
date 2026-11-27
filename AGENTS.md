@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-DIF is a Go integration framework that stays close to the standard library (see [Dependencies](#dependencies)). `cmd/dif/` contains the executable; `cli/` implements interactive commands; `api/` exposes the public API. `engine/` runs flows and manages lifecycle, while `message/` defines messages. `flows/definition/` holds the internal flow model and `flows/impl/` parses and builds DIL JSON flows. Keep the engine independent of DIL.
+DIF is a Go integration framework that stays close to the standard library (see [Dependencies](#dependencies)). `cmd/dif/` contains the executable; `cli/` implements interactive commands; `api/` exposes the public API. `engine/` runs flows and manages lifecycle, while `message/` defines messages. `flows/definition/` holds the internal flow model and `flows/impl/` parses and builds DIL JSON flows. `internal/dilsyntax/` is DIL text (`.dil` files): it parses text and lowers it to DIL JSON, so everything after it reads one model. `internal/flowcheck/` checks flows statically from the effects steps declare (`steps/impl/effects.go`); give a new built-in step an effect only for what its code guarantees. `internal/stomp/` is the STOMP 1.2 listener that serves the channels a service configuration marks `served`; like `internal/channels/`, it depends on neither the engine, the processor contracts nor DIL. `internal/policy/` checks a program's capability manifest, what the steps declare in `steps/impl/capabilities.go` (addresses, files and environment variables they can touch), against the grants of a policy; it depends on neither the engine, the steps' implementation nor DIL. Keep the engine independent of DIL.
 
 `steps/definition/` defines processor contracts, `steps/registry/` registers and validates steps, and `steps/impl/` contains built-in processors and embedded schemas. `keystore/` handles PKCS#12 files. Unit tests live beside source files as `*_test.go`; tests that use only the exported API of a package live in `test/<package>/`, and `test/dil/` builds every DIL flow in `testdata/` (see `test/README.md`). Fixtures live in `testdata/`: `hello.json` and `timer.json`, `examples/` (example flows), `regression/` (flows of real use cases), `reliable/` (the reliable-channel service example), and `parse/` (flows that only the parser tests read). `internal/sanitize/` replaces credentials in the fixtures, and `cmd/sanitize/` runs it. `steps/` also contains legacy designer assets and documentation.
 
@@ -41,7 +41,7 @@ During implementation:
 
 Format changed Go files with `gofmt`; use its tab indentation and standard Go naming conventions. Keep package names lowercase, exported identifiers in PascalCase, and implementation files descriptive, such as `file_source.go`. Use the standard library; the only dependencies are those of the SFTP client, so adding another needs approval. Keep processors pluggable without engine changes.
 
-For new built-in steps, add a schema at `steps/impl/schemas/<name>-<kind>.json` and register the processor in `steps/impl/builtin.go`. Keep option descriptions short and defaults consistent with implementation.
+For new built-in steps, add a schema at `steps/impl/schemas/<name>-<kind>.json` and register the processor in `steps/impl/builtin.go`. A new step must declare its capabilities in `steps/impl/capabilities.go`, everything its code can touch outside the process (`none` if nothing), and ask the guard (`stepdef.Permit`) before it touches a target known only per message; `Register` refuses a step without a declaration. Keep option descriptions short and defaults consistent with implementation.
 
 ## Dependencies
 
@@ -65,4 +65,4 @@ Recent commits use short imperative subjects, such as “Add the flowlink source
 
 ## Security & Configuration
 
-Keep local keystores and credentials out of commits. Before committing new fixtures, run `go run ./cmd/sanitize`, which replaces credentials with dummies (`go test ./test/dil` fails while a fixture holds one). `security/`, runtime `logs/`, and `dif.exe` are ignored. Use the documented `DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` environment variables for local secrets.
+Keep local keystores and credentials out of commits. Before committing new fixtures, run `go run ./cmd/sanitize`, which replaces credentials with dummies (`go test ./test/dil` fails while a fixture holds one). `security/`, runtime `logs/`, and `dif.exe` are ignored. Use the documented `DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, `DIF_STOMP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` environment variables for local secrets.

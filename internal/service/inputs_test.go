@@ -22,6 +22,53 @@ func options(t *testing.T, args ...string) Options {
 	return o
 }
 
+func TestResolveProgramFileAndDirectory(t *testing.T) {
+	for _, args := range [][]string{
+		{"--file=../../api/testdata/program/orders.json"},
+		{"--dir=../../api/testdata/program"},
+	} {
+		docs, err := Resolve(context.Background(), options(t, args...))
+		if err != nil {
+			t.Fatal(err)
+		}
+		p := docs[0].Program
+		info := p.Info()
+		if len(info.Documents) != 3 || len(info.Flows) != 4 {
+			t.Fatalf("%v: got %d documents and %d flows", args, len(info.Documents), len(info.Flows))
+		}
+		for _, doc := range docs {
+			if doc.Program != p {
+				t.Fatal("roots must share the same prepared group")
+			}
+		}
+		loaded, err := p.Load(context.Background(), nil, nil, nil)
+		if err != nil || len(loaded.Flows) != 4 {
+			t.Fatalf("load service snapshot: %v", err)
+		}
+	}
+}
+
+func TestMappingServiceConfiguration(t *testing.T) {
+	path := "../../api/testdata/mapping/orders.json"
+	o := options(t, "--file", path)
+	docs, err := Resolve(context.Background(), o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(docs[0].Program.Info().Flows) != 2 {
+		t.Fatal("missing mapped flows")
+	}
+	config := filepath.Join(t.TempDir(), "service.json")
+	data := fmt.Sprintf(`{"files":[%q],"mappingLimits":{"sourceBytes":2}}`, path)
+	if err = os.WriteFile(config, []byte(data), 0600); err != nil {
+		t.Fatal(err)
+	}
+	o = options(t, "--config", config)
+	if _, err = Resolve(context.Background(), o); err == nil || !strings.Contains(err.Error(), "source size") {
+		t.Fatalf("host mapping limit: %v", err)
+	}
+}
+
 func TestOptionsPrecedenceAndStrictConfig(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "service.json")
 	os.WriteFile(path, []byte(`{"files":["config.json"],"shutdownTimeout":"3s","logFormat":"text"}`), 0600)

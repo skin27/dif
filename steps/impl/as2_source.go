@@ -106,6 +106,9 @@ func (s *as2Source) Run(ctx context.Context, emit stepdef.Emit) error {
 }
 
 func (s *as2Source) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	if err := stepdef.Permit(ctx, stepdef.NetListen, listenTarget(s.addr)); err != nil {
+		return err
+	}
 	ln, err := net.Listen("tcp", s.addr)
 	if err != nil {
 		return fmt.Errorf("as2: %w", err)

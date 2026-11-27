@@ -1,0 +1,15 @@
+# A visit counter that survives restarts. The store "visits" and the store of
+# the default tenant's variables are durable: their entries are kept in the
+# journal of the service's channels.directory (see stores-service.json).
+store visits { durable: true }
+store "tenant.default" { durable: true }
+
+flow visits(name: "Visit counter") {
+  timer:visit(repeatCount: 1)
+    -> store:visits(operation: "get", key: "count", headerName: "count", default: "0")
+    -> setheader(name: "count", value: "${header.count}++")
+    -> store:visits(operation: "put", key: "count", value: "${header.count}")
+    -> settenantvariable:lastVisit(value: "${header.count}")
+    -> setbody(language: "simple", expression: "visit ${header.count}")
+    -> log(showBody: true)
+}

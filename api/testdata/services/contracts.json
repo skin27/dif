@@ -1,0 +1,80 @@
+{
+  "dil": {
+    "core": {
+      "resources": {
+        "resource": [
+          {
+            "name": "OrderInSchema",
+            "content": "{\"type\":\"object\",\"required\":[\"sku\",\"quantity\"],\"additionalProperties\":false,\"properties\":{\"sku\":{\"type\":\"string\",\"minLength\":1},\"quantity\":{\"type\":\"integer\",\"minimum\":1}}}"
+          },
+          {
+            "name": "OrderOutSchema",
+            "content": "{\"type\":\"object\",\"required\":[\"orderId\",\"sku\",\"quantity\",\"priority\"],\"additionalProperties\":false,\"properties\":{\"orderId\":{\"type\":\"string\"},\"sku\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1},\"priority\":{\"type\":\"integer\",\"minimum\":1}}}"
+          },
+          {
+            "name": "OrderProblemSchema",
+            "content": "{\"type\":\"object\",\"required\":[\"code\",\"sku\"],\"additionalProperties\":false,\"properties\":{\"code\":{\"type\":\"string\"},\"sku\":{\"type\":\"string\"}}}"
+          }
+        ]
+      },
+      "formats": {
+        "format": [
+          {
+            "name": "OrderIn",
+            "mediaType": "application/json",
+            "schemaRef": "OrderInSchema"
+          },
+          {
+            "name": "OrderOut",
+            "mediaType": "application/json",
+            "schemaRef": "OrderOutSchema"
+          },
+          {
+            "name": "OrderProblem",
+            "mediaType": "application/json",
+            "schemaRef": "OrderProblemSchema"
+          },
+          {
+            "name": "AuditNote",
+            "mediaType": "text/plain"
+          }
+        ]
+      },
+      "services": {
+        "service": [
+          {
+            "name": "PlaceOrder",
+            "exchangePattern": "InOut",
+            "input": "OrderIn",
+            "output": "OrderOut",
+            "error": "OrderProblem",
+            "inputHeaders": [
+              {
+                "name": "Idempotency-Key",
+                "type": "string",
+                "required": true
+              },
+              {
+                "name": "priority",
+                "type": "number",
+                "default": 1
+              }
+            ],
+            "outputHeaders": [
+              {
+                "name": "Order-Status",
+                "type": "string",
+                "required": true
+              }
+            ]
+          },
+          {
+            "name": "RecordAudit",
+            "exchangePattern": "InOnly",
+            "input": "AuditNote"
+          }
+        ]
+      }
+    }
+  }
+}

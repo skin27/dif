@@ -377,7 +377,7 @@ func TestFlowsRunInTheBackground(t *testing.T) {
 	out := stdout.String()
 
 	for _, want := range []string{
-		"\nError: flow bad: step timer-source: timer: option period: want integer, got \"x\"\n",
+		"\nError: " + bad + ": integration \"\": flow bad: step timer-source: timer: option period: want integer, got [value omitted]\n",
 		"\nflow timer started (loaded from " + good + ")\n",
 		"> list\n\nFLOWS\n\nID      STATUS      COMPLETED   FAILED   UPTIME\n",
 		"\ntimer   ● STARTED           3        0   ",

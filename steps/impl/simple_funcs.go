@@ -32,6 +32,7 @@ var (
 
 func init() {
 	simpleFuncs = map[string]funcDef{
+		"function":            namedFunction,
 		"capitalize":          unary(func(s string) any { return capitalizeAll(s) }),
 		"uppercase":           unary(func(s string) any { return strings.ToUpper(s) }),
 		"lowercase":           unary(func(s string) any { return strings.ToLower(s) }),

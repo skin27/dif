@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 
 // env is what a compiled template reads when it runs.
 type env struct {
+	runtime *simpleRuntime
 	m       message.Message
 	body    any  // the body a chain (~>) hands to the next function
 	hasBody bool // body replaces the message's body
@@ -189,6 +191,10 @@ func argItems(s string, kids []*block) []item {
 // compiler compiles the templates of one expression.
 type compiler struct {
 	flow *flowProperties // what the flow knows about itself; nil when compiled without a flow
+
+	// reads, if not nil, collects the headers the expression reads, for the
+	// static checks of a flow (see headerReads).
+	reads *[][]string
 }
 
 // expression is a compiled template.
@@ -231,7 +237,7 @@ func compileValue(flow *flowProperties, language, expr string, asJSON bool) (exp
 			return expression{}, err
 		}
 		return expression{fn: func(e *env) (any, error) {
-			q, err := get(e.m)
+			q, err := get(e.m, e.runtime.ctx)
 			if err != nil {
 				return nil, err
 			}
@@ -243,7 +249,7 @@ func compileValue(flow *flowProperties, language, expr string, asJSON bool) (exp
 			return expression{}, err
 		}
 		return expression{fn: func(e *env) (any, error) {
-			p, err := get(e.m)
+			p, err := get(e.m, e.runtime.ctx)
 			if err != nil {
 				return nil, err
 			}
@@ -291,6 +297,9 @@ func compileTemplate(text string) (expression, error) {
 }
 
 func (c *compiler) compile(expr string) (expression, error) {
+	if err := c.validateFunctionSource(expr); err != nil {
+		return expression{}, err
+	}
 	if strings.HasPrefix(expr, initStart) {
 		return c.compileInit(expr)
 	}
@@ -309,20 +318,20 @@ func (c *compiler) compile(expr string) (expression, error) {
 }
 
 // eval returns the text of the expression for m. A missing key gives "".
-func (x expression) eval(m message.Message) (string, error) {
+func (x expression) eval(m message.Message, contexts ...context.Context) (string, error) {
 	if x.isText {
 		return x.text, nil
 	}
-	v, err := x.fn(&env{m: m})
+	v, err := x.fn(expressionEnv(m, contexts))
 	return render(v), err
 }
 
 // value returns the value of the expression for m.
-func (x expression) value(m message.Message) (any, error) {
+func (x expression) value(m message.Message, contexts ...context.Context) (any, error) {
 	if x.isText {
 		return x.text, nil
 	}
-	return x.fn(&env{m: m})
+	return x.fn(expressionEnv(m, contexts))
 }
 
 // run evaluates the expression in e.
@@ -532,7 +541,7 @@ func chain(left evalFn, rights []evalFn, nullSafe bool) evalFn {
 			if v == nil && nullSafe {
 				return nil, nil
 			}
-			next := &env{m: e.m, body: v, hasBody: true}
+			next := &env{m: e.m, body: v, hasBody: true, runtime: e.runtime}
 			if v, err = r(next); err != nil {
 				return nil, err
 			}

@@ -28,6 +28,22 @@ directory (`/data` in the container), not the configuration file or URL.
 Use absolute mount paths in production. Remote definitions do not download
 their referenced resources.
 
+Each DIL input may contain multiple integrations and flows. Use
+`dil.imports.import` entries with `path` and `namespace` to share local core
+definitions and include dependency flows. Import paths are relative to the
+declaring document (after resolving symlinks); other paths retain the semantics
+above. Mount the complete dependency tree, including core-only files. Dependencies
+found by `--dir` are loaded once. HTTPS inputs must remain self-contained.
+The entire resolved group is statically validated before processor construction,
+then started behind one activation barrier. See the
+[composition example](../api/testdata/program/README.md).
+
+For named core mappings, optional service configuration `mappingLimits` controls
+source size, depth, evaluation operations, nodes, input/output bytes, and numeric
+precision. For example, `"mappingLimits":{"bytes":8388608,"operations":500000}`
+reduces the default per-invocation limits. Zero/omitted fields select defaults.
+See [mapping contracts and limits](../docs/mapping-language.md).
+
 ## Kubernetes
 
 Adapt the image in `kubernetes.yaml`, then apply it to your target namespace.
@@ -68,7 +84,7 @@ across crashes are required.
 
 Keep credentials out of ConfigMaps and images. Mount keystore files from a
 Secret and supply passwords with Secret `secretKeyRef` entries using
-`DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, and `DIF_ENCRYPTION_PASSWORD` (the password of the `ENC(...)` values in flows).
+`DIF_SERVER_IDENTITY_PASSWORD`, `DIF_TRUSTSTORE_PASSWORD`, `DIF_SMTP_PASSWORD`, `DIF_STOMP_PASSWORD` (the passcode of the STOMP listener's login), and `DIF_ENCRYPTION_PASSWORD` (the password of the `ENC(...)` values in flows).
 Alternatively set their `_FILE` companions to mounted password-file paths.
 Precedence is explicit step option, direct environment variable, then mounted
 file (`DIF_ENCRYPTION_PASSWORD` has no step option). One trailing LF/CRLF is removed; files are limited to 64 KiB. An explicitly

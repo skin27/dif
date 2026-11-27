@@ -1,0 +1,13 @@
+{
+  "dil": {
+    "imports": {"import":{"path":"formats.json","namespace":"contracts"}},
+    "core": {
+      "resources": {"resource":{"name":"orderMapping", "content":"{ id: string(payload.orderId), customer: { name: trim(payload.customer.name), country: payload.customer.country default \"NL\" }, lines: (payload.lines default []) map (line) -> { sku: upper(line.sku), quantity: number(line.qty) } }"}},
+      "maps": {"map":[
+        {"name":"NormalizeOrder","input":"contracts:OrderIn","output":"contracts:OrderOut","language":"difmap/1","sourceRef":"orderMapping"},
+        {"name":"LinesCSV","input":"contracts:OrderOut","output":"contracts:RowsCSV","language":"difmap/1","expression":"payload.lines"},
+        {"name":"ReadXML","input":"contracts:OrderXML","output":"contracts:OrderIn","language":"difmap/1","expression":"{ orderId: attr(payload, \"id\"), customer: { name: text(child(payload, \"Customer\")) }, lines: children(payload, \"Item\") map (item) -> { sku: attr(item, \"sku\"), qty: attr(item, \"quantity\") } }"}
+      ]}
+    }
+  }
+}

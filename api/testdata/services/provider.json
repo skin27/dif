@@ -1,0 +1,272 @@
+{
+  "dil": {
+    "imports": {
+      "import": {
+        "path": "contracts.json",
+        "namespace": "contracts"
+      }
+    },
+    "core": {
+      "maps": {
+        "map": [
+          {
+            "name": "ConfirmOrder",
+            "input": "contracts:OrderIn",
+            "output": "contracts:OrderOut",
+            "language": "difmap/1",
+            "expression": "{orderId: \"ORD-\" ++ payload.sku, sku: payload.sku, quantity: payload.quantity, priority: headers.priority}"
+          },
+          {
+            "name": "FormatAudit",
+            "input": "contracts:OrderOut",
+            "output": "contracts:AuditNote",
+            "language": "difmap/1",
+            "expression": "\"accepted \" ++ payload.orderId"
+          },
+          {
+            "name": "OutOfStockProblem",
+            "input": "contracts:OrderIn",
+            "output": "contracts:OrderProblem",
+            "language": "difmap/1",
+            "expression": "{code: \"OUT_OF_STOCK\", sku: payload.sku}"
+          }
+        ]
+      }
+    },
+    "integrations": {
+      "integration": {
+        "id": "order-service-provider",
+        "name": "Order Service Provider",
+        "flows": {
+          "flow": [
+            {
+              "id": "place-order-provider",
+              "name": "PlaceOrder Provider",
+              "steps": {
+                "step": [
+                  {
+                    "id": "in",
+                    "type": "source",
+                    "uri": "service:contracts:PlaceOrder",
+                    "links": {
+                      "link": {
+                        "id": "l1",
+                        "bound": "out"
+                      }
+                    }
+                  },
+                  {
+                    "id": "check-stock",
+                    "type": "router",
+                    "uri": "content",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "l1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "oos",
+                          "bound": "out",
+                          "rule": "when",
+                          "language": "simple",
+                          "expression": "${jsonpath('$.sku')} == 'OUT-OF-STOCK'"
+                        },
+                        {
+                          "id": "ok",
+                          "bound": "out",
+                          "rule": "otherwise"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "build-fault",
+                    "type": "action",
+                    "uri": "mapper:OutOfStockProblem",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "oos",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "oos-ret",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "return-fault",
+                    "type": "action",
+                    "uri": "return",
+                    "options": {
+                      "status": "error"
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "oos-ret",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "oos-done",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "fault-end",
+                    "type": "sink",
+                    "uri": "wastebin",
+                    "links": {
+                      "link": {
+                        "id": "oos-done",
+                        "bound": "in"
+                      }
+                    }
+                  },
+                  {
+                    "id": "confirm",
+                    "type": "action",
+                    "uri": "mapper:ConfirmOrder",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "ok",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "ok-hdr",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "set-status",
+                    "type": "action",
+                    "uri": "setheader",
+                    "options": {
+                      "name": "Order-Status",
+                      "value": "ACCEPTED",
+                      "language": "constant"
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "ok-hdr",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "ok-tap",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "tap-audit",
+                    "type": "router",
+                    "uri": "wiretap",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "ok-tap",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "audit-branch",
+                          "bound": "out",
+                          "rule": "wiretap"
+                        },
+                        {
+                          "id": "main-out",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "format-audit",
+                    "type": "action",
+                    "uri": "mapper:FormatAudit",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "audit-branch",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "audit-send",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "send-audit",
+                    "type": "sink",
+                    "uri": "service:contracts:RecordAudit",
+                    "options": {
+                      "delivery": "processed"
+                    },
+                    "links": {
+                      "link": {
+                        "id": "audit-send",
+                        "bound": "in"
+                      }
+                    }
+                  },
+                  {
+                    "id": "done",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": {
+                        "id": "main-out",
+                        "bound": "in"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "record-audit-provider",
+              "name": "RecordAudit Provider",
+              "steps": {
+                "step": [
+                  {
+                    "id": "audit-in",
+                    "type": "source",
+                    "uri": "service:contracts:RecordAudit",
+                    "links": {
+                      "link": {
+                        "id": "a1",
+                        "bound": "out"
+                      }
+                    }
+                  },
+                  {
+                    "id": "audit-sink",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": {
+                        "id": "a1",
+                        "bound": "in"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

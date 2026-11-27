@@ -1,0 +1,15 @@
+# Prices an amount in the currency of its header with the rate that rates.dil
+# keeps in the store "rates": once with the store step, once in an expression.
+store rates { ttl: 3600000 }
+
+message amount {
+  body: "100"
+  header currency: "EUR"
+}
+
+flow price(name: "Price an amount", inputMessage: "amount") {
+  message:amount
+    -> store:rates(operation: "get", key: "${header.currency}", headerName: "rate", default: "unknown")
+    -> setbody(language: "simple", expression: "${body} ${header.currency} at ${header.rate} (the store says ${store:rates:${header.currency}})")
+    -> log(showBody: true)
+}

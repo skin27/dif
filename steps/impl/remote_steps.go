@@ -160,6 +160,9 @@ func newRemoteTarget(proto remoteProtocol, p stepdef.Params) (*remoteTarget, err
 		}
 	}
 	t.conn = &remoteConn{keep: !p["disconnect"].(bool), dial: func(ctx context.Context) (remoteFS, error) {
+		if err := stepdef.Permit(ctx, stepdef.NetConnect, u.addr()); err != nil {
+			return nil, err
+		}
 		c, err := dial(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("%s %s: %w", t.scheme, t.host, err)

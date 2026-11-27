@@ -121,6 +121,9 @@ func (r *Runtime) replay(rec record) error {
 	if rec.Op == "meta" {
 		return nil
 	}
+	if rec.Op == "store.put" || rec.Op == "store.remove" {
+		return r.replayStore(rec)
+	}
 	if rec.Op == "key" {
 		cfg, ok := r.config.Idempotency[rec.Queue]
 		if !ok || !cfg.Durable {
@@ -182,7 +185,7 @@ func (r *Runtime) append(rec record) error {
 	// Reserve half the directory budget for the compacted replacement and
 	// half of the active journal for settlement records (ack/retry/DLQ).
 	limit := r.config.MaxDiskBytes / 2
-	if rec.Op == "put" || rec.Op == "key" {
+	if rec.Op == "put" || rec.Op == "key" || rec.Op == "store.put" {
 		limit /= 2
 	}
 	if r.journalBytes+int64(len(b)) > limit {
@@ -245,6 +248,9 @@ func (r *Runtime) compact() error {
 				err = write(record{Op: "key", Queue: namespace, Key: key, Expires: state.expires})
 			}
 		}
+	}
+	if err == nil {
+		err = r.compactStores(write)
 	}
 	err = errors.Join(err, f.Sync(), f.Close())
 	if err != nil {

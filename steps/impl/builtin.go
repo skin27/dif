@@ -3,7 +3,9 @@
 package impl
 
 import (
+	"dif/internal/mapping"
 	"embed"
+	"fmt"
 
 	stepdef "dif/steps/definition"
 	"dif/steps/registry"
@@ -49,6 +51,7 @@ func Register(r *registry.Registry) error {
 		{"request", stepdef.Action, requestReply, newRequestAction, nil},
 		{"reply", stepdef.Sink, requestReply, newReplySink, nil},
 		{"topic", stepdef.Source, "Publish-Subscribe Channel", newTopicSource, nil},
+		{"event", stepdef.Source, "Publish-Subscribe Channel", newEventSource, nil},
 		{"googledrive", stepdef.Source, pollingConsumer, newDriveSource, nil},
 		{"ftp", stepdef.Source, pollingConsumer, newRemoteSource(ftpProtocol), nil},
 		{"ftps", stepdef.Source, pollingConsumer, newRemoteSource(ftpsProtocol), nil},
@@ -57,11 +60,13 @@ func Register(r *registry.Registry) error {
 		{"imaps", stepdef.Source, pollingConsumer, newIMAPSSource, nil},
 		{"as2", stepdef.Source, requestReply, newAS2Source, nil},
 		{"flowlink", stepdef.Source, "", newFlowLinkSource, []string{"flowlink-async"}},
+		{"service", stepdef.Source, requestReply, newServiceSource, nil},
 		{"repeater", stepdef.Source, "", newTimerSource, nil},
 		{"quartz", stepdef.Source, "", newQuartzSource, nil},
 		{"counter", stepdef.Source, "", newCounterSource, nil},
 		{"log", stepdef.Action, "", newLogAction, nil},
 		{"setbody", stepdef.Action, "", newSetBodyAction, nil},
+		{"mapper", stepdef.Action, messageTranslator, newMapperAction, nil},
 		{"setheader", stepdef.Action, "", newSetHeaderAction, nil},
 		{"passthrough", stepdef.Action, "", newPassthrough, nil},
 		{"setheaders", stepdef.Action, "", newSetHeadersAction, nil},
@@ -75,6 +80,7 @@ func Register(r *registry.Registry) error {
 		{"smtp", stepdef.Action, "", newSMTPAction(false), nil},
 		{"googledrive", stepdef.Action, "", newDriveAction, nil},
 		{"flowlink", stepdef.Action, "", newFlowLinkAction, []string{"flowlink-async"}},
+		{"service", stepdef.Action, requestReply, newServiceAction, nil},
 		{"queue", stepdef.Action, pointToPointChannel, newQueueAction, nil},
 		{"topic", stepdef.Action, "Publish-Subscribe Channel", newTopicAction, nil},
 		{"removeheaders", stepdef.Action, contentFilter, newRemoveHeadersAction, nil},
@@ -118,10 +124,12 @@ func Register(r *registry.Registry) error {
 		{"settenantvariable", stepdef.Action, "", newSetTenantVariableAction, nil},
 		{"gettenantvariable", stepdef.Action, "", newGetTenantVariableAction, nil},
 		{"removetenantvariable", stepdef.Action, "", newRemoveTenantVariableAction, nil},
+		{"store", stepdef.Action, "", newStoreAction, nil},
 		{"setcookie", stepdef.Action, "", newSetCookieAction, nil},
 		{"removecookie", stepdef.Action, "", newRemoveCookieAction, nil},
 		{"setoneway", stepdef.Action, eventMessage, newSetOneWayAction, []string{"setfireandforget"}},
 		{"setrequestreply", stepdef.Action, requestReply, newSetRequestReplyAction, []string{"settwoways", "setrequestandreply"}},
+		{"return", stepdef.Action, requestReply, newReturnAction, nil},
 		{"setuuid", stepdef.Action, "", newSetUUIDAction, nil},
 		{"setbodybyheader", stepdef.Action, "", newSetBodyByHeaderAction, nil},
 		{"setheaderbybody", stepdef.Action, "", newSetHeaderByBodyAction, nil},
@@ -151,20 +159,30 @@ func Register(r *registry.Registry) error {
 		{"ftps", stepdef.Sink, "", newRemoteSink(ftpsProtocol), nil},
 		{"sftp", stepdef.Sink, "", newRemoteSink(sftpProtocol), nil},
 		{"smb", stepdef.Sink, "", newRemoteSink(smbProtocol), nil},
+		{"service", stepdef.Sink, pointToPointChannel, newServiceSink, nil},
 	}
 	for _, b := range builtins {
-		// Every built-in step may refer to its flow in an expression.
-		bindings := []string{FlowRuntimeKey}
+		// Every built-in step may refer to its flow, and to the stores of its
+		// runtime, in an expression.
+		bindings := []string{FlowRuntimeKey, mapping.FunctionsBindingKey, stepdef.StoresBinding, ChannelRuntimeKey}
 		switch b.name {
-		case "queue", "topic", "flowlink", "deadletter", "idempotent", "request", "reply":
+		case "mapper":
+			bindings = append(bindings, mapping.BindingKey)
+		case "service":
+			bindings = append(bindings, ChannelRuntimeKey, mapping.ServiceBindingKey)
+		case "queue", "topic", "event", "flowlink", "deadletter", "idempotent", "request", "reply":
 			bindings = append(bindings, ChannelRuntimeKey)
 		}
 		schema, err := schemas.ReadFile("schemas/" + b.name + "-" + b.kind + ".json")
 		if err != nil {
 			return err
 		}
+		caps, err := declaredCapabilities(b.name, b.kind)
+		if err != nil {
+			return err
+		}
 		for _, name := range append([]string{b.name}, b.aliases...) {
-			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, RuntimeBindings: bindings, New: b.new}); err != nil {
+			if err := r.Register(stepdef.Definition{Name: name, Kind: b.kind, Schema: schema, Pattern: b.pattern, RuntimeBindings: bindings, Connection: stepConnections[name+"/"+b.kind], New: b.new, Effect: stepEffects[b.name+"/"+b.kind], Capabilities: caps}); err != nil {
 				return err
 			}
 		}
@@ -175,5 +193,19 @@ func Register(r *registry.Registry) error {
 	if err != nil {
 		return err
 	}
-	return r.Register(stepdef.Definition{Name: "smtps", Kind: stepdef.Action, Schema: schema, New: newSMTPAction(true)})
+	caps, err := declaredCapabilities("smtps", stepdef.Action)
+	if err != nil {
+		return err
+	}
+	return r.Register(stepdef.Definition{Name: "smtps", Kind: stepdef.Action, Schema: schema, Connection: stepConnections["smtps/"+stepdef.Action], New: newSMTPAction(true), Effect: stepEffects["smtps/"+stepdef.Action], Capabilities: caps})
+}
+
+// declaredCapabilities returns the capabilities of a built-in step; every
+// built-in step must declare them, so that a policy can tell what it touches.
+func declaredCapabilities(name, kind string) (func(stepdef.Params) []stepdef.Capability, error) {
+	caps := stepCapabilities[name+"/"+kind]
+	if caps == nil {
+		return nil, fmt.Errorf("register step %s (%s): it declares no capabilities; add it to stepCapabilities in capabilities.go", name, kind)
+	}
+	return caps, nil
 }

@@ -1,0 +1,43 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:store-action",
+	"title": "store action",
+	"description": "Gets, puts or removes an entry of a store that dil.core.stores declares (store:<name>). get sets headerName, or else the body, to the value; a key that is not set changes nothing, unless default gives a value. put keeps the value with its type; a new key in a full store fails.",
+	"type": "object",
+	"properties": {
+		"path": {
+			"title": "Store",
+			"description": "Name of the store, from the URI (store:<name>, or store:<namespace>:<name> from an import)",
+			"type": "string"
+		},
+		"operation": {
+			"title": "Operation",
+			"description": "get, put or remove",
+			"type": "string",
+			"enum": ["get", "put", "remove"]
+		},
+		"key": {
+			"title": "Key",
+			"description": "Simple expression for the key, such as ${header.orderId}; 1 to 4096 bytes",
+			"type": "string"
+		},
+		"value": {
+			"title": "Value",
+			"description": "put: simple expression for the value",
+			"type": "string",
+			"default": "${body}"
+		},
+		"headerName": {
+			"title": "Header name",
+			"description": "get: the header that gets the value; without it, the body does",
+			"type": "string"
+		},
+		"default": {
+			"title": "Default",
+			"description": "get: simple expression for the value of a key that is not set; without it nothing changes",
+			"type": "string"
+		}
+	},
+	"required": ["operation", "key"],
+	"additionalProperties": false
+}

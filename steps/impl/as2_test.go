@@ -456,7 +456,6 @@ func TestAS2KeySources(t *testing.T) {
 		t.Errorf("a source with unreadable keys: err = %v", err)
 	}
 	for ref, want := range map[string]string{
-		"just words": "no such file",
 		"-----BEGIN ENCRYPTED PRIVATE KEY-----\nAAAA\n-----END ENCRYPTED PRIVATE KEY-----": "encrypted private key",
 		"-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----":                     "certificate",
 		"-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----":                     "private key",
@@ -464,6 +463,9 @@ func TestAS2KeySources(t *testing.T) {
 		if _, err := loadKeyMaterial(context.Background(), ref, "", http.DefaultClient); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%q: err = %v, want %q", ref, err, want)
 		}
+	}
+	if _, err := loadKeyMaterial(context.Background(), "just words", "", http.DefaultClient); !os.IsNotExist(err) {
+		t.Errorf("missing key file: got %v, want a not-exist error", err)
 	}
 	if _, err := loadKeyMaterial(context.Background(), srv.URL+"/nothing?key=SECRET", "", http.DefaultClient); err == nil || strings.Contains(err.Error(), "SECRET") {
 		t.Errorf("the query is in the error: %v", err)

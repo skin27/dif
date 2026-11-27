@@ -24,7 +24,7 @@ import (
 // with the suffix _Temp, which the googledrive examples read as
 // @{GoogleDriveAccessToken_Temp}.
 type oauth2TokenSink struct {
-	tenant   string
+	vars     tenantStore
 	names    []string // variables to set
 	expiry   time.Duration
 	tokenURL string
@@ -42,7 +42,6 @@ type oauth2TokenSink struct {
 
 func newOAuth2TokenSink(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	s := &oauth2TokenSink{
-		tenant: p["tenantDbName"].(string),
 		expiry: time.Duration(p["expiryDelay"].(int)) * time.Second,
 		basic:  p["clientAuthentication"] == "basic",
 	}
@@ -103,6 +102,9 @@ func newOAuth2TokenSink(_ string, p stepdef.Params) (stepdef.Processor, error) {
 		return nil, fmt.Errorf("option refreshToken: required for refresh_token; or set %s", oauth2EnvHint(tokens, "REFRESH_TOKEN"))
 	}
 	if s.client, err = httpsClient(p); err != nil {
+		return nil, err
+	}
+	if s.vars, err = tenantVariables(p, p["tenantDbName"].(string)); err != nil {
 		return nil, err
 	}
 	return s, nil
@@ -175,7 +177,9 @@ func (s *oauth2TokenSink) Consume(ctx context.Context, _ message.Message) error 
 		}
 	}
 	for _, name := range s.names {
-		tenantVariables.set(s.tenant, name, s.token)
+		if err := s.vars.set(name, s.token); err != nil {
+			return fmt.Errorf("oauth2token: %w", err)
+		}
 	}
 	return nil
 }

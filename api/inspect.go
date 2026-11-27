@@ -2,31 +2,59 @@ package api
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
 	flowdef "dif/flows/definition"
 	flowimpl "dif/flows/impl"
+	"dif/internal/mapping"
 	stepdef "dif/steps/definition"
 )
 
 // FlowInfo describes a statically validated flow without exposing option values
-// or URI paths, which may contain credentials. Steps include the error route.
+// or URI paths, which may contain credentials; the capabilities of the steps
+// name only hosts, ports, paths and variable names. Steps include the error route.
 type FlowInfo struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
 	Source        string              `json:"source"`
+	Service       *ServiceInfo        `json:"service,omitempty"`
 	Steps         []NodeInfo          `json:"steps"`
 	Error         *ErrorInfo          `json:"error,omitempty"`
+	ErrorHandlers []ErrorInfo         `json:"errorHandlers,omitempty"`
 	Configuration []ConfigurationInfo `json:"configuration"`
+	// Diagnostics are the findings of the static checks of the flow; see Diagnostic.
+	Diagnostics []Diagnostic `json:"diagnostics,omitempty"`
 }
 
 type NodeInfo struct {
-	ID    string     `json:"id"`
-	Kind  string     `json:"kind"`
-	Step  string     `json:"step"`
-	Links []LinkInfo `json:"links"`
+	Processor *flowimpl.ProcessorInfo `json:"processor,omitempty"`
+	Mapping   *MapInfo                `json:"mapping,omitempty"`
+	Service   *ServiceInfo            `json:"service,omitempty"`
+	ID        string                  `json:"id"`
+	Kind      string                  `json:"kind"`
+	Step      string                  `json:"step"`
+	Links     []LinkInfo              `json:"links"`
+	// Interceptor is the step an interceptor added; empty for the flow's own steps.
+	Interceptor bool `json:"interceptor,omitempty"`
+	// Capabilities are the outside resources the step can touch: its entry in
+	// the program's manifest. Targets are addresses, paths and variable names,
+	// never userinfo, queries or other option values. CapabilitiesUndeclared
+	// is a step that declares none, such as a custom step without them.
+	Capabilities           []Capability `json:"capabilities,omitempty"`
+	CapabilitiesUndeclared bool         `json:"capabilitiesUndeclared,omitempty"`
+}
+
+type MapInfo = mapping.Info
+type ServiceInfo = mapping.ServiceInfo
+type HeaderInfo = mapping.HeaderInfo
+type FormatInfo = flowimpl.FormatInfo
+type MappingLimits = mapping.Limits
+
+func cloneServiceInfo(s ServiceInfo) *ServiceInfo {
+	s.InputHeaders = append([]HeaderInfo(nil), s.InputHeaders...)
+	s.OutputHeaders = append([]HeaderInfo(nil), s.OutputHeaders...)
+	return &s
 }
 
 type LinkInfo struct {
@@ -36,10 +64,12 @@ type LinkInfo struct {
 }
 
 type ErrorInfo struct {
-	ID           string `json:"id"`
-	Redeliveries int    `json:"redeliveries"`
-	DelayMillis  int64  `json:"delayMillis"`
-	Target       string `json:"target,omitempty"`
+	ID           string   `json:"id"`
+	Redeliveries int      `json:"redeliveries"`
+	DelayMillis  int64    `json:"delayMillis"`
+	Target       string   `json:"target,omitempty"`
+	Matches      []string `json:"matches,omitempty"`   // the options that restrict which errors it takes, never their values
+	Unhandled    bool     `json:"unhandled,omitempty"` // the message still fails after the error route
 }
 
 // ConfigurationInfo identifies required options and optional environment
@@ -60,7 +90,7 @@ func Validate(path string) error {
 
 // Inspect validates a flow without constructing processors or starting sources.
 func Inspect(path string) (*FlowInfo, error) {
-	data, err := os.ReadFile(path)
+	data, err := readDocument(path)
 	if err != nil {
 		return nil, err
 	}
@@ -69,26 +99,38 @@ func Inspect(path string) (*FlowInfo, error) {
 
 // InspectBytes statically validates a previously resolved DIL document.
 func InspectBytes(data []byte) (*FlowInfo, error) {
-	f, err := flowimpl.Parse(data, func(n *flowdef.Node) (stepdef.Processor, error) {
+	f, err := parseFlow(data, func(n *flowdef.Node) (stepdef.Processor, error) {
 		return nil, steps.Validate(n)
 	})
 	if err != nil {
 		return nil, err
 	}
+	return inspectFlow(f)
+}
+
+func inspectFlow(f *flowdef.Flow) (*FlowInfo, error) {
 	if f.ID == "" {
 		return nil, fmt.Errorf("flow has no id")
 	}
 	info := &FlowInfo{ID: f.ID, Name: f.Name, Source: f.Source.ID, Steps: []NodeInfo{}, Configuration: []ConfigurationInfo{}}
+	if sb, ok := f.Source.Bindings[flowimpl.FlowServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
+		info.Service = cloneServiceInfo(sb.Plan.Info())
+	}
 	ids := map[string]bool{}
-	if f.Error != nil {
-		e := f.Error
-		info.Error = &ErrorInfo{ID: e.ID, Redeliveries: e.Redeliveries, DelayMillis: e.RedeliveryDelay.Milliseconds()}
-		if e.ID == "" {
-			return nil, fmt.Errorf("error step has no id")
+	for _, e := range f.ErrorHandlers() {
+		if e.ID == "" || ids[e.ID] {
+			return nil, fmt.Errorf("error step id %q is empty or duplicated", e.ID)
 		}
 		ids[e.ID] = true
+		ei := ErrorInfo{ID: e.ID, Redeliveries: e.Redeliveries, DelayMillis: e.RedeliveryDelay.Milliseconds(),
+			Matches: append([]string(nil), e.Matches...), Unhandled: e.Unhandled}
 		if e.Route != nil {
-			info.Error.Target = e.Route.ID
+			ei.Target = e.Route.ID
+		}
+		if e == f.Error {
+			info.Error = &ei
+		} else {
+			info.ErrorHandlers = append(info.ErrorHandlers, ei)
 		}
 	}
 	var visit func(*flowdef.Node) error
@@ -98,7 +140,20 @@ func InspectBytes(data []byte) (*FlowInfo, error) {
 		}
 		ids[n.ID] = true
 		name, _, _ := strings.Cut(n.URI, ":")
-		node := NodeInfo{ID: n.ID, Kind: n.Kind, Step: name, Links: []LinkInfo{}}
+		node := NodeInfo{ID: n.ID, Kind: n.Kind, Step: name, Links: []LinkInfo{}, Interceptor: strings.HasPrefix(n.ID, flowimpl.InterceptorPrefix)}
+		var declared bool
+		node.Capabilities, declared = stepCapabilities(n)
+		node.CapabilitiesUndeclared = !declared
+		if info, ok := n.Bindings["dif.internal.processorInfo"].(flowimpl.ProcessorInfo); ok {
+			node.Processor = &info
+		}
+		if p, ok := n.Bindings[mapping.BindingKey].(*mapping.Plan); ok {
+			info := p.Info()
+			node.Mapping = &info
+		}
+		if sb, ok := n.Bindings[mapping.ServiceBindingKey].(*mapping.ServiceBinding); ok && sb != nil {
+			node.Service = cloneServiceInfo(sb.Plan.Info())
+		}
 		for i, target := range n.Next {
 			link := LinkInfo{Target: target.ID}
 			if i < len(n.Links) {
@@ -129,8 +184,11 @@ func InspectBytes(data []byte) (*FlowInfo, error) {
 	if err := visit(f.Source); err != nil {
 		return nil, err
 	}
-	if f.Error != nil && f.Error.Route != nil {
-		if err := visit(f.Error.Route); err != nil {
+	for _, e := range f.ErrorHandlers() {
+		if e.Route == nil {
+			continue
+		}
+		if err := visit(e.Route); err != nil {
 			return nil, err
 		}
 	}
@@ -141,6 +199,7 @@ func InspectBytes(data []byte) (*FlowInfo, error) {
 		}
 		return a.StepID < b.StepID
 	})
+	info.Diagnostics = checkFlow(f)
 	return info, nil
 }
 

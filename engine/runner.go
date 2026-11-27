@@ -58,6 +58,8 @@ type Runner struct {
 	sourceErr    error
 	sourceState  string
 	accepting    bool
+
+	observer atomic.Pointer[observerRef] // receives the flow's events; nil: none
 }
 
 // NewRunner returns a Stopped runner for f. Messages come from the source
@@ -117,6 +119,7 @@ func (r *Runner) start(wait context.Context, strict bool) error {
 	case Paused:
 		r.unpause()
 		r.mu.Unlock()
+		r.notify(Event{Type: stepdef.EventFlowResumed})
 		return nil
 	case Started:
 		err := r.invalid("start")
@@ -148,6 +151,7 @@ func (r *Runner) start(wait context.Context, strict bool) error {
 			r.sourceErr, r.sourceState = err, "failed"
 			close(r.sourceFailed)
 			r.mu.Unlock()
+			r.notify(Event{Type: stepdef.EventSourceFailed, Err: err})
 		})
 	})
 	var ready chan struct{}
@@ -158,6 +162,7 @@ func (r *Runner) start(wait context.Context, strict bool) error {
 	}
 	go r.loop(ctx, sourceCtx, msgCtx, done, ready)
 	r.mu.Unlock()
+	r.notify(Event{Type: stepdef.EventFlowStarted})
 	if ready != nil {
 		select {
 		case <-ready:
@@ -257,22 +262,26 @@ func (r *Runner) SetLogger(l *log.Logger) {
 // Pause stops the flow from taking new messages; a message in progress completes.
 func (r *Runner) Pause() error {
 	r.mu.Lock()
-	defer r.mu.Unlock()
 	if r.state != Started {
+		defer r.mu.Unlock()
 		return r.invalid("pause")
 	}
 	r.state, r.resume = Paused, make(chan struct{})
+	r.mu.Unlock()
+	r.notify(Event{Type: stepdef.EventFlowPaused})
 	return nil
 }
 
 // Resume lets a paused flow take messages again.
 func (r *Runner) Resume() error {
 	r.mu.Lock()
-	defer r.mu.Unlock()
 	if r.state != Paused {
+		defer r.mu.Unlock()
 		return r.invalid("resume")
 	}
 	r.unpause()
+	r.mu.Unlock()
+	r.notify(Event{Type: stepdef.EventFlowResumed})
 	return nil
 }
 
@@ -477,6 +486,10 @@ func (r *Runner) loop(ctx, sourceCtx, msgCtx context.Context, done, ready chan s
 			started := time.Now()
 			var res *Result
 			var err error
+			identity, observed := exchangeIdentity{}, false
+			if r.observer.Load() != nil {
+				identity, observed = identityOf(e.msg) // before the steps change the message
+			}
 			if e.from != nil {
 				res, err = release(msgCtx, r.flow, e.from, e.msg)
 			} else {
@@ -500,6 +513,9 @@ func (r *Runner) loop(ctx, sourceCtx, msgCtx context.Context, done, ready chan s
 			if r.onResult != nil {
 				r.onResult(res, err) // a failing message is reported; the flow keeps going
 			}
+			if observed {
+				r.exchangeEvent(identity, time.Since(started), res, err)
+			}
 			r.durationNanos.Add(time.Since(started).Nanoseconds())
 			r.inFlight.Add(-1)
 			if e.release != nil {
@@ -512,6 +528,7 @@ func (r *Runner) loop(ctx, sourceCtx, msgCtx context.Context, done, ready chan s
 			r.state, r.err, r.resume, r.since = Stopped, err, nil, time.Time{}
 			r.abort() // release msgCtx
 			r.mu.Unlock()
+			r.notify(Event{Type: stepdef.EventFlowStopped})
 			close(done)
 			return
 		}

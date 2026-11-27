@@ -51,13 +51,14 @@ func (s *Service) Handler() http.Handler {
 		w.Header().Set("Cache-Control", "no-store")
 		json.NewEncoder(w).Encode(struct {
 			Channels api.ChannelStatus   `json:"channels"`
+			STOMP    *api.STOMPStatus    `json:"stomp,omitempty"`
 			Ready    bool                `json:"ready"`
 			Started  bool                `json:"started"`
 			Stopping bool                `json:"stopping"`
 			Active   int64               `json:"active"`
 			Queued   int64               `json:"queued"`
 			Flows    []engine.FlowStatus `json:"flows"`
-		}{s.channelStatus(), ready, started, stopping, active, queued, flows})
+		}{s.channelStatus(), s.stompStatus(), ready, started, stopping, active, queued, flows})
 	})
 	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, r *http.Request) {
 		ready, _, _, flows := s.snapshot()
@@ -76,6 +77,15 @@ func (s *Service) Handler() http.Handler {
 		}
 		for _, t := range channels.Topics {
 			fmt.Fprintf(w, "dif_topic_waiting{topic=%s} %d\ndif_topic_blocked_producers{topic=%s} %d\n", strconv.Quote(t.Name), t.Waiting, strconv.Quote(t.Name), t.Blocked)
+		}
+		if len(channels.Stores) > 0 {
+			fmt.Fprintf(w, "# TYPE dif_store_keys gauge\n")
+		}
+		for _, s := range channels.Stores {
+			fmt.Fprintf(w, "dif_store_keys{store=%s} %d\n", strconv.Quote(s.Name), s.Keys)
+		}
+		if stomp := s.stompStatus(); stomp != nil {
+			fmt.Fprintf(w, "# TYPE dif_stomp_connections gauge\ndif_stomp_connections %d\n", stomp.Connections)
 		}
 		metrics := []struct {
 			name, kind string
@@ -107,4 +117,16 @@ func (s *Service) channelStatus() api.ChannelStatus {
 		return api.ChannelStatus{}
 	}
 	return r.ChannelStatus()
+}
+
+// stompStatus is nil when no channel is served.
+func (s *Service) stompStatus() *api.STOMPStatus {
+	s.mu.RLock()
+	srv := s.stomp
+	s.mu.RUnlock()
+	if srv == nil {
+		return nil
+	}
+	status := srv.Status()
+	return &status
 }

@@ -24,7 +24,7 @@ const (
 // the last part's. A split with one link (in DIL, an action) needs no rule.
 type splitRouter struct {
 	split, main int // main is -1 if there is no other link
-	parts       func(m message.Message) ([]string, error)
+	parts       func(m message.Message, contexts ...context.Context) ([]string, error)
 }
 
 func newSplitRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
@@ -104,7 +104,7 @@ func newSplitter(flow *flowProperties, links []stepdef.Link, language, expressio
 //
 // An expression with ${...} in it, such as ${header.expression}, is a simple
 // template evaluated for every message; its result is the xpath or jsonpath.
-func splitParts(flow *flowProperties, language, expression string, ns map[string]string) (func(message.Message) ([]string, error), error) {
+func splitParts(flow *flowProperties, language, expression string, ns map[string]string) (func(message.Message, ...context.Context) ([]string, error), error) {
 	switch language {
 	case "xpath", "xtokenize":
 		pick := func(m message.Message, q xpath) ([]string, error) {
@@ -147,7 +147,7 @@ func splitParts(flow *flowProperties, language, expression string, ns map[string
 		if expression == "" {
 			return nil, fmt.Errorf("tokenize needs the text to split at")
 		}
-		return func(m message.Message) ([]string, error) {
+		return func(m message.Message, contexts ...context.Context) ([]string, error) {
 			var parts []string
 			for _, t := range strings.Split(text(m[message.Body]), expression) {
 				if t = strings.TrimSpace(t); t != "" {
@@ -161,8 +161,8 @@ func splitParts(flow *flowProperties, language, expression string, ns map[string
 		if err != nil {
 			return nil, err
 		}
-		return func(m message.Message) ([]string, error) {
-			v, err := x.value(m)
+		return func(m message.Message, contexts ...context.Context) ([]string, error) {
+			v, err := x.value(m, contexts...)
 			if err != nil {
 				return nil, err
 			}
@@ -182,21 +182,21 @@ func splitParts(flow *flowProperties, language, expression string, ns map[string
 // message: the one compiled from expression; or, when expression holds ${...},
 // such as ${header.expression}, a template evaluated for the message, the
 // one compiled from the result (the results compiled are kept).
-func perMessage[T any](flow *flowProperties, expression string, compile func(string) (T, error)) (func(message.Message) (T, error), error) {
+func perMessage[T any](flow *flowProperties, expression string, compile func(string) (T, error)) (func(message.Message, ...context.Context) (T, error), error) {
 	if !strings.Contains(expression, "${") {
 		q, err := compile(expression)
 		if err != nil {
 			return nil, err
 		}
-		return func(message.Message) (T, error) { return q, nil }, nil
+		return func(message.Message, ...context.Context) (T, error) { return q, nil }, nil
 	}
 	x, err := compileExpressionIn(flow, "simple", expression)
 	if err != nil {
 		return nil, err
 	}
 	var cache compiledCache[T]
-	return func(m message.Message) (T, error) {
-		s, err := x.eval(m)
+	return func(m message.Message, contexts ...context.Context) (T, error) {
+		s, err := x.eval(m, contexts...)
 		if err != nil {
 			var zero T
 			return zero, err
@@ -206,13 +206,13 @@ func perMessage[T any](flow *flowProperties, expression string, compile func(str
 }
 
 // dynamicParts is perMessage for the parts of a split.
-func dynamicParts[T any](flow *flowProperties, expression string, compile func(string) (T, error), pick func(message.Message, T) ([]string, error)) (func(message.Message) ([]string, error), error) {
+func dynamicParts[T any](flow *flowProperties, expression string, compile func(string) (T, error), pick func(message.Message, T) ([]string, error)) (func(message.Message, ...context.Context) ([]string, error), error) {
 	get, err := perMessage(flow, expression, compile)
 	if err != nil {
 		return nil, err
 	}
-	return func(m message.Message) ([]string, error) {
-		q, err := get(m)
+	return func(m message.Message, contexts ...context.Context) ([]string, error) {
+		q, err := get(m, contexts...)
 		if err != nil {
 			return nil, err
 		}
@@ -243,8 +243,8 @@ func (c *compiledCache[T]) get(key string, compile func(string) (T, error)) (T, 
 	return v, nil
 }
 
-func (r splitRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
-	routes, err := r.partRoutes(m)
+func (r splitRouter) Route(ctx context.Context, m message.Message) ([]stepdef.Route, error) {
+	routes, err := r.partRoutes(m, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -255,8 +255,8 @@ func (r splitRouter) Route(_ context.Context, m message.Message) ([]stepdef.Rout
 }
 
 // partRoutes returns a route along the split link for every part of m's body.
-func (r splitRouter) partRoutes(m message.Message) ([]stepdef.Route, error) {
-	parts, err := r.parts(m)
+func (r splitRouter) partRoutes(m message.Message, contexts ...context.Context) ([]stepdef.Route, error) {
+	parts, err := r.parts(m, contexts...)
 	if err != nil {
 		return nil, err
 	}

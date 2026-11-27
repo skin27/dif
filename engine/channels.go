@@ -26,8 +26,8 @@ func (r *Runner) LocalChannels() (input string, outputs []string) {
 		}
 	}
 	visit(r.flow.Source)
-	if r.flow.Error != nil {
-		visit(r.flow.Error.Route)
+	for _, h := range r.flow.ErrorHandlers() {
+		visit(h.Route)
 	}
 	return
 }

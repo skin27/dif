@@ -1,0 +1,10 @@
+{
+  "dil": {"integrations": {"integration": {"flows": {"flow": {
+    "id": "stomp-relay",
+    "steps": {"step": [
+      {"id": "in", "type": "source", "uri": "queue:incoming", "links": {"link": [{"id": "mark", "bound": "out"}]}},
+      {"id": "mark", "type": "action", "uri": "setheader", "options": {"name": "relayedBy", "value": "dif"}, "links": {"link": [{"id": "mark", "bound": "in"}, {"id": "publish", "bound": "out"}]}},
+      {"id": "publish", "type": "sink", "uri": "topic:audit", "links": {"link": [{"id": "publish", "bound": "in"}]}}
+    ]}
+  }}}}}
+}

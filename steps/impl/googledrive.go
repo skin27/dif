@@ -42,17 +42,22 @@ type driveFile struct {
 // driveFolder is the folder the steps work in, and how to call the API for it.
 type driveFolder struct {
 	id     string
-	token  string // accessToken option, which may hold @{variable}
-	tenant string // tenant of the variables
+	token  string      // accessToken option, which may hold @{variable}
+	vars   tenantStore // the variables of the tenant, when token holds one
 	client *http.Client
 }
 
 func newDriveFolder(p stepdef.Params) (driveFolder, error) {
-	f := driveFolder{id: p["path"].(string), tenant: p["tenant"].(string), token: p["accessToken"].(string)}
+	f := driveFolder{id: p["path"].(string), token: p["accessToken"].(string)}
 	if f.token == "" {
 		return f, fmt.Errorf("option accessToken: empty")
 	}
 	var err error
+	if strings.Contains(f.token, "@{") {
+		if f.vars, err = tenantVariables(p, p["tenant"].(string)); err != nil {
+			return f, err
+		}
+	}
 	f.client, err = httpsClient(p)
 	return f, err
 }
@@ -65,7 +70,7 @@ func driveQuote(s string) string {
 // call sends a request to the API and returns the response body. A body of
 // more than maxBodySize is an error rather than silently cut short.
 func (f driveFolder) call(ctx context.Context, method, path string, q url.Values, contentType string, body []byte) ([]byte, error) {
-	token, err := expandTenantVariables(f.tenant, f.token)
+	token, err := expandTenantVariables(f.vars, f.token)
 	if err != nil {
 		return nil, fmt.Errorf("access token: %w", err)
 	}

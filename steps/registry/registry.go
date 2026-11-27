@@ -88,6 +88,9 @@ func (r *Registry) ProcessorWithParams(n *flowdef.Node, bindings stepdef.Params)
 		return nil, fmt.Errorf("%s: %w", name, err)
 	}
 	for _, key := range e.def.RuntimeBindings {
+		if value, ok := n.Bindings[key]; ok {
+			params[key] = value
+		}
 		if value, ok := bindings[key]; ok {
 			params[key] = value
 		}
@@ -109,8 +112,24 @@ func (r *Registry) Validate(n *flowdef.Node) error {
 	return err
 }
 
+// ValidateRedacted checks the same schema as Validate, omitting supplied option
+// values from diagnostics. This is useful when validating document groups.
+func (r *Registry) ValidateRedacted(n *flowdef.Node) error {
+	_, _, err := r.parametersWithValues(n, false)
+	return err
+}
+
 func (r *Registry) parameters(n *flowdef.Node) (entry, stepdef.Params, error) {
+	return r.parametersWithValues(n, true)
+}
+
+func (r *Registry) parametersWithValues(n *flowdef.Node, values bool) (entry, stepdef.Params, error) {
 	name, path, _ := strings.Cut(n.URI, ":")
+	if marked, _ := n.Bindings["dif.internal.actionTemplate"].(bool); marked {
+		if err := r.ValidateActionTemplate(n, nil); err != nil {
+			return entry{}, nil, err
+		}
+	}
 	e, ok := r.lookup(name, n.Kind)
 	if !ok {
 		return entry{}, nil, fmt.Errorf("no processor for %q (%s)", name, n.Kind)
@@ -121,7 +140,10 @@ func (r *Registry) parameters(n *flowdef.Node) (entry, stepdef.Params, error) {
 	if _, set := opts["path"]; path != "" && !set {
 		opts["path"] = path
 	}
-	params, err := e.schema.validate(opts)
+	if err := applyConnection(e.def, n, opts); err != nil {
+		return entry{}, nil, fmt.Errorf("%s: %w", name, err)
+	}
+	params, err := e.schema.validateOptions(opts, values)
 	if err != nil {
 		return entry{}, nil, fmt.Errorf("%s: %w", name, err)
 	}
@@ -233,4 +255,60 @@ func decryptParams(params stepdef.Params) error {
 		params[key] = plain
 	}
 	return nil
+}
+
+// ValidateActionTemplate checks a single-action declaration before its arguments
+// are supplied. Dynamic options are checked for type compatibility here and
+// against the complete schema after binding at each use.
+func (r *Registry) ValidateActionTemplate(n *flowdef.Node, dynamic map[string]string) error {
+	name, path, _ := strings.Cut(n.URI, ":")
+	r.mu.RLock()
+	e, ok := r.defs[name+"/"+stepdef.Action]
+	r.mu.RUnlock()
+	if !ok {
+		return fmt.Errorf("reusable processor requires a registered action %q", name)
+	}
+	opts := maps.Clone(n.Options)
+	if opts == nil {
+		opts = map[string]any{}
+	}
+	if path != "" && opts["path"] == nil {
+		opts["path"] = path
+	}
+	if err := applyConnection(e.def, n, opts); err != nil {
+		return err
+	}
+	for key, typ := range dynamic {
+		p := e.schema.props[key]
+		if p == nil {
+			if !e.schema.additional {
+				return fmt.Errorf("unknown option %s", key)
+			}
+			continue
+		}
+		base := strings.TrimSuffix(typ, "?")
+		if base != "any" && base != p.typ && !(base == "number" && p.typ == "integer") {
+			return fmt.Errorf("option %s: incompatible parameter type", key)
+		}
+		// An admissible representative avoids treating an unbound required value as
+		// absent. Real enum/minimum constraints are checked for every bound use.
+		var value any
+		switch p.typ {
+		case "string":
+			value = ""
+		case "boolean":
+			value = false
+		default:
+			value = float64(0)
+			if p.minimum != nil {
+				value = *p.minimum
+			}
+		}
+		if len(p.enum) > 0 {
+			value = p.enum[0]
+		}
+		opts[key] = value
+	}
+	_, err := e.schema.validateOptions(opts, false)
+	return err
 }

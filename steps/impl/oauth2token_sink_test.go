@@ -86,7 +86,7 @@ func tokenSink(t *testing.T, ts *tokenServer, opts map[string]any) stepdef.SinkP
 
 func variable(t *testing.T, name string) string {
 	t.Helper()
-	v, _ := tenantVariables.get(t.Name(), name)
+	v, _, _ := tenantVars(t.Name()).get(name)
 	return v
 }
 
@@ -132,7 +132,7 @@ func TestOAuth2TokenKeepsTheTokenUntilItExpires(t *testing.T) {
 	}
 
 	// A removed variable is set again from the kept token.
-	tenantVariables.remove(t.Name(), "access")
+	tenantVars(t.Name()).remove("access")
 	consume()
 	if v := variable(t, "access"); v != "token-1" || ts.requests() != 1 {
 		t.Errorf("access = %q after %d requests, want token-1 after 1", v, ts.requests())

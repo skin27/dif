@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	flowdef "dif/flows/definition"
 	"dif/keystore"
 	"dif/message"
 	stepdef "dif/steps/definition"
@@ -78,6 +80,9 @@ func (s httpsSource) Run(ctx context.Context, emit stepdef.Emit) error {
 }
 
 func (s httpsSource) RunReady(ctx context.Context, emit stepdef.Emit, ready func()) error {
+	if err := stepdef.Permit(ctx, stepdef.NetListen, listenTarget(s.addr)); err != nil {
+		return err
+	}
 	unregister, server, err := serveHTTPS(s.addr, s.identity, s.cert, s.path, s.matchPrefix, s.handler(emit))
 	if err != nil {
 		return err
@@ -135,6 +140,7 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 		}
 		delete(m, http.CanonicalHeaderKey(traceIDHeader))
 		m.EnsureIdentity()
+		m[message.WireHeaders] = true
 		if s.preserveHTTPHeaders {
 			m["http.method"] = r.Method
 			m["http.path"] = r.URL.Path
@@ -144,6 +150,7 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 
 		if s.oneWay {
 			reply := m.Copy()
+			delete(reply, message.WireHeaders)
 			if emit(m, nil) != nil {
 				http.Error(w, "flow is not running", http.StatusServiceUnavailable)
 				return
@@ -160,6 +167,16 @@ func (s httpsSource) handler(emit stepdef.Emit) http.HandlerFunc {
 		select {
 		case o := <-done:
 			if o.err != nil {
+				var ce *flowdef.ContractError
+				if errors.As(o.err, &ce) && ce.Kind == "input" {
+					http.Error(w, o.err.Error(), http.StatusBadRequest)
+					return
+				}
+				var fe *flowdef.FaultError
+				if errors.As(o.err, &fe) && fe.Contracted && fe.Message != nil {
+					writeReplyStatus(w, http.StatusInternalServerError, fe.Message, "")
+					return
+				}
 				http.Error(w, o.err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -225,7 +242,7 @@ func headerText(v any) (string, bool) {
 	switch x := v.(type) {
 	case string:
 		return x, true
-	case bool, int, int64, float64:
+	case bool, int, int64, float64, json.Number:
 		return fmt.Sprint(x), true
 	}
 	return "", false
@@ -234,6 +251,10 @@ func headerText(v any) (string, bool) {
 // writeReply writes the body of m with its headers (see writeMessageHeaders),
 // its Content-Type, else produces, else text.
 func writeReply(w http.ResponseWriter, m message.Message, produces string) {
+	writeReplyStatus(w, http.StatusOK, m, produces)
+}
+
+func writeReplyStatus(w http.ResponseWriter, status int, m message.Message, produces string) {
 	writeMessageHeaders(w.Header(), m)
 	writeIdentityHeaders(w.Header(), m)
 	ct, _ := m[message.ContentType].(string)
@@ -244,6 +265,9 @@ func writeReply(w http.ResponseWriter, m message.Message, produces string) {
 		ct = "text/plain; charset=utf-8"
 	}
 	w.Header().Set("Content-Type", ct)
+	if status != http.StatusOK {
+		w.WriteHeader(status)
+	}
 	w.Write(bytesOf(m[message.Body]))
 }
 

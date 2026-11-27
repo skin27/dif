@@ -67,7 +67,7 @@ func (a loggerAction) Process(ctx context.Context, m message.Message) (message.M
 	if a.off {
 		return m, nil
 	}
-	s, err := a.expr.eval(m)
+	s, err := a.expr.eval(m, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -94,8 +94,8 @@ func newSimpleValidator(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	return simpleValidator{expr, cond}, nil
 }
 
-func (v simpleValidator) Process(_ context.Context, m message.Message) (message.Message, error) {
-	ok, err := v.cond(m)
+func (v simpleValidator) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	ok, err := v.cond(m, ctx)
 	switch {
 	case err != nil:
 		return nil, err

@@ -1,0 +1,165 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68f9a0c1aaa5120007000105",
+						"name": "errorHandlers",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "source",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/errorHandlers",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "check-order-id",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "check-order-id",
+									"type": "action",
+									"uri": "simplevalidator",
+									"options": {
+										"expression": "${header.orderId} regex '[0-9]+'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "check-order-id",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "check-payload",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "check-payload",
+									"type": "action",
+									"uri": "simplevalidator",
+									"options": {
+										"expression": "${body} !contains 'poison'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "check-payload",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "accepted",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "accepted",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "order ${header.orderId} accepted"
+									},
+									"links": {
+										"link": {
+											"id": "accepted",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "refuse-order-id",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"errorStep": "check-order-id",
+										"handled": false
+									},
+									"links": {
+										"link": {
+											"id": "log-refusal",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "log-refusal",
+									"type": "sink",
+									"uri": "log",
+									"options": {
+										"showHeaders": false,
+										"showBody": false,
+										"showException": true
+									},
+									"links": {
+										"link": {
+											"id": "log-refusal",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "refuse-payload",
+									"type": "error",
+									"uri": "failedexchange",
+									"options": {
+										"errorStep": "check-payload"
+									},
+									"links": {
+										"link": {
+											"id": "refused",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "refused",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "constant",
+										"expression": "payload refused"
+									},
+									"links": {
+										"link": {
+											"id": "refused",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

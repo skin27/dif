@@ -30,8 +30,10 @@ func completionSuggestions(line string) ([]string, error) {
 	} else {
 		previous := args[len(args)-2]
 		switch {
-		case previous == "--output":
+		case previous == "--output" && args[0] != "convert":
 			choices = []string{"text", "json"}
+		case previous == "--to":
+			choices = []string{"dil", "json"}
 		case previous == "--template":
 			choices = []string{"hello", "timer", "file", "http"}
 		case args[0] == "help":
@@ -45,6 +47,11 @@ func completionSuggestions(line string) ([]string, error) {
 				choices = append(choices, "--template", "--id")
 			case "validate", "describe", "catalog", "version":
 				choices = append(choices, "--output")
+				if args[0] == "validate" {
+					choices = append(choices, "--strict")
+				}
+			case "convert":
+				choices = append(choices, "--to", "--output")
 			case "stop":
 				choices = append(choices, "--force")
 			case "log":
@@ -56,7 +63,7 @@ func completionSuggestions(line string) ([]string, error) {
 			}
 		case args[0] == "list" || args[0] == "ps":
 			choices = []string{"started", "paused", "stopped"}
-		case args[0] == "init" || args[0] == "validate" || args[0] == "describe" || args[0] == "run" || args[0] == "load":
+		case args[0] == "init" || args[0] == "validate" || args[0] == "describe" || args[0] == "convert" || args[0] == "run" || args[0] == "load":
 			dir := filepath.Dir(prefix)
 			entries, err := os.ReadDir(dir)
 			if err != nil {

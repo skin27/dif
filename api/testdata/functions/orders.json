@@ -1,0 +1,241 @@
+{
+  "dil": {
+    "imports": {
+      "import": {
+        "path": "library.json",
+        "namespace": "common"
+      }
+    },
+    "core": {
+      "messages": {
+        "message": {
+          "name": "example",
+          "body": "{\"customer\":\" acme \",\"quantity\":\"3\",\"price\":\"0.10\",\"labels\":\"new,paid\"}",
+          "headers": {
+            "header": {
+              "name": "customer",
+              "value": " acme "
+            }
+          }
+        }
+      }
+    },
+    "integrations": {
+      "integration": {
+        "id": "function-examples",
+        "flows": {
+          "flow": [
+            {
+              "id": "function-simple",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "transform",
+                    "type": "action",
+                    "uri": "processor:common:normalizeBody",
+                    "options": {},
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "function-invoice",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "transform",
+                    "type": "action",
+                    "uri": "mapper:common:Invoice",
+                    "options": {},
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "function-summary",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "transform",
+                    "type": "action",
+                    "uri": "mapper:common:Summary",
+                    "options": {},
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "function-text",
+              "steps": {
+                "step": [
+                  {
+                    "id": "input",
+                    "type": "source",
+                    "uri": "message",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "transform",
+                    "type": "action",
+                    "uri": "processor:common:text",
+                    "options": {
+                      "arguments": {
+                        "value": "Configured once, instantiated per step"
+                      }
+                    },
+                    "links": {
+                      "link": [
+                        {
+                          "id": "1",
+                          "bound": "in"
+                        },
+                        {
+                          "id": "2",
+                          "bound": "out"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "output",
+                    "type": "sink",
+                    "uri": "passthrough",
+                    "links": {
+                      "link": [
+                        {
+                          "id": "2",
+                          "bound": "in"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

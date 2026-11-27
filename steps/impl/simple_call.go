@@ -49,6 +49,9 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 	if what, ok := strings.CutPrefix(ref, "file:"); ok {
 		return c.fileRef(b, what)
 	}
+	if rest, ok := strings.CutPrefix(ref, "store:"); ok {
+		return c.storeReference(b, rest)
+	}
 
 	// ${variable:group:<id>:MetaData.FlowVersion}: what the platform knows of the flow.
 	if rest, ok := strings.CutPrefix(ref, "variable:group:"); ok {
@@ -92,6 +95,9 @@ func (c *compiler) reference(b *block, ref string) (evalFn, error) {
 		if f, found := simpleFuncs[head]; found {
 			fn, err := f(c, b, args)
 			if err != nil {
+				if head == "function" {
+					return nil, err
+				}
 				return nil, fmt.Errorf("%s: %w", b.src, err)
 			}
 			return c.ognl(b, fn, after)
@@ -201,16 +207,27 @@ func (c *compiler) named(b *block, head, rest string, get func(message.Message, 
 		}
 		return nil, unsupported(b, "")
 	}
+	header := strings.HasSuffix(head, "header") || strings.HasSuffix(head, "headers")
 	switch rest[0] {
 	case '.', ':', '?':
 		rest = rest[1:]
 		if plural && (rest == "size" || rest == "length" || rest == "size()" || rest == "length()") {
 			return func(e *env) (any, error) { return int64(len(elementsOfMap(all(e.m)))), nil }, nil
 		}
+		if header {
+			name, suffix := splitHeaderName(rest)
+			if suffix == "" {
+				name = ""
+			}
+			c.recordRead(rest, name)
+		}
 	case '[':
 		inside, after, ok := matchBracket(rest)
 		if !ok {
 			return nil, unsupported(b, "")
+		}
+		if header {
+			c.recordRead(inside)
 		}
 		key, err := c.keyName(b, inside)
 		if err != nil {

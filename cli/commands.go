@@ -20,14 +20,14 @@ type cmdDoc struct {
 }
 
 var commands = []cmdDoc{
-	{"FLOW MANAGEMENT", "load", "<flow.json>...", "Load flows without starting them", "The flows stay stopped until started. Each flow logs to its own file in `logs`."},
-	{"FLOW MANAGEMENT", "run", "<flow.json>...", "Load and start flows", ""},
+	{"FLOW MANAGEMENT", "load", "<flow.json>...", "Load flows without starting them", "Loads all integrations/flows and local imports in each file as a group. The flows stay stopped until started. Each flow logs to its own file in `logs`."},
+	{"FLOW MANAGEMENT", "run", "<flow.json>...", "Load and start flows", "Loads each file and its local imports, then starts that group after all sources are ready."},
 	{"FLOW MANAGEMENT", "start", "<flow>", "Start a stopped flow", "Starting a paused flow resumes it."},
 	{"FLOW MANAGEMENT", "pause", "<flow>", "Pause a flow", "A paused flow takes no new messages until it is started or resumed."},
 	{"FLOW MANAGEMENT", "resume", "<flow>", "Resume a paused flow", ""},
 	{"FLOW MANAGEMENT", "stop", "<flow> [--force]", "Stop a flow", "The flow stops once its current message is done.\n--force stops it at once; that message may be lost."},
 	{"MESSAGING", "send", "<flow> [body]", "Send a message to a flow", "Sends the flow's configured message; with [body], that is its body.\nThe result is in the flow's log; use request to wait for the reply."},
-	{"MESSAGING", "request", "<flow> [body]", "Send a message and show the reply", "Sends the flow's configured message, as send does, and shows the reply:\nthe message the flow ends with, or the message at a setoneway step.\nWaits at most 30 seconds."},
+	{"MESSAGING", "request", "<flow> [body]", "Send a message and show the reply", "Sends the flow's configured message, as send does, and shows the reply:\nthe message the flow ends with, the message at a setoneway step, or the reply a return step chose.\nWaits at most 30 seconds."},
 	{"MONITORING", "list", "[state]", "List flows and their state", "state is started, paused or stopped."},
 	{"MONITORING", "ps", "[state]", "Alias for list", "state is started, paused or stopped."},
 	{"MONITORING", "stats", "[flow]", "Show message statistics", "With [flow], show the details of one flow."},
@@ -35,8 +35,9 @@ var commands = []cmdDoc{
 	{"MONITORING", "log", "<flow> [--lines n]", "Follow or display a flow's log", "Follows the log live; press Enter to stop.\nWith --lines, shows its last n lines."},
 	{"DEVELOPMENT", "catalog", "[step]", "List available steps", "With [step], show its description and options."},
 	{"DEVELOPMENT", "init", "<flow.json> [--template hello|timer|file|http] [--id name]", "Create a starter flow", "Refuses to overwrite an existing file. Default template: hello. File input moves to inbox/.done. The http template serves HTTPS on 127.0.0.1:9002 and needs security/server-identity.p12 and DIF_SERVER_IDENTITY_PASSWORD."},
-	{"DEVELOPMENT", "validate", "<flow.json>... [--output text|json]", "Validate flow structure, references and option schemas", "Offline validation does not construct processors. Expressions, processor-specific semantics and external resources are checked when loading a flow."},
-	{"DEVELOPMENT", "describe", "<flow.json> [--output text|json]", "Describe steps, links, error handling and configuration", "Option values, URI paths and expression text are omitted to avoid exposing credentials."},
+	{"DEVELOPMENT", "validate", "<flow.json>... [--output text|json] [--strict]", "Validate flow structure, references and option schemas, and check the flow statically", "Offline validation does not construct processors. The static checks follow what is known about the message from step to step and report errors (every message fails at a step) and warnings; errors fail validation, warnings only with --strict. Expressions, processor-specific semantics and external resources are checked when loading a flow."},
+	{"DEVELOPMENT", "describe", "<flow.json> [--output text|json]", "Describe steps, links, error handling, configuration and capabilities", "Groups include documents, imports, integrations and core references. Option values, URI paths and expression text are omitted to avoid exposing credentials. The capabilities list, per step, the addresses it can connect to or listen on, the files it can read or write and the environment variables it can read."},
+	{"DEVELOPMENT", "convert", "<file> [--to dil|json] [--output path]", "Convert a flow between DIL JSON and DIL text", "A .json file becomes DIL text, a .dil file DIL JSON; --to chooses the format. Writes to the screen, or to a new file with --output: convert never overwrites a file. DIL text is described in docs/dil-language.md; its comments are not kept in JSON."},
 	{"SYSTEM", "version", "[--output text|json]", "Show version and build information", "Includes revision, Go version and platform."},
 	{"SYSTEM", "completion", "[command line]", "Suggest commands and arguments", "Examples: completion, completion val, completion init --template t, completion catalog pass. Lists suggestions without running a command."},
 	{"SYSTEM", "help", "[command]", "Show this help", ""},
@@ -80,7 +81,7 @@ func helpText() string {
 		{"stopped", "Flow is loaded but not running"},
 	}, nil, nil), "  "))
 	b.WriteString("\n\n<flow> is the flow id from the DIL file. Use 'help <command>' for details.")
-	b.WriteString("\nFlow filenames default to .json; the extension can be omitted.")
+	b.WriteString("\nFlow filenames default to .json; the extension can be omitted. A .dil file is DIL text.")
 	b.WriteString("\nStart this shell by running dif.exe without arguments (PowerShell: .\\dif.exe).\nTry: init hello.json, validate hello.json, describe hello.json, run hello.json, request hello.")
 	return b.String()
 }
@@ -92,8 +93,8 @@ func commandHelp(c cmdDoc) string {
 		s += "\n\n" + c.detail
 	}
 	switch c.name {
-	case "load", "run", "init", "validate", "describe":
-		s += "\n\nFlow filenames default to .json: '" + c.name + " hello' uses hello.json. Explicit extensions are preserved."
+	case "load", "run", "init", "validate", "describe", "convert":
+		s += "\n\nFlow filenames default to .json: '" + c.name + " hello' uses hello.json. Explicit extensions are preserved; a .dil file is DIL text."
 	}
 	return s
 }

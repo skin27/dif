@@ -1,0 +1,108 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "68f9a0c1aaa5120007000102",
+						"name": "returnError",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0001",
+									"type": "source",
+									"uri": "https://0.0.0.0:9001/_new2/returnError",
+									"options": {
+										"matchPrefix": false,
+										"preserveHttpHeaders": false,
+										"exchangePattern": "InOut"
+									},
+									"links": {
+										"link": {
+											"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0002",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0002",
+									"type": "action",
+									"uri": "simplevalidator",
+									"options": {
+										"expression": "${header.orderId} regex '[0-9]+'"
+									},
+									"links": {
+										"link": [
+											{
+												"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0002",
+												"bound": "in",
+												"transport": "sync"
+											},
+											{
+												"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0003",
+												"bound": "out",
+												"transport": "sync"
+											}
+										]
+									}
+								},
+								{
+									"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0003",
+									"type": "sink",
+									"uri": "setbody",
+									"options": {
+										"language": "simple",
+										"expression": "order ${header.orderId} accepted"
+									},
+									"links": {
+										"link": {
+											"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0003",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "68f9a0c1aaa5120007000104",
+									"type": "error",
+									"uri": "failedexchange",
+									"links": {
+										"link": {
+											"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0004",
+											"bound": "out",
+											"transport": "sync"
+										}
+									}
+								},
+								{
+									"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0004",
+									"type": "sink",
+									"uri": "return",
+									"options": {
+										"language": "constant",
+										"expression": "order refused: orderId must be a number",
+										"status": "error"
+									},
+									"links": {
+										"link": {
+											"id": "9b1e3f6a-2c7d-4e58-8f31-5d0a4c2b0004",
+											"bound": "in",
+											"transport": "sync"
+										}
+									}
+								}
+							]
+						},
+						"options": {
+							"environment": "test",
+							"tenant": "_new2",
+							"version": 1
+						}
+					}
+				}
+			}
+		}
+	}
+}

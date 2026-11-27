@@ -1,0 +1,34 @@
+# The client of api/testdata/services/orders.json as DIL text. It imports the
+# contracts under another alias, and the provider, which implements them.
+import "contracts.dil" as orders
+import "provider.dil" as impl
+
+message ValidOrder {
+  body: '{"sku":"BOOK-1","quantity":2}'
+  header Idempotency-Key: "idem-100"
+}
+
+message OutOfStockOrder {
+  body: '{"sku":"OUT-OF-STOCK","quantity":1}'
+  header Idempotency-Key: "idem-200"
+}
+
+integration order-client(name: "Order Client") {
+  flow submit-order(name: "Submit Valid Order", inputMessage: "ValidOrder") {
+    message as in
+      -> service:orders:PlaceOrder as place-order
+      -> passthrough as out
+  }
+
+  flow submit-out-of-stock(name: "Submit Out-Of-Stock Order", inputMessage: "OutOfStockOrder") {
+    message as in
+      -> service:orders:PlaceOrder as place-order
+      -> passthrough as out
+
+    # The provider's fault arrives as an error; show its body as the reply.
+    on error(errorClass: "*FaultError") as catch-fault {
+      setbody(expression: "${header.error.body}", language: "simple")
+        -> passthrough
+    }
+  }
+}

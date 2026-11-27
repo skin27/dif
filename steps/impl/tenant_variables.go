@@ -4,63 +4,65 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 
+	"dif/internal/channels"
 	"dif/message"
 	stepdef "dif/steps/definition"
 )
 
 // Tenant variables are named values that the flows of a tenant share, such as
 // a token one flow fetches and others use. The Java platform keeps them in the
-// tenant's database; DIF keeps them in memory, shared by all flows of the
-// process, and loses them when dif exits.
+// tenant's database; DIF keeps the variables of a tenant in the store
+// tenant.<tenant> of the channel runtime the flow is loaded in. A program may
+// declare that store in dil.core.stores, durable to keep the variables over a
+// restart; without a declaration it is in memory, and the variables are lost
+// when dif exits.
 
-// tenantStore holds tenant variables by tenant and name. It is the seam for
-// persisting them in a later iteration.
-type tenantStore interface {
-	get(tenant, name string) (string, bool)
-	set(tenant, name, value string)
-	remove(tenant, name string)
+// tenantStore holds the variables of one tenant by name: the seam between the
+// steps and where the variables are kept, the tenant's store.
+type tenantStore struct{ store *channels.Store }
+
+// tenantVariables returns the variables of tenant for the step: the store
+// tenant.<tenant> of its runtime, as a program declares it, else in memory.
+func tenantVariables(p stepdef.Params, tenant string) (tenantStore, error) {
+	rt, name := channelRuntime(p), "tenant."+tenant
+	if s := rt.Store(name); s != nil {
+		return tenantStore{s}, nil
+	}
+	d := stepdef.Store{Name: name}
+	if stores, _ := declaredStores(p); stores != nil {
+		for _, declared := range stores {
+			if declared.Name == name {
+				d = declared
+			}
+		}
+	}
+	s, err := rt.DeclareStore(d.Name, storeConfig(d))
+	return tenantStore{s}, err
 }
 
-// memTenantStore is the in-memory tenantStore.
-type memTenantStore struct {
-	mu   sync.RWMutex
-	vars map[[2]string]string // by tenant and name
+func (t tenantStore) get(name string) (string, bool, error) {
+	v, ok, err := t.store.Get(name)
+	return text(v), ok, err
 }
 
-func (s *memTenantStore) get(tenant, name string) (string, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	v, ok := s.vars[[2]string{tenant, name}]
-	return v, ok
+func (t tenantStore) set(name, value string) error { return t.store.Put(name, value) }
+func (t tenantStore) remove(name string) error     { return t.store.Remove(name) }
+
+// tenantVariable is the variable a step works on: its tenant's variables (the
+// option tenantDbName) and its name (the URI path).
+type tenantVariable struct {
+	vars tenantStore
+	name string
 }
-
-func (s *memTenantStore) set(tenant, name, value string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.vars[[2]string{tenant, name}] = value
-}
-
-func (s *memTenantStore) remove(tenant, name string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	delete(s.vars, [2]string{tenant, name})
-}
-
-var tenantVariables tenantStore = &memTenantStore{vars: map[[2]string]string{}}
-
-// tenantVariable is the variable a step works on: its tenant (the option
-// tenantDbName) and name (the URI path).
-type tenantVariable struct{ tenant, name string }
 
 func newTenantVariable(p stepdef.Params) (tenantVariable, error) {
 	name, _ := p["path"].(string)
-	v := tenantVariable{tenant: p["tenantDbName"].(string), name: name}
-	if v.name == "" {
-		return v, fmt.Errorf("no variable name: want <step>:<name>")
+	if name == "" {
+		return tenantVariable{}, fmt.Errorf("no variable name: want <step>:<name>")
 	}
-	return v, nil
+	vars, err := tenantVariables(p, p["tenantDbName"].(string))
+	return tenantVariable{vars, name}, err
 }
 
 // setTenantVariableAction sets the variable to the value of an expression.
@@ -81,12 +83,14 @@ func newSetTenantVariableAction(_ string, p stepdef.Params) (stepdef.Processor, 
 	return setTenantVariableAction{v, value}, nil
 }
 
-func (a setTenantVariableAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	s, err := a.value.eval(m)
+func (a setTenantVariableAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	s, err := a.value.eval(m, ctx)
 	if err != nil {
 		return nil, err
 	}
-	tenantVariables.set(a.v.tenant, a.v.name, s)
+	if err := a.v.vars.set(a.v.name, s); err != nil {
+		return nil, err
+	}
 	return m, nil
 }
 
@@ -109,8 +113,12 @@ func newGetTenantVariableAction(_ string, p stepdef.Params) (stepdef.Processor, 
 	return getTenantVariableAction{v, header}, nil
 }
 
-func (a getTenantVariableAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	m[a.header], _ = tenantVariables.get(a.v.tenant, a.v.name)
+func (a getTenantVariableAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	v, _, err := a.v.vars.get(a.v.name)
+	if err != nil {
+		return nil, err
+	}
+	m[a.header] = v
 	return m, nil
 }
 
@@ -125,8 +133,10 @@ func newRemoveTenantVariableAction(_ string, p stepdef.Params) (stepdef.Processo
 	return removeTenantVariableAction{v}, nil
 }
 
-func (a removeTenantVariableAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	tenantVariables.remove(a.v.tenant, a.v.name)
+func (a removeTenantVariableAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	if err := a.v.vars.remove(a.v.name); err != nil {
+		return nil, err
+	}
 	return m, nil
 }
 
@@ -134,7 +144,7 @@ func (a removeTenantVariableAction) Process(_ context.Context, m message.Message
 // tenant variable name, as the Java platform does in option values. A step
 // calls it when it uses the option, not when it is created, so a value that
 // another flow refreshes (such as an access token) is current.
-func expandTenantVariables(tenant, s string) (string, error) {
+func expandTenantVariables(vars tenantStore, s string) (string, error) {
 	var b strings.Builder
 	for {
 		start := strings.Index(s, "@{")
@@ -146,9 +156,12 @@ func expandTenantVariables(tenant, s string) (string, error) {
 			return "", fmt.Errorf("unterminated @{ in option value")
 		}
 		name := s[start+2 : start+end]
-		v, ok := tenantVariables.get(tenant, name)
+		v, ok, err := vars.get(name)
+		if err != nil {
+			return "", err
+		}
 		if !ok {
-			return "", fmt.Errorf("tenant variable %q of tenant %q is not set", name, tenant)
+			return "", fmt.Errorf("tenant variable %q of tenant %q is not set", name, strings.TrimPrefix(vars.store.Name(), "tenant."))
 		}
 		b.WriteString(s[:start])
 		b.WriteString(v)

@@ -20,8 +20,8 @@ func newSetBodyAction(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	return setBodyAction{expr}, nil
 }
 
-func (a setBodyAction) Process(_ context.Context, m message.Message) (message.Message, error) {
-	v, err := a.expr.eval(m)
+func (a setBodyAction) Process(ctx context.Context, m message.Message) (message.Message, error) {
+	v, err := a.expr.eval(m, ctx)
 	if err != nil {
 		return nil, err
 	}

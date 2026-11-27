@@ -1,0 +1,36 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dif:step:return-action",
+	"title": "return action",
+	"description": "Chooses the reply of the exchange: the message as it is, or with the body of an expression. The message itself passes on unchanged. By default the reply is fixed here and the sender gets it when the flow has processed the message (a failure after this step replaces it); with detach the sender gets it now and the flow goes on without it. The first return wins; nothing happens when nobody waits for a reply.",
+	"type": "object",
+	"properties": {
+		"language": {
+			"title": "Language",
+			"description": "Expression language: constant (literal text) or simple (${body}, ${header.name})",
+			"type": "string",
+			"enum": ["constant", "simple"],
+			"default": "simple"
+		},
+		"expression": {
+			"title": "Expression",
+			"description": "The body of the reply; empty returns the message as it is",
+			"type": "string",
+			"default": ""
+		},
+		"status": {
+			"title": "Status",
+			"description": "success replies with the message; error makes the reply a failure, with the body of the reply as its text (an https source answers 500)",
+			"type": "string",
+			"enum": ["success", "error"],
+			"default": "success"
+		},
+		"detach": {
+			"title": "Detach",
+			"description": "true: the sender gets the reply now and the flow goes on without it; false: it gets the reply when the flow is done",
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"additionalProperties": false
+}

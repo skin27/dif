@@ -1,0 +1,16 @@
+# Aggregates order lines by their order: the lines of one order make a group,
+# which completes with its second line or a minute after its last one. The
+# store "order-lines" keeps the groups; declared durable in a service with a
+# channels.directory, groups that are not complete survive a restart.
+store order-lines { maxKeys: 1000 }
+
+message line {
+  body: '{"sku":"BOOK-1","quantity":1}'
+  header orderId: "A-1"
+}
+
+flow order-lines(name: "Order lines by order", inputMessage: "line") {
+  message:line
+    -> aggregate(aggregateType: "json", correlationKey: "${header.orderId}", completionSize: 2, completionTimeout: 60000, store: "order-lines")
+    -> log(showBody: true, showHeaders: true)
+}

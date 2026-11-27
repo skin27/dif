@@ -40,16 +40,26 @@ func TestTenantVariables(t *testing.T) {
 	wantInvalid(t, stepdef.Action, "settenantvariable:x", map[string]any{"language": "groovy"}, "option language")
 }
 
+// tenantVars returns the variables of tenant in the default channels, which
+// the steps these tests make use.
+func tenantVars(tenant string) tenantStore {
+	vars, err := tenantVariables(nil, tenant)
+	if err != nil {
+		panic(err)
+	}
+	return vars
+}
+
 func TestExpandTenantVariables(t *testing.T) {
 	tenant := t.Name()
-	tenantVariables.set(tenant, "a", "1")
-	tenantVariables.set(tenant, "b", "")
-	tenantVariables.set("other", "a", "2")
+	tenantVars(tenant).set("a", "1")
+	tenantVars(tenant).set("b", "")
+	tenantVars("other").set("a", "2")
 
 	for in, want := range map[string]string{
 		"": "", "plain": "plain", "@{a}": "1", "x@{a}y@{b}z@{a}": "x1yz1", "@{a}@{a}": "11", "$@{a}": "$1", "{a}": "{a}", "a@": "a@",
 	} {
-		if got, err := expandTenantVariables(tenant, in); err != nil || got != want {
+		if got, err := expandTenantVariables(tenantVars(tenant), in); err != nil || got != want {
 			t.Errorf("expand(%q) = %q, %v, want %q", in, got, err, want)
 		}
 	}
@@ -57,7 +67,7 @@ func TestExpandTenantVariables(t *testing.T) {
 		"@{missing}": `tenant variable "missing" of tenant "TestExpandTenantVariables" is not set`,
 		"ok @{a":     "unterminated",
 	} {
-		if _, err := expandTenantVariables(tenant, in); err == nil || !strings.Contains(err.Error(), want) {
+		if _, err := expandTenantVariables(tenantVars(tenant), in); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("expand(%q) err = %v, want containing %q", in, err, want)
 		}
 	}

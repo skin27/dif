@@ -15,6 +15,14 @@ import (
 )
 
 func runServiceCommand(args []string, stdout, stderr io.Writer, validation bool) int {
+	strict := false
+	if validation {
+		var err error
+		if args, strict, err = strictFlag(args); err != nil {
+			fmt.Fprintln(stderr, "Error:", err)
+			return 2
+		}
+	}
 	o, err := service.ParseOptions(args, os.Getenv, validation)
 	if errors.Is(err, flag.ErrHelp) {
 		fmt.Fprintln(stdout, service.Usage)
@@ -38,15 +46,33 @@ func runServiceCommand(args []string, stdout, stderr io.Writer, validation bool)
 			}
 			return 1
 		}
-		results := make([]validationInfo, 0, len(docs))
+		names := make([]string, 0, len(docs))
 		for _, doc := range docs {
-			results = append(results, validationInfo{Path: doc.Name, Valid: true})
+			names = append(names, doc.Name)
+		}
+		info := docs[0].Program.Info()
+		if policy, _ := o.Policy(); policy != nil { // its grants were checked with the options
+			info.CheckPolicy(policy)
+		}
+		diagnostics := diagnosticsOf(info, names)
+		results := make([]validationInfo, 0, len(docs))
+		failed := false
+		for _, doc := range docs {
+			r := validationResult(doc.Name, diagnostics[doc.Name], strict)
+			failed = failed || !r.Valid
+			results = append(results, r)
 			if o.Output != "json" {
-				fmt.Fprintf(stdout, "%s: valid (structure and option schemas)\n", doc.Name)
+				printValidation(stdout, doc.Name, diagnostics[doc.Name], strict)
 			}
 		}
 		if o.Output == "json" {
-			return writeJSON(stdout, stderr, results)
+			if c := writeJSON(stdout, stderr, results); c != 0 {
+				return c
+			}
+		}
+		if failed {
+			fmt.Fprintln(stderr, staticChecksFailed(strict))
+			return 1
 		}
 		return 0
 	}

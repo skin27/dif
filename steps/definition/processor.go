@@ -16,6 +16,8 @@ package definition
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"dif/message"
 )
@@ -179,6 +181,78 @@ type Definition struct {
 	// supplied by a loader. Ordinary custom processors receive only schema options.
 	RuntimeBindings []string
 
+	// Connection says how the step takes a typed connection; nil if it takes none.
+	Connection *ConnectionMapping
+
 	// New creates the processor for the step with id stepID from validated params.
 	New func(stepID string, p Params) (Processor, error)
+
+	// Effect, if not nil, says what the step does to a message, from its
+	// validated params (a router's include its Links), for the static checks of
+	// a flow; see Effect. It returns nil when it cannot tell. Without it the step
+	// is unknown to the checks.
+	Effect func(p Params) *Effect
+
+	// Capabilities says which outside resources the step can touch, from its
+	// validated params; see Capability. nil leaves the step undeclared, which a
+	// policy refuses; a function that returns no capabilities declares none.
+	Capabilities func(p Params) []Capability
+}
+
+// ConnectionBinding is the node binding under which a loader puts the
+// *Connection a step refers to. The registry merges it into the step's options
+// before they are validated; the processor never sees it.
+const ConnectionBinding = "dif.connection"
+
+// Connection is a typed connection to a system outside the flow, such as an
+// SFTP server, as a loader resolved it.
+type Connection struct {
+	Name string // as the step referred to it, such as "common:partnerSftp"
+	Kind string // such as "sftp"
+
+	// Fields holds what the connection sets, by dotted name, such as "host",
+	// "authentication.username" or "tls.trustStoreFile".
+	Fields map[string]any
+}
+
+// Address returns where the connection's server is: its url, or
+// host[:port], followed by /share if it has one; "" if it sets no host.
+func (c *Connection) Address() string {
+	if u, _ := c.Fields["url"].(string); u != "" {
+		return strings.TrimRight(u, "/")
+	}
+	host, _ := c.Fields["host"].(string)
+	if host == "" {
+		return ""
+	}
+	if port := fmt.Sprint(c.Fields["port"]); c.Fields["port"] != nil && port != "" {
+		host += ":" + port
+	}
+	if share, _ := c.Fields["share"].(string); share != "" {
+		host += "/" + strings.Trim(share, "/")
+	}
+	return host
+}
+
+// AddressFields are the fields that make up a connection's Address.
+var AddressFields = []string{"host", "port", "share", "url"}
+
+// ConnectionMapping says how a step takes a typed connection: which of the
+// step's options each field of the connection sets. An option the step sets
+// itself wins over the connection.
+type ConnectionMapping struct {
+	Kinds []string // the kinds of connection the step takes, such as "sftp"
+
+	// Options maps a connection field to the step option it sets; to "" for
+	// a field the step takes only for what it implies.
+	Options map[string]string
+
+	// Address is the option the connection's Address is put in front of, such
+	// as "path"; then the step's own value is relative to the connection. If
+	// it is "", the address fields go through Options like any other.
+	Address string
+
+	// Implied are options set when a connection field is set (and not
+	// false), such as authMethod Basic for authentication.username.
+	Implied map[string]map[string]any
 }

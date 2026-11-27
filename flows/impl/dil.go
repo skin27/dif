@@ -10,10 +10,31 @@ import (
 
 type dilDoc struct {
 	DIL struct {
+		Imports struct {
+			Import oneOrMany[Import] `json:"import"`
+		} `json:"imports"`
 		Integrations struct {
 			Integration oneOrMany[dilIntegration] `json:"integration"`
 		} `json:"integrations"`
 		Core struct {
+			Functions struct {
+				Function oneOrMany[dilFunction] `json:"function"`
+			} `json:"functions"`
+			Processors struct {
+				Processor oneOrMany[dilProcessor] `json:"processor"`
+			} `json:"processors"`
+			Interceptors struct {
+				Interceptor oneOrMany[dilInterceptor] `json:"interceptor"`
+			} `json:"interceptors"`
+			Formats struct {
+				Format oneOrMany[dilFormat] `json:"format"`
+			} `json:"formats"`
+			Maps struct {
+				Map oneOrMany[dilMap] `json:"map"`
+			} `json:"maps"`
+			Services struct {
+				Service oneOrMany[dilService] `json:"service"`
+			} `json:"services"`
 			Messages struct {
 				Message oneOrMany[dilMessage] `json:"message"`
 			} `json:"messages"`
@@ -23,12 +44,19 @@ type dilDoc struct {
 			Connections struct {
 				Connection oneOrMany[dilConnection] `json:"connection"`
 			} `json:"connections"`
+			Stores struct {
+				Store oneOrMany[dilStore] `json:"store"`
+			} `json:"stores"`
 		} `json:"core"`
 	} `json:"dil"`
 }
 
 type dilIntegration struct {
-	Flows struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Version any    `json:"version"`
+	Flows   struct {
 		Flow oneOrMany[dilFlow] `json:"flow"`
 	} `json:"flows"`
 }
@@ -37,9 +65,11 @@ type dilFlow struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
 	Options struct {
-		Tenant      string `json:"tenant"`
-		Environment string `json:"environment"`
-		Version     any    `json:"version"` // a number or a text
+		InputMessage string `json:"inputMessage,omitempty"`
+		Service      string `json:"service,omitempty"`
+		Tenant       string `json:"tenant"`
+		Environment  string `json:"environment"`
+		Version      any    `json:"version"` // a number or a text
 	} `json:"options"`
 	Steps struct {
 		Step oneOrMany[dilStep] `json:"step"`
@@ -72,15 +102,6 @@ type dilMessage struct {
 	} `json:"headers"`
 }
 
-// dilConnection is a connection to a system outside the flow, such as a
-// database, that steps refer to by its id in the option dataSource.
-type dilConnection struct {
-	ID   string         `json:"id"`
-	Name string         `json:"name"`
-	Type string         `json:"type"` // such as jdbc
-	Keys map[string]any `json:"keys"` // dbtype, dbname, host, port, username, password
-}
-
 // dilResource is a named text, such as a JSON Schema or a template, that steps
 // refer to as <scheme>:ref:<name>.
 type dilResource struct {
@@ -99,6 +120,10 @@ type dilHeader struct {
 type oneOrMany[T any] []T
 
 func (s *oneOrMany[T]) UnmarshalJSON(data []byte) error {
+	if bytes.Equal(bytes.TrimSpace(data), []byte("null")) {
+		*s = nil
+		return nil
+	}
 	if bytes.HasPrefix(bytes.TrimSpace(data), []byte("[")) {
 		return json.Unmarshal(data, (*[]T)(s))
 	}

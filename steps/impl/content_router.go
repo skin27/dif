@@ -48,9 +48,9 @@ func newContentRouter(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	return r, nil
 }
 
-func (r contentRouter) Route(_ context.Context, m message.Message) ([]stepdef.Route, error) {
+func (r contentRouter) Route(ctx context.Context, m message.Message) ([]stepdef.Route, error) {
 	for _, w := range r.when {
-		ok, err := w.cond(m)
+		ok, err := w.cond(m, ctx)
 		if err != nil {
 			return nil, fmt.Errorf("outbound link %d: %w", w.next, err)
 		}

@@ -1,0 +1,9 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "dif:step:mapper-action",
+ "title": "mapper action",
+ "description": "Invokes a named dil.core map with its input and output format contracts: mapper:<name> or mapper:<namespace>:<name>.",
+ "type": "object",
+ "properties": {},
+ "additionalProperties": false
+}

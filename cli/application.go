@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,6 +15,7 @@ import (
 
 	"dif/api"
 	flowimpl "dif/flows/impl"
+	"dif/internal/dilsyntax"
 )
 
 // Run dispatches foreground service commands, utilities, or the interactive shell.
@@ -25,7 +28,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return runServiceCommand(args[1:], stdout, stderr, false)
 	case "validate":
 		return runServiceCommand(args[1:], stdout, stderr, true)
-	case "version", "describe", "catalog", "init":
+	case "version", "describe", "catalog", "init", "convert":
 		return runUtility(args, stdout, stderr)
 	case "--version":
 		return runUtility(append([]string{"version"}, args[1:]...), stdout, stderr)
@@ -39,7 +42,7 @@ func Run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 }
 
 func startupHelp() string {
-	return "Usage:\n  dif                       Start the interactive shell\n  dif run --file FLOW.json   Start a foreground service\n  dif run --dir DIRECTORY    Start a group of flows\n  dif run --help             Service options\n  dif validate [inputs]      Validate without starting flows\n  dif describe FLOW.json     Describe a flow\n  dif version               Show build information\n  dif help                  Show this help\n\nRun dif.exe (or .\\dif.exe in PowerShell) without arguments for the shell.\nAt the > prompt, type help to explore commands, or help <command> for details."
+	return "Usage:\n  dif                       Start the interactive shell\n  dif run --file FLOW.json   Start a foreground service\n  dif run --dir DIRECTORY    Start a group of flows\n  dif run --help             Service options\n  dif validate [inputs]      Validate without starting flows\n  dif describe FLOW.json     Describe a flow\n  dif convert FILE           Convert a flow between DIL JSON and DIL text (.dil)\n  dif version              Show build information\n  dif help                  Show this help\n\nRun dif.exe (or .\\dif.exe in PowerShell) without arguments for the shell.\nAt the > prompt, type help to explore commands, or help <command> for details."
 }
 
 // runUtility executes development commands in the existing shell session.
@@ -66,13 +69,20 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet(doc.name, flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	fs.Usage = func() { fmt.Fprintln(stderr, commandHelp(doc)) }
-	output, template, id := "text", "hello", ""
+	output, template, id, to, target := "text", "hello", "", "", ""
+	strict := false
 	switch doc.name {
 	case "validate", "describe", "catalog", "version":
 		fs.StringVar(&output, "output", "text", "Output format: text or json")
+		if doc.name == "validate" {
+			fs.BoolVar(&strict, "strict", false, "Fail on warnings of the static checks too")
+		}
 	case "init":
 		fs.StringVar(&template, "template", "hello", "Starter template")
 		fs.StringVar(&id, "id", "", "Flow id (defaults to filename)")
+	case "convert":
+		fs.StringVar(&to, "to", "", "Target format: dil or json")
+		fs.StringVar(&target, "output", "", "File to write; refuses to overwrite one")
 	}
 	// Allow flags before or after positional arguments; -- protects dash-prefixed paths.
 	var options, positionals []string
@@ -88,7 +98,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		}
 		if strings.HasPrefix(a, "-") {
 			options = append(options, a)
-			if !strings.Contains(a, "=") && fs.Lookup(strings.TrimLeft(a, "-")) != nil {
+			if f := fs.Lookup(strings.TrimLeft(a, "-")); !strings.Contains(a, "=") && f != nil && takesValue(f) {
 				if i+1 == len(args) {
 					fmt.Fprintf(stderr, "Error: %s needs a value\n", a)
 					return 2
@@ -117,7 +127,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		if n == 0 {
 			return bad("missing flow file argument")
 		}
-	case "describe", "init":
+	case "describe", "init", "convert":
 		if n != 1 {
 			return bad("expected exactly one argument")
 		}
@@ -130,7 +140,7 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 			return bad("expected at most one step argument")
 		}
 	}
-	if doc.name == "init" || doc.name == "validate" || doc.name == "describe" {
+	if doc.name == "init" || doc.name == "validate" || doc.name == "describe" || doc.name == "convert" {
 		for i, path := range positionals {
 			positionals[i] = flowFilePath(path)
 		}
@@ -177,69 +187,96 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 			}
 		}
 	case "validate":
-		results := []validationInfo{}
-		ids := map[string]string{}
-		code := 0
+		sources := []api.ProgramSource{}
 		for _, path := range positionals {
-			info, err := api.Inspect(path)
-			if err == nil {
-				if previous, duplicate := ids[info.ID]; duplicate {
-					err = fmt.Errorf("duplicate flow id %q (also in %s)", info.ID, previous)
-				} else {
-					ids[info.ID] = path
-				}
-			}
+			sources = append(sources, api.ProgramSource{Name: path, Path: path})
+		}
+		prepared, err := api.PrepareProgram(context.Background(), sources, api.ProgramLimits{})
+		if err == nil {
+			err = prepared.CheckFlowLinks(nil)
+		}
+		var diagnostics map[string][]api.Diagnostic
+		if err == nil {
+			diagnostics = diagnosticsOf(prepared.Info(), positionals)
+		}
+		results := []validationInfo{}
+		failed := false
+		for _, path := range positionals {
 			r := validationInfo{Path: path, Valid: err == nil}
 			if err != nil {
 				r.Error = err.Error()
-				code = 1
-				fmt.Fprintf(stderr, "Error: %s: %v\n", path, err)
-			} else if output == "text" {
-				fmt.Fprintf(stdout, "%s: valid (structure and option schemas)\n", path)
+			} else {
+				r = validationResult(path, diagnostics[path], strict)
+				failed = failed || !r.Valid
+				if output == "text" {
+					printValidation(stdout, path, diagnostics[path], strict)
+				}
 			}
 			results = append(results, r)
+		}
+		if err != nil {
+			fmt.Fprintf(stderr, "Error: %v\n", err)
+		} else if failed {
+			fmt.Fprintln(stderr, staticChecksFailed(strict))
 		}
 		if output == "json" {
 			if c := writeJSON(stdout, stderr, results); c != 0 {
 				return c
 			}
 		}
-		return code
+		if err != nil || failed {
+			return 1
+		}
+		return 0
 	case "describe":
-		info, err := api.Inspect(positionals[0])
+		program, err := api.InspectProgram(positionals[0])
 		if err != nil {
 			return fail(err)
 		}
+		single := len(program.Flows) == 1 && len(program.Documents) == 1 && len(program.Documents[0].Stores) == 0
 		if output == "json" {
-			return writeJSON(stdout, stderr, info)
+			if single {
+				return writeJSON(stdout, stderr, program.Flows[0].Flow)
+			}
+			return writeJSON(stdout, stderr, program)
 		}
-		fmt.Fprintf(stdout, "FLOW: %s\nNAME: %s\nSOURCE: %s\n\n", info.ID, info.Name, info.Source)
-		rows := [][]string{}
-		for _, s := range info.Steps {
-			links := []string{}
-			for _, l := range s.Links {
-				target := l.Target
-				if l.Rule != "" {
-					target += " (" + l.Rule + ")"
+		if !single {
+			for _, doc := range program.Documents {
+				fmt.Fprintf(stdout, "DOCUMENT: %s\n", doc.Name)
+				for _, imp := range doc.Imports {
+					fmt.Fprintf(stdout, "  IMPORT: %s -> %s\n", imp.Namespace, imp.Document)
 				}
-				links = append(links, target)
+				for _, in := range doc.Integrations {
+					fmt.Fprintf(stdout, "  INTEGRATION: %s (%s); type: %s; version: %s\n", in.ID, in.Name, in.Type, in.Version)
+				}
+				for _, f := range doc.Formats {
+					fmt.Fprintf(stdout, "  FORMAT: %s (%s)\n", f.Name, f.MediaType)
+				}
+				for _, m := range doc.Maps {
+					fmt.Fprintf(stdout, "  MAP: %s (%s); %s -> %s\n", m.Name, m.Language, m.Input, m.Output)
+				}
+				for _, svc := range doc.Services {
+					fmt.Fprintf(stdout, "  SERVICE: %s (%s); %s -> %s\n", svc.Name, svc.ExchangePattern, contractPayloadLabel(svc.Input), contractPayloadLabel(svc.Output))
+				}
+				for _, s := range doc.Stores {
+					maxKeys := "default"
+					if s.MaxKeys > 0 {
+						maxKeys = fmt.Sprint(s.MaxKeys)
+					}
+					fmt.Fprintf(stdout, "  STORE: %s; durable: %t; ttl: %d ms; maxKeys: %s\n", s.Name, s.Durable, s.TTL, maxKeys)
+				}
 			}
-			rows = append(rows, []string{s.ID, s.Kind, s.Step, strings.Join(links, ", ")})
 		}
-		fmt.Fprintln(stdout, renderTable([]string{"ID", "KIND", "STEP", "NEXT"}, rows, nil, nil))
-		if e := info.Error; e != nil {
-			fmt.Fprintf(stdout, "\nERROR: %s; retries: %d; delay: %d ms; route: %s\n", e.ID, e.Redeliveries, e.DelayMillis, e.Target)
-		}
-		fmt.Fprintln(stdout, "\nCONFIGURATION (values omitted):")
-		if len(info.Configuration) == 0 {
-			fmt.Fprintln(stdout, "  No required options or environment fallbacks.")
-		}
-		for _, c := range info.Configuration {
-			fmt.Fprintf(stdout, "  %s: %s (required: %t)", c.StepID, c.Option, c.Required)
-			if c.Environment != "" {
-				fmt.Fprintf(stdout, "; environment fallback: %s", c.Environment)
+		for _, flow := range program.Flows {
+			if !single {
+				fmt.Fprintf(stdout, "\nORIGIN: %s; INTEGRATION: %s\n", flow.Origin, flow.Integration.ID)
 			}
-			fmt.Fprintln(stdout)
+			describeFlow(stdout, flow.Flow)
+			if !single {
+				for _, ref := range flow.References {
+					fmt.Fprintf(stdout, "  REFERENCE: %s %s (step: %s)\n", ref.Kind, ref.Name, ref.Step)
+				}
+			}
 		}
 	case "init":
 		path := positionals[0]
@@ -250,21 +287,74 @@ func runUtility(args []string, stdout, stderr io.Writer) int {
 		if err != nil {
 			return bad(err.Error())
 		}
-		f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
-		if err != nil {
-			return fail(err)
+		if dilsyntax.IsTextPath(path) {
+			if data, err = dilsyntax.Print(data); err != nil {
+				return fail(err)
+			}
 		}
-		_, err = f.Write(data)
-		closeErr := f.Close()
-		if err != nil {
+		if err := createFile(path, data); err != nil {
 			return fail(err)
-		}
-		if closeErr != nil {
-			return fail(closeErr)
 		}
 		fmt.Fprintf(stdout, "Created %s (%s template, flow %s)\n", path, template, id)
+	case "convert":
+		// The input is read as every DIL document is: a .dil file, or a file
+		// that is not JSON and starts with a comment or a word, is DIL text.
+		path := positionals[0]
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return fail(err)
+		}
+		text := dilsyntax.IsTextPath(path) || dilsyntax.IsText(data)
+		if to == "" {
+			to = "dil"
+			if text {
+				to = "json"
+			}
+		}
+		if to != "dil" && to != "json" {
+			return bad("--to must be dil or json")
+		}
+		if text == (to == "dil") {
+			return fail(fmt.Errorf("%s is DIL %s already", path, map[bool]string{true: "text", false: "JSON"}[text]))
+		}
+		if data, err = dilsyntax.Document(path, path, data); err != nil {
+			return fail(err)
+		}
+		if to == "dil" {
+			data, err = dilsyntax.Print(data)
+		} else {
+			var b bytes.Buffer
+			err = json.Indent(&b, data, "", "  ")
+			data = append(b.Bytes(), '\n')
+		}
+		if err != nil {
+			return fail(err)
+		}
+		if target == "" {
+			if _, err := stdout.Write(data); err != nil {
+				return fail(err)
+			}
+			return 0
+		}
+		if err := createFile(target, data); err != nil {
+			return fail(err)
+		}
+		fmt.Fprintf(stdout, "Created %s (DIL %s, from %s)\n", target, map[string]string{"dil": "text", "json": "JSON"}[to], path)
 	}
 	return 0
+}
+
+// createFile writes data to a new file at path; it never overwrites one.
+func createFile(path string, data []byte) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0644)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write(data)
+	if closeErr := f.Close(); err == nil {
+		err = closeErr
+	}
+	return err
 }
 
 type versionInfo struct {
@@ -276,9 +366,10 @@ type versionInfo struct {
 }
 
 type validationInfo struct {
-	Path  string `json:"path"`
-	Valid bool   `json:"valid"`
-	Error string `json:"error,omitempty"`
+	Path        string           `json:"path"`
+	Valid       bool             `json:"valid"`
+	Error       string           `json:"error,omitempty"`
+	Diagnostics []api.Diagnostic `json:"diagnostics,omitempty"` // of the static checks
 }
 
 func writeJSON(stdout, stderr io.Writer, value any) int {
@@ -289,4 +380,88 @@ func writeJSON(stdout, stderr io.Writer, value any) int {
 		return 1
 	}
 	return 0
+}
+
+func contractPayloadLabel(s string) string {
+	if s == "" {
+		return "none"
+	}
+	return s
+}
+
+func describeFlow(out io.Writer, info *api.FlowInfo) {
+	fmt.Fprintf(out, "FLOW: %s\nNAME: %s\nSOURCE: %s\n", info.ID, info.Name, info.Source)
+	if svc := info.Service; svc != nil {
+		fmt.Fprintf(out, "SERVICE: %s; pattern: %s; origin: %s\n", svc.Name, svc.ExchangePattern, svc.Origin)
+	}
+	fmt.Fprintln(out)
+	rows := [][]string{}
+	for _, s := range info.Steps {
+		links := []string{}
+		for _, l := range s.Links {
+			target := l.Target
+			if l.Rule != "" {
+				target += " (" + l.Rule + ")"
+			}
+			links = append(links, target)
+		}
+		rows = append(rows, []string{s.ID, s.Kind, s.Step, strings.Join(links, ", ")})
+	}
+	fmt.Fprintln(out, renderTable([]string{"ID", "KIND", "STEP", "NEXT"}, rows, nil, nil))
+	for _, s := range info.Steps {
+		if m := s.Mapping; m != nil {
+			fmt.Fprintf(out, "MAP: %s; step: %s; language: %s; %s -> %s; origin: %s\n", m.Name, s.ID, m.Language, m.Input, m.Output, m.Origin)
+		}
+		if svc := s.Service; svc != nil && s.Kind != "source" {
+			fmt.Fprintf(out, "SERVICE: %s; step: %s; pattern: %s; origin: %s\n", svc.Name, s.ID, svc.ExchangePattern, svc.Origin)
+		}
+	}
+	describeError := func(e *api.ErrorInfo) {
+		fmt.Fprintf(out, "\nERROR: %s; retries: %d; delay: %d ms; route: %s", e.ID, e.Redeliveries, e.DelayMillis, e.Target)
+		if len(e.Matches) > 0 {
+			fmt.Fprintf(out, "; takes errors by: %s", strings.Join(e.Matches, ", "))
+		}
+		if e.Unhandled {
+			fmt.Fprint(out, "; unhandled: the message still fails")
+		}
+		fmt.Fprintln(out)
+	}
+	for i := range info.ErrorHandlers {
+		describeError(&info.ErrorHandlers[i])
+	}
+	if info.Error != nil {
+		describeError(info.Error)
+	}
+	fmt.Fprintln(out, "\nCONFIGURATION (values omitted):")
+	if len(info.Configuration) == 0 {
+		fmt.Fprintln(out, "  No required options or environment fallbacks.")
+	}
+	for _, c := range info.Configuration {
+		fmt.Fprintf(out, "  %s: %s (required: %t)", c.StepID, c.Option, c.Required)
+		if c.Environment != "" {
+			fmt.Fprintf(out, "; environment fallback: %s", c.Environment)
+		}
+		fmt.Fprintln(out)
+	}
+	describeCapabilities(out, info)
+}
+
+// describeCapabilities writes the flow's part of the capability manifest, one
+// line per capability.
+func describeCapabilities(out io.Writer, info *api.FlowInfo) {
+	fmt.Fprintln(out, "\nCAPABILITIES (outside the process):")
+	n := 0
+	for _, s := range info.Steps {
+		if s.CapabilitiesUndeclared {
+			fmt.Fprintf(out, "  %s: undeclared (the step declares no capabilities)\n", s.ID)
+			n++
+		}
+		for _, c := range s.Capabilities {
+			fmt.Fprintf(out, "  %s: %s\n", s.ID, c)
+			n++
+		}
+	}
+	if n == 0 {
+		fmt.Fprintln(out, "  None: the flow touches nothing outside the process.")
+	}
 }

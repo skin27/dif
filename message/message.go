@@ -43,14 +43,17 @@ const (
 	ReplyReason   = "Reply-Reason"   // classification of an unmatched response
 
 	// Headers the engine sets on a message it sends along the error route.
-	ErrorMessage    = "error.message"    // what went wrong
-	ErrorStep       = "error.step"       // id of the step that failed
-	ErrorClass      = "error.class"      // the type of the error
-	ErrorStackTrace = "error.stacktrace" // the error with everything it wraps, one cause after the other
+	ErrorMessage     = "error.message"     // what went wrong
+	ErrorStep        = "error.step"        // id of the step that failed
+	ErrorClass       = "error.class"       // the type of the error
+	ErrorStackTrace  = "error.stacktrace"  // the error with everything it wraps, one cause after the other
+	ErrorBody        = "error.body"        // structured fault payload from a contracted service reply
+	ErrorContentType = "error.contentType" // media type of error.body when present
 
 	MetadataPrefix = "metadata."
 	TraceID        = MetadataPrefix + "traceid"
-	Timestamp      = MetadataPrefix + "timestamp" // RFC 3339 string
+	Timestamp      = MetadataPrefix + "timestamp"   // RFC 3339 string
+	WireHeaders    = MetadataPrefix + "wireheaders" // internal ingress marker for wire-text header parsing
 
 	// Trail lists the steps the message entered, as space-separated "kind:id"
 	// entries, across flows: entering a flow adds "flow:id". It is a string, so

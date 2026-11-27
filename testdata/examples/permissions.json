@@ -1,0 +1,38 @@
+{
+	"dil": {
+		"integrations": {
+			"integration": {
+				"flows": {
+					"flow": {
+						"id": "permissions",
+						"name": "permissions",
+						"type": "esb",
+						"steps": {
+							"step": [
+								{
+									"id": "in",
+									"type": "source",
+									"uri": "file:inbox",
+									"links": {"link": {"id": "in-post", "bound": "out"}}
+								},
+								{
+									"id": "post",
+									"type": "action",
+									"uri": "https://api.example.com/orders/${header.file.name}",
+									"options": {"httpMethod": "POST", "trustStoreFile": ""},
+									"links": {"link": [{"id": "in-post", "bound": "in"}, {"id": "post-out", "bound": "out"}]}
+								},
+								{
+									"id": "out",
+									"type": "sink",
+									"uri": "file:outbox",
+									"links": {"link": {"id": "post-out", "bound": "in"}}
+								}
+							]
+						}
+					}
+				}
+			}
+		}
+	}
+}

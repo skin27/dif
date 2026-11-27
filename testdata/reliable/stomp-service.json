@@ -1,0 +1,15 @@
+{
+  "files": ["testdata/reliable/stomp-relay.json"],
+  "shutdownTimeout": "10s",
+  "channels": {
+    "directory": "data/channels/stomp-example",
+    "stomp": {"address": "127.0.0.1:61613", "login": "orders-app", "maxConnections": 20},
+    "queues": {
+      "incoming": {"durable": true, "served": true, "maxDeliveries": 3, "retryDelay": 1000},
+      "incoming.DLQ": {"durable": true, "served": true, "deadLetter": "incoming.DLQ"}
+    },
+    "topics": {
+      "audit": {"served": true}
+    }
+  }
+}

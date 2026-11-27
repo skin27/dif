@@ -38,7 +38,7 @@ func newFileSink(_ string, p stepdef.Params) (stepdef.Processor, error) {
 	return s, nil
 }
 
-func (s *fileSink) Consume(_ context.Context, m message.Message) error {
+func (s *fileSink) Consume(ctx context.Context, m message.Message) error {
 	name := s.fileName
 	if name == "" {
 		name, _ = m[FileName].(string)
@@ -50,6 +50,10 @@ func (s *fileSink) Consume(_ context.Context, m message.Message) error {
 		return fmt.Errorf("no file name: set the fileName option or the %s header", FileName)
 	}
 	path := filepath.Join(s.dir, filepath.FromSlash(name))
+	// The name comes from a header: it may lead out of the directory.
+	if err := stepdef.Permit(ctx, stepdef.FSWrite, path); err != nil {
+		return err
+	}
 
 	data := bytesOf(m[message.Body])
 
